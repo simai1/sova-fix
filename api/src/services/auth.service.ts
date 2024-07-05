@@ -1,21 +1,19 @@
-import User from "../models/user";
-import UserDto from "../dtos/user-dto";
-import ApiError from "../utils/ApiError";
-import httpStatus from "http-status";
-import generator from "generate-password";
-import sendMail from "./email";
+import User from '../models/user';
+import UserDto from '../dtos/user-dto';
+import ApiError from '../utils/ApiError';
+import httpStatus from 'http-status';
+import generator from 'generate-password';
+import sendMail from './email';
 
-import userService from "./user.service";
+import userService from './user.service';
 import jwtUtils from '../utils/jwt';
-import {encryptPassword, isPasswordMatch} from "../utils/encryption";
+import { encryptPassword, isPasswordMatch } from '../utils/encryption';
 
 type data = {
     accessToken: string;
     refreshToken: string;
     user: UserDto;
 };
-
-// TODO: возвращать не userData
 const register = async (login: string): Promise<UserDto> => {
     const checkUser = await userService.getUserByEmail(login);
     if (checkUser) throw new ApiError(httpStatus.BAD_REQUEST, 'User with this email already exists');
@@ -29,7 +27,7 @@ const register = async (login: string): Promise<UserDto> => {
     const user = await User.create({
         login,
         password: encryptedPassword,
-    })
+    });
 
     sendMail(login, 'registration', password, `${process.env.WEB_URL}/login`);
     return new UserDto(user);
@@ -37,37 +35,43 @@ const register = async (login: string): Promise<UserDto> => {
 
 const login = async (email: string, password: string): Promise<data> => {
     const user = await userService.getUserByEmail(email);
-    if (!user || ! (await isPasswordMatch(password, user.password))) throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid login data');
+    if (!user || !(await isPasswordMatch(password, user.password)))
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid login data');
 
     const userDto = new UserDto(user);
-    const {accessToken, refreshToken} = jwtUtils.generate({...userDto});
+    const { accessToken, refreshToken } = jwtUtils.generate({ ...userDto });
     await jwtUtils.saveToken(userDto.id, refreshToken);
     return {
-        'accessToken': accessToken,
-        'refreshToken': refreshToken,
-        'user': userDto,
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+        user: userDto,
     };
 };
 
 const activate = async (password: string, userId: string): Promise<data> => {
     const user = await userService.getUserById(userId);
-    if (!user) throw new ApiError(httpStatus.BAD_REQUEST, "User doesnt exists");
-    if(user.isActivated) throw new ApiError(httpStatus.BAD_REQUEST, "User already activated");
+    if (!user) throw new ApiError(httpStatus.BAD_REQUEST, 'User doesnt exists');
+    if (user.isActivated) throw new ApiError(httpStatus.BAD_REQUEST, 'User already activated');
 
     const encryptedPassword = await encryptPassword(password);
-    await user.update({isActivated: true, password: encryptedPassword});
+    await user.update({ isActivated: true, password: encryptedPassword });
     const userDto = new UserDto(user);
-    const {accessToken, refreshToken} = jwtUtils.generate({...userDto});
+    const { accessToken, refreshToken } = jwtUtils.generate({ ...userDto });
     await jwtUtils.saveToken(userDto.id, refreshToken);
     return {
-        'accessToken': accessToken,
-        'refreshToken': refreshToken,
-        'user': userDto,
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+        user: userDto,
     };
-}
+};
+
+const logout = async (refreshToken: string): Promise<void> => {
+    await jwtUtils.removeToken(refreshToken);
+};
 
 export default {
     register,
     login,
     activate,
-}
+    logout,
+};
