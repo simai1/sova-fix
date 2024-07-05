@@ -1,5 +1,4 @@
 import {DataTypes, Model, Sequelize} from "sequelize";
-import * as bcrypt from "bcrypt";
 
 export default class User extends Model {
     id!: string;
