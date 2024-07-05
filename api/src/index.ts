@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv';
-dotenv.config({path: `./.env.${process.env.NODE_ENV}.local`});
+dotenv.config({ path: `./.env.${process.env.NODE_ENV}.local` });
 
 import app from './app';
 
@@ -7,12 +7,11 @@ import dbUtils from './utils/db';
 
 const PORT = process.env.PORT || 3000;
 
-
 (async function initDb() {
     try {
         await dbUtils.initializeDbModels();
-        if (process.env.NODE_ENV === 'development') {
-        }
+        // if (process.env.NODE_ENV === 'development') {
+        // }
     } catch (e) {
         console.log(e);
         console.log('COULD NOT CONNECT TO THE DB, retrying in 5 seconds');

@@ -2,7 +2,7 @@ import express, { Express } from 'express';
 import corsMiddleware from './middlewares/cors';
 import cookieParser from 'cookie-parser';
 
-import authRoute from "./routes/auth.route";
+import authRoute from './routes/auth.route';
 
 const app: Express = express();
 
@@ -12,5 +12,5 @@ app.use(corsMiddleware);
 app.use(cookieParser());
 
 // routes section
-app.use('/auth' ,authRoute);
+app.use('/auth', authRoute);
 export default app;

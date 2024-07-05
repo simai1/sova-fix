@@ -1,4 +1,4 @@
-import {mapObjectKeys} from "../utils/mapper";
+import { mapObjectKeys } from '../utils/mapper';
 
 const statuses = {
     NEW_REQUEST: 0,

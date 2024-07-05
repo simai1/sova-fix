@@ -1,6 +1,6 @@
-import User from "../models/user";
+import User from '../models/user';
 
-const getUserById = async (userId: string): Promise<User | null>  => {
+const getUserById = async (userId: string): Promise<User | null> => {
     return User.findByPk(userId);
 };
 

@@ -1,4 +1,4 @@
-import User from "../models/user";
+import User from '../models/user';
 
 export default class UserDto {
     id: string;
@@ -10,4 +10,4 @@ export default class UserDto {
         this.login = model.login;
         this.isActivated = model.isActivated;
     }
-};
+}

@@ -13,7 +13,7 @@ export default function (to: string, type: string, ...arg: any[]) {
     if (!to) return;
     if (!type) throw new Error('type not specified');
 
-    // @ts-ignore
+    // @ts-expect-error templates always will have a type
     const replacement = templates[type];
     if (!replacement) throw new Error('not exists');
 
@@ -26,7 +26,8 @@ export default function (to: string, type: string, ...arg: any[]) {
     };
 
     if (process.env.NODE_ENV !== 'production') console.log(mail);
-    if (address) { // @ts-ignore
+    if (address) {
+        // @ts-expect-error mail object has all required fields
         smtp.sendMail(mail);
     }
 }

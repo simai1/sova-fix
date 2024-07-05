@@ -1,5 +1,5 @@
-import {DataTypes, Model, Sequelize} from "sequelize";
-import statuses from "../config/statuses";
+import { DataTypes, Model, Sequelize } from 'sequelize';
+import statuses from '../config/statuses';
 export default class RepairRequest extends Model {
     id!: string;
     number!: number;
@@ -14,7 +14,6 @@ export default class RepairRequest extends Model {
     comment!: string;
     legalEntity!: string;
     daysAtWork!: number;
-
 
     static initialize(sequelize: Sequelize) {
         RepairRequest.init(
@@ -77,7 +76,7 @@ export default class RepairRequest extends Model {
                     type: DataTypes.SMALLINT,
                     allowNull: false,
                     defaultValue: 0,
-                }
+                },
             },
             {
                 sequelize,
@@ -88,4 +87,4 @@ export default class RepairRequest extends Model {
             }
         );
     }
-};
+}
