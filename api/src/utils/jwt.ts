@@ -1,11 +1,10 @@
 import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv'; // eslint-disable-line
 import ApiError from './ApiError';
 import httpStatus from 'http-status';
 import userService from '../services/user.service';
 import tokenService from '../services/token.service';
 import UserDto from '../dtos/user-dto';
-import User from "../models/user";
+import User from '../models/user';
 
 type JwtPayload = {
     id: string;

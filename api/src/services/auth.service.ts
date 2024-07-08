@@ -69,9 +69,14 @@ const logout = async (refreshToken: string): Promise<void> => {
     await jwtUtils.removeToken(refreshToken);
 };
 
+const refresh = async (refreshToken: string): Promise<data> => {
+    return await jwtUtils.refresh(refreshToken);
+};
+
 export default {
     register,
     login,
     activate,
     logout,
+    refresh,
 };

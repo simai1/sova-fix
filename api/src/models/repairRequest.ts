@@ -26,7 +26,8 @@ export default class RepairRequest extends Model {
                 },
                 number: {
                     type: DataTypes.INTEGER,
-                    autoIncrement: true,
+                    allowNull: false,
+                    unique: true,
                 },
                 status: {
                     type: DataTypes.SMALLINT,

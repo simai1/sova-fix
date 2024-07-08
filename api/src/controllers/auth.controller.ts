@@ -31,9 +31,17 @@ const logout = catchAsync(async (req, res) => {
     res.json({ status: 'OK' });
 });
 
+const refresh = catchAsync(async (req, res) => {
+    const { refreshToken } = req.cookies;
+    const data = await authService.refresh(refreshToken);
+    res.cookie('refreshToken', data.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true });
+    res.json(data);
+});
+
 export default {
     registerViaEmail,
     login,
     activate,
     logout,
+    refresh,
 };

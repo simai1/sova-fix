@@ -5,7 +5,7 @@ import userService from './user.service';
 
 const createToken = async (userId: string, refreshToken: string): Promise<TokenModel> => {
     return TokenModel.create({
-        id: userId,
+        userId,
         refreshToken,
     });
 };
@@ -15,12 +15,12 @@ const getTokenByUserId = async (userId: string): Promise<TokenModel | null> => {
         throw new ApiError(httpStatus.BAD_REQUEST, 'User with this id doesnt exists');
     }
     return TokenModel.findOne({
-        where: { id: userId },
+        where: { userId },
     });
 };
 
 const updateRefreshToken = async (userId: string, newRefreshToken: string): Promise<void> => {
-    await TokenModel.update({ refreshtoken: newRefreshToken }, { where: { userId } });
+    await TokenModel.update({ refreshToken: newRefreshToken }, { where: { userId } });
 };
 
 const getTokenByRefreshToken = async (refreshToken: string): Promise<TokenModel | null> => {
