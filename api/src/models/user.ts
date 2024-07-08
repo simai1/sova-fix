@@ -1,10 +1,12 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
+import roles from '../config/roles';
 
 export default class User extends Model {
     id!: string;
     login!: string;
     password!: string;
     isActivated!: boolean;
+    role!: number;
 
     static initialize(sequelize: Sequelize) {
         User.init(
@@ -24,6 +26,14 @@ export default class User extends Model {
                 password: {
                     type: DataTypes.STRING,
                     allowNull: false,
+                },
+                role: {
+                    type: DataTypes.SMALLINT,
+                    allowNull: false,
+                    validate: {
+                        isIn: [Object.values(roles)],
+                    },
+                    defaultValue: 1,
                 },
                 isActivated: {
                     type: DataTypes.BOOLEAN,

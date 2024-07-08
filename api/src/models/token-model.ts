@@ -3,6 +3,7 @@ import { DataTypes, Model, Sequelize } from 'sequelize';
 export default class TokenModel extends Model {
     id!: string;
     refreshToken!: string;
+    userId!: string;
     static initialize(sequelize: Sequelize) {
         TokenModel.init(
             {
@@ -12,7 +13,7 @@ export default class TokenModel extends Model {
                     allowNull: false,
                     primaryKey: true,
                 },
-                refreshToken: { type: DataTypes.STRING, allowNull: false },
+                refreshToken: { type: DataTypes.STRING(500), allowNull: false },
             },
             {
                 sequelize,

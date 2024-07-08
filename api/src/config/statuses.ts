@@ -1,9 +1,9 @@
 import { mapObjectKeys } from '../utils/mapper';
 
 const statuses = {
-    NEW_REQUEST: 0,
-    AT_WORK: 1,
-    DONE: 2,
+    NEW_REQUEST: 1,
+    AT_WORK: 2,
+    DONE: 3,
 };
 
 export default statuses;
