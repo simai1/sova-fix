@@ -19,8 +19,6 @@ const getUserByRefreshToken = async (refreshToken: string): Promise<User | null>
 };
 
 const setRole = async (role: number, userId: string): Promise<void> => {
-    if (!role) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing role');
-    if (!userId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing userId');
     if (!Object.values(roles).includes(role)) throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid role');
     const user = await getUserById(userId);
     if (!user) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found user');
