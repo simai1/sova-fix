@@ -1,5 +1,5 @@
 import User from '../models/user';
-import UserDto from '../dtos/user-dto';
+import UserDto from '../dtos/user.dto';
 import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
 import generator from 'generate-password';

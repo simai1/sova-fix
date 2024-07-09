@@ -2,10 +2,10 @@ import User from '../models/user';
 import { mapRoles } from '../config/roles';
 
 export default class UserDto {
-    id: string;
-    login: string;
-    isActivated: boolean;
-    role: number;
+    id!: string;
+    login!: string;
+    isActivated!: boolean;
+    role!: number;
 
     constructor(model: User) {
         this.id = model.id;
