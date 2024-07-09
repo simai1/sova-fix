@@ -1,18 +1,19 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
 import statuses from '../config/statuses';
+
 export default class RepairRequest extends Model {
     id!: string;
     number!: number;
     status!: number;
     unit!: string;
     object!: string;
-    problemDescription!: string;
+    problemDescription?: string;
     urgency!: string;
-    itineraryOrder!: number;
-    completeDate!: Date;
-    repairPrice!: number;
-    comment!: string;
-    legalEntity!: string;
+    itineraryOrder?: number;
+    completeDate?: Date;
+    repairPrice?: number;
+    comment?: string;
+    legalEntity?: string;
     daysAtWork!: number;
 
     static initialize(sequelize: Sequelize) {
