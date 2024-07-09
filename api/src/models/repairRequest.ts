@@ -1,5 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
 import statuses from '../config/statuses';
+import Contractor from './contractor';
 
 export default class RepairRequest extends Model {
     id!: string;
@@ -15,6 +16,8 @@ export default class RepairRequest extends Model {
     comment?: string;
     legalEntity?: string;
     daysAtWork!: number;
+    contractorId?: string;
+    Contractor?: Contractor;
 
     static initialize(sequelize: Sequelize) {
         RepairRequest.init(
@@ -36,7 +39,7 @@ export default class RepairRequest extends Model {
                     validate: {
                         isIn: [Object.values(statuses)],
                     },
-                    defaultValue: 0,
+                    defaultValue: 1,
                 },
                 unit: {
                     type: DataTypes.STRING,
@@ -88,5 +91,14 @@ export default class RepairRequest extends Model {
                 paranoid: true,
             }
         );
+
+        RepairRequest.beforeCreate(async (model: RepairRequest) => {
+            const maxNumber = await RepairRequest.max('number');
+            if (!maxNumber || maxNumber === 0) model.set('number', 1);
+            else {
+                // @ts-expect-error maxNumber is always number after checks
+                model.set('number', maxNumber + 1);
+            }
+        });
     }
 }
