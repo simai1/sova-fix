@@ -15,6 +15,7 @@ export default class RequestDto {
     comment?: string;
     legalEntity?: string;
     daysAtWork!: number;
+    createdAt!: Date;
     contractor?: ContractorDto | null;
 
     constructor(model: RepairRequest) {
@@ -31,6 +32,7 @@ export default class RequestDto {
         this.comment = model.comment;
         this.legalEntity = model.legalEntity;
         this.daysAtWork = model.daysAtWork;
+        this.createdAt = model.createdAt;
         this.contractor = model.Contractor ? new ContractorDto(model.Contractor) : null;
     }
 }

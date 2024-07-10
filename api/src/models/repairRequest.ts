@@ -16,6 +16,7 @@ export default class RepairRequest extends Model {
     comment?: string;
     legalEntity?: string;
     daysAtWork!: number;
+    createdAt!: Date;
     contractorId?: string;
     Contractor?: Contractor;
 
