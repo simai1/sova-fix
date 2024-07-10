@@ -3,7 +3,7 @@ import Contractor from '../models/contractor';
 import RequestDto from '../dtos/request.dto';
 
 const getAllRequests = async (): Promise<RequestDto[]> => {
-    const requests = await RepairRequest.findAll({ include: [{ model: Contractor }] });
+    const requests = await RepairRequest.findAll({ include: [{ model: Contractor }], order: [['number', 'asc']] });
     return requests.map(request => new RequestDto(request));
 };
 
