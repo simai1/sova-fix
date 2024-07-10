@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import authRoute from './routes/auth.route';
 import userRoute from './routes/user.route';
 import requestRoute from './routes/request.route';
+import contractorRoute from './routes/contractor.route';
 
 const app: Express = express();
 
@@ -17,4 +18,5 @@ app.use(cookieParser());
 app.use('/auth', authRoute);
 app.use('/users', userRoute);
 app.use('/requests', requestRoute);
+app.use('/contractors', contractorRoute);
 export default app;
