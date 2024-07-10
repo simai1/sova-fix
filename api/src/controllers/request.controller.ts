@@ -4,8 +4,8 @@ import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
 
 const getAll = catchAsync(async (req, res) => {
-    const requestsDtos = requestService.getAllRequests();
-    res.json(requestsDtos);
+    const requestsDtos = await requestService.getAllRequests();
+    res.json({ requestsDtos });
 });
 
 const create = catchAsync(async (req, res) => {
