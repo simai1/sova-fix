@@ -3,7 +3,7 @@ import UserDto from '../dtos/user.dto';
 import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
 import generator from 'generate-password';
-import sendMail from './email';
+import sendMail from './email.service';
 
 import userService from './user.service';
 import jwtUtils from '../utils/jwt';
