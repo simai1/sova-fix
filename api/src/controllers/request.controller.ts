@@ -2,6 +2,7 @@ import catchAsync from '../utils/catchAsync';
 import requestService from '../services/request.service';
 import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
+import statuses from '../config/statuses';
 
 const getAll = catchAsync(async (req, res) => {
     const requestsDtos = await requestService.getAllRequests();
@@ -25,7 +26,26 @@ const create = catchAsync(async (req, res) => {
     res.json({ requestDto });
 });
 
+const setContractor = catchAsync(async (req, res) => {
+    const { requestId, contractorId } = req.body;
+    if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
+    if (!contractorId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing contractorId');
+    await requestService.setContractor(requestId, contractorId);
+    res.json({ status: 'OK' });
+});
+
+const setStatus = catchAsync(async (req, res) => {
+    const { requestId, status } = req.body;
+    if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
+    if (!status) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing status');
+    if (!Object.values(statuses).includes(status)) throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid status');
+    await requestService.setStatus(requestId, status);
+    res.json({ status: 'OK' });
+});
+
 export default {
     getAll,
     create,
+    setContractor,
+    setStatus,
 };

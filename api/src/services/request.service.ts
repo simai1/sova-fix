@@ -1,6 +1,8 @@
 import RepairRequest from '../models/repairRequest';
 import Contractor from '../models/contractor';
 import RequestDto from '../dtos/request.dto';
+import ApiError from '../utils/ApiError';
+import httpStatus from 'http-status';
 
 const getAllRequests = async (): Promise<RequestDto[]> => {
     const requests = await RepairRequest.findAll({ include: [{ model: Contractor }], order: [['number', 'asc']] });
@@ -29,7 +31,21 @@ const createRequest = async (
     return new RequestDto(request);
 };
 
+const setContractor = async (requestId: string, contractorId: string): Promise<void> => {
+    const request = await RepairRequest.findByPk(requestId);
+    if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
+    await request.update({ contractorId });
+};
+
+const setStatus = async (requestId: string, status: number): Promise<void> => {
+    const request = await RepairRequest.findByPk(requestId);
+    if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
+    await request.update({ status });
+};
+
 export default {
     getAllRequests,
     createRequest,
+    setContractor,
+    setStatus,
 };
