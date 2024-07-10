@@ -1,6 +1,7 @@
 import express, { Express } from 'express';
 import corsMiddleware from './middlewares/cors';
 import cookieParser from 'cookie-parser';
+import cronService from './services/cron.service';
 
 import authRoute from './routes/auth.route';
 import userRoute from './routes/user.route';
@@ -13,6 +14,9 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(corsMiddleware);
 app.use(cookieParser());
+
+// cron section
+cronService.setDays.start();
 
 // routes section
 app.use('/auth', authRoute);
