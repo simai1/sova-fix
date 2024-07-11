@@ -7,6 +7,7 @@ export default class RepairRequest extends Model {
     number!: number;
     status!: number;
     unit!: string;
+    builder!: string;
     object!: string;
     problemDescription?: string;
     urgency!: string;
@@ -45,6 +46,11 @@ export default class RepairRequest extends Model {
                 unit: {
                     type: DataTypes.STRING,
                     allowNull: false,
+                },
+                builder: {
+                    type: DataTypes.STRING,
+                    allowNull: false,
+                    defaultValue: 'Укажите подрядчика',
                 },
                 object: {
                     type: DataTypes.STRING,

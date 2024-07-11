@@ -7,6 +7,7 @@ export default class RequestDto {
     number!: number;
     status!: number;
     unit!: string;
+    builder!: string;
     object!: string;
     problemDescription?: string;
     urgency!: string;
@@ -25,6 +26,7 @@ export default class RequestDto {
         // @ts-expect-error all checks on top level
         this.status = mapStatuses[model.status];
         this.unit = model.unit;
+        this.builder = model.builder;
         this.object = model.object;
         this.problemDescription = model.problemDescription;
         this.urgency = model.urgency;
