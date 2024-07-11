@@ -16,7 +16,8 @@ const createRequest = async (
     urgency: string,
     repairPrice: number | undefined,
     comment: string | undefined,
-    legalEntity: string | undefined
+    legalEntity: string | undefined,
+    fileName: string
 ): Promise<RequestDto> => {
     const request = await RepairRequest.create({
         unit,
@@ -26,6 +27,7 @@ const createRequest = async (
         repairPrice,
         comment,
         legalEntity,
+        fileName,
         number: 0,
     });
     return new RequestDto(request);

@@ -11,6 +11,8 @@ const getAll = catchAsync(async (req, res) => {
 
 const create = catchAsync(async (req, res) => {
     const { unit, object, problemDescription, urgency, repairPrice, comment, legalEntity } = req.body;
+    const fileName = req.file?.filename;
+    if (!fileName) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing file');
     if (!unit) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing unit');
     if (!object) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing object');
     if (!urgency) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing urgency');
@@ -21,7 +23,8 @@ const create = catchAsync(async (req, res) => {
         urgency,
         repairPrice,
         comment,
-        legalEntity
+        legalEntity,
+        fileName,
     );
     res.json({ requestDto });
 });

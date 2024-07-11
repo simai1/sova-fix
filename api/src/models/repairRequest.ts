@@ -17,6 +17,7 @@ export default class RepairRequest extends Model {
     comment?: string;
     legalEntity?: string;
     daysAtWork!: number;
+    fileName!: string;
     createdAt!: Date;
     contractorId?: string;
     Contractor?: Contractor;
@@ -88,6 +89,10 @@ export default class RepairRequest extends Model {
                     type: DataTypes.SMALLINT,
                     allowNull: false,
                     defaultValue: 0,
+                },
+                fileName: {
+                    type: DataTypes.STRING,
+                    allowNull: false,
                 },
             },
             {
