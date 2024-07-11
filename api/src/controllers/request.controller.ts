@@ -24,7 +24,7 @@ const create = catchAsync(async (req, res) => {
         repairPrice,
         comment,
         legalEntity,
-        fileName,
+        fileName
     );
     res.json({ requestDto });
 });
