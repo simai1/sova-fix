@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styles from "./Authorization.module.scss";
-import { Link, useNavigate } from "react-router-dom";
-import { Login } from "../../../API/API";
+import { useNavigate } from "react-router-dom"
 import DataContext from "../../../context";
 import { tableHeadAppoint } from "../../../components/Table/Data";
 function Authorization() {
@@ -22,6 +21,12 @@ function Authorization() {
   };
 
   const handleLogin = () => {
+    LoginFunc(formData).then((resp) => {
+      if(resp.status === 200){
+        navigate("/AdminPage")
+        context.setUser(resp.data)
+      }
+    })
    console.log(formData)
   };
 
@@ -50,11 +55,9 @@ function Authorization() {
             value={formData.password}
             onChange={handleInputChange}
           />
-          <Link to={"/AdminPage"}>
             <button className={styles.button} onClick={handleLogin}>
               Войти
             </button>
-          </Link>
         </div>
       </div>
     </div>
