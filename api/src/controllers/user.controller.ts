@@ -11,6 +11,12 @@ const setRole = catchAsync(async (req, res) => {
     res.json({ status: 'OK' });
 });
 
+const getAll = catchAsync(async (req, res) => {
+    const users = await userService.getAllUsers();
+    res.json(users);
+});
+
 export default {
     setRole,
+    getAll,
 };
