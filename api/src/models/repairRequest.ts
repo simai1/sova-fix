@@ -7,6 +7,7 @@ export default class RepairRequest extends Model {
     number!: number;
     status!: number;
     unit!: string;
+    builder!: string;
     object!: string;
     problemDescription?: string;
     urgency!: string;
@@ -16,6 +17,8 @@ export default class RepairRequest extends Model {
     comment?: string;
     legalEntity?: string;
     daysAtWork!: number;
+    fileName!: string;
+    createdAt!: Date;
     contractorId?: string;
     Contractor?: Contractor;
 
@@ -44,6 +47,11 @@ export default class RepairRequest extends Model {
                 unit: {
                     type: DataTypes.STRING,
                     allowNull: false,
+                },
+                builder: {
+                    type: DataTypes.STRING,
+                    allowNull: false,
+                    defaultValue: 'Укажите подрядчика',
                 },
                 object: {
                     type: DataTypes.STRING,
@@ -81,6 +89,10 @@ export default class RepairRequest extends Model {
                     type: DataTypes.SMALLINT,
                     allowNull: false,
                     defaultValue: 0,
+                },
+                fileName: {
+                    type: DataTypes.STRING,
+                    allowNull: false,
                 },
             },
             {
