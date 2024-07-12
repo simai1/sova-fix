@@ -1,0 +1,16 @@
+@import "./../../styles/color.scss";
+@import "./../../styles/mixins.scss";
+
+.inputTime{
+    display: flex;
+    justify-content: space-between;
+    padding: 0 30px;
+    
+    .inputDate{
+        display: flex
+    }
+    input{
+        @include input-text(130px, 8px);
+    }  
+    
+}

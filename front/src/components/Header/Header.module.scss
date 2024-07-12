@@ -1,0 +1,23 @@
+@import "./../../styles/color.scss";
+@import "./../../styles/mixins.scss";
+
+.Header {
+  box-sizing: border-box;
+  width: 100%;
+  background-color: var(--white-color);
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 20px;
+  border-radius: 17px;
+  margin-bottom: 20px;
+  h3 {
+    @include font(21px, 700);
+  }
+  button {
+    @include button(var(--dark-grey-color));
+    margin: auto 0;
+    @include font(14px, 700);
+  }
+}

@@ -1,0 +1,27 @@
+@import "./../../../styles/color.scss";
+@import "./../../../styles/mixins.scss";
+
+.HomePage {
+  .HeadMenu {
+    display: flex;
+    margin-bottom: 50px;
+    background-color: var(--gray-color);
+    padding: 15px;
+    @include container;
+    button {
+      margin: 0 10px;
+      @include button(var(--turquoise-color));
+    }
+  }
+}
+.Table {
+  width: 100%;
+  display: flex;
+
+  .TableInner {
+    background-color: var(--light-grey-color);
+    td {
+      text-align: center;
+    }
+  }
+}

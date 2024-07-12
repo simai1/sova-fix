@@ -1,0 +1,15 @@
+@import "./../../styles/color.scss";
+@import "./../../styles/mixins.scss";
+
+.inputTime{    
+    label{
+        font-size: 14px;
+    }
+    .inputDate{
+        display: block;
+    }
+    input{
+        @include input-text(130px, 8px);
+    }  
+    
+}

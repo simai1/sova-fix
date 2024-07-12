@@ -1,0 +1,64 @@
+import React, { useEffect, useState } from "react";
+import styles from "./FunctionTableTop.module.scss";
+import List from "../../UI/List/List";
+import Input from "../../UI/Input/Input";
+import DataContext from "../../context";
+import { Link } from "react-router-dom";
+
+
+
+function FunctionTableTop(props) {
+  const defaultValue = "Заказы";
+  const { context } = React.useContext(DataContext);
+  const [textSearchTableData, settextSearchTableData] = useState("");
+  const dataList=[
+    {
+      id: 1,
+      name: "Заказы",
+    },
+    {
+      id: 2,
+      name: "Карта",
+    }
+  ]
+  return (
+    <>
+      <div className={styles.FunctionTableTop}>
+        <div className={styles.container}>
+        <div className={styles.topList}>
+            <List
+              data={props.TableName}
+              defaultValue={defaultValue}
+              dataList={dataList}
+            />
+            <div className={styles.searchForTable}>
+              <Input
+                placeholder={"Поиск..."}
+                settextSearchTableData={settextSearchTableData}
+              />
+              <img src="./img/Search_light.png" />
+            </div>
+          </div>
+          {context.selectedTable === "Заказы" && (
+            <div className={styles.HeadMenu}>
+              <button>
+                <img src="./img/add.svg" alt="View" />
+                Создать заказ
+              </button>
+              <button>
+                <img src="./img/Edit.png" alt="View" />
+                Редактировать
+              </button>
+              <button >
+                <img src="./img/Trash.png" alt="View" />
+                Удалить заказ
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
+
+export default FunctionTableTop;
