@@ -3,6 +3,7 @@ import styles from "./Authorization.module.scss";
 import { useNavigate } from "react-router-dom"
 import DataContext from "../../../context";
 import { tableHeadAppoint } from "../../../components/Table/Data";
+import { LoginFunc } from "../../../API/API";
 function Authorization() {
   const { context } = React.useContext(DataContext);
 
@@ -22,9 +23,8 @@ function Authorization() {
 
   const handleLogin = () => {
     LoginFunc(formData).then((resp) => {
-      if(resp.status === 200){
+      if(resp) {
         navigate("/AdminPage")
-        context.setUser(resp.data)
       }
     })
    console.log(formData)

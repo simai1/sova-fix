@@ -6,6 +6,7 @@ import "./styles/style.css";
 import AdminPage from "./pages/AdminPages/HomePage/AdminPage";
 import { tableHeadAppoint } from "./components/Table/Data";
 import HomePageAdmin from "./pages/AdminPages/HomePageAdmin/HomePageAdmin";
+import { GetAllRequests } from "./API/API";
 
 function App() {
   const [tableData, setTableData] = useState([]); // данные таблицы
@@ -25,7 +26,21 @@ function App() {
     setsearchDataForTable,
     tableHeader,
     settableHeader,
+    UpdateTableReguest
   };
+
+  function UpdateTableReguest(){
+    GetAllRequests().then((resp) => {
+      if(resp) {
+        setTableData(resp.data.requestsDtos);
+        settableHeader(tableHeadAppoint);
+      }
+    })
+  }
+
+  useEffect(() => {
+    UpdateTableReguest();
+  }, []);
 
   return (
     <DataContext.Provider

@@ -1,6 +1,7 @@
-import React, {useState } from "react";
+import React, {useEffect, useState } from "react";
 import styles from "./Table.module.scss";
 import DataContext from "../../context";
+import { SetStatusRequest } from "../../API/API";
 
 function Table() {
   const { context } = React.useContext(DataContext);
@@ -10,14 +11,23 @@ function Table() {
   };
 
   const status = {
-    1: "Создан",
-    2: "Подтвержден",
-    3: "Отклонен",
-    4: "Завершен",
+    1: "Новая заявка",
+    2: "В работе",
+    3: "Выполнена",
+    4: "Неактуальна",
+    5: "Принята",
   };
   const [shovStatusPop, setshovStatusPop] = useState("");
-  const editStatus = (value) => {
-    console.log(value);
+  const editStatus = (status, id) => {
+    const data = {
+      requestId: id,
+      status: status,
+    }
+    SetStatusRequest(data).then((resp) => {
+      if(resp) {
+        context.UpdateTableReguest();
+      }
+    });
   };
 
   const funSetStatus = (data) => {
@@ -30,7 +40,7 @@ function Table() {
 
   return (
     <>
-      {context.tableData.length > 0 ? (
+      {context?.tableData.length > 0 ? (
         <div className={styles.Table}>
           <table className={styles.TableInner}>
             <thead>
@@ -41,7 +51,7 @@ function Table() {
               </tr>
             </thead>
             <tbody>
-              {context.tableData.map((row, index) => (
+              {context?.tableData.map((row, index) => (
                 <tr
                   key={index}
                   onClick={() => trClick(row)}
@@ -64,7 +74,7 @@ function Table() {
                               <ul>
                                 {Object.values(status).map((value, index) => (
                                   <li
-                                    onClick={() => editStatus(index + 1)}
+                                    onClick={() => editStatus(index + 1, row.id)}
                                     key={index}
                                   >
                                     {value}
