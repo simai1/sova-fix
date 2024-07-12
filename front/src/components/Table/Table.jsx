@@ -73,7 +73,7 @@ function Table() {
   const filteredTableData = context.tableData.filter((row) =>
   Object.values(row).some(
     (value) =>
-      value &&
+      value && 
       value.toString().toLowerCase().includes(context.textSearchTableData.toLowerCase())
   )
 );

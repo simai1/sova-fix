@@ -56,6 +56,10 @@ function FunctionTableTop(props) {
             </div>
           ):(
             <div className={styles.HeadMenu}>
+            <button>
+                    <img src="./img/plus.svg" alt="View" />
+                    Добавить пользователя
+              </button>
               <button>
                     <img src="./img/Edit.png" alt="View" />
                     Редактировать

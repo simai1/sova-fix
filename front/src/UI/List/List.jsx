@@ -8,6 +8,13 @@ function List({ dataList, Textlabel, defaultValue, funSetData, itemKey, placehol
   const [activeList, setactiveList] = useState(false);
   const [nameClient, setnameClient] = useState("");
   const addClient = (el) => {
+    if(el.name === "Заказы") {
+      context.UpdateTableReguest(1)
+    }else if(el.name === "Пользователи") {
+      context.UpdateTableReguest(2)
+    }else{
+      context.UpdateTableReguest(3)
+    }
     context.setSelectedTr(null);
     setnameClient(el.name);
     console.log(el)

@@ -49,18 +49,16 @@ function App() {
         }
       })
     }if(param == 2){
-      setTableData(dataUsers);
-      // settableHeader(tableHeadAppoint);
+        // GetAllUsers().then((resp) => {
+        //   if(resp) {
+        //      setTableData(resp.data);
+          //settableHeader(tableHeadAppoint);
+        //   }
+        // })
     }
-
   }
 
   useEffect(() => {
-    // GetAllUsers().then((resp) => {
-    //   if(resp) {
-    //     setDataUsers(resp.data);
-    //   }
-    // })
     GetAllСontractors().then((resp) => {
       if(resp) {
         setDataContractors(resp.data);
