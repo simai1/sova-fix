@@ -12,18 +12,7 @@ function List({ dataList, Textlabel, defaultValue, funSetData, itemKey, placehol
     setnameClient(el.name);
     console.log(el)
     setactiveList(!activeList);
-    if (
-      el.name === "Заказы" ||
-      el.name === "Водители" ||
-      el.name === "Клиенты" ||
-      el.name === "Машины"
-    ) {
-      context.setSelectedTable(el.name);
-      console.log( context.selectedTable)
-    }
-    if (funSetData && itemKey) {
-      funSetData(itemKey, el);
-    }
+    context.setSelectedTable(el.name);
   };
 
   useEffect(() => {

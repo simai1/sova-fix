@@ -4,7 +4,10 @@ import DataContext from "../../context";
 
 function PopUpContainer({ children, title, mT, width }) {
   const { context } = React.useContext(DataContext);
-
+  const closePopUp = () => {
+    context.setPopUp("");
+    console.log("click", context.popUp )
+  }
   return (
     <div style={{ paddingTop: `${mT}px` }} className={styles.PopUpContainer}>
       <div className={styles.PopUpContainerflex}>
@@ -19,8 +22,7 @@ function PopUpContainer({ children, title, mT, width }) {
             <div>
               <button
                 onClick={() => {
-                  context.setEditCarData(false);
-                  context.setpopUp("");
+                  closePopUp();
                 }}
               >
                 X

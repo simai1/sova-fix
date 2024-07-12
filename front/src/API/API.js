@@ -25,6 +25,24 @@ export const GetAllRequests = async () => {
   }
 };
 
+//!полуение всех Пользователей
+export const GetAllUsers = async () => {
+  try {
+    const response = await axios.get(`${server}/users`);
+    return response;
+  } catch (error) {
+    alert("Ошибка при получении заявок!");
+  }
+};
+export const GetAllСontractors = async () => {
+  try {
+    const response = await axios.get(`${server}/contractors`);
+    return response;
+  } catch (error) {
+    alert("Ошибка при получении заявок!");
+  }
+};
+
 //!изменение статуса заявки
 export const SetStatusRequest = async (data) => {
   try {
@@ -34,4 +52,15 @@ export const SetStatusRequest = async (data) => {
     alert("Ошибка при изменении статуса заявки!");
   }
 };
+
+//!изменение contractor заявки
+export const SetcontractorRequest = async (data) => {
+  try {
+    const response = await axios.patch(`${server}/requests/set/contractor`, data);
+    return response;
+  } catch (error) {
+    alert("Ошибка при изменении статуса заявки!");
+  }
+};
+
 

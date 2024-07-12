@@ -6,7 +6,7 @@ import "./styles/style.css";
 import AdminPage from "./pages/AdminPages/HomePage/AdminPage";
 import { tableHeadAppoint } from "./components/Table/Data";
 import HomePageAdmin from "./pages/AdminPages/HomePageAdmin/HomePageAdmin";
-import { GetAllRequests } from "./API/API";
+import { GetAllRequests, GetAllUsers, GetAllСontractors } from "./API/API";
 
 function App() {
   const [tableData, setTableData] = useState([]); // данные таблицы
@@ -14,6 +14,11 @@ function App() {
   const [selectedTable, setSelectedTable] = useState("Заказы"); // выбранная таблица
   const [searchDataForTable, setsearchDataForTable] = useState(" "); // поиск по таблице
   const [tableHeader, settableHeader] = useState(tableHeadAppoint);
+  const [dataApointment, setDataAppointment] = useState([]);
+  const [dataUsers, setDataUsers] = useState([]);
+  const [dataContractors, setDataContractors] = useState([]);
+  const [textSearchTableData, setextSearchTableData] = useState("");
+  const [popUp, setPopUp] = useState("");
 
   const context = {
     tableData,
@@ -26,20 +31,42 @@ function App() {
     setsearchDataForTable,
     tableHeader,
     settableHeader,
-    UpdateTableReguest
+    UpdateTableReguest,
+    textSearchTableData,
+    setextSearchTableData,
+    dataContractors,
+    popUp,
+    setPopUp,
   };
 
-  function UpdateTableReguest(){
-    GetAllRequests().then((resp) => {
-      if(resp) {
-        setTableData(resp.data.requestsDtos);
-        settableHeader(tableHeadAppoint);
-      }
-    })
+  function UpdateTableReguest(param){
+    if(param == 1){
+      GetAllRequests().then((resp) => {
+        if(resp) {
+          setDataAppointment(resp.data.requestsDtos);
+          setTableData(resp.data.requestsDtos);
+          settableHeader(tableHeadAppoint);
+        }
+      })
+    }if(param == 2){
+      setTableData(dataUsers);
+      // settableHeader(tableHeadAppoint);
+    }
+
   }
 
   useEffect(() => {
-    UpdateTableReguest();
+    // GetAllUsers().then((resp) => {
+    //   if(resp) {
+    //     setDataUsers(resp.data);
+    //   }
+    // })
+    GetAllСontractors().then((resp) => {
+      if(resp) {
+        setDataContractors(resp.data);
+      }
+    })
+    UpdateTableReguest(1)
   }, []);
 
   return (

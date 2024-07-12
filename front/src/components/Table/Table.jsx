@@ -1,10 +1,10 @@
-import React, {useEffect, useState } from "react";
+import React, { useState, useContext } from "react";
 import styles from "./Table.module.scss";
 import DataContext from "../../context";
-import { SetStatusRequest } from "../../API/API";
+import { SetStatusRequest, SetcontractorRequest } from "../../API/API";
 
 function Table() {
-  const { context } = React.useContext(DataContext);
+  const { context } = useContext(DataContext);
 
   const trClick = (row) => {
     context.setSelectedTr(row.id);
@@ -17,15 +17,20 @@ function Table() {
     4: "Неактуальна",
     5: "Принята",
   };
+
   const [shovStatusPop, setshovStatusPop] = useState("");
+  const [shovBulderPop, setshovBulderPop] = useState("");
+
+  const [modalImage, setModalImage] = useState(null);
+
   const editStatus = (status, id) => {
     const data = {
       requestId: id,
       status: status,
-    }
+    };
     SetStatusRequest(data).then((resp) => {
-      if(resp) {
-        context.UpdateTableReguest();
+      if (resp) {
+        context.UpdateTableReguest(1);
       }
     });
   };
@@ -37,10 +42,51 @@ function Table() {
       setshovStatusPop("");
     }
   };
+  const funSetBulder = (data) => {
+    if (shovBulderPop === "") {
+      setshovBulderPop(data);
+    } else {
+      setshovBulderPop("");
+    }
+  };
 
+  const openModal = (src) => {
+    setModalImage(src);
+  };
+
+  const closeModal = () => {
+    setModalImage(null);
+  };
+  const SetBilder = (contractorId, idAppoint) =>{
+    const data = {
+      requestId: idAppoint,
+      contractorId: contractorId,
+    };
+
+    SetcontractorRequest(data).then((resp) => {
+      if (resp) {
+        context.UpdateTableReguest(1);
+      }
+    });
+  }
+
+  const filteredTableData = context.tableData.filter((row) =>
+  Object.values(row).some(
+    (value) =>
+      value &&
+      value.toString().toLowerCase().includes(context.textSearchTableData.toLowerCase())
+  )
+);
+    const getItem = (item) =>{
+     if(item === null || item === undefined){
+       return "___"
+     }else{
+      return item
+     }
+    }
   return (
     <>
-      {context?.tableData.length > 0 ? (
+      {filteredTableData.length > 0 ? (
         <div className={styles.Table}>
           <table className={styles.TableInner}>
             <thead>
@@ -51,7 +97,7 @@ function Table() {
               </tr>
             </thead>
             <tbody>
-              {context?.tableData.map((row, index) => (
+              {filteredTableData.map((row, index) => (
                 <tr
                   key={index}
                   onClick={() => trClick(row)}
@@ -84,8 +130,41 @@ function Table() {
                             </div>
                           )}
                         </div>
+                      ) : headerItem.key === "photo" ? (
+                        <div>
+                          <img
+                            src={`http://localhost:3000/uploads/${row.fileName}`}
+                            alt="Uploaded file"
+                            onClick={() =>
+                              openModal(
+                                `http://localhost:3000/uploads/${row.fileName}`
+                              )
+                            }
+                            style={{ cursor: "pointer" }}
+                            className={styles.imgTable}
+                          />
+                        </div>
+                      ) : headerItem.key === "contractor" ? (
+                        <div onClick={() => funSetBulder(row.id)}
+                            className={styles.statusClick}>
+                        {row[headerItem.key] !== null ? row[headerItem.key]?.name : "___"}
+                          {shovBulderPop === row.id && (
+                            <div className={styles.shovStatusPop}>
+                              <ul>
+                                {context.dataContractors?.map((value, index) => (
+                                  <li
+                                    onClick={() => SetBilder(value.id, row.id)}
+                                    key={index}
+                                  >
+                                    {value.name}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
                       ) : (
-                        row[headerItem.key]
+                        getItem(row[headerItem.key])
                       )}
                     </td>
                   ))}
@@ -96,6 +175,13 @@ function Table() {
         </div>
       ) : (
         <div className={styles.notdata}>Нет данных</div>
+      )}
+
+      {modalImage && (
+        <div className={styles.modal} onClick={closeModal}>
+          <span className={styles.close}>&times;</span>
+          <img className={styles.modalContent} src={modalImage} alt="Full size" />
+        </div>
       )}
     </>
   );

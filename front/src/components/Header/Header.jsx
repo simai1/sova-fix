@@ -6,7 +6,7 @@ import DataContext from "../../context";
 function Header() {
   const navigate = useNavigate();
   const { context } = React.useContext(DataContext);
-
+  const NameUser = localStorage.getItem("userData").name
   const Exit =()=>{
     console.log("exit")
   }
