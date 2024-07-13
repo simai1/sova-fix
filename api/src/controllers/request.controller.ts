@@ -46,9 +46,17 @@ const setStatus = catchAsync(async (req, res) => {
     res.json({ status: 'OK' });
 });
 
+const deleteRequest = catchAsync(async (req, res) => {
+    const { requestId } = req.params;
+    if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
+    await requestService.deleteRequest(requestId);
+    res.json({ status: 'OK' });
+});
+
 export default {
     getAll,
     create,
     setContractor,
     setStatus,
+    deleteRequest,
 };

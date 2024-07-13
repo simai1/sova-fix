@@ -31,4 +31,5 @@ const upload = multer({
 router.route('/').get(requestController.getAll).post(upload.single('file'), requestController.create);
 router.route('/set/contractor').patch(requestController.setContractor);
 router.route('/set/status').patch(requestController.setStatus);
+router.route('/delete/:requestId').delete(requestController.deleteRequest);
 export default router;

@@ -45,9 +45,16 @@ const setStatus = async (requestId: string, status: number): Promise<void> => {
     await request.update({ status });
 };
 
+const deleteRequest = async (requestId: string): Promise<void> => {
+    const request = await RepairRequest.findByPk(requestId);
+    if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
+    await request.destroy({ force: true });
+};
+
 export default {
     getAllRequests,
     createRequest,
     setContractor,
     setStatus,
+    deleteRequest,
 };
