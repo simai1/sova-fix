@@ -29,9 +29,21 @@ const getContractorsRequests = async (id: string): Promise<RequestDto[]> => {
     return requests.map(request => new RequestDto(request));
 };
 
+const getContractorsItinerary = async (id: string): Promise<RequestDto[]> => {
+    const contractor = await Contractor.findByPk(id);
+    if (!contractor) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found contractor');
+    const requests = await RepairRequest.findAll({
+        where: { contractorId: contractor.id, urgency: 'Маршрут' },
+        include: [{ model: Contractor }],
+        order: [['itineraryOrder', 'ASC']],
+    });
+    return requests.map(request => new RequestDto(request));
+};
+
 export default {
     getAllContractors,
     createContractor,
     getOneContractorById,
     getContractorsRequests,
+    getContractorsItinerary,
 };

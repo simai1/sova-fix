@@ -51,10 +51,30 @@ const deleteRequest = async (requestId: string): Promise<void> => {
     await request.destroy({ force: true });
 };
 
+const update = async (
+    requestId: string,
+    unit: string | undefined,
+    object: string | undefined,
+    problemDescription: string | undefined,
+    urgency: string | undefined,
+    repairPrice: number | undefined,
+    comment: string | undefined,
+    legalEntity: string | undefined,
+    itineraryOrder: number | undefined
+): Promise<void> => {
+    const request = await RepairRequest.findByPk(requestId);
+    if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
+    await RepairRequest.update(
+        { unit, object, problemDescription, urgency, repairPrice, comment, legalEntity, itineraryOrder },
+        { where: { id: request.id } }
+    );
+};
+
 export default {
     getAllRequests,
     createRequest,
     setContractor,
     setStatus,
     deleteRequest,
+    update,
 };
