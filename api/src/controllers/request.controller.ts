@@ -46,9 +46,47 @@ const setStatus = catchAsync(async (req, res) => {
     res.json({ status: 'OK' });
 });
 
+const deleteRequest = catchAsync(async (req, res) => {
+    const { requestId } = req.params;
+    if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
+    await requestService.deleteRequest(requestId);
+    res.json({ status: 'OK' });
+});
+
+const update = catchAsync(async (req, res) => {
+    const { unit, object, problemDescription, urgency, repairPrice, comment, legalEntity, itineraryOrder } = req.body;
+    const { requestId } = req.params;
+    if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
+    if (
+        !unit &&
+        !object &&
+        !problemDescription &&
+        !urgency &&
+        !repairPrice &&
+        !comment &&
+        !legalEntity &&
+        !itineraryOrder
+    )
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Missing body');
+    await requestService.update(
+        requestId,
+        unit,
+        object,
+        problemDescription,
+        urgency,
+        repairPrice,
+        comment,
+        legalEntity,
+        itineraryOrder
+    );
+    res.json({ status: 'OK' });
+});
+
 export default {
     getAll,
     create,
     setContractor,
     setStatus,
+    deleteRequest,
+    update,
 };

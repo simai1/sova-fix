@@ -17,7 +17,6 @@ app.use(corsMiddleware);
 app.use(cookieParser());
 
 // uploader section
-// app.use(express.static('./uploads'));
 app.use('/uploads', express.static('./uploads'));
 const dir = './uploads';
 if (!fs.existsSync(dir)) {

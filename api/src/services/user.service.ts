@@ -3,6 +3,7 @@ import tokenService from './token.service';
 import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
 import roles from '../config/roles';
+import UserDto from '../dtos/user.dto';
 
 const getUserById = async (userId: string): Promise<User | null> => {
     return User.findByPk(userId);
@@ -25,9 +26,15 @@ const setRole = async (role: number, userId: string): Promise<void> => {
     await user.update({ role });
 };
 
+const getAllUsers = async (): Promise<UserDto[]> => {
+    const users = await User.findAll();
+    return users.map(u => new UserDto(u));
+};
+
 export default {
     getUserById,
     getUserByEmail,
     getUserByRefreshToken,
     setRole,
+    getAllUsers,
 };
