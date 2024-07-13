@@ -15,7 +15,15 @@ const create = catchAsync(async (req, res) => {
     res.json(contractor);
 });
 
+const getContractorsRequests = catchAsync(async (req, res) => {
+    const { contractorId } = req.params;
+    if (!contractorId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing contractorId');
+    const requests = await contractorService.getContractorsRequests(contractorId);
+    res.json(requests);
+});
+
 export default {
     getAll,
     create,
+    getContractorsRequests,
 };
