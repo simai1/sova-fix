@@ -17,11 +17,13 @@
         display: flex;
     }
     input{
-        width: 115px!important;
+        width: 135px!important;
         margin-bottom: 0 !important;
     }
+    .ListMainPage{
+      margin-right: 15px;
+    }
     .searchForTable{
-        margin-left: 15px;
         position: relative;
         img{
             position: absolute;
@@ -53,6 +55,15 @@
             margin-right: 0;
           }
         }
+      }
+      .buttonBack{
+        @include button(var(--turquoise-color));
+        margin-right: 10px;
+        display: flex;
+        align-items: center;
+        margin: 4px 15px 4px 0px;
+        width: 150px;
+        justify-content: center;
       }
       
 }

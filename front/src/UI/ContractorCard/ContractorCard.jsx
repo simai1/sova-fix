@@ -7,11 +7,7 @@ const ContractorCard = (props) => {
   const [count, setCount] = useState(0)
   const clickCard = () =>{
     const idInteger = context.dataContractors.find(el => el.name === props?.name)?.id;
-    GetContractorsItenerarity(idInteger).then((resp)=>{
-      if(resp.status == 200){
-        console.log('resp', resp)
-      }
-    })
+    context.UpdateTableReguest(3, idInteger)
   }
 
   useEffect(()=>{

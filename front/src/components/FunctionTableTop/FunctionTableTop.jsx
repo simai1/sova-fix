@@ -41,11 +41,19 @@ function FunctionTableTop(props) {
       <div className={styles.FunctionTableTop}>
         <div className={styles.container}>
         <div className={styles.topList}>
-            <List
-              data={props.DataList}
-              defaultValue={defaultValue}
-              dataList={DataList}
-            />
+            {context.selectPage === "Main" ?
+            <div className={styles.ListMainPage}>
+              <List
+                data={props.DataList}
+                defaultValue={defaultValue}
+                dataList={DataList}
+              />
+            </div> :
+            <button className={styles.buttonBack} onClick={()=>{
+                context.setDataitinerary([]);
+                context.setSelectedTr(null);
+            }}> Назад</button>
+            }
             <div className={styles.searchForTable}>
               <Input
                 placeholder={"Поиск..."}
@@ -54,30 +62,18 @@ function FunctionTableTop(props) {
               <img src="./img/Search_light.png" />
             </div>
           </div>
-          {context.selectedTable === "Заказы" ? (
+          {context.selectedTable === "Заказы" && context.selectPage === "Main" ? (
             <div className={styles.HeadMenu}>
-                  {/* <button onClick={ () =>{context.setPopUp("PopUpEditAppoint")}}> 
-                    <img src="./img/Edit.png" alt="View" />
-                    Редактировать заказ
-                  </button> */}
               <button onClick={(()=>deleteRequestFunc())}>
                 <img src="./img/Trash.png" alt="View" />
                 Удалить заказ
               </button>
             </div>
-          ) : context.selectedTable === "Пользователи" ? (
+          ) : context.selectedTable === "Пользователи" && context.selectPage === "Main" ? (
             <div className={styles.HeadMenu}>
             <button onClick={()=>{context.setPopUp("PopUpCreateUser")}}>
                   <img src="./img/plus.svg" alt="View" />
                     Добавить пользователя
-              </button>
-              {/* <button>
-                    <img src="./img/Edit.png" alt="View" />
-                    Редактировать
-              </button> */}
-              <button>
-                    <img src="./img/Trash.png" alt="View" />
-                    Удалить
               </button>
             </div>
           ) : (

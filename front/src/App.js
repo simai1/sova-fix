@@ -6,7 +6,7 @@ import "./styles/style.css";
 import AdminPage from "./pages/AdminPages/HomePage/AdminPage";
 import { tableHeadAppoint, tableUser } from "./components/Table/Data";
 import HomePageAdmin from "./pages/AdminPages/HomePageAdmin/HomePageAdmin";
-import { GetAllRequests, GetAllUsers, GetAllСontractors } from "./API/API";
+import { GetAllRequests, GetAllUsers, GetAllСontractors, GetContractorsItenerarity } from "./API/API";
 import Activate from "./pages/Login/Activate/Activate";
 
 function App() {
@@ -22,6 +22,7 @@ function App() {
   const [popUp, setPopUp] = useState("");
   const [popupGoodText, setPopupGoodText] = useState("")
   const [selectPage, setSelectPage] = useState("Main")
+  const [Dataitinerary, setDataitinerary] = useState([])
 
   const context = {
     setDataUsers,
@@ -45,11 +46,13 @@ function App() {
     setPopupGoodText,
     setSelectPage,
     selectPage,
-    dataApointment
+    dataApointment,
+    Dataitinerary,
+    setDataitinerary
 
   };
 
-  function UpdateTableReguest(param){
+  function UpdateTableReguest(param, idInteger = null) {
     if(param == 1){
       GetAllRequests().then((resp) => {
         if(resp) {
@@ -67,6 +70,14 @@ function App() {
             settableHeader(tableUser);
           }
         })
+    }if(param == 3){
+      GetContractorsItenerarity(idInteger).then((resp)=>{
+        if(resp.status == 200){
+          context.setDataitinerary(resp.data)
+          setTableData(resp.data);
+          settableHeader(tableHeadAppoint);
+        }
+      })
     }
   }
 

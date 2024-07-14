@@ -31,12 +31,16 @@ function Table() {
   const [shovStatusPop, setshovStatusPop] = useState("");
   const [shovBulderPop, setshovBulderPop] = useState("");
   const [shovUrgencyPop, setshovUrgencyPop] = useState("");
-
+  const [itineraryOrderPop,setItineraryOrderPop] = useState("");
+  
   const [modalImage, setModalImage] = useState(null);
 
   const statusPopRef = useRef(null);
   const builderPopRef = useRef(null);
   const urgencyPopRef = useRef(null);
+  const ItineraryOrderPopRef = useRef(null)
+
+  const [arrCount, setArrCount] = useState([])
 
   const editStatus = (status, id) => {
     const data = {
@@ -55,10 +59,12 @@ function Table() {
       setshovStatusPop(data);
       setshovUrgencyPop("");
       setshovBulderPop("");
+      setItineraryOrderPop("")
     } else {
       setshovStatusPop("");
       setshovBulderPop("");
       setshovUrgencyPop("");
+      setItineraryOrderPop("")
     }
   };
 
@@ -67,10 +73,12 @@ function Table() {
       setshovBulderPop(data);
       setshovStatusPop("");
       setshovUrgencyPop("");
+      setItineraryOrderPop("")
     } else {
       setshovStatusPop("");
       setshovBulderPop("");
       setshovUrgencyPop("");
+      setItineraryOrderPop("")
     }
   };
 
@@ -79,12 +87,28 @@ function Table() {
       setshovUrgencyPop(data);
       setshovStatusPop("");
       setshovBulderPop("");
+      setItineraryOrderPop("")
     } else {
       setshovStatusPop("");
       setshovBulderPop("");
       setshovUrgencyPop("");
+      setItineraryOrderPop("")
     }
   };
+
+  const funSetItineraryOrder = (data) =>{
+    if (itineraryOrderPop === "") {
+      setshovUrgencyPop("");
+      setshovStatusPop("");
+      setshovBulderPop("");
+      setItineraryOrderPop(data)
+    } else {
+      setshovStatusPop("");
+      setshovBulderPop("");
+      setshovUrgencyPop("");
+      setItineraryOrderPop("")
+    }
+  }
 
   const openModal = (src) => {
     setModalImage(src);
@@ -107,6 +131,20 @@ function Table() {
     });
   }
 
+  const SetCountCard = (el, idAppoint) =>{
+    const idInteger = context.dataContractors.find(el => el.name === context?.tableData[0].contractor.name)?.id;
+    const data = {
+      itineraryOrder: el,
+    }; 
+    ReseachDataRequest(idAppoint, data).then((resp)=>{
+      if(resp.status === 200){
+        context.UpdateTableReguest(3, idInteger);
+      }
+    })
+
+  }
+
+
   const SetUrgency = (name, idAppoint) =>{
     const data = {
       urgency: name,
@@ -117,22 +155,26 @@ function Table() {
     })
   }
 
-  //!Тут ошибкаа проверить
   const handleClickOutside = (event) => {
     if (
-      statusPopRef.current && !statusPopRef.current.contains(event.target)
+      statusPopRef.current && !statusPopRef.current.contains(event.target) && event.target.tagName != "LI"  
     ) {
       setshovStatusPop("");
     }
     if (
-      builderPopRef.current && !builderPopRef.current.contains(event.target)
+      builderPopRef.current && !builderPopRef.current.contains(event.target) && event.target.tagName != "LI"
     ) {
       setshovBulderPop("");
     }
     if (
-      urgencyPopRef.current && !urgencyPopRef.current.contains(event.target)
+      urgencyPopRef.current && !urgencyPopRef.current.contains(event.target) && event.target.tagName != "LI"
     ) {
       setshovUrgencyPop("");
+    }
+    if (
+      ItineraryOrderPopRef.current && !ItineraryOrderPopRef.current.contains(event.target) && event.target.tagName != "LI"
+    ) {
+      setItineraryOrderPop("");
     }
   };
 
@@ -158,6 +200,19 @@ function Table() {
       return item
     }
   };
+
+  const getCountList = () => {
+    let count = context.tableData.length;
+    let countList = [];
+    for (let i = 0; i < count; i++) {
+      countList.push(i + 1);
+    }
+    setArrCount(countList);
+  }
+
+  useEffect(()=>{
+    getCountList()
+  },[context.Dataitinerary])
 
   return (
     <>
@@ -186,8 +241,8 @@ function Table() {
                         index + 1
                       ) : headerItem.key === "status" ? (
                         <div
-                          onClick={() => funSetStatus(row.id)}
-                          className={styles.statusClick}
+                          onClick={() => context.selectPage === "Main" && funSetStatus(row.id)}
+                          className={context.selectPage === "Main" && styles.statusClick}
                           ref={statusPopRef}
                         >
                           {status[row[headerItem.key]]}
@@ -224,8 +279,8 @@ function Table() {
                         </div>
                       ) : headerItem.key === "contractor" ? (
                         <div 
-                          onClick={() => funSetBulder(row.id)}
-                          className={styles.statusClick}
+                          onClick={() => context.selectPage === "Main" && funSetBulder(row.id)}
+                          className={context.selectPage === "Main" && styles.statusClick}
                           ref={builderPopRef}
                         >
                           {row[headerItem.key] !== null ? row[headerItem.key]?.name : "___"}
@@ -246,8 +301,8 @@ function Table() {
                         </div>
                       ) : headerItem.key === "urgency" ? (
                         <div 
-                          onClick={() => funSetUrgency(row.id)}
-                          className={styles.statusClick}
+                          onClick={() => context.selectPage === "Main" && funSetUrgency(row.id)}
+                          className={context.selectPage === "Main" && styles.statusClick}
                           ref={urgencyPopRef}
                         >
                           {row[headerItem.key] !== null ? row[headerItem.key] : "___"}
@@ -266,7 +321,27 @@ function Table() {
                             </div>
                           )}
                         </div>
-                      ): (
+                      ): headerItem.key === "itineraryOrder" ? (
+                        <div 
+                          onClick={() => context.selectPage != "Main" && funSetItineraryOrder(row.id)}
+                          className={context.selectPage != "Main" && styles.statusClick}
+                          ref={ItineraryOrderPopRef}
+                        >
+                          {row[headerItem.key] !== null ? row[headerItem.key] : "___"}
+                          {itineraryOrderPop === row.id && (
+                            <div className={styles.shovStatusPop}>
+                              <ul>
+                              {
+                                arrCount.map((el)=>{
+                                  return  <li key={el} onClick={(event) => SetCountCard(el, row.id)}> {el}</li>
+                                })
+                              }
+                               
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
                         getItem(row[headerItem.key])
                       )}
                     </td>
