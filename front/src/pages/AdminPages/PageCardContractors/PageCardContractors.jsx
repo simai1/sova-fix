@@ -14,7 +14,7 @@ function PageCardContractors() {
             </div>
             <div className={styles.Constructor}>
                 {context.dataContractors.map((el)=>{
-                    return  <ContractorCard name={el.name} el={el}/>
+                    return  <ContractorCard el={el}/>
                 })}
             </div>
         </div>

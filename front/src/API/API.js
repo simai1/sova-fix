@@ -77,7 +77,6 @@ export const SetcontractorRequest = async (data) => {
 };
 
 //! удалить заявку
-
 export const DeleteRequest = async (id) => {
   try {
     const response = await axios.delete(`${server}/requests/${id}/delete`);
@@ -87,5 +86,12 @@ export const DeleteRequest = async (id) => {
   }
 };
 
-
-
+//! Получение карты пользователя
+export const GetContractorsItenerarity = async (id) => {
+  try {
+    const response = await axios.get(`${server}/contractors/${id}/itinerary`);
+    return response;
+  } catch (error) {
+    alert("Ошибка при удалении заявки!");
+  }
+};
