@@ -13,3 +13,11 @@ export const tableHeadAppoint = [
   { key: "legalEntity", value: "Юр. Лицо" },
   { key: "daysAtWork", value: "Сумма" },
 ]; 
+
+export const tableUser = [
+  { key: "id", value: "Номер" },
+  {key: "login", value:"Логин"},
+  {key: "isActivated", value:"Активирован"},
+  {key: "role", value:"Роль"},
+
+]

@@ -1,7 +1,7 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useRef, useEffect } from "react";
 import styles from "./Table.module.scss";
 import DataContext from "../../context";
-import { SetStatusRequest, SetcontractorRequest } from "../../API/API";
+import { ReseachDataRequest, SetStatusRequest, SetcontractorRequest } from "../../API/API";
 
 function Table() {
   const { context } = useContext(DataContext);
@@ -18,10 +18,25 @@ function Table() {
     5: "Принята",
   };
 
+  const DataUrgency = [
+    {id:1, name:"В течении часа"},
+    {id:2, name:"В течении текущего дня"},
+    {id:3, name:"В течении 3-х дней"},
+    {id:4, name:"В течении недели"},
+    {id:5, name:"ВЫПОЛНИТЬ СЕГОДНЯ"},
+    {id:6, name:"Маршрут"},
+    {id:7, name:"Выполнено"}
+  ];
+
   const [shovStatusPop, setshovStatusPop] = useState("");
   const [shovBulderPop, setshovBulderPop] = useState("");
+  const [shovUrgencyPop, setshovUrgencyPop] = useState("");
 
   const [modalImage, setModalImage] = useState(null);
+
+  const statusPopRef = useRef(null);
+  const builderPopRef = useRef(null);
+  const urgencyPopRef = useRef(null);
 
   const editStatus = (status, id) => {
     const data = {
@@ -38,15 +53,36 @@ function Table() {
   const funSetStatus = (data) => {
     if (shovStatusPop === "") {
       setshovStatusPop(data);
+      setshovUrgencyPop("");
+      setshovBulderPop("");
     } else {
       setshovStatusPop("");
+      setshovBulderPop("");
+      setshovUrgencyPop("");
     }
   };
+
   const funSetBulder = (data) => {
     if (shovBulderPop === "") {
       setshovBulderPop(data);
+      setshovStatusPop("");
+      setshovUrgencyPop("");
     } else {
+      setshovStatusPop("");
       setshovBulderPop("");
+      setshovUrgencyPop("");
+    }
+  };
+
+  const funSetUrgency = (data) => {
+    if (shovUrgencyPop === "") {
+      setshovUrgencyPop(data);
+      setshovStatusPop("");
+      setshovBulderPop("");
+    } else {
+      setshovStatusPop("");
+      setshovBulderPop("");
+      setshovUrgencyPop("");
     }
   };
 
@@ -57,6 +93,7 @@ function Table() {
   const closeModal = () => {
     setModalImage(null);
   };
+
   const SetBilder = (contractorId, idAppoint) =>{
     const data = {
       requestId: idAppoint,
@@ -70,20 +107,58 @@ function Table() {
     });
   }
 
-  const filteredTableData = context.tableData.filter((row) =>
-  Object.values(row).some(
-    (value) =>
-      value && 
-      value.toString().toLowerCase().includes(context.textSearchTableData.toLowerCase())
-  )
-);
-    const getItem = (item) =>{
-     if(item === null || item === undefined){
-       return "___"
-     }else{
-      return item
-     }
+  const SetUrgency = (name, idAppoint) =>{
+    const data = {
+      urgency: name,
+    };
+    console.log('data', data)
+    ReseachDataRequest(idAppoint, data).then((resp)=>{
+      context.UpdateTableReguest(1);
+    })
+  }
+
+  //!Тут ошибкаа проверить
+  const handleClickOutside = (event) => {
+    if (
+      statusPopRef.current && !statusPopRef.current.contains(event.target)
+    ) {
+      setshovStatusPop("");
     }
+    if (
+      builderPopRef.current && !builderPopRef.current.contains(event.target)
+    ) {
+      setshovBulderPop("");
+    }
+    if (
+      urgencyPopRef.current && !urgencyPopRef.current.contains(event.target)
+    ) {
+      setshovUrgencyPop("");
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const filteredTableData = context.tableData.filter((row) =>
+    Object.values(row).some(
+      (value) =>
+        value && 
+        value.toString().toLowerCase().includes(context.textSearchTableData.toLowerCase())
+    )
+  );
+
+  const getItem = (item) =>{
+    if(item === null || item === undefined){
+      return "___"
+    }else{
+      return item
+    }
+  };
+
   return (
     <>
       {filteredTableData.length > 0 ? (
@@ -113,6 +188,7 @@ function Table() {
                         <div
                           onClick={() => funSetStatus(row.id)}
                           className={styles.statusClick}
+                          ref={statusPopRef}
                         >
                           {status[row[headerItem.key]]}
                           {shovStatusPop === row.id && (
@@ -130,7 +206,9 @@ function Table() {
                             </div>
                           )}
                         </div>
-                      ) : headerItem.key === "photo" ? (
+                      ) : headerItem.key === "isActivated" ? (
+                        <>{row[headerItem.key] === true ? "Активириван" : "Не активирован"}</>
+                      ): headerItem.key === "photo" ? (
                         <div>
                           <img
                             src={`http://localhost:3000/uploads/${row.fileName}`}
@@ -145,9 +223,12 @@ function Table() {
                           />
                         </div>
                       ) : headerItem.key === "contractor" ? (
-                        <div onClick={() => funSetBulder(row.id)}
-                            className={styles.statusClick}>
-                        {row[headerItem.key] !== null ? row[headerItem.key]?.name : "___"}
+                        <div 
+                          onClick={() => funSetBulder(row.id)}
+                          className={styles.statusClick}
+                          ref={builderPopRef}
+                        >
+                          {row[headerItem.key] !== null ? row[headerItem.key]?.name : "___"}
                           {shovBulderPop === row.id && (
                             <div className={styles.shovStatusPop}>
                               <ul>
@@ -163,7 +244,29 @@ function Table() {
                             </div>
                           )}
                         </div>
-                      ) : (
+                      ) : headerItem.key === "urgency" ? (
+                        <div 
+                          onClick={() => funSetUrgency(row.id)}
+                          className={styles.statusClick}
+                          ref={urgencyPopRef}
+                        >
+                          {row[headerItem.key] !== null ? row[headerItem.key] : "___"}
+                          {shovUrgencyPop === row.id && (
+                            <div className={styles.shovStatusPop}>
+                              <ul>
+                                {DataUrgency?.map((value, index) => (
+                                  <li
+                                    onClick={() => SetUrgency(value.name, row.id)}
+                                    key={index}
+                                  >
+                                    {value.name}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      ): (
                         getItem(row[headerItem.key])
                       )}
                     </td>

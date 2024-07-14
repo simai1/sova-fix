@@ -14,7 +14,7 @@ function Header() {
         <h3>{`Капылов Никита`}</h3>
       </div>
       <div className={styles.buttonBlock}> 
-        <button onClick={()=>{context.setSelectPage("Main")}} style={ context.selectPage === "Main" ? {backgroundColor: "#4693a4" } : {backgroundColor: "#afbbbd"}}>Главная</button>
+        <button onClick={()=>{{context.setSelectPage("Main")}; {context.UpdateTableReguest(1)}}} style={ context.selectPage === "Main" ? {backgroundColor: "#4693a4" } : {backgroundColor: "#afbbbd"}}>Главная</button>
         <button onClick={()=>{context.setSelectPage("Card")}} style={ context.selectPage !== "Main" ? {backgroundColor: "#4693a4"} : {backgroundColor: "#afbbbd"}}>Путеводная карта</button>
       </div>
       <div>

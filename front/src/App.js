@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import DataContext from "./context";
 import "./styles/style.css";
 import AdminPage from "./pages/AdminPages/HomePage/AdminPage";
-import { tableHeadAppoint } from "./components/Table/Data";
+import { tableHeadAppoint, tableUser } from "./components/Table/Data";
 import HomePageAdmin from "./pages/AdminPages/HomePageAdmin/HomePageAdmin";
 import { GetAllRequests, GetAllUsers, GetAllСontractors } from "./API/API";
 import Activate from "./pages/Login/Activate/Activate";
@@ -44,7 +44,8 @@ function App() {
     popupGoodText,
     setPopupGoodText,
     setSelectPage,
-    selectPage
+    selectPage,
+    dataApointment
 
   };
 
@@ -58,10 +59,12 @@ function App() {
         }
       })
     }if(param == 2){
-        GetAllUsers().then((resp) => {
+      const accessToken = localStorage.getItem("accessToken")
+      console.log('accessToken', accessToken)
+        GetAllUsers(accessToken).then((resp) => {
           if(resp) {
              setTableData(resp.data);
-          settableHeader(tableHeadAppoint);
+            settableHeader(tableUser);
           }
         })
     }

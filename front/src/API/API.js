@@ -39,9 +39,13 @@ export const GetAllRequests = async () => {
 };
 
 //!полуение всех Пользователей
-export const GetAllUsers = async () => {
+export const GetAllUsers = async (accessToken) => {
   try {
-    const response = await axios.get(`${server}/users`);
+    const response = await axios.get(`${server}/users`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
     return response;
   } catch (error) {
     alert("Ошибка при получении заявок!");
@@ -90,6 +94,17 @@ export const DeleteRequest = async (id) => {
 export const GetContractorsItenerarity = async (id) => {
   try {
     const response = await axios.get(`${server}/contractors/${id}/itinerary`);
+    return response;
+  } catch (error) {
+    alert("Ошибка при удалении заявки!");
+  }
+};
+
+
+//! Изменение заявки
+export const ReseachDataRequest = async (id,data) => {
+  try {
+    const response = await axios.put(`${server}/requests/${id}/update`, data);
     return response;
   } catch (error) {
     alert("Ошибка при удалении заявки!");
