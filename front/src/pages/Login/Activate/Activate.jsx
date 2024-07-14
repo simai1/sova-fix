@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from "react";
-import styles from "./Authorization.module.scss";
+import styles from "./Activate.module.scss";
 import { useNavigate } from "react-router-dom"
 import DataContext from "../../../context";
 import { tableHeadAppoint } from "../../../components/Table/Data";
 import { LoginFunc } from "../../../API/API";
-function Authorization() {
+function Activate() {
   const { context } = React.useContext(DataContext);
 
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    login: "",
+    FIO: "",
     password: "",
+    resetpassword: "",
   });
-
+  
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -22,12 +23,6 @@ function Authorization() {
   };
 
   const handleLogin = () => {
-    LoginFunc(formData).then((resp) => {
-      if(resp) {
-        context.setDataUsers(resp)
-        navigate("/AdminPage")
-      }
-    })
    console.log(formData)
   };
 
@@ -41,12 +36,12 @@ function Authorization() {
     <div className={styles.AuthorRegistrar}>
       <div className={styles.box}>
         <div className={styles.container}>
-          <h2>Вход в аккаунт</h2>
+          <h2>Активация аккаунта</h2>
           <input
             type="text"
-            placeholder="Логин"
+            placeholder="ФИО"
             name="login"
-            value={formData.login}
+            value={formData.FIO}
             onChange={handleInputChange}
           />
           <input
@@ -54,6 +49,13 @@ function Authorization() {
             placeholder="Пароль"
             name="password"
             value={formData.password}
+            onChange={handleInputChange}
+          />
+            <input
+            type="password"
+            placeholder="Повторите пароль"
+            name="password"
+            value={formData.resetpassword}
             onChange={handleInputChange}
           />
             <button className={styles.button} onClick={handleLogin}>
@@ -65,4 +67,4 @@ function Authorization() {
   );
 }
 
-export default Authorization;
+export default Activate;

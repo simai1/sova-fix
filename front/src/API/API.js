@@ -15,6 +15,19 @@ export const LoginFunc = async (UserData) => {
   }
 };
 
+export const Register = async (UserData) => {
+  try {
+    const response = await axios.post(`${server}/auth/register`, UserData);
+    // const { accessToken, refreshToken, ...userData } = response.data;
+    //   localStorage.setItem("accessToken", accessToken);
+    //   localStorage.setItem("refreshToken", refreshToken);
+    //   localStorage.setItem("userData", JSON.stringify(userData));
+    return response;
+  } catch (error) {
+    alert("Возникла ошибка при создании пользователя!");
+  }
+};
+
 //!полуение всех заявок
 export const GetAllRequests = async () => {
   try {
@@ -62,5 +75,17 @@ export const SetcontractorRequest = async (data) => {
     alert("Ошибка при изменении статуса заявки!");
   }
 };
+
+//! удалить заявку
+
+export const DeleteRequest = async (id) => {
+  try {
+    const response = await axios.delete(`${server}/requests/${id}/delete`);
+    return response;
+  } catch (error) {
+    alert("Ошибка при удалении заявки!");
+  }
+};
+
 
 

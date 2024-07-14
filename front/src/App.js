@@ -7,6 +7,7 @@ import AdminPage from "./pages/AdminPages/HomePage/AdminPage";
 import { tableHeadAppoint } from "./components/Table/Data";
 import HomePageAdmin from "./pages/AdminPages/HomePageAdmin/HomePageAdmin";
 import { GetAllRequests, GetAllUsers, GetAllСontractors } from "./API/API";
+import Activate from "./pages/Login/Activate/Activate";
 
 function App() {
   const [tableData, setTableData] = useState([]); // данные таблицы
@@ -15,12 +16,15 @@ function App() {
   const [searchDataForTable, setsearchDataForTable] = useState(" "); // поиск по таблице
   const [tableHeader, settableHeader] = useState(tableHeadAppoint);
   const [dataApointment, setDataAppointment] = useState([]);
-  const [dataUsers, setDataUsers] = useState([]);
+  const [dataUsers, setDataUsers] = useState(null);
   const [dataContractors, setDataContractors] = useState([]);
   const [textSearchTableData, setextSearchTableData] = useState("");
   const [popUp, setPopUp] = useState("");
+  const [popupGoodText, setPopupGoodText] = useState("")
+  const [selectPage, setSelectPage] = useState("Main")
 
   const context = {
+    setDataUsers,
     tableData,
     setTableData,
     selectedTr,
@@ -37,6 +41,11 @@ function App() {
     dataContractors,
     popUp,
     setPopUp,
+    popupGoodText,
+    setPopupGoodText,
+    setSelectPage,
+    selectPage
+
   };
 
   function UpdateTableReguest(param){
@@ -49,12 +58,12 @@ function App() {
         }
       })
     }if(param == 2){
-        // GetAllUsers().then((resp) => {
-        //   if(resp) {
-        //      setTableData(resp.data);
-          //settableHeader(tableHeadAppoint);
-        //   }
-        // })
+        GetAllUsers().then((resp) => {
+          if(resp) {
+             setTableData(resp.data);
+          settableHeader(tableHeadAppoint);
+          }
+        })
     }
   }
 
@@ -65,7 +74,8 @@ function App() {
       }
     })
     UpdateTableReguest(1)
-  }, []);
+    console.log(dataUsers)
+  }, [dataUsers]);
 
   return (
     <DataContext.Provider
@@ -77,6 +87,7 @@ function App() {
         <main>
           <Routes>
             <Route path="/" element={<Authorization />}></Route>
+            <Route path="/Activate" element={<Activate />}></Route>
             <Route path="/AdminPage/*" element={<AdminPage />}>
               <Route path="*" element={<HomePageAdmin />}></Route>
             </Route>

@@ -12,6 +12,18 @@
   padding: 8px 20px;
   border-radius: 17px;
   margin-bottom: 20px;
+  .buttonBlock{
+    display: flex;
+    button{
+      @include button(var(--dark-grey-color));
+      margin: 0px 5px;
+      width: 180px;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      @include font(14px, 700);
+    }  
+  }
   h3 {
     @include font(21px, 700);
   }

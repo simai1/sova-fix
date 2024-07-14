@@ -1,19 +1,25 @@
-import React, { useState } from "react";
+import React, { useContext } from "react";
 import styles from "./Header.module.scss";
-import {useNavigate } from "react-router-dom";
-
 import DataContext from "../../context";
+
 function Header() {
-  const navigate = useNavigate();
-  const { context } = React.useContext(DataContext);
-  const NameUser = localStorage.getItem("userData").name
+  const { context } = useContext(DataContext);
+  // const NameUser = localStorage.getItem("userData").name
   const Exit =()=>{
     console.log("exit")
   }
   return (
     <div className={styles.Header}>
-      <h3>{`Капылов Никита`}</h3>
+      <div>
+        <h3>{`Капылов Никита`}</h3>
+      </div>
+      <div className={styles.buttonBlock}> 
+        <button onClick={()=>{context.setSelectPage("Main")}} style={ context.selectPage === "Main" ? {backgroundColor: "#4693a4" } : {backgroundColor: "#afbbbd"}}>Главная</button>
+        <button onClick={()=>{context.setSelectPage("Card")}} style={ context.selectPage !== "Main" ? {backgroundColor: "#4693a4"} : {backgroundColor: "#afbbbd"}}>Путеводная карта</button>
+      </div>
+      <div>
         <button onClick={Exit}>Выйти</button>
+      </div>
     </div>
   );
 }

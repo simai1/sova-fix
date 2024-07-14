@@ -1,0 +1,17 @@
+@import "./../../styles/color.scss";
+@import "./../../styles/mixins.scss";
+
+.ContractorCard{
+    margin: 10px 25px;
+    box-shadow: 0 0 10px #00000013;
+    border-radius: 8px;
+    padding: 10px;
+    position: relative;
+    transition: 0.2s linear all;
+    cursor: pointer;
+    &:hover{
+        top: -3px;
+        right: -5px;
+        background-color: var(--dark-grey-color);
+    }
+}

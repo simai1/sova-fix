@@ -1,0 +1,68 @@
+.mainPopGood {
+  position: fixed;
+  height: 100vh;
+  width: 100%;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  z-index: 100;
+
+  .mainPop__inner {
+    background-color: #ffffff;
+    box-shadow: 4px 4px 20px 0px #00000026;
+    margin: 0 auto;
+    border-radius: 10px;
+    width: 270px;
+    font-size: 16px;
+    text-align: start;
+    position: relative;
+    padding: 10px 16px;
+
+    .mainPop__inner__inner {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .text {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 18px;
+      font-weight: 500;
+      margin-top: 20px;
+      margin-bottom: 20px;
+      p{
+        text-align: center;
+      }
+
+    }
+    .x {
+      width: 100%;
+      display: flex;
+      justify-content: end;
+      img {
+        cursor: pointer;
+        &:hover {
+          opacity: 0.7;
+          transition: all 0.15s linear;
+        }
+      }
+    }
+    button {
+      transition: 0.1s linear all;
+      width: 100px;
+      &:hover {
+        cursor: pointer;
+        opacity: 0.6;
+      }
+    }
+    .buttonBlock {
+      display: flex;
+      justify-content: end;
+    }
+  }
+}

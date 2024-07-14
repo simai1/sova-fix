@@ -4,6 +4,7 @@ import List from "../../UI/List/List";
 import Input from "../../UI/Input/Input";
 import DataContext from "../../context";
 import { Link } from "react-router-dom";
+import { DeleteRequest } from "../../API/API";
 
 
 
@@ -19,11 +20,22 @@ function FunctionTableTop(props) {
       id: 2,
       name: "Пользователи",
     },
-    {
-      id: 3,
-      name: "Путеводная Карта",
-    }
   ];
+
+  //!удаление заявки
+  const deleteRequestFunc = () =>{
+    if(context.selectedTr != null){
+      console.log('id', context.selectedTr)
+      DeleteRequest(context.selectedTr).then((resp)=>{
+        if(resp.status === 200){
+          context.UpdateTableReguest(1);
+        }
+      })
+    }else{
+      alert("Сначала выберите заявку!")
+    }
+    
+  }
   return (
     <>
       <div className={styles.FunctionTableTop}>
@@ -44,27 +56,32 @@ function FunctionTableTop(props) {
           </div>
           {context.selectedTable === "Заказы" ? (
             <div className={styles.HeadMenu}>
-                  <button onClick={ () =>{context.setPopUp("PopUpEditAppoint")}}
-                    > 
+                  {/* <button onClick={ () =>{context.setPopUp("PopUpEditAppoint")}}> 
                     <img src="./img/Edit.png" alt="View" />
-                    Редактировать
-                  </button>
-              <button >
+                    Редактировать заказ
+                  </button> */}
+              <button onClick={(()=>deleteRequestFunc())}>
                 <img src="./img/Trash.png" alt="View" />
-                Удалить заявку
+                Удалить заказ
               </button>
             </div>
-          ):(
+          ) : context.selectedTable === "Пользователи" ? (
             <div className={styles.HeadMenu}>
-            <button>
-                    <img src="./img/plus.svg" alt="View" />
+            <button onClick={()=>{context.setPopUp("PopUpCreateUser")}}>
+                  <img src="./img/plus.svg" alt="View" />
                     Добавить пользователя
               </button>
-              <button>
+              {/* <button>
                     <img src="./img/Edit.png" alt="View" />
                     Редактировать
+              </button> */}
+              <button>
+                    <img src="./img/Trash.png" alt="View" />
+                    Удалить
               </button>
             </div>
+          ) : (
+            <></>
           )}
       
         </div>
