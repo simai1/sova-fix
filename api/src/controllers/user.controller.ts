@@ -16,7 +16,14 @@ const getAll = catchAsync(async (req, res) => {
     res.json(users);
 });
 
+const destroy = catchAsync(async (req, res) => {
+    const { userId } = req.params;
+    await userService.deleteUser(userId);
+    res.json({ status: 'OK' });
+});
+
 export default {
     setRole,
     getAll,
+    destroy,
 };

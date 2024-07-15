@@ -31,10 +31,15 @@ const getAllUsers = async (): Promise<UserDto[]> => {
     return users.map(u => new UserDto(u));
 };
 
+const deleteUser = async (userId: string): Promise<void> => {
+    await User.destroy({ where: { id: userId }, force: true, individualHooks: true });
+};
+
 export default {
     getUserById,
     getUserByEmail,
     getUserByRefreshToken,
     setRole,
     getAllUsers,
+    deleteUser,
 };

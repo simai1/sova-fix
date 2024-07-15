@@ -1,10 +1,12 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
 import roles from '../config/roles';
+import TokenModel from './token-model';
 
 export default class User extends Model {
     id!: string;
     login!: string;
     password!: string;
+    name?: string;
     isActivated!: boolean;
     role!: number;
 
@@ -26,6 +28,10 @@ export default class User extends Model {
                 password: {
                     type: DataTypes.STRING,
                     allowNull: false,
+                },
+                name: {
+                    type: DataTypes.STRING,
+                    allowNull: true,
                 },
                 role: {
                     type: DataTypes.SMALLINT,
@@ -49,5 +55,9 @@ export default class User extends Model {
                 paranoid: true,
             }
         );
+
+        User.beforeDestroy(async (model: User) => {
+            await TokenModel.destroy({ where: { userId: model.id }, force: true });
+        });
     }
 }
