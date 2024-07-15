@@ -26,7 +26,7 @@ function PageCardContractors() {
        <div className={styles.PageCardContractors}>
         <div className={styles.container}>
                 <div className={styles.ConstructorTitle}>
-                    <h3>Выберите подрядчика</h3>
+                    <h3>Выберите исполнителя</h3>
                 </div>
                 <div className={styles.Constructor}>
                     {namePodr.map((el , index)=>{

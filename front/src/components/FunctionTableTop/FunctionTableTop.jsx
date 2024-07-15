@@ -4,7 +4,7 @@ import List from "../../UI/List/List";
 import Input from "../../UI/Input/Input";
 import DataContext from "../../context";
 import { Link } from "react-router-dom";
-import { DeleteRequest } from "../../API/API";
+import { DeleteRequest, DeleteUserFunc } from "../../API/API";
 
 
 
@@ -34,8 +34,20 @@ function FunctionTableTop(props) {
     }else{
       alert("Сначала выберите заявку!")
     }
-    
   }
+
+  const deletedUser = ()=>{
+    if(context.selectedTr != null){
+      DeleteUserFunc(context.selectedTr).then((resp)=>{
+        if(resp.status === 200){
+          context.UpdateTableReguest(2);
+        }
+      })
+    }else{
+      alert("Сначала выберите пользователя!")
+    }
+  }
+
   return (
     <>
       <div className={styles.FunctionTableTop}>
@@ -74,6 +86,10 @@ function FunctionTableTop(props) {
             <button onClick={()=>{context.setPopUp("PopUpCreateUser")}}>
                   <img src="./img/plus.svg" alt="View" />
                     Добавить пользователя
+              </button>
+              <button onClick={()=>{deletedUser()}}>
+                  <img src="./img/Trash.png" alt="View" />
+                    Удалить пользователя
               </button>
             </div>
           ) : (

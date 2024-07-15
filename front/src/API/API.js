@@ -5,11 +5,12 @@ const server = "http://localhost:3000";
 export const LoginFunc = async (UserData) => {
   try {
     const response = await axios.post(`${server}/auth/login`, UserData);
+    console.log("response", response)
     const { accessToken, refreshToken, ...userData } = response.data;
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
       localStorage.setItem("userData", JSON.stringify(userData));
-    return userData;
+    return response;
   } catch (error) {
     alert("Пользователь не найден!");
   }
@@ -107,6 +108,17 @@ export const ReseachDataRequest = async (id,data) => {
     const response = await axios.put(`${server}/requests/${id}/update`, data);
     return response;
   } catch (error) {
-    alert("Ошибка при удалении заявки!");
+    alert("Ошибка при изменении заявки!");
+  }
+};
+
+
+//! удаление поьзователя
+export const DeleteUserFunc = async (id) => {
+  try {
+    const response = await axios.delete(`${server}/users/${id}`);
+    return response;
+  } catch (error) {
+    alert("Ошибка при удалении пользователя!");
   }
 };

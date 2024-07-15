@@ -6,25 +6,23 @@ function List({ dataList, Textlabel, defaultValue, funSetData, itemKey, placehol
   const { context } = React.useContext(DataContext);
 
   const [activeList, setactiveList] = useState(false);
-  const [nameClient, setnameClient] = useState("");
   const addClient = (el) => {
     if(el.name === "Заказы") {
       context.UpdateTableReguest(1)
     }else if(el.name === "Пользователи") {
       context.UpdateTableReguest(2)
-    }else{
-      context.UpdateTableReguest(3)
     }
     context.setSelectedTr(null);
-    setnameClient(el.name);
+    context.setnameClient(el.name);
     console.log(el)
     setactiveList(!activeList);
     context.setSelectedTable(el.name);
   };
 
   useEffect(() => {
-    setnameClient(defaultValue);
+    context.setnameClient(defaultValue);
   }, []);
+
   return (
     <div className={styles.List}>
       <div>
@@ -37,7 +35,7 @@ function List({ dataList, Textlabel, defaultValue, funSetData, itemKey, placehol
           <input
             readOnly
             onClick={() => setactiveList(!activeList)}
-            value={nameClient}
+            value={context.nameClient}
             placeholder={placeholder}
           />
           <span

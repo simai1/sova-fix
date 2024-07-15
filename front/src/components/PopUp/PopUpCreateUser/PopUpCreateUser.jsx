@@ -23,6 +23,7 @@ function PopUpCreateUser() {
       console.log("resp", resp)
       context.setPopUp("PopUpGoodMessage")
       context.setPopupGoodText("Заявка успешно принята!")
+      context.UpdateTableReguest(2);
     }
    
    })

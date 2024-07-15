@@ -23,12 +23,16 @@ function Authorization() {
 
   const handleLogin = () => {
     LoginFunc(formData).then((resp) => {
-      if(resp) {
-        context.setDataUsers(resp)
-        navigate("/AdminPage")
+      if (resp.status === 200) {
+        context.setDataUsers(resp);
+        navigate("/AdminPage");
+      } else if (resp.status === 302) {
+        const url = new URL(resp.headers.get('Location'));
+        const id = url.pathname.split('/').pop(); // Extract the ID from the URL
+        navigate(`/Activate?id=${id}`); // Redirect to the "/Activate" page with the ID as a query parameter
       }
-    })
-   console.log(formData)
+    });
+    console.log(formData);
   };
 
   useEffect(() => {

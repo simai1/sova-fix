@@ -23,8 +23,12 @@ function App() {
   const [popupGoodText, setPopupGoodText] = useState("")
   const [selectPage, setSelectPage] = useState("Main")
   const [Dataitinerary, setDataitinerary] = useState([])
+  const [nameClient, setnameClient] = useState("");
+
 
   const context = {
+    nameClient,
+    setnameClient,
     setDataUsers,
     tableData,
     setTableData,
@@ -88,7 +92,6 @@ function App() {
       }
     })
     UpdateTableReguest(1)
-    console.log(dataUsers)
   }, [dataUsers]);
 
   return (

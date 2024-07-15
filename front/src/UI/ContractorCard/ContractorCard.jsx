@@ -23,7 +23,7 @@ const ContractorCard = (props) => {
 
   return (
     <div className={styles.ContractorCard} onClick={clickCard}  >
-        <p>Подрядчик: {props?.name}</p>
+        <p>Исполнитель: {props?.name}</p>
         <p>Кол-во заказов в маршруте: {count}</p>
     </div>
   );
