@@ -16,6 +16,7 @@ export const LoginFunc = async (UserData) => {
   }
 };
 
+//! регистрация аккаунта
 export const Register = async (UserData) => {
   try {
     const response = await axios.post(`${server}/auth/register`, UserData);
@@ -29,6 +30,7 @@ export const Register = async (UserData) => {
   }
 };
 
+//! активация аккаунта
 export const ActivateFunc = async (UserData, idUser) => {
   try {
     const response = await axios.post(`${server}/auth/activate/${idUser}`, UserData);
@@ -39,6 +41,19 @@ export const ActivateFunc = async (UserData, idUser) => {
     return response;
   } catch (error) {
     alert("Возникла ошибка при создании пользователя!");
+  }
+};
+
+//! выход из аккаунта
+export const LogOut = async (accessToken) => {
+  try {
+    const response = await axios.post(`${server}/auth/logout`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    return response;
+  } catch (error) {
   }
 };
 
