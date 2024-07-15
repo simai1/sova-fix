@@ -5,6 +5,7 @@ export default class User extends Model {
     id!: string;
     login!: string;
     password!: string;
+    name?: string;
     isActivated!: boolean;
     role!: number;
 
@@ -26,6 +27,10 @@ export default class User extends Model {
                 password: {
                     type: DataTypes.STRING,
                     allowNull: false,
+                },
+                name: {
+                    type: DataTypes.STRING,
+                    allowNull: true,
                 },
                 role: {
                     type: DataTypes.SMALLINT,

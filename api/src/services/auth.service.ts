@@ -48,13 +48,13 @@ const login = async (email: string, password: string): Promise<data> => {
     };
 };
 
-const activate = async (password: string, userId: string): Promise<data> => {
+const activate = async (password: string, name: string, userId: string): Promise<data> => {
     const user = await userService.getUserById(userId);
     if (!user) throw new ApiError(httpStatus.BAD_REQUEST, 'User doesnt exists');
     if (user.isActivated) throw new ApiError(httpStatus.BAD_REQUEST, 'User already activated');
 
     const encryptedPassword = await encryptPassword(password);
-    await user.update({ isActivated: true, password: encryptedPassword });
+    await user.update({ isActivated: true, password: encryptedPassword, name });
     const userDto = new UserDto(user);
     const { accessToken, refreshToken } = jwtUtils.generate({ ...userDto });
     await jwtUtils.saveToken(userDto.id, refreshToken);

@@ -1,5 +1,7 @@
 import catchAsync from '../utils/catchAsync';
 import authService from '../services/auth.service';
+import ApiError from '../utils/ApiError';
+import httpStatus from 'http-status';
 
 const registerViaEmail = catchAsync(async (req, res) => {
     const { login } = req.body;
@@ -17,9 +19,11 @@ const login = catchAsync(async (req, res) => {
 });
 
 const activate = catchAsync(async (req, res) => {
-    const { password } = req.body;
+    const { password, name } = req.body;
     const { userId } = req.params;
-    const userData = await authService.activate(password, userId);
+    if (!password) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing password');
+    if (!name) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing name');
+    const userData = await authService.activate(password, name, userId);
     res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true });
     res.json(userData);
 });
