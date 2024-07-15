@@ -8,4 +8,5 @@ const router = Router();
 
 router.route('/setRole').post(verifyToken.auth, verifyRole(roles.ADMIN), userController.setRole);
 router.route('/').get(verifyToken.auth, userController.getAll);
+router.route('/:userId').delete(userController.destroy);
 export default router;

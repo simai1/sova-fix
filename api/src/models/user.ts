@@ -1,5 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
 import roles from '../config/roles';
+import TokenModel from './token-model';
 
 export default class User extends Model {
     id!: string;
@@ -54,5 +55,9 @@ export default class User extends Model {
                 paranoid: true,
             }
         );
+
+        User.beforeDestroy(async (model: User) => {
+            await TokenModel.destroy({ where: { userId: model.id }, force: true });
+        });
     }
 }
