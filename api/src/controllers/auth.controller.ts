@@ -15,7 +15,7 @@ const login = catchAsync(async (req, res) => {
     if (userData.user.isActivated) {
         res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true });
         res.json(userData);
-    } else res.redirect(`/activate/${userData.user.id}`);
+    } else res.json({ userId: userData.user.id });
 });
 
 const activate = catchAsync(async (req, res) => {
