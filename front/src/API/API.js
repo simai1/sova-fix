@@ -29,6 +29,19 @@ export const Register = async (UserData) => {
   }
 };
 
+export const ActivateFunc = async (UserData, idUser) => {
+  try {
+    const response = await axios.post(`${server}/auth/activate/${idUser}`, UserData);
+    const { accessToken, refreshToken, ...userData } = response.data;
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("refreshToken", refreshToken);
+      localStorage.setItem("userData", JSON.stringify(userData));
+    return response;
+  } catch (error) {
+    alert("Возникла ошибка при создании пользователя!");
+  }
+};
+
 //!полуение всех заявок
 export const GetAllRequests = async () => {
   try {

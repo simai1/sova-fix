@@ -24,13 +24,14 @@ function Authorization() {
   const handleLogin = () => {
     LoginFunc(formData).then((resp) => {
       if (resp.status === 200) {
-        context.setDataUsers(resp);
-        navigate("/AdminPage");
-      } else if (resp.status === 302) {
-        const url = new URL(resp.headers.get('Location'));
-        const id = url.pathname.split('/').pop(); // Extract the ID from the URL
-        navigate(`/Activate?id=${id}`); // Redirect to the "/Activate" page with the ID as a query parameter
-      }
+        if(resp.data.userId != null || resp.data.userId != undefined){
+          context.setActivateId(resp.data.userId)
+          navigate("/Activate");
+        }else{
+          context.setDataUsers(resp);
+          navigate("/AdminPage");
+        }
+      }    
     });
     console.log(formData);
   };

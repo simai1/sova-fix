@@ -24,7 +24,7 @@ function App() {
   const [selectPage, setSelectPage] = useState("Main")
   const [Dataitinerary, setDataitinerary] = useState([])
   const [nameClient, setnameClient] = useState("");
-
+  const [activateId, setActivateId]= useState("");
 
   const context = {
     nameClient,
@@ -52,7 +52,9 @@ function App() {
     selectPage,
     dataApointment,
     Dataitinerary,
-    setDataitinerary
+    setDataitinerary,
+    setActivateId,
+    activateId
 
   };
 
