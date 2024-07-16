@@ -4,13 +4,12 @@ const http = axios.create({
 });
 const server = "http://localhost:3000";
 
-const REFRESH_INTERVAL = 5000; // 25 минут 1500000
+const REFRESH_INTERVAL = 1500000; // 25 минут 1500000
 let refreshTokensTimeout;
 
 
 //! ЭТА ШЛЯПА НЕ РАБОТАЕТ РЕФРЕШ
 export const refreshTokens = async () => {
-  console.log("refreshTokens")
   try {
     const response = await http.get(`${server}/auth/refresh`,);
     const { NewaccessToken, NewrefreshToken, ...userData } = response.data;
@@ -39,7 +38,7 @@ const refreshTokensTimer = () => {
     timeRemaining = 0;
   }
   refreshTokensTimeout = setTimeout(() => {
-    // refreshTokens();
+    refreshTokens();
     localStorage.setItem("lastRefreshTime", Date.now());
     refreshTokensTimer();
   }, timeRemaining);
@@ -60,12 +59,11 @@ window.addEventListener("unload", () => {
 export const LoginFunc = async (UserData) => {
   try {
     const response = await http.post(`${server}/auth/login`, UserData);
-    console.log("response", response)
     const { accessToken, refreshToken, ...userData } = response.data;
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
       localStorage.setItem("userData", JSON.stringify(userData));
-      // refreshTokensTimer();
+      refreshTokensTimer();
     return response;
   } catch (error) {
     alert("Пользователь не найден!");
@@ -90,7 +88,7 @@ export const ActivateFunc = async (UserData, idUser) => {
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
       localStorage.setItem("userData", JSON.stringify(userData));
-      // refreshTokensTimer();
+      refreshTokensTimer();
     return response;
   } catch (error) {
     alert("Возникла ошибка при создании пользователя!");
@@ -100,9 +98,6 @@ export const ActivateFunc = async (UserData, idUser) => {
 
 //! НЕ РАБОТАЕТ ВЫХОД
 export const LogOut = async (accessToken) => {
-  console.log('accessToken', accessToken);
-  const refreshToken = localStorage.getItem("refreshToken");
-  console.log("refreshToken", refreshToken);
   try {
     const response = await http.post(
       `${server}/auth/logout`,
@@ -110,7 +105,6 @@ export const LogOut = async (accessToken) => {
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
-          'Set-Cookie': `refreshToken=${refreshToken}`
         },
         withCredentials: true
       }

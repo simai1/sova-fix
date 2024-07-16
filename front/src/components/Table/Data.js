@@ -1,20 +1,20 @@
 export const tableHeadAppoint = [
-  { key: "number", value: "Номер" },
-  { key: "status", value: "Статус" },
+  { key: "number", value: "Номер заявки" },
   { key: "contractor", value: "Исполнитель" },
   { key: "builder", value: "Подрядчик" },
+  { key: "status", value: "Статус заявки" },
   { key: "unit", value: "Подразделение" },
   { key: "object", value: "Объект" },
   { key: "problemDescription", value: "Описание проблемы" },
   { key: "photo", value: "Фото проблемы" },
   { key: "urgency", value: "Срочность" },
-  { key: "itineraryOrder", value: "Маршрут" },
-  { key: "completeDate", value: "Дата выполнения" },
+  { key: "itineraryOrder", value: "Порядок маршрута" },
   { key: "createdAt", value: "Дата создания заявки" },
-  { key: "repairPrice", value: "Груз" },
+  { key: "completeDate", value: "Дата выполнения (факт)" },
+  { key: "repairPrice", value: "Бюджет ремонта" },
   { key: "comment", value: "Комментарий" },
   { key: "legalEntity", value: "Юр. Лицо" },
-  { key: "daysAtWork", value: "Сумма" },
+  { key: "daysAtWork", value: "Дней в работе" },
 ]; 
 
 export const tableUser = [
