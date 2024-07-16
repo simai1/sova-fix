@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import styles from "./HomePageAdmin.module.scss";
 import Table from "../../../components/Table/Table";
 import DataContext from "../../../context";
-import PopUpEditAppoint from "../../../components/PopUp/PopUpEditAppoint/PopUpEditAppoint";
 import FunctionTableTop from "../../../components/FunctionTableTop/FunctionTableTop";
 import PopUpCreateUser from "../../../components/PopUp/PopUpCreateUser/PopUpCreateUser";
 import PopUpGoodMessage from "../../../UI/PopUpGoodMessage/PopUpGoodMessage";
@@ -23,7 +22,6 @@ function HomePageAdmin() {
       </>
     }
      
-      {context.popUp === "PopUpEditAppoint" && <PopUpEditAppoint />}
       {context.popUp === "PopUpCreateUser" && <PopUpCreateUser />}
       {context.popUp === "PopUpGoodMessage" && <PopUpGoodMessage />}
     </div>

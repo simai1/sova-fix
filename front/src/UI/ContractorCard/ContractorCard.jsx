@@ -17,7 +17,6 @@ const ContractorCard = (props) => {
   const whyColor = () =>{
     let count =  0
     props?.namePodnoSorted.map((el) => el === props?.name && count++)
-    console.log('count', count)
     return count
   }
 

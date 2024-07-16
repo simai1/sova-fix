@@ -11,17 +11,14 @@ function PageCardContractors() {
   const [namePodr, setNamePodr] = useState([]);
   const [namePodnoSorted, setNamePodnoSorted] = useState([]);
   useEffect(()=>{
-    console.log("context.dataContractors", context.dataContractors)
-    console.log("context.dataContractors", context.dataApointment)
-    const matchingNames = context.dataApointment.filter(appointment => context.dataContractors.some(contractor => contractor.id === appointment.contractor.id && appointment.urgency === "Маршрут")).map(appointment => appointment.contractor.name);
+    const matchingNames = context?.dataApointment.filter(appointment => context?.dataContractors.some(contractor => contractor?.id === appointment.contractor?.id && appointment?.urgency === "Маршрут")).map(appointment => appointment.contractor?.name);
     const unicleMatchingNames = [...new Set(matchingNames)]
     setNamePodr(unicleMatchingNames);
     setNamePodnoSorted(matchingNames)
-    console.log('unicleMatchingNames', unicleMatchingNames)
 },[])
   return (
     <>
-    {context.Dataitinerary.length <=0 ? 
+    {context?.Dataitinerary.length <=0 ? 
       <>
        <div className={styles.PageCardContractors}>
         <div className={styles.container}>

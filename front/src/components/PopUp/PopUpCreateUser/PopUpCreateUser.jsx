@@ -17,10 +17,8 @@ function PopUpCreateUser() {
   };
 
   const CreateNewClient = () => {
-   console.log(dataApointment)
    Register(dataApointment).then((resp)=>{
     if(resp.status == 200){
-      console.log("resp", resp)
       context.setPopUp("PopUpGoodMessage")
       context.setPopupGoodText("Заявка успешно принята!")
       context.UpdateTableReguest(2);

@@ -141,15 +141,12 @@ function Table() {
         context.UpdateTableReguest(3, idInteger);
       }
     })
-
   }
-
 
   const SetUrgency = (name, idAppoint) =>{
     const data = {
       urgency: name,
     };
-    console.log('data', data)
     ReseachDataRequest(idAppoint, data).then((resp)=>{
       context.UpdateTableReguest(1);
     })
@@ -185,13 +182,21 @@ function Table() {
     };
   }, []);
 
-  const filteredTableData = context.tableData.filter((row) =>
-    Object.values(row).some(
+  const filteredTableData = context.tableData.filter((row) => {
+    const values = Object.values(row).flatMap(value => {
+      if (typeof value === 'object' && value !== null) {
+        return Object.values(value);
+      }
+      return value;
+    });
+  
+    return values.some(
       (value) =>
-        value && 
+        value &&
         value.toString().toLowerCase().includes(context.textSearchTableData.toLowerCase())
-    )
-  );
+    );
+  });
+  
 
   const getItem = (item) =>{
     if(item === null || item === undefined){
@@ -223,6 +228,7 @@ function Table() {
       return "___"
     }
   }
+  
   return (
     <>
       {filteredTableData.length > 0 ? (
@@ -256,7 +262,7 @@ function Table() {
                         >
                           {status[row[headerItem.key]]}
                           {shovStatusPop === row.id && (
-                            <div className={styles.shovStatusPop}>
+                            <div className={styles.shovStatusPop} style={{width: "150px"}}>
                               <ul>
                                 {Object.values(status).map((value, index) => (
                                   <li
@@ -294,7 +300,7 @@ function Table() {
                         >
                           {row[headerItem.key] !== null ? row[headerItem.key]?.name : "___"}
                           {shovBulderPop === row.id && (
-                            <div className={styles.shovStatusPop}>
+                            <div className={styles.shovStatusPop} style={{width: "200%"}}>
                               <ul>
                                 {context.dataContractors?.map((value, index) => (
                                   <li
@@ -316,7 +322,7 @@ function Table() {
                         >
                           {row[headerItem.key] !== null ? row[headerItem.key] : "___"}
                           {shovUrgencyPop === row.id && (
-                            <div className={styles.shovStatusPop}>
+                            <div className={styles.shovStatusPop} style={{width: "200%"}}>
                               <ul>
                                 {DataUrgency?.map((value, index) => (
                                   <li
@@ -338,7 +344,7 @@ function Table() {
                         >
                           {row[headerItem.key] !== null ? row[headerItem.key] : "___"}
                           {itineraryOrderPop === row.id && (
-                            <div className={styles.shovStatusPop}>
+                            <div className={styles.shovStatusPop} style={{width: "auto"}}>
                               <ul>
                               {
                                 arrCount.map((el)=>{

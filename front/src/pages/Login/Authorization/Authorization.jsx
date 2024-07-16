@@ -33,7 +33,6 @@ function Authorization() {
         }
       }    
     });
-    console.log(formData);
   };
 
   useEffect(() => {

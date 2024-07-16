@@ -27,7 +27,6 @@ function FunctionTableTop(props) {
   //!удаление заявки
   const deleteRequestFunc = () =>{
     if(context.selectedTr != null){
-      console.log('id', context.selectedTr)
       DeleteRequest(context.selectedTr).then((resp)=>{
         if(resp.status === 200){
           context.UpdateTableReguest(1);
@@ -83,9 +82,9 @@ function FunctionTableTop(props) {
                 Удалить заказ
               </button>
             </div>
-          ) : context.selectedTable === "Пользователи" && context.selectPage === "Main" ? (
+          ) : context.selectedTable === "Пользователи" && context.selectPage === "Main" &&  JSON.parse(localStorage.getItem("userData")).user.role === "ADMIN" ? (
             <div className={styles.HeadMenu}>
-            <button onClick={()=>{context.setPopUp("PopUpCreateUser")}}>
+              <button onClick={()=>{context.setPopUp("PopUpCreateUser")}}>
                   <img src="./img/plus.svg" alt="View" />
                     Добавить пользователя
               </button>

@@ -14,7 +14,6 @@ function List({ dataList, Textlabel, defaultValue, funSetData, itemKey, placehol
     }
     context.setSelectedTr(null);
     context.setnameClient(el.name);
-    console.log(el)
     setactiveList(!activeList);
     context.setSelectedTable(el.name);
   };

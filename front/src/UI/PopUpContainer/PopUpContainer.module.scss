@@ -8,6 +8,7 @@
         position: fixed;
         left: 0;
         top: 0;
+        z-index: 300;
         overflow-y: scroll;
         .PopUpContainerflex{
             display: flex;

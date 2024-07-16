@@ -5,10 +5,11 @@
   width: 100%;
   display: flex;
   overflow: auto;
-
+  height: 75vh;
+  margin-bottom: 0;
   .TableInner {
     width: 100%;
-
+    height: 150px;
     th:nth-child(1) {
       border-radius: 8px 0 0 0;
     }
@@ -26,16 +27,21 @@
     }
     th {
       padding: 10px;
+      position: sticky;
+      top: 0px;
+      z-index: 200;
       background-color: var(--tableTh);
       @include font(14px, 500);
     }
+   
     td {
       text-align: center;
       padding: 10px;
-
+      position: relative;
       .statusClick {
         padding: 4px 8px;
         border-radius: 8px;
+        background-color: #e2d4d4;
         &:hover {
           background-color: #bcbcbc;
         }
@@ -46,6 +52,7 @@
           padding: 10px;
           border-radius: 8px;
           box-shadow: 1px 0px 8px #bcbcbc;
+          z-index: 100;
           ul {
             list-style-type: none;
             padding: 0;
@@ -84,7 +91,7 @@
   justify-content: center;
   align-items: center;
   position: fixed;
-  z-index: 1;
+  z-index: 1000;
   left: 0;
   top: 0;
   width: 100%;

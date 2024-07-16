@@ -6,7 +6,6 @@ function PopUpContainer({ children, title, mT, width }) {
   const { context } = React.useContext(DataContext);
   const closePopUp = () => {
     context.setPopUp("");
-    console.log("click", context.popUp )
   }
   return (
     <div style={{ paddingTop: `${mT}px` }} className={styles.PopUpContainer}>
