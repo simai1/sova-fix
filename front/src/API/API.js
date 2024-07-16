@@ -12,7 +12,7 @@ let refreshTokensTimeout;
 export const refreshTokens = async () => {
   console.log("refreshTokens")
   try {
-    const response = await axios.get(`${server}/auth/refresh`,);
+    const response = await http.get(`${server}/auth/refresh`,);
     const { NewaccessToken, NewrefreshToken, ...userData } = response.data;
     localStorage.setItem("accessToken", NewaccessToken);
     localStorage.setItem("refreshToken", NewrefreshToken);
@@ -104,7 +104,7 @@ export const LogOut = async (accessToken) => {
   const refreshToken = localStorage.getItem("refreshToken");
   console.log("refreshToken", refreshToken);
   try {
-    const response = await axios.post(
+    const response = await http.post(
       `${server}/auth/logout`,
       {},
       {
