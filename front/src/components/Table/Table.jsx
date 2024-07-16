@@ -214,6 +214,15 @@ function Table() {
     getCountList()
   },[context.Dataitinerary])
 
+  const resechDate = (value)=>{
+    if(value){
+      let date = value.split("T")
+      let dateFormat = date[0].split("-")
+      return `${dateFormat[2]}-${dateFormat[1]}-${dateFormat[0]}`
+    }else{
+      return "___"
+    }
+  }
   return (
     <>
       {filteredTableData.length > 0 ? (
@@ -342,7 +351,7 @@ function Table() {
                           )}
                         </div>
                       ) : (
-                        getItem(row[headerItem.key])
+                        (headerItem.key === "createdAt" ||  headerItem.key === "completeDate") ? resechDate(row[headerItem.key]) : getItem(row[headerItem.key])
                       )}
                     </td>
                   ))}

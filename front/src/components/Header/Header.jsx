@@ -1,10 +1,14 @@
 import React, { useContext, useEffect, useState } from "react";
 import styles from "./Header.module.scss";
 import DataContext from "../../context";
+import { LogOut } from "../../API/API";
+import { useNavigate } from "react-router-dom";
 
 function Header() {
   const { context } = useContext(DataContext);
   const [shortName, setShortName] = useState("")
+  const navigate = useNavigate();
+
 useEffect(()=>{
   const userData = JSON.parse(localStorage.getItem("userData")).user.name;
   const parts = userData.split(' '); // Разбиваем полное имя на части по пробелу
@@ -13,7 +17,12 @@ useEffect(()=>{
 
 
   const Exit =()=>{
-    console.log("exit")
+    const accessToken = localStorage.getItem("accessToken") 
+    LogOut(accessToken).then((resp)=>{
+      if(resp){
+      navigate("/");
+      }
+    })
   }
 
   const homeButton = () =>{
