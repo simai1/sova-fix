@@ -22,6 +22,7 @@ useEffect(()=>{
     context.setDataitinerary([])
     context.setSelectedTr(null);
     context.setnameClient("Заказы");
+    context.setSelectedTable("Заказы");
   }
   return (
     <div className={styles.Header}>
