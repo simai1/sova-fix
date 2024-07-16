@@ -215,10 +215,13 @@ function Table() {
   },[context.Dataitinerary])
 
   const resechDate = (value)=>{
-    let date = value.split("T")
-    let dateFormat = date[0].split("-")
-    console.log(dateFormat)
-    return `${dateFormat[2]}-${dateFormat[1]}-${dateFormat[0]}`
+    if(value){
+      let date = value.split("T")
+      let dateFormat = date[0].split("-")
+      return `${dateFormat[2]}-${dateFormat[1]}-${dateFormat[0]}`
+    }else{
+      return "___"
+    }
   }
   return (
     <>
@@ -347,10 +350,8 @@ function Table() {
                             </div>
                           )}
                         </div>
-                      ) : headerItem.key === "createdAt" ? (
-                        resechDate(row[headerItem.key])
-                      ): (
-                        getItem(row[headerItem.key])
+                      ) : (
+                        (headerItem.key === "createdAt" ||  headerItem.key === "completeDate") ? resechDate(row[headerItem.key]) : getItem(row[headerItem.key])
                       )}
                     </td>
                   ))}
