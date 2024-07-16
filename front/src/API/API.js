@@ -4,24 +4,16 @@ const server = "http://localhost:3000";
 const REFRESH_INTERVAL = 5000; // 25 минут 1500000
 let refreshTokensTimeout;
 
-export const refreshTokens = async (accessToken) => {
+export const refreshTokens = async () => {
   console.log("refreshTokens")
   try {
-    const response = await axios.get(
-      `${server}/auth/refresh`,
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }
-    );
-    const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
-      response.data;
-      console.log("newAccessToken", newAccessToken)
-      console.log("newRefreshToken", newRefreshToken)
+    const response = await axios.get(`${server}/auth/refresh`,);
+    const { NewaccessToken, NewrefreshToken, ...userData } = response.data;
+    localStorage.setItem("accessToken", NewaccessToken);
+    localStorage.setItem("refreshToken", NewrefreshToken);
+    localStorage.setItem("userData", JSON.stringify(userData));
 
-    localStorage.setItem("accessToken", newAccessToken);
-    localStorage.setItem("refreshToken", newRefreshToken);
+    return response
   } catch (error) {
     console.error("Тоекны не обновлены!");
   }
@@ -42,9 +34,7 @@ const refreshTokensTimer = () => {
     timeRemaining = 0;
   }
   refreshTokensTimeout = setTimeout(() => {
-    refreshTokens(
-      localStorage.getItem("accessToken"),
-    );
+    // refreshTokens();
     localStorage.setItem("lastRefreshTime", Date.now());
     refreshTokensTimer();
   }, timeRemaining);
@@ -102,18 +92,29 @@ export const ActivateFunc = async (UserData, idUser) => {
   }
 };
 
-//! выход из аккаунта
 export const LogOut = async (accessToken) => {
+  console.log('accessToken', accessToken);
+  const refreshToken = localStorage.getItem("refreshToken");
+  console.log("refreshToken", refreshToken);
   try {
-    const response = await axios.post(`${server}/auth/logout`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
+    const response = await axios.post(
+      `${server}/auth/logout`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Set-Cookie': `refreshToken=${refreshToken}`
+        },
+        withCredentials: true
+      }
+    );
     return response;
   } catch (error) {
+    // Handle the error here
   }
 };
+
+
 
 //!полуение всех заявок
 export const GetAllRequests = async () => {
