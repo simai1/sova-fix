@@ -4,6 +4,8 @@ const server = "http://localhost:3000";
 const REFRESH_INTERVAL = 5000; // 25 минут 1500000
 let refreshTokensTimeout;
 
+
+//! ЭТА ШЛЯПА НЕ РАБОТАЕТ РЕФРЕШ
 export const refreshTokens = async () => {
   console.log("refreshTokens")
   try {
@@ -92,6 +94,8 @@ export const ActivateFunc = async (UserData, idUser) => {
   }
 };
 
+
+//! НЕ РАБОТАЕТ ВЫХОД
 export const LogOut = async (accessToken) => {
   console.log('accessToken', accessToken);
   const refreshToken = localStorage.getItem("refreshToken");
