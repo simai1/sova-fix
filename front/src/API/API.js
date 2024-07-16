@@ -1,10 +1,13 @@
 import axios from "axios";
+const http = axios.create({
+  withCredentials: true,
+});
 const server = "http://localhost:3000";
 
 //! Запрос на авторизацию
 export const LoginFunc = async (UserData) => {
   try {
-    const response = await axios.post(`${server}/auth/login`, UserData);
+    const response = await http.post(`${server}/auth/login`, UserData);
     console.log("response", response)
     const { accessToken, refreshToken, ...userData } = response.data;
       localStorage.setItem("accessToken", accessToken);
@@ -18,7 +21,7 @@ export const LoginFunc = async (UserData) => {
 
 export const Register = async (UserData) => {
   try {
-    const response = await axios.post(`${server}/auth/register`, UserData);
+    const response = await http.post(`${server}/auth/register`, UserData);
     // const { accessToken, refreshToken, ...userData } = response.data;
     //   localStorage.setItem("accessToken", accessToken);
     //   localStorage.setItem("refreshToken", refreshToken);
@@ -31,7 +34,7 @@ export const Register = async (UserData) => {
 
 export const ActivateFunc = async (UserData, idUser) => {
   try {
-    const response = await axios.post(`${server}/auth/activate/${idUser}`, UserData);
+    const response = await http.post(`${server}/auth/activate/${idUser}`, UserData);
     const { accessToken, refreshToken, ...userData } = response.data;
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
@@ -45,7 +48,7 @@ export const ActivateFunc = async (UserData, idUser) => {
 //!полуение всех заявок
 export const GetAllRequests = async () => {
   try {
-    const response = await axios.get(`${server}/requests`);
+    const response = await http.get(`${server}/requests`);
     return response;
   } catch (error) {
     alert("Ошибка при получении заявок!");
@@ -55,7 +58,7 @@ export const GetAllRequests = async () => {
 //!полуение всех Пользователей
 export const GetAllUsers = async (accessToken) => {
   try {
-    const response = await axios.get(`${server}/users`, {
+    const response = await http.get(`${server}/users`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
@@ -67,7 +70,7 @@ export const GetAllUsers = async (accessToken) => {
 };
 export const GetAllСontractors = async () => {
   try {
-    const response = await axios.get(`${server}/contractors`);
+    const response = await http.get(`${server}/contractors`);
     return response;
   } catch (error) {
     alert("Ошибка при получении заявок!");
@@ -77,7 +80,7 @@ export const GetAllСontractors = async () => {
 //!изменение статуса заявки
 export const SetStatusRequest = async (data) => {
   try {
-    const response = await axios.patch(`${server}/requests/set/status`, data);
+    const response = await http.patch(`${server}/requests/set/status`, data);
     return response;
   } catch (error) {
     alert("Ошибка при изменении статуса заявки!");
@@ -87,7 +90,7 @@ export const SetStatusRequest = async (data) => {
 //!изменение contractor заявки
 export const SetcontractorRequest = async (data) => {
   try {
-    const response = await axios.patch(`${server}/requests/set/contractor`, data);
+    const response = await http.patch(`${server}/requests/set/contractor`, data);
     return response;
   } catch (error) {
     alert("Ошибка при изменении статуса заявки!");
@@ -97,7 +100,7 @@ export const SetcontractorRequest = async (data) => {
 //! удалить заявку
 export const DeleteRequest = async (id) => {
   try {
-    const response = await axios.delete(`${server}/requests/${id}/delete`);
+    const response = await http.delete(`${server}/requests/${id}/delete`);
     return response;
   } catch (error) {
     alert("Ошибка при удалении заявки!");
@@ -107,7 +110,7 @@ export const DeleteRequest = async (id) => {
 //! Получение карты пользователя
 export const GetContractorsItenerarity = async (id) => {
   try {
-    const response = await axios.get(`${server}/contractors/${id}/itinerary`);
+    const response = await http.get(`${server}/contractors/${id}/itinerary`);
     return response;
   } catch (error) {
     alert("Ошибка при удалении заявки!");
@@ -118,7 +121,7 @@ export const GetContractorsItenerarity = async (id) => {
 //! Изменение заявки
 export const ReseachDataRequest = async (id,data) => {
   try {
-    const response = await axios.put(`${server}/requests/${id}/update`, data);
+    const response = await http.put(`${server}/requests/${id}/update`, data);
     return response;
   } catch (error) {
     alert("Ошибка при изменении заявки!");
@@ -129,7 +132,7 @@ export const ReseachDataRequest = async (id,data) => {
 //! удаление поьзователя
 export const DeleteUserFunc = async (id) => {
   try {
-    const response = await axios.delete(`${server}/users/${id}`);
+    const response = await http.delete(`${server}/users/${id}`);
     return response;
   } catch (error) {
     alert("Ошибка при удалении пользователя!");

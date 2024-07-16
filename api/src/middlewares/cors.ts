@@ -2,7 +2,8 @@ import cors from 'cors';
 
 export default cors({
     credentials: true,
-    origin: true,
+    origin: process.env.WEB_URL,
     exposedHeaders: '*',
-    allowedHeaders: '*',
+    allowedHeaders: ['Origin', 'Content-Type', 'Accept', 'Authorization'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
 });
