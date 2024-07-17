@@ -9,6 +9,12 @@ const getAllRequests = async (): Promise<RequestDto[]> => {
     return requests.map(request => new RequestDto(request));
 };
 
+const getRequestById = async (requestId: string): Promise<RequestDto> => {
+    const request = await RepairRequest.findByPk(requestId, { include: [{ model: Contractor }] });
+    if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
+    return new RequestDto(request);
+};
+
 const createRequest = async (
     unit: string,
     object: string,
@@ -36,13 +42,23 @@ const createRequest = async (
 const setContractor = async (requestId: string, contractorId: string): Promise<void> => {
     const request = await RepairRequest.findByPk(requestId);
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
-    await request.update({ contractorId });
+    await request.update({ contractorId, builder: 'Внутренний сотрудник' });
+};
+
+const removeContractor = async (requestId: string): Promise<void> => {
+    const request = await RepairRequest.findByPk(requestId);
+    if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
+    await request.update({ contractorId: null, builder: 'Укажите подрядчика' });
 };
 
 const setStatus = async (requestId: string, status: number): Promise<void> => {
     const request = await RepairRequest.findByPk(requestId);
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
-    await request.update({ status, completeDate: status === 3 ? new Date() : null });
+    await request.update({
+        status,
+        completeDate: status === 3 ? new Date() : null,
+        daysAtWork: status === 2 ? 1 : 0,
+    });
 };
 
 const deleteRequest = async (requestId: string): Promise<void> => {
@@ -82,8 +98,10 @@ const update = async (
 
 export default {
     getAllRequests,
+    getRequestById,
     createRequest,
     setContractor,
+    removeContractor,
     setStatus,
     deleteRequest,
     update,

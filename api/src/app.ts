@@ -1,6 +1,7 @@
 import express, { Express } from 'express';
 import corsMiddleware from './middlewares/cors';
 import cookieParser from 'cookie-parser';
+import cookieSession from 'cookie-session';
 import * as fs from 'fs';
 import cronService from './services/cron.service';
 
@@ -15,6 +16,12 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(corsMiddleware);
 app.use(cookieParser());
+app.use(
+    cookieSession({
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+        keys: [process.env.COOKIE_KEY as string],
+    })
+);
 
 // uploader section
 app.use('/uploads', express.static('./uploads'));

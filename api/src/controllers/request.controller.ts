@@ -9,6 +9,12 @@ const getAll = catchAsync(async (req, res) => {
     res.json({ requestsDtos });
 });
 
+const getOne = catchAsync(async (req, res) => {
+    const { requestId } = req.params;
+    const requestDto = await requestService.getRequestById(requestId);
+    res.json(requestDto);
+});
+
 const create = catchAsync(async (req, res) => {
     const { unit, object, problemDescription, urgency, repairPrice, comment, legalEntity } = req.body;
     const fileName = req.file?.filename;
@@ -34,6 +40,13 @@ const setContractor = catchAsync(async (req, res) => {
     if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
     if (!contractorId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing contractorId');
     await requestService.setContractor(requestId, contractorId);
+    res.json({ status: 'OK' });
+});
+
+const removeContractor = catchAsync(async (req, res) => {
+    const { requestId } = req.body;
+    if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
+    await requestService.removeContractor(requestId);
     res.json({ status: 'OK' });
 });
 
@@ -84,8 +97,10 @@ const update = catchAsync(async (req, res) => {
 
 export default {
     getAll,
+    getOne,
     create,
     setContractor,
+    removeContractor,
     setStatus,
     deleteRequest,
     update,
