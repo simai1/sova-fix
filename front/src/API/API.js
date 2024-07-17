@@ -96,15 +96,14 @@ export const ActivateFunc = async (UserData, idUser) => {
 };
 
 
-//! НЕ РАБОТАЕТ ВЫХОД
-export const LogOut = async (accessToken) => {
+export const LogOut = async () => {
   try {
     const response = await http.post(
       `${server}/auth/logout`,
       {},
       {
         headers: {
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
         withCredentials: true
       }
@@ -128,11 +127,11 @@ export const GetAllRequests = async () => {
 };
 
 //!полуение всех Пользователей
-export const GetAllUsers = async (accessToken) => {
+export const GetAllUsers = async () => {
   try {
     const response = await http.get(`${server}/users`, {
       headers: {
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     });
     return response;

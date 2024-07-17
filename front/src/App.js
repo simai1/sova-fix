@@ -68,8 +68,7 @@ function App() {
         }
       })
     }if(param == 2){
-      const accessToken = localStorage.getItem("accessToken")
-          GetAllUsers(accessToken).then((resp) => {
+          GetAllUsers().then((resp) => {
           if(resp) {
              setTableData(resp.data);
             settableHeader(tableUser);
