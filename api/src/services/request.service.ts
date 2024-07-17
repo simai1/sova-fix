@@ -9,6 +9,12 @@ const getAllRequests = async (): Promise<RequestDto[]> => {
     return requests.map(request => new RequestDto(request));
 };
 
+const getRequestById = async (requestId: string): Promise<RequestDto> => {
+    const request = await RepairRequest.findByPk(requestId, { include: [{ model: Contractor }] });
+    if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
+    return new RequestDto(request);
+};
+
 const createRequest = async (
     unit: string,
     object: string,
@@ -92,6 +98,7 @@ const update = async (
 
 export default {
     getAllRequests,
+    getRequestById,
     createRequest,
     setContractor,
     removeContractor,

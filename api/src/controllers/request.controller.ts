@@ -9,6 +9,12 @@ const getAll = catchAsync(async (req, res) => {
     res.json({ requestsDtos });
 });
 
+const getOne = catchAsync(async (req, res) => {
+    const { requestId } = req.params;
+    const requestDto = await requestService.getRequestById(requestId);
+    res.json(requestDto);
+});
+
 const create = catchAsync(async (req, res) => {
     const { unit, object, problemDescription, urgency, repairPrice, comment, legalEntity } = req.body;
     const fileName = req.file?.filename;
@@ -91,6 +97,7 @@ const update = catchAsync(async (req, res) => {
 
 export default {
     getAll,
+    getOne,
     create,
     setContractor,
     removeContractor,
