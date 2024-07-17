@@ -3,7 +3,6 @@ import styles from "./FunctionTableTop.module.scss";
 import List from "../../UI/List/List";
 import Input from "../../UI/Input/Input";
 import DataContext from "../../context";
-import { Link } from "react-router-dom";
 import { DeleteRequest, DeleteUserFunc } from "../../API/API";
 
 
@@ -36,6 +35,14 @@ function FunctionTableTop(props) {
       alert("Сначала выберите заявку!")
     }
   }
+
+const editAppoint = ()=>{
+  if(context.selectedTr != null){
+  context.setPopUp("PopUpEditAppoint")
+  }else{
+    alert("Сначала выберите заказ!")
+  }
+}
 
   const deletedUser = ()=>{
     if(context.selectedTr != null){
@@ -77,6 +84,10 @@ function FunctionTableTop(props) {
           </div>
           {context.selectedTable === "Заказы" && context.selectPage === "Main" ? (
             <div className={styles.HeadMenu}>
+             <button onClick={(()=>editAppoint())}>
+                <img src="./img/Edit.png" alt="View" />
+                Редактировать заказ
+              </button>
               <button onClick={(()=>deleteRequestFunc())}>
                 <img src="./img/Trash.png" alt="View" />
                 Удалить заказ

@@ -17,8 +17,7 @@ useEffect(()=>{
 
 
   const Exit =()=>{
-    const accessToken = localStorage.getItem("accessToken") 
-    LogOut(accessToken).then((resp)=>{
+    LogOut().then((resp)=>{
       if(resp){
       navigate("/");
       }
