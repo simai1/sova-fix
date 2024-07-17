@@ -39,6 +39,12 @@ const setContractor = async (requestId: string, contractorId: string): Promise<v
     await request.update({ contractorId, builder: 'Внутренний сотрудник' });
 };
 
+const removeContractor = async (requestId: string): Promise<void> => {
+    const request = await RepairRequest.findByPk(requestId);
+    if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
+    await request.update({ contractorId: null, builder: 'Укажите подрядчика' });
+};
+
 const setStatus = async (requestId: string, status: number): Promise<void> => {
     const request = await RepairRequest.findByPk(requestId);
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
@@ -88,6 +94,7 @@ export default {
     getAllRequests,
     createRequest,
     setContractor,
+    removeContractor,
     setStatus,
     deleteRequest,
     update,
