@@ -46,6 +46,8 @@
           background-color: #bcbcbc;
         }
         .shovStatusPop {
+          max-height: 150px ;
+          overflow-y: scroll;
           transform: translateY(20px);
           position: absolute;
           background-color: #fff;
