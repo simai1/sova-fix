@@ -196,6 +196,16 @@ function Table() {
         value.toString().toLowerCase().includes(context.textSearchTableData.toLowerCase())
     );
   });
+
+  const checkHeights = (arr,index) =>{
+    console.log('arr', arr)
+    console.log('index', index)
+    if(arr.length-1 === index){
+      return true
+    }else{
+      return false
+    }
+  }
   
 
   const getItem = (item) =>{
@@ -262,7 +272,7 @@ function Table() {
                         >
                           {status[row[headerItem.key]]}
                           {shovStatusPop === row.id && (
-                            <div className={styles.shovStatusPop} style={{width: "150px"}}>
+                            <div className={styles.shovStatusPop} style={checkHeights(filteredTableData,index) ? {top:"-70%", width: "150px"} : {width: "150px"}}>
                               <ul>
                                 {Object.values(status).map((value, index) => (
                                   <li
@@ -300,7 +310,7 @@ function Table() {
                         >
                           {row[headerItem.key] !== null ? row[headerItem.key]?.name : "___"}
                           {shovBulderPop === row.id && (
-                            <div className={styles.shovStatusPop} style={{width: "200%"}}>
+                            <div className={styles.shovStatusPop} style={checkHeights(filteredTableData,index) ? {top:"-70%", width: "200%"} : {width: "200%"}}  >
                               <ul>
                                 {context.dataContractors?.map((value, index) => (
                                   <li
@@ -322,7 +332,7 @@ function Table() {
                         >
                           {row[headerItem.key] !== null ? row[headerItem.key] : "___"}
                           {shovUrgencyPop === row.id && (
-                            <div className={styles.shovStatusPop} style={{width: "200%"}}>
+                            <div className={styles.shovStatusPop} style={checkHeights(filteredTableData,index) ? {top:"-70%", width: "200%"} : {width: "200%"}}>
                               <ul>
                                 {DataUrgency?.map((value, index) => (
                                   <li
@@ -344,7 +354,7 @@ function Table() {
                         >
                           {row[headerItem.key] !== null ? row[headerItem.key] : "___"}
                           {itineraryOrderPop === row.id && (
-                            <div className={styles.shovStatusPop} style={{width: "auto"}}>
+                            <div className={styles.shovStatusPop} style={checkHeights(filteredTableData,index) ? {top:"-70%", width: "auto"} : {width: "auto"}}>
                               <ul>
                               {
                                 arrCount.map((el)=>{

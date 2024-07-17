@@ -4,7 +4,9 @@ import styles from "./PopUpEditAppoint.module.scss";
 import PopUpContainer from "../../../UI/PopUpContainer/PopUpContainer";
 import Input from "../../../UI/Input/Input";
 import DataContext from "../../../context";
-import { Register } from "../../../API/API";
+import { Register, SetcontractorRequest } from "../../../API/API";
+import List from "../../../UI/List/List";
+import ListInput from "../../../UI/ListInput/ListInput";
 
 function PopUpEditAppoint(props) {
   const { context } = React.useContext(DataContext);
@@ -22,6 +24,23 @@ function PopUpEditAppoint(props) {
     legalEntity:"",
   });
 
+  const DataStatus = [
+    {id:1, name:"Новая заявка"},
+    {id:2, name:"В работе"},
+    {id:3, name:"Выполнена"},
+    {id:4, name:"Неактуальна"},
+    {id:5, name:"Принята"},
+  ];
+
+  const DataUrgency = [
+    {id:1, name:"В течении часа"},
+    {id:2, name:"В течении текущего дня"},
+    {id:3, name:"В течении 3-х дней"},
+    {id:4, name:"В течении недели"},
+    {id:5, name:"ВЫПОЛНИТЬ СЕГОДНЯ"},
+    {id:6, name:"Маршрут"},
+    {id:7, name:"Выполнено"}
+  ];
 
   useEffect(()=>{
     context.dataApointment.map((el)=>{
@@ -51,24 +70,33 @@ function PopUpEditAppoint(props) {
   const handleInputChange = (name, value) => {
     setdataApointment((prevState) => ({ ...prevState, [name]: value }));
   };
+   const handleListData = (name, value) => { 
+        setdataApointment((prevState) => ({ ...prevState, [name]: value }));
+    };
 
   const EditAppoint = () => {
    console.log(dataApointment)
+   SetcontractorRequest(dataApointment).then((resp) => {
+    if (resp.status === 200) {
+      context.UpdateTableReguest(1);
+    }else{
+        alert("Заполните правльно все поля!")
+    }
+  });
    }
   
-
+   
   return (
     <PopUpContainer width={true} title={"Редактирование заказа"} mT={75}>
       <div className={styles.popBox}>
-        <div className={styles.popLeft}>
-        {/* //!сделать список */}
-        {/* <Input
+        <div className={styles.popLeft}>        
+          <ListInput
             Textlabel={"Исполнитель"}
-            handleInputChange={handleInputChange}
+            handleListData={handleListData}
             name="contractor"
-            placeholder="Иванов Иван Иванович"
+            dataList={context.dataContractors}
             value={dataApointment.contractor}
-          /> */}
+          />
            <Input
             Textlabel={"Подрядчик"}
             handleInputChange={handleInputChange}
@@ -76,14 +104,13 @@ function PopUpEditAppoint(props) {
             placeholder="ООО стройдвор"
             value={dataApointment.builder}
           />
-            {/* //!сделать список */}
-           {/* <Input
+          <ListInput
             Textlabel={"Статус заявки"}
-            handleInputChange={handleInputChange}
+            handleListData={handleListData}
             name="status"
-            placeholder="Выполнена"
+            dataList={DataStatus}
             value={dataApointment.status}
-          /> */}
+          />
            <Input
             Textlabel={"Подразделение"}
             handleInputChange={handleInputChange}
@@ -98,7 +125,6 @@ function PopUpEditAppoint(props) {
             placeholder=""
             value={dataApointment.object}
           />
-          {/* //!сделать textaera */}
             <Input
             Textlabel={"Описание проблемы"}
             handleInputChange={handleInputChange}
@@ -107,22 +133,13 @@ function PopUpEditAppoint(props) {
             type = "textArea"
             value={dataApointment.problemDescription}
           />
-          {/* //!сделать список */}
-            {/* <Input
-            Textlabel={"Срочность"}
-            handleInputChange={handleInputChange}
-            name="urgency"
-            placeholder=""
-            value={dataApointment.urgency}
-          /> */}
-          {/* ////!сделать маленький инпут и список */}
-            {/* <Input
+            <ListInput
             Textlabel={"Порядок маршрута"}
-            handleInputChange={handleInputChange}
-            name="itineraryOrder"
-            placeholder=""
-            value={dataApointment.itineraryOrder}
-          /> */}
+            handleListData={handleListData}
+            name="urgency"
+            dataList={DataUrgency}
+            value={dataApointment.urgency}
+          />
             <Input
             Textlabel={"Бюджет ремонта (Рублей)"}
             handleInputChange={handleInputChange}
