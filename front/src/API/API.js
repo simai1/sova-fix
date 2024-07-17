@@ -7,8 +7,7 @@ const server = "http://localhost:3000";
 const REFRESH_INTERVAL = 1500000; // 25 минут 1500000
 let refreshTokensTimeout;
 
-
-//! ЭТА ШЛЯПА НЕ РАБОТАЕТ РЕФРЕШ
+//!Рефреш токенов
 export const refreshTokens = async () => {
   try {
     const response = await http.get(`${server}/auth/refresh`,);

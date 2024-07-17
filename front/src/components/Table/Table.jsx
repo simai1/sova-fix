@@ -232,6 +232,10 @@ function Table() {
       return "___"
     }
   }
+
+  const deleteBilder = (id) =>{
+    console.log(id)
+  }
   
   return (
     <>
@@ -306,11 +310,14 @@ function Table() {
                           {shovBulderPop === row.id && (
                             <div className={styles.shovStatusPop} style={checkHeights(filteredTableData,index) ? {top:"-70%", width: "200%"} : {width: "200%"}}  >
                               <ul>
+                              { row[headerItem.key] !== null && <li onClick={() => deleteBilder(row.id)}>Удалить исполнителя</li>}
                                 {context.dataContractors?.map((value, index) => (
+                                 
                                   <li
                                     onClick={() => SetBilder(value.id, row.id)}
                                     key={index}
                                   >
+                                   
                                     {value.name}
                                   </li>
                                 ))}

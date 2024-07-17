@@ -4,7 +4,7 @@ import styles from "./PopUpEditAppoint.module.scss";
 import PopUpContainer from "../../../UI/PopUpContainer/PopUpContainer";
 import Input from "../../../UI/Input/Input";
 import DataContext from "../../../context";
-import { Register, SetcontractorRequest } from "../../../API/API";
+import { Register, ReseachDataRequest, SetcontractorRequest } from "../../../API/API";
 import List from "../../../UI/List/List";
 import ListInput from "../../../UI/ListInput/ListInput";
 
@@ -74,18 +74,26 @@ function PopUpEditAppoint(props) {
         setdataApointment((prevState) => ({ ...prevState, [name]: value }));
     };
 
-  const EditAppoint = () => {
-   console.log(dataApointment)
-   SetcontractorRequest(dataApointment).then((resp) => {
-    if (resp.status === 200) {
-      context.UpdateTableReguest(1);
-    }else{
-        alert("Заполните правльно все поля!")
-    }
-  });
-   }
+    const getUrgencyNameById = (id) => {
+        const urgencyItem = DataUrgency.find((item) => item.id === id);
+        return urgencyItem ? urgencyItem.name : id;
+      };
+    
+      const EditAppoint = () => {
+        const urgencyName = getUrgencyNameById(dataApointment.urgency);
+        const updatedDataApointment = { ...dataApointment, urgency: urgencyName };
+    
+        ReseachDataRequest(context.selectedTr, updatedDataApointment).then((resp) => {
+          if (resp.status === 200) {
+            context.UpdateTableReguest(1);
+            context.setPopUp(null)
+          } else {
+            alert("Заполните правльно все поля!");
+          }
+        });
+      };
   
-   
+
   return (
     <PopUpContainer width={true} title={"Редактирование заказа"} mT={75}>
       <div className={styles.popBox}>
