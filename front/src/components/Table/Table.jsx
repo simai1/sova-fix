@@ -32,14 +32,11 @@ function Table() {
   const [shovBulderPop, setshovBulderPop] = useState("");
   const [shovUrgencyPop, setshovUrgencyPop] = useState("");
   const [itineraryOrderPop,setItineraryOrderPop] = useState("");
-  
   const [modalImage, setModalImage] = useState(null);
-
   const statusPopRef = useRef(null);
   const builderPopRef = useRef(null);
   const urgencyPopRef = useRef(null);
   const ItineraryOrderPopRef = useRef(null)
-
   const [arrCount, setArrCount] = useState([])
 
   const editStatus = (status, id) => {
@@ -198,15 +195,12 @@ function Table() {
   });
 
   const checkHeights = (arr,index) =>{
-    console.log('arr', arr)
-    console.log('index', index)
     if(arr.length-1 === index){
       return true
     }else{
       return false
     }
   }
-  
 
   const getItem = (item) =>{
     if(item === null || item === undefined){
