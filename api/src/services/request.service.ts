@@ -76,7 +76,10 @@ const update = async (
     repairPrice: number | undefined,
     comment: string | undefined,
     legalEntity: string | undefined,
-    itineraryOrder: number | undefined
+    itineraryOrder: number | undefined,
+    contractorId: string | undefined,
+    status: number | undefined,
+    builder: string | undefined
 ): Promise<void> => {
     const request = await RepairRequest.findByPk(requestId);
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
@@ -90,6 +93,11 @@ const update = async (
             repairPrice,
             comment,
             legalEntity,
+            contractorId,
+            status,
+            builder: typeof contractorId !== 'undefined' && contractorId ? 'Внутренний сотрудник' : builder,
+            completeDate: typeof status !== 'undefined' && status == 3 ? new Date() : null,
+            daysAtWork: typeof status !== 'undefined' && status == 2 ? 1 : 0,
             itineraryOrder: urgency && request.urgency === 'Маршрут' && urgency !== 'Маршрут' ? null : itineraryOrder,
         },
         { where: { id: request.id } }

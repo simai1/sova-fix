@@ -67,7 +67,19 @@ const deleteRequest = catchAsync(async (req, res) => {
 });
 
 const update = catchAsync(async (req, res) => {
-    const { unit, object, problemDescription, urgency, repairPrice, comment, legalEntity, itineraryOrder } = req.body;
+    const {
+        unit,
+        object,
+        problemDescription,
+        urgency,
+        repairPrice,
+        comment,
+        legalEntity,
+        itineraryOrder,
+        contractorId,
+        status,
+        builder,
+    } = req.body;
     const { requestId } = req.params;
     if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
     if (
@@ -78,7 +90,10 @@ const update = catchAsync(async (req, res) => {
         !repairPrice &&
         !comment &&
         !legalEntity &&
-        !itineraryOrder
+        !itineraryOrder &&
+        !contractorId &&
+        !status &&
+        !builder
     )
         throw new ApiError(httpStatus.BAD_REQUEST, 'Missing body');
     await requestService.update(
@@ -90,7 +105,10 @@ const update = catchAsync(async (req, res) => {
         repairPrice,
         comment,
         legalEntity,
-        itineraryOrder
+        itineraryOrder,
+        contractorId,
+        status,
+        builder
     );
     res.json({ status: 'OK' });
 });
