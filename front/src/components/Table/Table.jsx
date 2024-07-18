@@ -45,7 +45,7 @@ function Table() {
       status: status,
     };
     SetStatusRequest(data).then((resp) => {
-      if (resp) {
+      if (resp?.status === 200) {
         context.UpdateTableReguest(1);
       }
     });
@@ -122,7 +122,7 @@ function Table() {
     };
 
     SetcontractorRequest(data).then((resp) => {
-      if (resp) {
+      if (resp?.status === 200) {
         context.UpdateTableReguest(1);
       }
     });
@@ -134,7 +134,7 @@ function Table() {
       itineraryOrder: el,
     }; 
     ReseachDataRequest(idAppoint, data).then((resp)=>{
-      if(resp.status === 200){
+      if(resp?.status === 200){
         context.UpdateTableReguest(3, idInteger);
       }
     })
@@ -239,7 +239,7 @@ function Table() {
       requestId: id
     }
     RemoveContractor(data).then((resp)=>{
-      if(resp.status === 200){
+      if(resp?.status === 200){
         context.UpdateTableReguest(1);
       }
     })

@@ -27,6 +27,7 @@ export const refreshTokens = async () => {
 };
 
 
+//!таймер рефреша
 const refreshTokensTimer = () => {
   clearTimeout(refreshTokensTimeout);
   if (sessionStorage.getItem("accessToken") === "null") {
@@ -119,7 +120,7 @@ export const LogOut = async () => {
     );
     return response;
   } catch (error) {
-    // Handle the error here
+    alert("Возникла ошибка при выходе!");
   }
 };
 
@@ -135,7 +136,7 @@ export const GetAllRequests = async () => {
     });
     return response;
   } catch (error) {
-    alert("Ошибка при получении заявок!");
+    alert("Ошибка при получении списка заявок!");
   }
 };
 

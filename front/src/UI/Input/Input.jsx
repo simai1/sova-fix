@@ -58,6 +58,7 @@ function Input({
           value={value}
           type={type}
           style={isValid ? {} : {border: '1px solid red'}}
+          maxLength={75}
         />
       </div>
       :
@@ -74,6 +75,7 @@ function Input({
           value={value}
           type={type}
           style={isValid ? {} : {border: '1px solid red'}}
+          maxLength={300}
         />
       </div>
     }

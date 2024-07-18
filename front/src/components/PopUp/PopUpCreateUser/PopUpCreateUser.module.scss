@@ -7,7 +7,7 @@
   width: 100%;
   .buttonSave {
     margin-top: 20px;
-    @include buttonSave(var(--green-color));
+    @include buttonSave(var(--turquoise-color));
   }
 }
 

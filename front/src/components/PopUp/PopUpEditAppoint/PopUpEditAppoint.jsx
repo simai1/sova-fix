@@ -84,7 +84,7 @@ function PopUpEditAppoint(props) {
         const updatedDataApointment = { ...dataApointment, urgency: urgencyName, };
       
         ReseachDataRequest(context.selectedTr, updatedDataApointment).then((resp) => {
-          if (resp.status === 200) {
+          if (resp?.status === 200) {
             context.UpdateTableReguest(1);
             context.setPopUp(null)
           } else {
@@ -163,6 +163,7 @@ function PopUpEditAppoint(props) {
             Textlabel={"Комментарий"}
             handleInputChange={handleInputChange}
             name="comment"
+            type = "textArea"
             placeholder="Комментарий"
             value={dataApointment.comment}
           />

@@ -18,6 +18,7 @@
       @include button(var(--dark-grey-color));
       margin: 0px 5px;
       width: 180px;
+      padding: 12.5px 0px;
       text-align: center;
       display: flex;
       justify-content: center;
@@ -30,6 +31,10 @@
   button {
     @include button(var(--dark-grey-color));
     margin: auto 0;
+    width: 100px;
+    display: flex;
+    justify-content: center;
+    padding: 12.5px 0px;
     @include font(14px, 700);
   }
 }

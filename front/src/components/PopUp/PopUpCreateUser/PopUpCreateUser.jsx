@@ -8,17 +8,20 @@ import { Register } from "../../../API/API";
 
 function PopUpCreateUser() {
   const { context } = React.useContext(DataContext);
+  const [isInputValid, setIsInputValid] = useState(false);
   const [dataApointment, setdataApointment] = useState({
     login: "",
   });
 
   const handleInputChange = (name, value) => {
     setdataApointment((prevState) => ({ ...prevState, [name]: value }));
+    const isValid = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value);
+    setIsInputValid(isValid);
   };
 
   const CreateNewClient = () => {
    Register(dataApointment).then((resp)=>{
-    if(resp){
+    if(resp?.status === 200){
       context.setPopUp("PopUpGoodMessage")
       context.setPopupGoodText("Заявка успешно принята!")
       context.UpdateTableReguest(2);
@@ -40,7 +43,7 @@ function PopUpCreateUser() {
         </div>
       </div>
       <div className={styles.button}>
-        <button className={styles.buttonSave} onClick={CreateNewClient}>
+        <button className={styles.buttonSave} onClick={CreateNewClient} disabled={!isInputValid}>
           Сохранить
         </button>
       </div>

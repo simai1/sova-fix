@@ -4,11 +4,17 @@ import { useNavigate } from "react-router-dom"
 import DataContext from "../../../context";
 import { tableHeadAppoint } from "../../../components/Table/Data";
 import { LoginFunc } from "../../../API/API";
+
 function Authorization() {
   const { context } = React.useContext(DataContext);
-
   const navigate = useNavigate();
+
+  // State for form data and error messages
   const [formData, setFormData] = useState({
+    login: "",
+    password: "",
+  });
+  const [errors, setErrors] = useState({
     login: "",
     password: "",
   });
@@ -19,22 +25,47 @@ function Authorization() {
       ...prevData,
       [name]: value,
     }));
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: "",
+    }));
   };
 
-  const handleLogin = () => {
-    LoginFunc(formData).then((resp) => {
-      if (resp.status === 200) {
-        if(resp.data.userId != null || resp.data.userId != undefined){
-          context.setActivateId(resp.data.userId)
-          navigate("/Activate");
-        }else{
-          context.setDataUsers(resp);
-          navigate("/AdminPage");
+ const handleLogin = () => {
+    let formIsValid = true;
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(formData.login)) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        login: "Please enter a valid email address",
+      }));
+      formIsValid = false;
+    }
+    if (formData.password.length < 5 || formData.password.length > 20) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        password: "Password must be between 5 and 20 characters",
+      }));
+      formIsValid = false;
+    }
+  
+    if (formIsValid) {
+      LoginFunc(formData).then((resp) => {
+        if (resp?.status === 200) {
+          if (resp?.data.userId != null || resp?.data.userId != undefined) {
+            context.setActivateId(resp?.data.userId);
+            navigate("/Activate");
+          } else {
+            context.setDataUsers(resp);
+            navigate("/AdminPage");
+          }
         }
-      }    
-    });
+      });
+    }
   };
+  
 
+  // Effect to reset context and set table data
   useEffect(() => {
     context.setTableData([]);
     context.settableHeader(tableHeadAppoint);
@@ -52,17 +83,21 @@ function Authorization() {
             name="login"
             value={formData.login}
             onChange={handleInputChange}
+            style={{ borderColor: errors.login ? "red" : "" }} // Highlight with red border
           />
+          {/* {errors.login && <div style={{ color: "red" }}>{errors.login}</div>} Display error message */}
           <input
             type="password"
             placeholder="Пароль"
             name="password"
             value={formData.password}
             onChange={handleInputChange}
+            style={{ borderColor: errors.password ? "red" : "" }} // Highlight with red border
           />
-            <button className={styles.button} onClick={handleLogin} >
-              Войти
-            </button>
+          {/* {errors.password && <div style={{ color: "red" }}>{errors.password}</div>}  */}
+          <button className={styles.button} onClick={handleLogin}>
+            Войти
+          </button>
         </div>
       </div>
     </div>

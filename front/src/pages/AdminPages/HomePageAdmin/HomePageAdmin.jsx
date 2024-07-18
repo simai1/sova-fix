@@ -7,6 +7,7 @@ import PopUpCreateUser from "../../../components/PopUp/PopUpCreateUser/PopUpCrea
 import PopUpGoodMessage from "../../../UI/PopUpGoodMessage/PopUpGoodMessage";
 import PageCardContractors from "../PageCardContractors/PageCardContractors";
 import PopUpEditAppoint from "../../../components/PopUp/PopUpEditAppoint/PopUpEditAppoint";
+import { PopUpError } from "../../../UI/PopUpError/PopUpError";
 function HomePageAdmin() {
   const { context } = React.useContext(DataContext);
   return (
@@ -23,6 +24,7 @@ function HomePageAdmin() {
       </>
     }
     
+      {context.popUp === "PopUpError" && <PopUpError />}
       {context.popUp === "PopUpEditAppoint" && <PopUpEditAppoint />}
       {context.popUp === "PopUpCreateUser" && <PopUpCreateUser />}
       {context.popUp === "PopUpGoodMessage" && <PopUpGoodMessage />}

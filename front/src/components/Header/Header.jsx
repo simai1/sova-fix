@@ -20,7 +20,7 @@ useEffect(()=>{
 
   const Exit =()=>{
     LogOut().then((resp)=>{
-      if(resp){
+      if(resp?.status === 200){
       navigate("/");
       }
     })
@@ -41,7 +41,7 @@ useEffect(()=>{
       </div>
       <div className={styles.buttonBlock}> 
         <button onClick={()=>{homeButton()}} style={ context.selectPage === "Main" ? {backgroundColor: "#4693a4" } : {backgroundColor: "#afbbbd"}}>Главная</button>
-        <button onClick={()=>{context.setSelectPage("Card")}} style={ context.selectPage !== "Main" ? {backgroundColor: "#4693a4"} : {backgroundColor: "#afbbbd"}}>Маршрутная карта</button>
+        <button onClick={()=>{context.setSelectPage("Card");  context.setSelectedTr(null)}} style={ context.selectPage !== "Main" ? {backgroundColor: "#4693a4"} : {backgroundColor: "#afbbbd"}}>Маршрутная карта</button>
       </div>
       <div>
         <button onClick={Exit}>Выйти</button>
