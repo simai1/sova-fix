@@ -27,6 +27,7 @@ function ListInput(props) {
             readOnly
             onClick={() => setactiveList(!activeList)}
             value={props.dataList.find((el)=> el.id === props.value)?.name || props.value }
+            placeholder={props?.placeholder}
           />
           <span
             onClick={() => setactiveList(!activeList)}
