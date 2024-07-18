@@ -93,7 +93,7 @@ const editAppoint = ()=>{
                 Удалить заказ
               </button>
             </div>
-          ) : context.selectedTable === "Пользователи" && context.selectPage === "Main" &&  JSON.parse(localStorage.getItem("userData")).user.role === "ADMIN" ? (
+          ) : context.selectedTable === "Пользователи" && context.selectPage === "Main" &&  JSON.parse(sessionStorage.getItem("userData")).user.role === "ADMIN" ? (
             <div className={styles.HeadMenu}>
               <button onClick={()=>{context.setPopUp("PopUpCreateUser")}}>
                   <img src="./img/plus.svg" alt="View" />

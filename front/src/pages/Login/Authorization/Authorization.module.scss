@@ -31,6 +31,10 @@
 
       .button {
         @include button(var(--turquoise-color));
+        width: 200px!important;
+        text-align: center;
+        display: flex;
+        justify-content: center;
       }
       .buttonReg {
         margin-top: 10px;

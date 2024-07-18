@@ -60,7 +60,7 @@ function Authorization() {
             value={formData.password}
             onChange={handleInputChange}
           />
-            <button className={styles.button} onClick={handleLogin}>
+            <button className={styles.button} onClick={handleLogin} >
               Войти
             </button>
         </div>

@@ -9,12 +9,13 @@ function Input({
   settextSearchTableData,
   value,
   regex,
-  type="text"
+  type="text",
+  setInputValidity // new prop to set input validity
 }) {
   const [textInput, settextInput] = useState("");
   const [errors, setErrors] = useState({});
   const [isValid, setIsValid] = useState(true);
-  const [isFirstRender, setIsFirstRender] = useState(true); // new state variable to track first render
+  const [isFirstRender, setIsFirstRender] = useState(true);
 
   const InputText = (e) => {
     settextInput(e.target.value);
@@ -23,10 +24,10 @@ function Input({
   };
 
   useEffect(() => {
-    if (!isFirstRender) { // skip validation on first render
+    if (!isFirstRender) {
       validateField();
     } else {
-      setIsFirstRender(false); // set isFirstRender to false after first render
+      setIsFirstRender(false);
     }
   }, [textInput]);
 
@@ -35,8 +36,10 @@ function Input({
 
     if (regex && !regex.test(textInput)) {
       setIsValid(false);
+      setInputValidity(name, false); // update parent with invalid state
     } else {
       setIsValid(true);
+      setInputValidity(name, true); // update parent with valid state
     }
 
     setErrors(tempErrors);
@@ -44,40 +47,39 @@ function Input({
 
   return (
     <div className={styles.input}>
-    {type!= "textArea" ?
-      <div>
-        {Textlabel && (
-          <div>
-            <label>{Textlabel}</label>
-            {errors['required'] && <div className={styles.error}>{errors['required']}</div>}
-          </div>
-        )}
-        <input
-          onChange={(e) => InputText(e)}
-          placeholder={placeholder}
-          value={value}
-          type={type}
-          style={isValid ? {} : {border: '1px solid red'}}
-        />
-      </div>
-      :
-      <div className={styles.textarea}>
-        {Textlabel && (
-          <div>
-            <label>{Textlabel}</label>
-            {errors['required'] && <div className={styles.error}>{errors['required']}</div>}
-          </div>
-        )}
-        <textarea
-          onChange={(e) => InputText(e)}
-          placeholder={placeholder}
-          value={value}
-          type={type}
-          style={isValid ? {} : {border: '1px solid red'}}
-        />
-      </div>
-    }
-     
+      {type !== "textArea" ? (
+        <div>
+          {Textlabel && (
+            <div>
+              <label>{Textlabel}</label>
+              {errors['required'] && <div className={styles.error}>{errors['required']}</div>}
+            </div>
+          )}
+          <input
+            onChange={(e) => InputText(e)}
+            placeholder={placeholder}
+            value={value}
+            type={type}
+            style={isValid ? {} : {border: '1px solid red'}}
+          />
+        </div>
+      ) : (
+        <div className={styles.textarea}>
+          {Textlabel && (
+            <div>
+              <label>{Textlabel}</label>
+              {errors['required'] && <div className={styles.error}>{errors['required']}</div>}
+            </div>
+          )}
+          <textarea
+            onChange={(e) => InputText(e)}
+            placeholder={placeholder}
+            value={value}
+            type={type}
+            style={isValid ? {} : {border: '1px solid red'}}
+          />
+        </div>
+      )}
     </div>
   );
 }

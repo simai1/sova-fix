@@ -1,7 +1,7 @@
 import React, { useState, useContext, useRef, useEffect } from "react";
 import styles from "./Table.module.scss";
 import DataContext from "../../context";
-import { ReseachDataRequest, SetStatusRequest, SetcontractorRequest } from "../../API/API";
+import { RemoveContractor, ReseachDataRequest, SetStatusRequest, SetcontractorRequest } from "../../API/API";
 
 function Table() {
   const { context } = useContext(DataContext);
@@ -195,7 +195,7 @@ function Table() {
   });
 
   const checkHeights = (arr,index) =>{
-    if(arr.length-1 === index){
+    if(arr.length-1 === index && index >=4){
       return true
     }else{
       return false
@@ -235,6 +235,14 @@ function Table() {
 
   const deleteBilder = (id) =>{
     console.log(id)
+    const data = {
+      requestId: id
+    }
+    RemoveContractor(data).then((resp)=>{
+      if(resp.status === 200){
+        context.UpdateTableReguest(1);
+      }
+    })
   }
   
   return (

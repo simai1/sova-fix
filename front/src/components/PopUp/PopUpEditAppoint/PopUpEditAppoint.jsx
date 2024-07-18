@@ -12,7 +12,7 @@ function PopUpEditAppoint(props) {
   const { context } = React.useContext(DataContext);
   const [dataApStart, setDataApStart] = useState(null)
   const [dataApointment, setdataApointment] = useState({
-    contractor:"",
+    contractorId:"",
     builder:"",
     status:"",
     unit:"",
@@ -53,16 +53,16 @@ function PopUpEditAppoint(props) {
   useEffect(() => {
     if (dataApStart) {
       setdataApointment({
-        contractor: dataApStart.contractor.name,
-        builder: dataApStart.builder,
-        status: dataApStart.status,
-        unit: dataApStart.unit,
-        object: dataApStart.object,
-        problemDescription: dataApStart.problemDescription,
-        urgency: dataApStart.urgency,
-        repairPrice: dataApStart.repairPrice,
-        comment: dataApStart.comment,
-        legalEntity: dataApStart.legalEntity,
+        contractorId: dataApStart?.contractor?.id,
+        builder: dataApStart?.builder,
+        status: dataApStart?.status,
+        unit: dataApStart?.unit,
+        object: dataApStart?.object,
+        problemDescription: dataApStart?.problemDescription,
+        urgency: dataApStart?.urgency,
+        repairPrice: dataApStart?.repairPrice,
+        comment: dataApStart?.comment,
+        legalEntity: dataApStart?.legalEntity,
       });
     }
   }, [dataApStart]);
@@ -81,8 +81,8 @@ function PopUpEditAppoint(props) {
     
       const EditAppoint = () => {
         const urgencyName = getUrgencyNameById(dataApointment.urgency);
-        const updatedDataApointment = { ...dataApointment, urgency: urgencyName };
-    
+        const updatedDataApointment = { ...dataApointment, urgency: urgencyName, };
+      
         ReseachDataRequest(context.selectedTr, updatedDataApointment).then((resp) => {
           if (resp.status === 200) {
             context.UpdateTableReguest(1);
@@ -101,9 +101,9 @@ function PopUpEditAppoint(props) {
           <ListInput
             Textlabel={"Исполнитель"}
             handleListData={handleListData}
-            name="contractor"
+            name="contractorId"
             dataList={context.dataContractors}
-            value={dataApointment.contractor}
+            value={dataApointment.contractorId}
           />
            <Input
             Textlabel={"Подрядчик"}

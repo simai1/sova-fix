@@ -10,9 +10,11 @@ function Header() {
   const navigate = useNavigate();
 
 useEffect(()=>{
-  const userData = JSON.parse(localStorage.getItem("userData")).user.name;
-  const parts = userData.split(' '); // Разбиваем полное имя на части по пробелу
-  setShortName(parts[0] + ' ' + parts[1])
+  const userData = JSON.parse(sessionStorage.getItem("userData")).user?.name;
+  const parts = userData?.split(' '); // Разбиваем полное имя на части по пробелу
+  if(parts){
+    setShortName(parts[0] + ' ' + parts[1])
+  }
 },[])
 
 

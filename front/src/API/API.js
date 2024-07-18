@@ -10,24 +10,29 @@ let refreshTokensTimeout;
 //!Рефреш токенов
 export const refreshTokens = async () => {
   try {
-    const response = await http.get(`${server}/auth/refresh`,);
-    const { NewaccessToken, NewrefreshToken, ...userData } = response.data;
-    localStorage.setItem("accessToken", NewaccessToken);
-    localStorage.setItem("refreshToken", NewrefreshToken);
-    localStorage.setItem("userData", JSON.stringify(userData));
+    const response = await http.get(`${server}/auth/refresh`);
+    console.log('response', response);
+    sessionStorage.removeItem("accessToken");
+    sessionStorage.removeItem("refreshToken");
 
-    return response
+    const { accessToken, refreshToken } = response.data; // Destructure the required data from the response
+
+    sessionStorage.setItem("accessToken", accessToken);
+    sessionStorage.setItem("refreshToken", refreshToken);
+
+    return response;
   } catch (error) {
-    console.error("Тоекны не обновлены!");
+    console.error("Tokens were not updated!");
   }
 };
 
+
 const refreshTokensTimer = () => {
   clearTimeout(refreshTokensTimeout);
-  if (localStorage.getItem("accessToken") === "null") {
+  if (sessionStorage.getItem("accessToken") === "null") {
     return;
   }
-  const lastRefreshTime = localStorage.getItem("lastRefreshTime");
+  const lastRefreshTime = sessionStorage.getItem("lastRefreshTime");
   const currentTime = Date.now();
   let timeRemaining;
   if (lastRefreshTime) {
@@ -38,11 +43,11 @@ const refreshTokensTimer = () => {
   }
   refreshTokensTimeout = setTimeout(() => {
     refreshTokens();
-    localStorage.setItem("lastRefreshTime", Date.now());
+    sessionStorage.setItem("lastRefreshTime", Date.now());
     refreshTokensTimer();
   }, timeRemaining);
 
-  localStorage.setItem("refreshTokensInterval", refreshTokensTimeout);
+  sessionStorage.setItem("refreshTokensInterval", refreshTokensTimeout);
 };
 
 window.addEventListener("load", () => {
@@ -59,9 +64,9 @@ export const LoginFunc = async (UserData) => {
   try {
     const response = await http.post(`${server}/auth/login`, UserData);
     const { accessToken, refreshToken, ...userData } = response.data;
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("refreshToken", refreshToken);
-      localStorage.setItem("userData", JSON.stringify(userData));
+      sessionStorage.setItem("accessToken", accessToken);
+      sessionStorage.setItem("refreshToken", refreshToken);
+      sessionStorage.setItem("userData", JSON.stringify(userData));
       refreshTokensTimer();
     return response;
   } catch (error) {
@@ -72,10 +77,14 @@ export const LoginFunc = async (UserData) => {
 //! регистрация аккаунта
 export const Register = async (UserData) => {
   try {
-    const response = await http.post(`${server}/auth/register`, UserData);
+    const response = await http.post(`${server}/auth/register`, UserData, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
     return response;
   } catch (error) {
-    alert("Возникла ошибка при создании пользователя!");
+    alert("Такой пользователь уже существует!")
   }
 };
 
@@ -84,9 +93,9 @@ export const ActivateFunc = async (UserData, idUser) => {
   try {
     const response = await http.post(`${server}/auth/activate/${idUser}`, UserData);
     const { accessToken, refreshToken, ...userData } = response.data;
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("refreshToken", refreshToken);
-      localStorage.setItem("userData", JSON.stringify(userData));
+      sessionStorage.setItem("accessToken", accessToken);
+      sessionStorage.setItem("refreshToken", refreshToken);
+      sessionStorage.setItem("userData", JSON.stringify(userData));
       refreshTokensTimer();
     return response;
   } catch (error) {
@@ -96,13 +105,14 @@ export const ActivateFunc = async (UserData, idUser) => {
 
 
 export const LogOut = async () => {
+  console.log(sessionStorage.getItem("accessToken"))
   try {
     const response = await http.post(
       `${server}/auth/logout`,
       {},
       {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
         },
         withCredentials: true
       }
@@ -118,7 +128,11 @@ export const LogOut = async () => {
 //!полуение всех заявок
 export const GetAllRequests = async () => {
   try {
-    const response = await http.get(`${server}/requests`);
+    const response = await http.get(`${server}/requests`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
     return response;
   } catch (error) {
     alert("Ошибка при получении заявок!");
@@ -130,27 +144,35 @@ export const GetAllUsers = async () => {
   try {
     const response = await http.get(`${server}/users`, {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
       },
     });
     return response;
   } catch (error) {
-    alert("Ошибка при получении заявок!");
+    alert("Ошибка при получении списка пользователей!");
   }
 };
 export const GetAllСontractors = async () => {
   try {
-    const response = await http.get(`${server}/contractors`);
+    const response = await http.get(`${server}/contractors`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
     return response;
   } catch (error) {
-    alert("Ошибка при получении заявок!");
+    alert("Ошибка при получении списка исполнителей!");
   }
 };
 
 //!изменение статуса заявки
 export const SetStatusRequest = async (data) => {
   try {
-    const response = await http.patch(`${server}/requests/set/status`, data);
+    const response = await http.patch(`${server}/requests/set/status`, data, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
     return response;
   } catch (error) {
     alert("Ошибка при изменении статуса заявки!");
@@ -160,17 +182,25 @@ export const SetStatusRequest = async (data) => {
 //!изменение contractor заявки
 export const SetcontractorRequest = async (data) => {
   try {
-    const response = await http.patch(`${server}/requests/set/contractor`, data);
+    const response = await http.patch(`${server}/requests/set/contractor`, data, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
     return response;
   } catch (error) {
-    alert("Ошибка при изменении статуса заявки!");
+    alert("Ошибка при изменении исполнителя заявки!");
   }
 };
 
 //! удалить заявку
 export const DeleteRequest = async (id) => {
   try {
-    const response = await http.delete(`${server}/requests/${id}/delete`);
+    const response = await http.delete(`${server}/requests/${id}/delete`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
     return response;
   } catch (error) {
     alert("Ошибка при удалении заявки!");
@@ -180,10 +210,14 @@ export const DeleteRequest = async (id) => {
 //! Получение карты пользователя
 export const GetContractorsItenerarity = async (id) => {
   try {
-    const response = await http.get(`${server}/contractors/${id}/itinerary`);
+    const response = await http.get(`${server}/contractors/${id}/itinerary`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
     return response;
   } catch (error) {
-    alert("Ошибка при удалении заявки!");
+    alert("Ошибка при получении карты пользователя!");
   }
 };
 
@@ -191,7 +225,11 @@ export const GetContractorsItenerarity = async (id) => {
 //! Изменение заявки
 export const ReseachDataRequest = async (id,data) => {
   try {
-    const response = await http.put(`${server}/requests/${id}/update`, data);
+    const response = await http.put(`${server}/requests/${id}/update`, data, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
     return response;
   } catch (error) {
     alert("Ошибка при изменении заявки!");
@@ -202,9 +240,26 @@ export const ReseachDataRequest = async (id,data) => {
 //! удаление поьзователя
 export const DeleteUserFunc = async (id) => {
   try {
-    const response = await http.delete(`${server}/users/${id}`);
+    const response = await http.delete(`${server}/users/${id}`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
     return response;
   } catch (error) {
     alert("Ошибка при удалении пользователя!");
+  }
+};
+
+export const RemoveContractor = async (data) => {
+  try {
+    const response = await http.patch(`${server}/requests/remove/contractor`, data, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    alert("Ошибка при удалении исполнителя!");
   }
 };
