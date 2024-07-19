@@ -6,6 +6,15 @@
   display: flex;
   justify-content: center;
   .box {
+    label{
+      display: flex;
+      justify-content: start;
+      width: 100%;
+      align-items: start;
+      text-align: start;
+      padding-left: 8px;
+      font-size: 14px;
+    }
     padding: 60px 0px;
     margin-right: 80px;
     width: 800px;
@@ -31,6 +40,11 @@
 
       .button {
         @include button(var(--turquoise-color));
+        width: 200px!important;
+        padding: 12.5px 0px;
+        text-align: center;
+        display: flex;
+        justify-content: center;
       }
       .buttonReg {
         margin-top: 10px;
@@ -39,3 +53,4 @@
     }
   }
 }
+

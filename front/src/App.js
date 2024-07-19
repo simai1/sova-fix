@@ -10,6 +10,7 @@ import { GetAllRequests, GetAllUsers, GetAllСontractors, GetContractorsItenerar
 import Activate from "./pages/Login/Activate/Activate";
 
 function App() {
+  const [popupErrorText, setPopupErrorText] = useState("")
   const [tableData, setTableData] = useState([]); // данные таблицы
   const [selectedTr, setSelectedTr] = useState(null); // выбранная строка
   const [selectedTable, setSelectedTable] = useState("Заказы"); // выбранная таблица
@@ -27,6 +28,8 @@ function App() {
   const [activateId, setActivateId]= useState("");
 
   const context = {
+    popupErrorText,
+    setPopupErrorText,
     nameClient,
     setnameClient,
     setDataUsers,

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styles from "./ContractorCard.module.scss";
 import DataContext from "../../context";
-import { GetContractorsItenerarity } from "../../API/API";
 const ContractorCard = (props) => {
   const { context } = React.useContext(DataContext);
   const [count, setCount] = useState(0)

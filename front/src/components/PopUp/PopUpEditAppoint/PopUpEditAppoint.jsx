@@ -12,7 +12,7 @@ function PopUpEditAppoint(props) {
   const { context } = React.useContext(DataContext);
   const [dataApStart, setDataApStart] = useState(null)
   const [dataApointment, setdataApointment] = useState({
-    contractor:"",
+    contractorId:"",
     builder:"",
     status:"",
     unit:"",
@@ -53,16 +53,16 @@ function PopUpEditAppoint(props) {
   useEffect(() => {
     if (dataApStart) {
       setdataApointment({
-        contractor: dataApStart.contractor.name,
-        builder: dataApStart.builder,
-        status: dataApStart.status,
-        unit: dataApStart.unit,
-        object: dataApStart.object,
-        problemDescription: dataApStart.problemDescription,
-        urgency: dataApStart.urgency,
-        repairPrice: dataApStart.repairPrice,
-        comment: dataApStart.comment,
-        legalEntity: dataApStart.legalEntity,
+        contractorId: dataApStart?.contractor?.id,
+        builder: dataApStart?.builder,
+        status: dataApStart?.status,
+        unit: dataApStart?.unit,
+        object: dataApStart?.object,
+        problemDescription: dataApStart?.problemDescription,
+        urgency: dataApStart?.urgency,
+        repairPrice: dataApStart?.repairPrice,
+        comment: dataApStart?.comment,
+        legalEntity: dataApStart?.legalEntity,
       });
     }
   }, [dataApStart]);
@@ -81,10 +81,10 @@ function PopUpEditAppoint(props) {
     
       const EditAppoint = () => {
         const urgencyName = getUrgencyNameById(dataApointment.urgency);
-        const updatedDataApointment = { ...dataApointment, urgency: urgencyName };
-    
+        const updatedDataApointment = { ...dataApointment, urgency: urgencyName, };
+      
         ReseachDataRequest(context.selectedTr, updatedDataApointment).then((resp) => {
-          if (resp.status === 200) {
+          if (resp?.status === 200) {
             context.UpdateTableReguest(1);
             context.setPopUp(null)
           } else {
@@ -101,15 +101,16 @@ function PopUpEditAppoint(props) {
           <ListInput
             Textlabel={"Исполнитель"}
             handleListData={handleListData}
-            name="contractor"
+            name="contractorId"
             dataList={context.dataContractors}
-            value={dataApointment.contractor}
+            value={dataApointment.contractorId}
+            placeholder="Выберите исполнителя"
           />
            <Input
             Textlabel={"Подрядчик"}
             handleInputChange={handleInputChange}
             name="builder"
-            placeholder="ООО стройдвор"
+            placeholder="Укажите подрядчика"
             value={dataApointment.builder}
           />
           <ListInput
@@ -118,26 +119,27 @@ function PopUpEditAppoint(props) {
             name="status"
             dataList={DataStatus}
             value={dataApointment.status}
+            placeholder="Выберите статус"
           />
            <Input
             Textlabel={"Подразделение"}
             handleInputChange={handleInputChange}
             name="unit"
-            placeholder=""
+            placeholder="КЕКС"
             value={dataApointment.unit}
           />
            <Input
             Textlabel={"Объект"}
             handleInputChange={handleInputChange}
             name="object"
-            placeholder=""
+            placeholder="Ворошиловский 53"
             value={dataApointment.object}
           />
             <Input
             Textlabel={"Описание проблемы"}
             handleInputChange={handleInputChange}
             name="problemDescription"
-            placeholder=""
+            placeholder="Не работает лампа от мухоловки"
             type = "textArea"
             value={dataApointment.problemDescription}
           />
@@ -147,27 +149,29 @@ function PopUpEditAppoint(props) {
             name="urgency"
             dataList={DataUrgency}
             value={dataApointment.urgency}
+            placeholder="Выберите порядок маршрута"
           />
             <Input
             Textlabel={"Бюджет ремонта (Рублей)"}
             handleInputChange={handleInputChange}
             name="repairPrice"
             type="number"
-            placeholder=""
+            placeholder="3000"
             value={dataApointment.repairPrice}
           />
             <Input
             Textlabel={"Комментарий"}
             handleInputChange={handleInputChange}
             name="comment"
-            placeholder=""
+            type = "textArea"
+            placeholder="Комментарий"
             value={dataApointment.comment}
           />
             <Input
             Textlabel={"Юр. Лицо"}
             handleInputChange={handleInputChange}
             name="legalEntity"
-            placeholder=""
+            placeholder="Пекарь ООО"
             value={dataApointment.legalEntity}
           />
         </div>

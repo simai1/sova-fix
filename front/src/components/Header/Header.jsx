@@ -10,15 +10,17 @@ function Header() {
   const navigate = useNavigate();
 
 useEffect(()=>{
-  const userData = JSON.parse(localStorage.getItem("userData")).user.name;
-  const parts = userData.split(' '); // Разбиваем полное имя на части по пробелу
-  setShortName(parts[0] + ' ' + parts[1])
+  const userData = JSON.parse(sessionStorage.getItem("userData")).user?.name;
+  const parts = userData?.split(' '); // Разбиваем полное имя на части по пробелу
+  if(parts){
+    setShortName(parts[0] + ' ' + parts[1])
+  }
 },[])
 
 
   const Exit =()=>{
     LogOut().then((resp)=>{
-      if(resp){
+      if(resp?.status === 200){
       navigate("/");
       }
     })
@@ -39,7 +41,7 @@ useEffect(()=>{
       </div>
       <div className={styles.buttonBlock}> 
         <button onClick={()=>{homeButton()}} style={ context.selectPage === "Main" ? {backgroundColor: "#4693a4" } : {backgroundColor: "#afbbbd"}}>Главная</button>
-        <button onClick={()=>{context.setSelectPage("Card")}} style={ context.selectPage !== "Main" ? {backgroundColor: "#4693a4"} : {backgroundColor: "#afbbbd"}}>Маршрутная карта</button>
+        <button onClick={()=>{context.setSelectPage("Card");  context.setSelectedTr(null)}} style={ context.selectPage !== "Main" ? {backgroundColor: "#4693a4"} : {backgroundColor: "#afbbbd"}}>Маршрутная карта</button>
       </div>
       <div>
         <button onClick={Exit}>Выйти</button>

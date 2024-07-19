@@ -27,12 +27,14 @@ function FunctionTableTop(props) {
   const deleteRequestFunc = () =>{
     if(context.selectedTr != null){
       DeleteRequest(context.selectedTr).then((resp)=>{
-        if(resp.status === 200){
+        if(resp?.status === 200){
           context.UpdateTableReguest(1);
+          context.setSelectedTr(null)
         }
       })
     }else{
-      alert("Сначала выберите заявку!")
+      context.setPopupErrorText("Сначала выберите заказ!");
+      context.setPopUp("PopUpError")
     }
   }
 
@@ -40,19 +42,21 @@ const editAppoint = ()=>{
   if(context.selectedTr != null){
   context.setPopUp("PopUpEditAppoint")
   }else{
-    alert("Сначала выберите заказ!")
+    context.setPopupErrorText("Сначала выберите заказ!");
+      context.setPopUp("PopUpError")
   }
 }
 
   const deletedUser = ()=>{
     if(context.selectedTr != null){
       DeleteUserFunc(context.selectedTr).then((resp)=>{
-        if(resp.status === 200){
+        if(resp?.status === 200){
           context.UpdateTableReguest(2);
         }
       })
     }else{
-      alert("Сначала выберите пользователя!")
+      context.setPopupErrorText("Сначала выберите пользователя!");
+      context.setPopUp("PopUpError")
     }
   }
 
@@ -93,7 +97,7 @@ const editAppoint = ()=>{
                 Удалить заказ
               </button>
             </div>
-          ) : context.selectedTable === "Пользователи" && context.selectPage === "Main" &&  JSON.parse(localStorage.getItem("userData")).user.role === "ADMIN" ? (
+          ) : context.selectedTable === "Пользователи" && context.selectPage === "Main" &&  JSON.parse(sessionStorage.getItem("userData")).user.role === "ADMIN" ? (
             <div className={styles.HeadMenu}>
               <button onClick={()=>{context.setPopUp("PopUpCreateUser")}}>
                   <img src="./img/plus.svg" alt="View" />

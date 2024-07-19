@@ -19,7 +19,7 @@ const PopUpGoodMessage = (props) => {
         </div>
 
         <div className={styles.mainPop__inner__inner}>
-          <img src="./img/goodOk.svg" />
+          <img src="./img/good.svg" />
         </div>
         <div className={styles.text}><p>{context.popupGoodText != "" ?  context.popupGoodText : "Готово!"}</p></div>
       </div>
