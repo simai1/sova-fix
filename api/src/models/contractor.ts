@@ -2,6 +2,7 @@ import { DataTypes, Model, Sequelize } from 'sequelize';
 export default class Contractor extends Model {
     id!: string;
     name!: string;
+    tgUserId?: string;
 
     static initialize(sequelize: Sequelize) {
         Contractor.init(

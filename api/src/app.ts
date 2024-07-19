@@ -9,6 +9,7 @@ import authRoute from './routes/auth.route';
 import userRoute from './routes/user.route';
 import requestRoute from './routes/request.route';
 import contractorRoute from './routes/contractor.route';
+import tgUserRoute from './routes/tgUser.route';
 
 const app: Express = express();
 
@@ -38,4 +39,5 @@ app.use('/auth', authRoute);
 app.use('/users', userRoute);
 app.use('/requests', requestRoute);
 app.use('/contractors', contractorRoute);
+app.use('/tgUsers', tgUserRoute);
 export default app;
