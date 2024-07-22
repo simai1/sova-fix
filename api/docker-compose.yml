@@ -1,0 +1,43 @@
+version: '3'
+services:
+  db:
+    container_name:
+      sova-fix-db
+    image: postgres:15
+    restart: always
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PWD}
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    ports:
+      - "5432:5432"
+    networks:
+      - sova-fix-network
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  server:
+    container_name: sova-fix-server
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - NODE_ENV=${NODE_ENV}
+    networks:
+      - sova-fix-network
+
+networks:
+  sova-fix-network:
+
+volumes:
+  pgdata:
