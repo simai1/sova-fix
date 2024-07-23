@@ -68,7 +68,7 @@ function Activate() {
       ActivateFunc(data, context?.activateId).then((resp) => {
         if (resp?.status === 200) {
           context.setDataUsers(resp);
-          navigate("/AdminPage");
+          navigate("/");
         }
       });
     }

@@ -8,10 +8,12 @@ import PopUpGoodMessage from "../../../UI/PopUpGoodMessage/PopUpGoodMessage";
 import PageCardContractors from "../PageCardContractors/PageCardContractors";
 import PopUpEditAppoint from "../../../components/PopUp/PopUpEditAppoint/PopUpEditAppoint";
 import { PopUpError } from "../../../UI/PopUpError/PopUpError";
+import Header from "../../../components/Header/Header";
 function HomePageAdmin() {
   const { context } = React.useContext(DataContext);
   return (
     <div className={styles.HomePage}>
+    <Header />
     {context.selectPage === "Main" ? 
       <>
         <FunctionTableTop />
