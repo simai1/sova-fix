@@ -57,7 +57,7 @@ function Authorization() {
             navigate("/Activate");
           } else {
             context.setDataUsers(resp);
-            navigate("/AdminPage");
+            navigate("/");
           }
         }
       });

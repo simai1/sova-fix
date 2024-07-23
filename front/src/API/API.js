@@ -137,6 +137,8 @@ export const GetAllRequests = async () => {
     return response;
   } catch (error) {
     alert("Ошибка при получении списка заявок!");
+    window.location.href = "http://localhost:3001/Authorization";
+
   }
 };
 

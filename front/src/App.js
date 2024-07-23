@@ -3,7 +3,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import DataContext from "./context";
 import "./styles/style.css";
-import AdminPage from "./pages/AdminPages/HomePage/AdminPage";
 import { tableHeadAppoint, tableUser } from "./components/Table/Data";
 import HomePageAdmin from "./pages/AdminPages/HomePageAdmin/HomePageAdmin";
 import { GetAllRequests, GetAllUsers, GetAllСontractors, GetContractorsItenerarity } from "./API/API";
@@ -106,11 +105,10 @@ function App() {
       <BrowserRouter>
         <main>
           <Routes>
-            <Route path="/" element={<Authorization />}></Route>
+            <Route path="/" element={<HomePageAdmin />}></Route>
             <Route path="/Activate" element={<Activate />}></Route>
-            <Route path="/AdminPage/*" element={<AdminPage />}>
-              <Route path="*" element={<HomePageAdmin />}></Route>
-            </Route>
+            <Route path="/Authorization" element={<Authorization />}></Route>
+            
           </Routes>
         </main>
       </BrowserRouter>
