@@ -81,7 +81,7 @@ function Authorization() {
       <div className={styles.box}>
       <div className={styles.text_Logo}>
         <img  src="./img/SOVA.jpg" className={styles.LogoAuth}/>
-        {errorAuth && <ErrorAuth/>}
+        {(errorAuth || Object.values(errors).some((error) => error)) && <ErrorAuth/>}
       </div>
      
         <div className={styles.container}>
