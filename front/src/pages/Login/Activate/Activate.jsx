@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import DataContext from "../../../context";
 import { tableHeadAppoint } from "../../../components/Table/Data";
 import { ActivateFunc, LoginFunc } from "../../../API/API";
+import ErrorAuth from "../ErrorAuth/ErrorAuth";
 
 function Activate() {
   const { context } = React.useContext(DataContext);
@@ -83,6 +84,10 @@ function Activate() {
   return (
     <div className={styles.AuthorRegistrar}>
       <div className={styles.box}>
+      <div className={styles.text_Logo}>
+        <img  src="./img/SOVA.jpg" className={styles.LogoAuth}/>
+        {Object.values(errors).some((error) => error) && <ErrorAuth text={errors}/>}
+      </div>
         <div className={styles.container}>
           <h2>Активация аккаунта</h2>
           <label>ФИО </label>

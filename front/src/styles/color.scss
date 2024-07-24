@@ -1,16 +1,30 @@
 :root {
   --tableTdBg: #f7f7f7;
-  --tableTrHover: #f0efef;
-  --tableTh: #e1dede;
-  --selectedTr: #c0edf1;
-  --gray-color: #dedcdc;
+  --tableTrHover: hwb(0 94% 6%);
+  --tableTh: #B7AB9E;
+  --dark-grey-color: #B7AB9E;
+  --selectedTr: #ababab24;
   --white-color: #fff;
-  --turquoise-color: #4693a4;
-  --light-grey-color: #dbdbdb;
-  --light-turquoise-color: #badee5;
-  --dark-turquoise-color: #aad2da;
-  --gray--button--color: #afbbbd;
-  --black--border: #101415;
-  --dark-grey-color: #afbbbd;
-  --green-color: #6FCF97;
+  --turquoise-color: #FFE20D;
+  --black-color: #1D1D1B; //! просто чёрный
+  --light-gray-color: #B7AB9E; //! можно попробовать использовать для выделения объектов (подсветка строки при наведение на неё и т.п.)
+  --Active-gray-color: #cabfb4; //! активный
+  --beige-color: #e3dfda; //!цвет фона
+  --ActiveText-color: #bd966c; //! активный текст
+
+
+  //!вот так было
+  // --tableTdBg: #f7f7f7;
+  // --tableTrHover: #f0efef;
+  // --tableTh: #e1dede;
+  // --selectedTr: #c0edf1;
+  // --gray-color: #dedcdc;
+  // --white-color: #fff;
+  // --turquoise-color: #4693a4;
+  // --light-grey-color: #dbdbdb;
+  // --light-turquoise-color: #badee5;
+  // --dark-turquoise-color: #aad2da;
+  // --gray--button--color: #afbbbd;
+  // --black--border: #101415;
+  // --dark-grey-color: #afbbbd;
 }

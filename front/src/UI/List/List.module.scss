@@ -47,9 +47,10 @@
     .NameForList {
       font-size: 16px;
       margin-left: 7px;
+      transition: 0.1s linear all;
       cursor: pointer;
       &:hover {
-        color: var(--turquoise-color);
+        color: var( --ActiveText-color);
       }
     }
   }

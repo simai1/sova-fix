@@ -42,8 +42,8 @@ useEffect(()=>{
         <h3>{shortName}</h3>
       </div>
       <div className={styles.buttonBlock}> 
-        <button onClick={()=>{homeButton()}} style={ context.selectPage === "Main" ? {backgroundColor: "#4693a4" } : {backgroundColor: "#afbbbd"}}>Главная</button>
-        <button onClick={()=>{context.setSelectPage("Card");  context.setSelectedTr(null)}} style={ context.selectPage !== "Main" ? {backgroundColor: "#4693a4"} : {backgroundColor: "#afbbbd"}}>Маршрутная карта</button>
+        <button onClick={()=>{homeButton()}} style={ context.selectPage === "Main" ? {backgroundColor: "#FFE20D" } : {backgroundColor: "#B7AB9E"}}>Главная</button>
+        <button onClick={()=>{context.setSelectPage("Card");  context.setSelectedTr(null)}} style={ context.selectPage !== "Main" ? {backgroundColor: "#FFE20D"} : {backgroundColor: "#B7AB9E"}}>Маршрутная карта</button>
       </div>
       <div>
         <button onClick={Exit}>Выйти</button>

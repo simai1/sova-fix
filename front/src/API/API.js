@@ -71,7 +71,7 @@ export const LoginFunc = async (UserData) => {
       refreshTokensTimer();
     return response;
   } catch (error) {
-    alert("Пользователь не найден!");
+    return false
   }
 };
 

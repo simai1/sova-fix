@@ -89,11 +89,11 @@ const editAppoint = ()=>{
           {context.selectedTable === "Заказы" && context.selectPage === "Main" ? (
             <div className={styles.HeadMenu}>
              <button onClick={(()=>editAppoint())}>
-                <img src="./img/Edit.png" alt="View" />
+                <img src="./img/Edit.svg" alt="View" />
                 Редактировать заказ
               </button>
               <button onClick={(()=>deleteRequestFunc())}>
-                <img src="./img/Trash.png" alt="View" />
+                <img src="./img/Trash.svg" alt="View" />
                 Удалить заказ
               </button>
             </div>
@@ -104,7 +104,7 @@ const editAppoint = ()=>{
                     Добавить пользователя
               </button>
               <button onClick={()=>{deletedUser()}}>
-                  <img src="./img/Trash.png" alt="View" />
+                  <img src="./img/Trash.svg" alt="View" />
                     Удалить пользователя
               </button>
             </div>

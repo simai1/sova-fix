@@ -78,7 +78,7 @@
   display: flex;
   background-color: $background-color;
   outline: none;
-  color: var(--white-color);
+  color: #000;
   border-radius: 40px;
   padding: 10px 15px;
   font-weight: 700;
@@ -89,21 +89,21 @@
   }
 
   &:hover {
-    opacity: 80%;
+    opacity: 60%;
     cursor: pointer;
     transition: all 0.15s;
   }
 }
 @mixin buttonSave($background-color) {
   display: flex;
-  background-color: $background-color!important;
+  background-color: $background-color;
   outline: none;
   border-radius: 8px;
   padding: 10px 35px;
-  color: #fff;
+  color: #000000;
   &:hover {
     opacity: 0.8;
-    color: #ffffff!important;
+    color: #000000!important;
     transition: all 0.15s;
   }
 }

@@ -21,7 +21,12 @@
 
     background-color: var(--white-color);
     @include flexbox-center(17px);
-
+    .LogoAuth{
+      height: 345px;
+      position: relative;
+      right: -40px;
+      top: 30px;
+    }
     .container {
       margin: 0 auto;
       @include flexbox-center(17px);
@@ -50,6 +55,9 @@
         margin-top: 10px;
         @include button(var(--gray--button--color));
       }
+    }
+    .text_Logo{
+      position: relative;
     }
   }
 }

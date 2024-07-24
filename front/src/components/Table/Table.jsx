@@ -197,7 +197,7 @@ function Table() {
   const checkHeights = (arr,index) =>{
     console.log('arr', arr)
     console.log('index', index)
-    if(arr.length-1 === index && index >=4){
+    if(arr.length-1 === index && index === arr.length-1){
       return true
     }else{
       return false
@@ -365,7 +365,7 @@ function Table() {
                         >
                           {row[headerItem.key] !== null ? row[headerItem.key] : "___"}
                           {itineraryOrderPop === row.id && (
-                            <div className={styles.shovStatusPop} style={checkHeights(filteredTableData,index) ? {top:"-70%", width: "auto"} : {width: "auto"}}>
+                            <div className={styles.shovStatusPop} style={checkHeights(filteredTableData, index) ? {top:"-10%", right:"-50px", width: "auto"} : {width: "auto"}}>
                               <ul>
                               {
                                 arrCount.map((el)=>{
