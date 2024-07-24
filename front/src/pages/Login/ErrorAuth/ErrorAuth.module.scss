@@ -16,4 +16,16 @@
         top: -5px;
         right: -8px;
     }
+
+        transition: transform 0.2s ease; /* Adjust the duration and easing as needed */
+      
+        @keyframes jump {
+          0% { transform: translateY(0);  }
+          50% { transform: translateY(-5px); } 
+          100% { transform: translateY(0); }
+        }
+      
+          animation: jump 1s ease-in-out infinite;
+        
+      
 }
