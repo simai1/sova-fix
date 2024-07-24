@@ -5,7 +5,7 @@
   width: 100%;
   display: flex;
   overflow: auto;
-  height: 75vh;
+  max-height: 75vh;
   margin-bottom: 0;
   .TableInner {
     width: 100%;

@@ -195,6 +195,8 @@ function Table() {
   });
 
   const checkHeights = (arr,index) =>{
+    console.log('arr', arr)
+    console.log('index', index)
     if(arr.length-1 === index && index >=4){
       return true
     }else{
