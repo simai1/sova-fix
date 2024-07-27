@@ -3,6 +3,7 @@ import Contractor from '../models/contractor';
 import RequestDto from '../dtos/request.dto';
 import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
+import contractorService from './contractor.service';
 
 const getAllRequests = async (): Promise<RequestDto[]> => {
     const requests = await RepairRequest.findAll({ include: [{ model: Contractor }], order: [['number', 'asc']] });
@@ -83,6 +84,14 @@ const update = async (
 ): Promise<void> => {
     const request = await RepairRequest.findByPk(requestId);
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
+
+    if (itineraryOrder) {
+        const itinerary = await contractorService.getContractorsItinerary(request.contractorId as string);
+        for (const it of itinerary) {
+            if (itineraryOrder === it.itineraryOrder)
+                await RepairRequest.update({ itineraryOrder: request.itineraryOrder }, { where: { id: it.id } });
+        }
+    }
 
     await RepairRequest.update(
         {
