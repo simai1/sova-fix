@@ -48,14 +48,17 @@ const editAppoint = ()=>{
 }
 
   const deletedUser = ()=>{
-    if(context.selectedTr != null){
+    if(context.selectedTr != null &&  context.selectedTr !== JSON.parse(sessionStorage.getItem("userData")).user?.id){
       DeleteUserFunc(context.selectedTr).then((resp)=>{
         if(resp?.status === 200){
           context.UpdateTableReguest(2);
         }
       })
-    }else{
+    }else if(context.selectedTr === null){
       context.setPopupErrorText("Сначала выберите пользователя!");
+      context.setPopUp("PopUpError")
+    }else{
+      context.setPopupErrorText("Вы не можете удалить себя!");
       context.setPopUp("PopUpError")
     }
   }

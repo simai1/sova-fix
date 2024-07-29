@@ -1,7 +1,8 @@
 import React, { useState, useContext, useRef, useEffect } from "react";
 import styles from "./Table.module.scss";
 import DataContext from "../../context";
-import { RemoveContractor, ReseachDataRequest, SetStatusRequest, SetcontractorRequest } from "../../API/API";
+import { RemoveContractor, ReseachDataRequest, SetRole, SetStatusRequest, SetcontractorRequest } from "../../API/API";
+import App from "../../App";
 
 function Table() {
   const { context } = useContext(DataContext);
@@ -27,6 +28,11 @@ function Table() {
     {id:6, name:"Маршрут"},
     {id:7, name:"Выполнено"}
   ];
+
+  const roleUser =[
+    {id:1, name:"USER"},
+    {id:2, name:"ADMIN"},
+  ]
 
   const [shovStatusPop, setshovStatusPop] = useState("");
   const [shovBulderPop, setshovBulderPop] = useState("");
@@ -246,7 +252,32 @@ function Table() {
       }
     })
   }
+ const ClickRole = (id, role) =>{
+  let data = {};
+  const idInteger = roleUser.find(el => el.name === role)?.id;
+  if(idInteger === 1){
+    data = {
+      role: 2,
+      userId: id 
+    }; 
+  }else{
+    data = {
+      role: 1,
+      userId: id 
+    }; 
+  }
+ if(id !== JSON.parse(sessionStorage.getItem("userData")).user?.id){
+  SetRole(data).then((resp)=>{
+    if(resp?.status === 200){
+      context.UpdateTableReguest(2);
+    }
+  })
+ }else{
+  context.setPopUp("PopUpError");
+  context.setPopupErrorText("Вы не можете изменить свою роль!");
+ }
   
+ }
   return (
     <>
       {filteredTableData.length > 0 ? (
@@ -357,7 +388,16 @@ function Table() {
                             </div>
                           )}
                         </div>
-                      ): headerItem.key === "itineraryOrder" ? (
+                      ):
+                       headerItem.key === "role" ? (
+                        <div 
+                          onClick={() =>ClickRole(row.id, row[headerItem.key])}
+                          className={styles.statusClick}
+                        >
+                          {row[headerItem.key]}
+                        </div>
+                      ):
+                       headerItem.key === "itineraryOrder" ? (
                         <div 
                           onClick={() => context.selectPage != "Main" && funSetItineraryOrder(row.id)}
                           className={context.selectPage != "Main" && styles.statusClick}
