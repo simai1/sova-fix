@@ -138,7 +138,7 @@ function Table() {
     const idInteger = context.dataContractors.find(el => el.name === context?.tableData[0].contractor.name)?.id;
     const data = {
       itineraryOrder: el,
-    }; 
+    };
     ReseachDataRequest(idAppoint, data).then((resp)=>{
       if(resp?.status === 200){
         context.UpdateTableReguest(3, idInteger);
@@ -157,7 +157,7 @@ function Table() {
 
   const handleClickOutside = (event) => {
     if (
-      statusPopRef.current && !statusPopRef.current.contains(event.target) && event.target.tagName != "LI"  
+      statusPopRef.current && !statusPopRef.current.contains(event.target) && event.target.tagName != "LI"
     ) {
       setshovStatusPop("");
     }
@@ -192,7 +192,7 @@ function Table() {
       }
       return value;
     });
-  
+
     return values.some(
       (value) =>
         value &&
@@ -258,13 +258,13 @@ function Table() {
   if(idInteger === 1){
     data = {
       role: 2,
-      userId: id 
-    }; 
+      userId: id
+    };
   }else{
     data = {
       role: 1,
-      userId: id 
-    }; 
+      userId: id
+    };
   }
  if(id !== JSON.parse(sessionStorage.getItem("userData")).user?.id){
   SetRole(data).then((resp)=>{
@@ -276,7 +276,7 @@ function Table() {
   context.setPopUp("PopUpError");
   context.setPopupErrorText("Вы не можете изменить свою роль!");
  }
-  
+
  }
   return (
     <>
@@ -330,11 +330,11 @@ function Table() {
                       ): headerItem.key === "photo" ? (
                         <div>
                           <img
-                            src={`http://localhost:3000/uploads/${row.fileName}`}
+                            src={`${process.env.REACT_APP_API_URL}/uploads/${row.fileName}`}
                             alt="Uploaded file"
                             onClick={() =>
                               openModal(
-                                `http://localhost:3000/uploads/${row.fileName}`
+                                `${process.env.REACT_APP_API_URL}/uploads/${row.fileName}`
                               )
                             }
                             style={{ cursor: "pointer" }}
@@ -342,7 +342,7 @@ function Table() {
                           />
                         </div>
                       ) : headerItem.key === "contractor" ? (
-                        <div 
+                        <div
                           onClick={() => context.selectPage === "Main" && funSetBulder(row.id)}
                           className={context.selectPage === "Main" && styles.statusClick}
                           ref={builderPopRef}
@@ -353,12 +353,12 @@ function Table() {
                               <ul>
                               { row[headerItem.key] !== null && <li onClick={() => deleteBilder(row.id)}>Удалить исполнителя</li>}
                                 {context.dataContractors?.map((value, index) => (
-                                 
+
                                   <li
                                     onClick={() => SetBilder(value.id, row.id)}
                                     key={index}
                                   >
-                                   
+
                                     {value.name}
                                   </li>
                                 ))}
@@ -367,7 +367,7 @@ function Table() {
                           )}
                         </div>
                       ) : headerItem.key === "urgency" ? (
-                        <div 
+                        <div
                           onClick={() => context.selectPage === "Main" && funSetUrgency(row.id)}
                           className={context.selectPage === "Main" && styles.statusClick}
                           ref={urgencyPopRef}
@@ -390,7 +390,7 @@ function Table() {
                         </div>
                       ):
                        headerItem.key === "role" ? (
-                        <div 
+                        <div
                           onClick={() =>ClickRole(row.id, row[headerItem.key])}
                           className={styles.statusClick}
                         >
@@ -398,7 +398,7 @@ function Table() {
                         </div>
                       ):
                        headerItem.key === "itineraryOrder" ? (
-                        <div 
+                        <div
                           onClick={() => context.selectPage != "Main" && funSetItineraryOrder(row.id)}
                           className={context.selectPage != "Main" && styles.statusClick}
                           ref={ItineraryOrderPopRef}
@@ -412,7 +412,7 @@ function Table() {
                                   return  <li key={el} onClick={(event) => SetCountCard(el, row.id)}> {el}</li>
                                 })
                               }
-                               
+
                               </ul>
                             </div>
                           )}
