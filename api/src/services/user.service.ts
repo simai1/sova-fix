@@ -27,7 +27,7 @@ const setRole = async (role: number, userId: string): Promise<void> => {
 };
 
 const getAllUsers = async (): Promise<UserDto[]> => {
-    const users = await User.findAll();
+    const users = await User.findAll({ order: [['name', 'ASC']] });
     return users.map(u => new UserDto(u));
 };
 
