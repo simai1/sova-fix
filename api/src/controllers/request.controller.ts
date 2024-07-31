@@ -3,9 +3,27 @@ import requestService from '../services/request.service';
 import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
 import statuses from '../config/statuses';
+import pick from '../utils/pick';
 
 const getAll = catchAsync(async (req, res) => {
-    const requestsDtos = await requestService.getAllRequests();
+    const filter = pick(req.query, [
+        'search',
+        'number',
+        'status',
+        'unit',
+        'builder',
+        'object',
+        'problemDescription',
+        'urgency',
+        'itineraryOrder',
+        'repairPrice',
+        'comment',
+        'legalEntity',
+        'daysAtWork',
+        'createdAt',
+        'contractor',
+    ]);
+    const requestsDtos = await requestService.getAllRequests(filter);
     res.json({ requestsDtos });
 });
 

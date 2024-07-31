@@ -4,9 +4,55 @@ import RequestDto from '../dtos/request.dto';
 import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
 import contractorService from './contractor.service';
+import { Op } from 'sequelize';
+import { statusesRuLocale } from '../config/statuses';
+import sequelize from 'sequelize';
 
-const getAllRequests = async (): Promise<RequestDto[]> => {
-    const requests = await RepairRequest.findAll({ include: [{ model: Contractor }], order: [['number', 'asc']] });
+const getAllRequests = async (filter: any): Promise<RequestDto[]> => {
+    let requests;
+    if (Object.keys(filter).length !== 0 && typeof filter.search !== 'undefined') {
+        requests = await RepairRequest.findAll({
+            where: {
+                [Op.or]: [
+                    { number: Number.isInteger(parseInt(filter.search)) ? parseInt(filter.search) : null },
+                    {
+                        status: (() => {
+                            return Object.keys(statusesRuLocale)
+                                .filter(s =>
+                                    // @ts-expect-error skip
+                                    statusesRuLocale[s].includes(filter.search.toLowerCase())
+                                )
+                                .map(s => parseInt(s));
+                        })(),
+                    },
+                    { unit: { [Op.iLike]: `%${filter.search}%` } },
+                    { builder: { [Op.iLike]: `%${filter.search}%` } },
+                    { object: { [Op.iLike]: `%${filter.search}%` } },
+                    { problemDescription: { [Op.like]: `%${filter.search}%` } },
+                    { urgency: { [Op.iLike]: `%${filter.search}%` } },
+                    { itineraryOrder: Number.isInteger(parseInt(filter.search)) ? parseInt(filter.search) : null },
+                    sequelize.where(sequelize.cast(sequelize.col('repair_price'), 'varchar'), {
+                        [Op.iLike]: `%${filter.search}%`,
+                    }),
+                    { comment: { [Op.iLike]: `%${filter.search}%` } },
+                    { legalEntity: { [Op.iLike]: `%${filter.search}%` } },
+                    { daysAtWork: Number.isInteger(parseInt(filter.search)) ? parseInt(filter.search) : null },
+                    { '$Contractor.name$': { [Op.iLike]: `%${filter.search}%` } },
+                ],
+            },
+            include: [
+                {
+                    model: Contractor,
+                },
+            ],
+            order: [['number', 'asc']],
+        });
+    } else {
+        requests = await RepairRequest.findAll({
+            include: [{ model: Contractor }],
+            order: [['number', 'asc']],
+        });
+    }
     return requests.map(request => new RequestDto(request));
 };
 
