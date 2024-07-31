@@ -18,6 +18,10 @@ class LogMessageType:
     ERROR: str = 'ERROR'
 
 
+def error(message: str, color: Fore = Fore.RED) -> None:
+    msg(LogMessageType.INFO, message, color)
+
+
 def info(message: str, color: Fore = Fore.GREEN) -> None:
     msg(LogMessageType.INFO, message, color)
 

@@ -10,10 +10,14 @@ from code.util import logger
 # routers
 from code.command.start.start_command import router as start_command_router
 from code.command.register.register_command import router as register_command_router
+from code.command.customer.create_repair_request import router as create_repair_request_command_router
+from code.handler.pagination import router as pagination_router
 
 routers = [
     start_command_router,
-    register_command_router
+    register_command_router,
+    create_repair_request_command_router,
+    pagination_router,
 ]
 
 dp = Dispatcher()
