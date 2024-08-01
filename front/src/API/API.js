@@ -127,9 +127,9 @@ export const LogOut = async () => {
 
 
 //!полуение всех заявок
-export const GetAllRequests = async () => {
+export const GetAllRequests = async (param) => {
   try {
-    const response = await http.get(`${server}/requests`, {
+    const response = await http.get(`${server}/requests${param}`, {
       headers: {
         Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
       },
@@ -212,6 +212,7 @@ export const DeleteRequest = async (id) => {
 
 //! Получение карты пользователя
 export const GetContractorsItenerarity = async (id) => {
+  
   try {
     const response = await http.get(`${server}/contractors/${id}/itinerary`, {
       headers: {

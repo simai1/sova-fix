@@ -7,7 +7,7 @@ function List({ dataList, Textlabel, defaultValue, funSetData, itemKey, placehol
 
   const [activeList, setactiveList] = useState(false);
   const addClient = (el) => {
-    if(el.name === "Заказы") {
+    if(el.name === "Заявки") {
       context.UpdateTableReguest(1)
     }else if(el.name === "Пользователи") {
       context.UpdateTableReguest(2)

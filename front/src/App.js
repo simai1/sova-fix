@@ -12,7 +12,7 @@ function App() {
   const [popupErrorText, setPopupErrorText] = useState("")
   const [tableData, setTableData] = useState([]); // данные таблицы
   const [selectedTr, setSelectedTr] = useState(null); // выбранная строка
-  const [selectedTable, setSelectedTable] = useState("Заказы"); // выбранная таблица
+  const [selectedTable, setSelectedTable] = useState("Заявки"); // выбранная таблица
   const [searchDataForTable, setsearchDataForTable] = useState(" "); // поиск по таблице
   const [tableHeader, settableHeader] = useState(tableHeadAppoint);
   const [dataApointment, setDataAppointment] = useState([]);
@@ -59,24 +59,41 @@ function App() {
     activateId
 
   };
+  useEffect(() => {
+    if(selectedTable === "Заявки"){
+      UpdateTableReguest(1)
+    }else if(selectedTable === "Пользователи"){
+      UpdateTableReguest(2)
+    }else{
+      UpdateTableReguest(3)
+    }
+  },[textSearchTableData, selectedTable] )
 
   function UpdateTableReguest(param, idInteger = null) {
-    if(param == 1){
-      GetAllRequests().then((resp) => {
-        if(resp) {
-          setDataAppointment(resp.data.requestsDtos);
-          setTableData(resp.data.requestsDtos);
-          settableHeader(tableHeadAppoint);
+    if(param === 1){
+      let url = ``;
+        if(textSearchTableData === ""){
+          GetAllRequests("").then((resp) => {
+            setTableData(resp.data.requestsDtos)
+            settableHeader(tableHeadAppoint);
+          })
+        }else{
+          url = `?search=${context.textSearchTableData}`;
+          GetAllRequests(url).then((resp) => {
+            if(resp) {
+              setTableData(resp.data.requestsDtos)
+              settableHeader(tableHeadAppoint);
+            }
+          })
         }
-      })
-    }if(param == 2){
+    }if(param === 2){
           GetAllUsers().then((resp) => {
           if(resp) {
-             setTableData(resp.data);
+            setTableData(resp.data);
             settableHeader(tableUser);
           }
         })
-    }if(param == 3){
+    }if(param === 3){
       GetContractorsItenerarity(idInteger).then((resp)=>{
         if(resp.status == 200){
           context.setDataitinerary(resp.data)
@@ -90,6 +107,7 @@ function App() {
   useEffect(() => {
     GetAllСontractors().then((resp) => {
       if(resp) {
+        console.log(resp.data)
         setDataContractors(resp.data);
       }
     })

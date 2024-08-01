@@ -8,14 +8,14 @@ import { DeleteRequest, DeleteUserFunc } from "../../API/API";
 
 
 function FunctionTableTop(props) {
-  const defaultValue = "Заказы";
+  const defaultValue = "Заявки";
   const { context } = React.useContext(DataContext);
 
 
   const DataList = [
     {
       id: 1,
-      name: "Заказы",
+      name: "Заявки",
     },
     {
       id: 2,
@@ -82,22 +82,22 @@ const editAppoint = ()=>{
             }}> Назад</button>
             }
             <div className={styles.searchForTable}>
-              <Input
+              { context.selectedTable === "Заявки" && <Input
                 placeholder={"Поиск..."}
                 settextSearchTableData={context.setextSearchTableData}
-              />
+              />}
               <img src="./img/Search_light.png" />
             </div>
           </div>
-          {context.selectedTable === "Заказы" && context.selectPage === "Main" ? (
+          {context.selectedTable === "Заявки" && context.selectPage === "Main" ? (
             <div className={styles.HeadMenu}>
              <button onClick={(()=>editAppoint())}>
                 <img src="./img/Edit.svg" alt="View" />
-                Редактировать заказ
+                Редактировать заявку
               </button>
               <button onClick={(()=>deleteRequestFunc())}>
                 <img src="./img/Trash.svg" alt="View" />
-                Удалить заказ
+                Удалить заявку
               </button>
             </div>
           ) : context.selectedTable === "Пользователи" && context.selectPage === "Main" &&  JSON.parse(sessionStorage.getItem("userData")).user.role === "ADMIN" ? (

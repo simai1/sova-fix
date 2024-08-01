@@ -33,8 +33,9 @@ useEffect(()=>{
     context.UpdateTableReguest(1)
     context.setDataitinerary([])
     context.setSelectedTr(null);
-    context.setnameClient("Заказы");
-    context.setSelectedTable("Заказы");
+    context.setnameClient("Заявки");
+    context.setSelectedTable("Заявки");
+    context.setextSearchTableData("")
   }
   return (
     <div className={styles.Header}>
@@ -43,7 +44,7 @@ useEffect(()=>{
       </div>
       <div className={styles.buttonBlock}> 
         <button onClick={()=>{homeButton()}} style={ context.selectPage === "Main" ? {backgroundColor: "#FFE20D" } : {backgroundColor: "#B7AB9E"}}>Главная</button>
-        <button onClick={()=>{context.setSelectPage("Card");  context.setSelectedTr(null)}} style={ context.selectPage !== "Main" ? {backgroundColor: "#FFE20D"} : {backgroundColor: "#B7AB9E"}}>Маршрутная карта</button>
+        <button onClick={()=>{context.setSelectPage("Card");  context.setSelectedTr(null)}} style={ context.selectPage !== "Main" ? {backgroundColor: "#FFE20D"} : {backgroundColor: "#B7AB9E"}}>Маршрутный лист</button>
       </div>
       <div>
         <button onClick={Exit}>Выйти</button>

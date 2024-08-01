@@ -1,12 +1,13 @@
 import React, { useState, useContext, useRef, useEffect } from "react";
 import styles from "./Table.module.scss";
 import DataContext from "../../context";
-import { RemoveContractor, ReseachDataRequest, SetRole, SetStatusRequest, SetcontractorRequest } from "../../API/API";
+import { GetAllRequests, GetAllUsers, RemoveContractor, ReseachDataRequest, SetRole, SetStatusRequest, SetcontractorRequest } from "../../API/API";
 import App from "../../App";
+import { tableUser } from "./Data";
 
 function Table() {
   const { context } = useContext(DataContext);
-
+  const [filteredTableData, setFilteredTableData] = useState(context.tableData);
   const trClick = (row) => {
     context.setSelectedTr(row.id);
   };
@@ -185,20 +186,51 @@ function Table() {
     };
   }, []);
 
-  const filteredTableData = context.tableData.filter((row) => {
-    const values = Object.values(row).flatMap(value => {
-      if (typeof value === 'object' && value !== null) {
-        return Object.values(value);
-      }
-      return value;
-    });
+  useEffect(() => {
+    setFilteredTableData(context.tableData)
+  },[context.tableData, context.selectedTable])
 
-    return values.some(
-      (value) =>
-        value &&
-        value.toString().toLowerCase().includes(context.textSearchTableData.toLowerCase())
-    );
-  });
+  // useEffect(() => {
+  //   let url = ``;
+  //   if(context.selectedTable === "Заявки"){
+  //     if(context.textSearchTableData === ""){
+  //       url = ``;
+  //       GetAllRequests(url).then((resp) => {
+  //        setFilteredTableData(resp.data.requestsDtos)
+  //       })
+  //     }else{
+  //       url = `?search=${context.textSearchTableData}`;
+  //       GetAllRequests(url).then((resp) => {
+  //         if(resp) {
+  //           setFilteredTableData(resp.data.requestsDtos)
+  //         }
+  //       })
+  //     }
+  //   }else{
+  //     GetAllUsers().then((resp) => {
+  //       if(resp) {
+  //         setFilteredTableData(resp.data)
+  //         context.settableHeader(tableUser);
+  //       }
+  //     })
+  //   }
+  
+  // },[context.textSearchTableData, context.selectedTable])
+
+  // const filteredTableData = context.tableData.filter((row) => {
+  //   const values = Object.values(row).flatMap(value => {
+  //     if (typeof value === 'object' && value !== null) {
+  //       return Object.values(value);
+  //     }
+  //     return value;
+  //   });
+
+  //   return values.some(
+  //     (value) =>
+  //       value &&
+  //       value.toString().toLowerCase().includes(context.textSearchTableData.toLowerCase())
+  //   );
+  // });
 
   const checkHeights = (arr,index) =>{
     console.log('arr', arr)
