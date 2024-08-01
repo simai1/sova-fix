@@ -26,15 +26,19 @@ const getAllRequests = async (filter: any): Promise<RequestDto[]> => {
                 [Op.and]: [
                     {
                         [Op.or]: [
-                            { number: Number.isInteger(parseInt(filter.search)) ? parseInt(filter.search) : null },
+                            { number: Number.isInteger(filter.search) ? parseInt(filter.search) : null },
                             {
                                 status: (() => {
                                     return Object.keys(statusesRuLocale)
                                         .filter(s =>
                                             // @ts-expect-error skip
-                                            statusesRuLocale[s].includes(filter.search.toLowerCase())
+                                            statusesRuLocale[s].includes(
+                                                Number.isInteger(filter.search)
+                                                    ? filter.search
+                                                    : filter.search.toLowerCase()
+                                            )
                                         )
-                                        .map(s => parseInt(s));
+                                        .map(s => s);
                                 })(),
                             },
                             { unit: { [Op.iLike]: `%${filter.search}%` } },
@@ -43,16 +47,14 @@ const getAllRequests = async (filter: any): Promise<RequestDto[]> => {
                             { problemDescription: { [Op.like]: `%${filter.search}%` } },
                             { urgency: { [Op.iLike]: `%${filter.search}%` } },
                             {
-                                itineraryOrder: Number.isInteger(parseInt(filter.search))
-                                    ? parseInt(filter.search)
-                                    : null,
+                                itineraryOrder: Number.isInteger(filter.search) ? filter.search : null,
                             },
                             sequelize.where(sequelize.cast(sequelize.col('repair_price'), 'varchar'), {
                                 [Op.iLike]: `%${filter.search}%`,
                             }),
                             { comment: { [Op.iLike]: `%${filter.search}%` } },
                             { legalEntity: { [Op.iLike]: `%${filter.search}%` } },
-                            { daysAtWork: Number.isInteger(parseInt(filter.search)) ? parseInt(filter.search) : null },
+                            { daysAtWork: Number.isInteger(filter.search) ? filter.search : null },
                             { '$Contractor.name$': { [Op.iLike]: `%${filter.search}%` } },
                         ],
                     },
