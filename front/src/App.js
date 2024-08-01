@@ -134,7 +134,6 @@ function App() {
             <Route path="/" element={<HomePageAdmin />}></Route>
             <Route path="/Activate" element={<Activate />}></Route>
             <Route path="/Authorization" element={<Authorization />}></Route>
-            
           </Routes>
         </main>
       </BrowserRouter>
