@@ -11,7 +11,7 @@ function FunctionTableTop(props) {
   const defaultValue = "Заявки";
   const { context } = React.useContext(DataContext);
 
-
+  console.log(context.selectedTable, context.selectPage)
   const DataList = [
     {
       id: 1,
@@ -33,7 +33,7 @@ function FunctionTableTop(props) {
         }
       })
     }else{
-      context.setPopupErrorText("Сначала выберите заказ!");
+      context.setPopupErrorText("Сначала выберите заявку!");
       context.setPopUp("PopUpError")
     }
   }
@@ -42,7 +42,7 @@ const editAppoint = ()=>{
   if(context.selectedTr != null){
   context.setPopUp("PopUpEditAppoint")
   }else{
-    context.setPopupErrorText("Сначала выберите заказ!");
+    context.setPopupErrorText("Сначала выберите заявку!");
       context.setPopUp("PopUpError")
   }
 }

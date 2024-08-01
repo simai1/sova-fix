@@ -78,7 +78,7 @@ function Activate() {
   useEffect(() => {
     context.setTableData([]);
     context.settableHeader(tableHeadAppoint);
-    context.setSelectedTable("Заказы");
+    context.setSelectedTable("Заявки");
   }, []);
 
   return (

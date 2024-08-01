@@ -103,7 +103,7 @@ function App() {
         })
     }if(param === 3){
       GetContractorsItenerarity(selectContructor).then((resp)=>{
-        if(resp.status == 200){
+        if(resp?.status == 200){
           context.setDataitinerary(resp.data)
           setTableData(resp.data);
           settableHeader(tableHeadAppoint);

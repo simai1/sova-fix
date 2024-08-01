@@ -73,7 +73,7 @@ function Authorization() {
   useEffect(() => {
     context.setTableData([]);
     context.settableHeader(tableHeadAppoint);
-    context.setSelectedTable("Заказы");
+    context.setSelectedTable("Заявки");
   }, []);
 
   return (
