@@ -154,7 +154,7 @@ const update = async (
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
 
     if (itineraryOrder) {
-        const itinerary = await contractorService.getContractorsItinerary(request.contractorId as string);
+        const itinerary = await contractorService.getContractorsItinerary(request.contractorId as string, {});
         for (const it of itinerary) {
             if (itineraryOrder === it.itineraryOrder)
                 await RepairRequest.update({ itineraryOrder: request.itineraryOrder }, { where: { id: it.id } });
