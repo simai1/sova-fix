@@ -4,25 +4,29 @@ import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
 import statuses from '../config/statuses';
 import pick from '../utils/pick';
+import prepare from '../utils/prepare';
 
 const getAll = catchAsync(async (req, res) => {
-    const filter = pick(req.query, [
-        'search',
-        'number',
-        'status',
-        'unit',
-        'builder',
-        'object',
-        'problemDescription',
-        'urgency',
-        'itineraryOrder',
-        'repairPrice',
-        'comment',
-        'legalEntity',
-        'daysAtWork',
-        'createdAt',
-        'contractor',
-    ]);
+    const filter = prepare(
+        pick(req.query, [
+            'search',
+            'number',
+            'status',
+            'unit',
+            'builder',
+            'object',
+            'problemDescription',
+            'urgency',
+            'itineraryOrder',
+            'repairPrice',
+            'comment',
+            'legalEntity',
+            'daysAtWork',
+            'createdAt',
+            'contractor',
+        ])
+    );
+    console.log(filter);
     const requestsDtos = await requestService.getAllRequests(filter);
     res.json({ requestsDtos });
 });
