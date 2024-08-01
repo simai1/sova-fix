@@ -62,11 +62,13 @@ function App() {
 
   };
   useEffect(() => {
+    console.log('selectContructor', selectContructor)
     if(selectedTable === "Заявки" && selectPage === "Main"){
       UpdateTableReguest(1)
     }else if(selectedTable === "Пользователи" && selectPage === "Main"){
       UpdateTableReguest(2)
-    }else{
+    }else if(selectPage === "Card"){
+      
       if(selectContructor !== ""){
         UpdateTableReguest(3)
       }
@@ -83,7 +85,7 @@ function App() {
             settableHeader(tableHeadAppoint);
           })
         }else{
-          url = `?search=${context.textSearchTableData}`;
+          url = `?search=${textSearchTableData}`;
           GetAllRequests(url).then((resp) => {
             if(resp) {
               setTableData(resp.data.requestsDtos)
@@ -102,13 +104,25 @@ function App() {
           }
         })
     }if(param === 3){
-      GetContractorsItenerarity(selectContructor).then((resp)=>{
-        if(resp?.status == 200){
-          context.setDataitinerary(resp.data)
-          setTableData(resp.data);
-          settableHeader(tableHeadAppoint);
-        }
-      })
+      let url = ``;
+      if(textSearchTableData === ""){
+        GetContractorsItenerarity(selectContructor, url).then((resp)=>{
+          if(resp?.status == 200){
+            context.setDataitinerary(resp.data)
+            setTableData(resp.data);
+            settableHeader(tableHeadAppoint);
+          }
+        })
+      }else{
+        url = `/?search=${textSearchTableData}`;
+        GetContractorsItenerarity(selectContructor, url).then((resp)=>{
+          if(resp?.status == 200){
+            context.setDataitinerary(resp.data)
+            setTableData(resp.data);
+            settableHeader(tableHeadAppoint);
+          }
+        })
+      }
     }
   }
 

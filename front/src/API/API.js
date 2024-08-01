@@ -211,10 +211,10 @@ export const DeleteRequest = async (id) => {
 };
 
 //! Получение карты пользователя
-export const GetContractorsItenerarity = async (id) => {
+export const GetContractorsItenerarity = async (id, search) => {
   
   try {
-    const response = await http.get(`${server}/contractors/${id}/itinerary`, {
+    const response = await http.get(`${server}/contractors/${id}/itinerary${search}`, {
       headers: {
         Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
       },
