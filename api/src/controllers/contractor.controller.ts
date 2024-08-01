@@ -2,6 +2,8 @@ import catchAsync from '../utils/catchAsync';
 import contractorService from '../services/contractor.service';
 import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
+import prepare from '../utils/prepare';
+import pick from '../utils/pick';
 
 const getAll = catchAsync(async (req, res) => {
     const contractors = await contractorService.getAllContractors();
@@ -24,8 +26,28 @@ const getContractorsRequests = catchAsync(async (req, res) => {
 
 const getContractorsItinerary = catchAsync(async (req, res) => {
     const { contractorId } = req.params;
+    const filter = prepare(
+        pick(req.query, [
+            'search',
+            'number',
+            'status',
+            'unit',
+            'builder',
+            'object',
+            'problemDescription',
+            'urgency',
+            'itineraryOrder',
+            'repairPrice',
+            'comment',
+            'legalEntity',
+            'daysAtWork',
+            'createdAt',
+            'contractor',
+        ])
+    );
+    console.log(filter);
     if (!contractorId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing contractorId');
-    const requests = await contractorService.getContractorsItinerary(contractorId);
+    const requests = await contractorService.getContractorsItinerary(contractorId, filter);
     res.json(requests);
 });
 
