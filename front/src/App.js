@@ -9,7 +9,7 @@ import { GetAllRequests, GetAllUsers, GetAllСontractors, GetContractorsItenerar
 import Activate from "./pages/Login/Activate/Activate";
 
 function App() {
-  const [selectContructor, setSelectContractor] = useState(null)
+  const [selectContructor, setSelectContractor] = useState("")
   const [popupErrorText, setPopupErrorText] = useState("")
   const [tableData, setTableData] = useState([]); // данные таблицы
   const [selectedTr, setSelectedTr] = useState(null); // выбранная строка
@@ -58,7 +58,8 @@ function App() {
     Dataitinerary,
     setDataitinerary,
     setActivateId,
-    activateId
+    activateId,
+    selectContructor
 
   };
   useEffect(() => {
@@ -68,7 +69,6 @@ function App() {
     }else if(selectedTable === "Пользователи" && selectPage === "Main"){
       UpdateTableReguest(2)
     }else if(selectPage === "Card"){
-      
       if(selectContructor !== ""){
         UpdateTableReguest(3)
       }
@@ -106,9 +106,8 @@ function App() {
     }if(param === 3){
       let url = ``;
       if(textSearchTableData === ""){
-        GetContractorsItenerarity(selectContructor, url).then((resp)=>{
+        GetContractorsItenerarity(selectContructor, "").then((resp)=>{
           if(resp?.status == 200){
-            context.setDataitinerary(resp.data)
             setTableData(resp.data);
             settableHeader(tableHeadAppoint);
           }
@@ -117,12 +116,16 @@ function App() {
         url = `/?search=${textSearchTableData}`;
         GetContractorsItenerarity(selectContructor, url).then((resp)=>{
           if(resp?.status == 200){
-            context.setDataitinerary(resp.data)
             setTableData(resp.data);
             settableHeader(tableHeadAppoint);
           }
         })
       }
+      GetContractorsItenerarity(selectContructor, "").then((resp)=>{
+        if(resp?.status == 200){
+          context.setDataitinerary(resp.data)
+        }
+      })
     }
   }
 

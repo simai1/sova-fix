@@ -44,7 +44,7 @@ useEffect(()=>{
       </div>
       <div className={styles.buttonBlock}> 
         <button onClick={()=>{homeButton()}} style={ context.selectPage === "Main" ? {backgroundColor: "#FFE20D" } : {backgroundColor: "#B7AB9E"}}>Главная</button>
-        <button onClick={()=>{context.setSelectPage("Card");  context.setextSearchTableData("");  context.setSelectedTr(null)}} style={ context.selectPage !== "Main" ? {backgroundColor: "#FFE20D"} : {backgroundColor: "#B7AB9E"}}>Маршрутный лист</button>
+        <button onClick={()=>{context.setSelectPage("Card"); context.setSelectContractor("");  context.setextSearchTableData("");  context.setSelectedTr(null)}} style={ context.selectPage !== "Main" ? {backgroundColor: "#FFE20D"} : {backgroundColor: "#B7AB9E"}}>Маршрутный лист</button>
       </div>
       <div>
         <button onClick={Exit}>Выйти</button>
