@@ -79,6 +79,7 @@ const editAppoint = ()=>{
             <button className={styles.buttonBack} onClick={()=>{
                 context.setDataitinerary([]);
                 context.setSelectedTr(null);
+                context.setSelectContractor("");
             }}> Назад</button>
             }
             <div className={styles.searchForTable}>

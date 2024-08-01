@@ -9,6 +9,7 @@ import { GetAllRequests, GetAllUsers, GetAllСontractors, GetContractorsItenerar
 import Activate from "./pages/Login/Activate/Activate";
 
 function App() {
+  const [selectContructor, setSelectContractor] = useState(null)
   const [popupErrorText, setPopupErrorText] = useState("")
   const [tableData, setTableData] = useState([]); // данные таблицы
   const [selectedTr, setSelectedTr] = useState(null); // выбранная строка
@@ -28,6 +29,7 @@ function App() {
 
   const context = {
     popupErrorText,
+    setSelectContractor,
     setPopupErrorText,
     nameClient,
     setnameClient,
@@ -60,16 +62,19 @@ function App() {
 
   };
   useEffect(() => {
-    if(selectedTable === "Заявки"){
+    if(selectedTable === "Заявки" && selectPage === "Main"){
       UpdateTableReguest(1)
-    }else if(selectedTable === "Пользователи"){
+    }else if(selectedTable === "Пользователи" && selectPage === "Main"){
       UpdateTableReguest(2)
     }else{
-      UpdateTableReguest(3)
+      if(selectContructor !== ""){
+        UpdateTableReguest(3)
+      }
     }
-  },[textSearchTableData, selectedTable] )
+  },[textSearchTableData, selectedTable, selectContructor] )
 
-  function UpdateTableReguest(param, idInteger = null) {
+
+  function UpdateTableReguest(param) {
     if(param === 1){
       let url = ``;
         if(textSearchTableData === ""){
@@ -86,6 +91,9 @@ function App() {
             }
           })
         }
+        GetAllRequests("").then((resp) => {
+          setDataAppointment(resp.data.requestsDtos)
+        })
     }if(param === 2){
           GetAllUsers().then((resp) => {
           if(resp) {
@@ -94,7 +102,7 @@ function App() {
           }
         })
     }if(param === 3){
-      GetContractorsItenerarity(idInteger).then((resp)=>{
+      GetContractorsItenerarity(selectContructor).then((resp)=>{
         if(resp.status == 200){
           context.setDataitinerary(resp.data)
           setTableData(resp.data);
