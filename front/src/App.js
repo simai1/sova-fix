@@ -26,8 +26,11 @@ function App() {
   const [Dataitinerary, setDataitinerary] = useState([])
   const [nameClient, setnameClient] = useState("");
   const [activateId, setActivateId]= useState("");
+  const [dataFilter, SetDataFilter] = useState([]);
 
   const context = {
+    SetDataFilter,
+    dataFilter,
     popupErrorText,
     setSelectContractor,
     setPopupErrorText,

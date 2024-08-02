@@ -190,48 +190,6 @@ function Table() {
     setFilteredTableData(context.tableData)
   },[context.tableData, context.selectedTable])
 
-  // useEffect(() => {
-  //   let url = ``;
-  //   if(context.selectedTable === "Заявки"){
-  //     if(context.textSearchTableData === ""){
-  //       url = ``;
-  //       GetAllRequests(url).then((resp) => {
-  //        setFilteredTableData(resp.data.requestsDtos)
-  //       })
-  //     }else{
-  //       url = `?search=${context.textSearchTableData}`;
-  //       GetAllRequests(url).then((resp) => {
-  //         if(resp) {
-  //           setFilteredTableData(resp.data.requestsDtos)
-  //         }
-  //       })
-  //     }
-  //   }else{
-  //     GetAllUsers().then((resp) => {
-  //       if(resp) {
-  //         setFilteredTableData(resp.data)
-  //         context.settableHeader(tableUser);
-  //       }
-  //     })
-  //   }
-  
-  // },[context.textSearchTableData, context.selectedTable])
-
-  // const filteredTableData = context.tableData.filter((row) => {
-  //   const values = Object.values(row).flatMap(value => {
-  //     if (typeof value === 'object' && value !== null) {
-  //       return Object.values(value);
-  //     }
-  //     return value;
-  //   });
-
-  //   return values.some(
-  //     (value) =>
-  //       value &&
-  //       value.toString().toLowerCase().includes(context.textSearchTableData.toLowerCase())
-  //   );
-  // });
-
   const checkHeights = (arr,index) =>{
     console.log('arr', arr)
     console.log('index', index)
@@ -310,6 +268,15 @@ function Table() {
  }
 
  }
+ const clickFilter = (key) =>{
+  context.setPopUp("Filter")
+  context.SetDataFilter(getUniqueRecordsByKey(filteredTableData, key))
+  console.log(getUniqueRecordsByKey(filteredTableData, key))
+ }
+
+ function getUniqueRecordsByKey(arrays, key) {
+  return arrays.map((item) => item[key]).filter((value, index, self) => self.indexOf(value) === index);
+}
   return (
     <>
       {filteredTableData.length > 0 ? (
@@ -318,7 +285,7 @@ function Table() {
             <thead>
               <tr>
                 {context.tableHeader.map((item) => (
-                  <th key={item.key}>{item.value}</th>
+                  <th onClick={() => clickFilter(item.key)} name={item.key} key={item.key}>{item.value} </th>
                 ))}
               </tr>
             </thead>
