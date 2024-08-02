@@ -4,10 +4,11 @@ import DataContext from "../../context";
 import { GetAllRequests, GetAllUsers, RemoveContractor, ReseachDataRequest, SetRole, SetStatusRequest, SetcontractorRequest } from "../../API/API";
 import App from "../../App";
 import { tableUser } from "./Data";
+import { SamplePoints } from "../../UI/SamplePoints/SamplePoints";
 
 function Table() {
   const { context } = useContext(DataContext);
-  const [filteredTableData, setFilteredTableData] = useState(context.tableData);
+  const [actiwFilter, setActiwFilter] = useState(null);
   const trClick = (row) => {
     context.setSelectedTr(row.id);
   };
@@ -186,14 +187,14 @@ function Table() {
     };
   }, []);
 
-  useEffect(() => {
-    setFilteredTableData(context.tableData)
-  },[context.tableData, context.selectedTable])
+  // useEffect(() => {
+  //   setFilteredTableData(context.tableData)
+  // },[context.tableData, context.selectedTable])
 
   const checkHeights = (arr,index) =>{
     console.log('arr', arr)
     console.log('index', index)
-    if(arr.length-1 === index && index === arr.length-1){
+    if(arr?.length-1 === index && index === arr?.length-1){
       return true
     }else{
       return false
@@ -209,7 +210,7 @@ function Table() {
   };
 
   const getCountList = () => {
-    let count = context.tableData.length;
+    let count = context.tableData?.length;
     let countList = [];
     for (let i = 0; i < count; i++) {
       countList.push(i + 1);
@@ -268,29 +269,61 @@ function Table() {
  }
 
  }
- const clickFilter = (key) =>{
-  context.setPopUp("Filter")
-  context.SetDataFilter(getUniqueRecordsByKey(filteredTableData, key))
-  console.log(getUniqueRecordsByKey(filteredTableData, key))
- }
+ //! открытие модального окна фильтрации столбца
+ const clickTh = (key,index) => {
+  const status = {
+    1: "Новая заявка",
+    2: "В работе",
+    3: "Выполнена",
+    4: "Неактуальна",
+    5: "Принята",
+  };
+  let modalData = [];
+  if(key === "status"){
+    modalData = context.tableData.map(
+      (item) => status[item[key]]);
+  }else{
+    modalData = context.tableData.map(
+      (item) => item[key].name || item[key]
+    );
+  }
+       context.setSamplePointsData([...modalData]);
+    setActiwFilter(key);
+  
+};
 
- function getUniqueRecordsByKey(arrays, key) {
-  return arrays.map((item) => item[key]).filter((value, index, self) => self.indexOf(value) === index);
-}
+console.log("context.tableHeader", context.tableHeader)
   return (
     <>
-      {filteredTableData.length > 0 ? (
+      
         <div className={styles.Table}>
           <table className={styles.TableInner}>
             <thead>
               <tr>
-                {context.tableHeader.map((item) => (
-                  <th onClick={() => clickFilter(item.key)} name={item.key} key={item.key}>{item.value} </th>
+                {context.tableHeader.map((item,index) => (
+                  <th onClick={() => {clickTh(item.key, index)}} name={item.key} key={item.key}>{item.value} 
+                  
+                    {actiwFilter === item.key && <SamplePoints
+                        index={index+1}
+                        itemKey={item.key}
+                        isSamplePointsData={context.isSamplePointsData}
+                        isAllChecked={context.isAllChecked}
+                        isChecked={context.isChecked}
+                        setIsChecked={context.setIsChecked}
+                        workloadData={context.tableData}
+                        setWorkloadDataFix={context.setFilteredTableData}
+                        setSpShow={setActiwFilter}
+                        sesionName={`isCheckedFilter`}
+                      />}
+                  </th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {filteredTableData.map((row, index) => (
+            {context.filteredTableData.length > 0 ? (
+            
+           <>
+              {context.filteredTableData.map((row, index) => (
                 <tr
                   key={index}
                   onClick={() => trClick(row)}
@@ -310,7 +343,7 @@ function Table() {
                         >
                           {status[row[headerItem.key]]}
                           {shovStatusPop === row.id && (
-                            <div className={styles.shovStatusPop} style={checkHeights(filteredTableData,index) ? {top:"-70%", width: "150px"} : {width: "150px"}}>
+                            <div className={styles.shovStatusPop} style={checkHeights(context.filteredTableData,index) ? {top:"-70%", width: "150px"} : {width: "150px"}}>
                               <ul>
                                 {Object.values(status).map((value, index) => (
                                   <li
@@ -348,7 +381,7 @@ function Table() {
                         >
                           {row[headerItem.key] !== null ? row[headerItem.key]?.name : "___"}
                           {shovBulderPop === row.id && (
-                            <div className={styles.shovStatusPop} style={checkHeights(filteredTableData,index) ? {top:"-70%", width: "200%"} : {width: "200%"}}  >
+                            <div className={styles.shovStatusPop} style={checkHeights(context.filteredTableData,index) ? {top:"-70%", width: "200%"} : {width: "200%"}}  >
                               <ul>
                               { row[headerItem.key] !== null && <li onClick={() => deleteBilder(row.id)}>Удалить исполнителя</li>}
                                 {context.dataContractors?.map((value, index) => (
@@ -373,7 +406,7 @@ function Table() {
                         >
                           {row[headerItem.key] !== null ? row[headerItem.key] : "___"}
                           {shovUrgencyPop === row.id && (
-                            <div className={styles.shovStatusPop} style={checkHeights(filteredTableData,index) ? {top:"-70%", width: "200%"} : {width: "200%"}}>
+                            <div className={styles.shovStatusPop} style={checkHeights(context.filteredTableData,index) ? {top:"-70%", width: "200%"} : {width: "200%"}}>
                               <ul>
                                 {DataUrgency?.map((value, index) => (
                                   <li
@@ -404,7 +437,7 @@ function Table() {
                         >
                           {row[headerItem.key] !== null ? row[headerItem.key] : "___"}
                           {itineraryOrderPop === row.id && (
-                            <div className={styles.shovStatusPop} style={checkHeights(filteredTableData, index) ? {top:"-10%", right:"-50px", width: "auto"} : {width: "auto"}}>
+                            <div className={styles.shovStatusPop} style={checkHeights(context.filteredTableData, index) ? {top:"-10%", right:"-50px", width: "auto"} : {width: "auto"}}>
                               <ul>
                               {
                                 arrCount.map((el)=>{
@@ -423,12 +456,14 @@ function Table() {
                   ))}
                 </tr>
               ))}
+              </>
+            ):(
+              <tr style={{ pointerEvents: "none"}}><td style={{background: "#fff"}}><div className={styles.noteData}>Нет данных</div></td></tr>
+            )}
             </tbody>
           </table>
         </div>
-      ) : (
-        <div className={styles.notdata}>Нет данных</div>
-      )}
+      
 
       {modalImage && (
         <div className={styles.modal} onClick={closeModal}>

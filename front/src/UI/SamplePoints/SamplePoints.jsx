@@ -73,20 +73,21 @@ export function SamplePoints(props) {
   //! при нажатии на Input All
   const onAllChecked = () => {
     let checked = [...props.isChecked];
+    console.log('aaa',[...props.isChecked].filter((el) => el.itemKey === props.itemKey))
     if (
-      [...props.isChecked].filter((el) => el.itemKey === props.itemKey).length >
+      [...props.isChecked].filter((el) => el.itemKey === props.itemKey)?.length >
       0
     ) {
       checked = checked.filter((el) => el.itemKey !== props.itemKey);
       dispatch(
         removeAllCheckeds({
           itemKey: props.itemKey,
-          tableName: props.sesionName,
         })
       );
     } else {
       //! записываем уникальные
       const uniqueItems = new Set();
+      console.log("props.isSamplePointsData", props.isSamplePointsData);
       [...props.isSamplePointsData].forEach((item) => {
         const itemKey = {
           value: item,
@@ -100,7 +101,6 @@ export function SamplePoints(props) {
       dispatch(
         addAllCheckeds({
           checked: checked,
-          tableName: props.sesionName,
         })
       );
     }
@@ -114,12 +114,13 @@ export function SamplePoints(props) {
       uniqueArray,
       props.sesionName
     );
+    console.log("fdfix", fdfix);
     props.setWorkloadDataFix(fdfix);
   };
-
   //! при нажатии на Input
   const onChecked = (el) => {
     let checked = [...props.isChecked]; // основной массив
+    console.log('checked', checked)
     if (
       checked.some(
         (item) => item.value === el && props.itemKey === item.itemKey
@@ -129,8 +130,6 @@ export function SamplePoints(props) {
       dispatch(
         removeChecked({
           value: el,
-          itemKey: props.itemKey,
-          tableName: props.sesionName,
         })
       );
     } else {
@@ -139,7 +138,6 @@ export function SamplePoints(props) {
         addChecked({
           value: el,
           itemKey: props.itemKey,
-          tableName: props.sesionName,
         })
       );
     }
@@ -153,10 +151,12 @@ export function SamplePoints(props) {
       uniqueArray,
       props.sesionName
     );
+    console.log("fdfix", fdfix);
     props.setWorkloadDataFix(fdfix);
   };
 
   const getText = (index, el) => {
+    console.log('index', index)
     if (index === 0) {
       return index + 1;
     } else {
@@ -188,7 +188,7 @@ export function SamplePoints(props) {
                 checked={
                   ![...props.isChecked].filter(
                     (el) => el.itemKey === props.itemKey
-                  ).length > 0
+                  )?.length > 0
                 }
               />
               <p>Все</p>

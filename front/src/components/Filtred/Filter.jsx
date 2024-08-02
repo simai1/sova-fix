@@ -7,9 +7,9 @@ function Filter(props) {
 
   return (
     <>
-      {context.dataFilter.length > 0 ? (
-        {/* <div className={styles.mainFilter}> */}
-        {/* {context.dataFilter
+      {/* {context.dataFilter.length > 0 ? (
+        <div className={styles.mainFilter}> 
+        {context.dataFilter
                 .filter((el, index, self) => 
                     index === self.findIndex((t) => (
                     t.name === el.name

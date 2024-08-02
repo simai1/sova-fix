@@ -7,6 +7,9 @@ import { tableHeadAppoint, tableUser } from "./components/Table/Data";
 import HomePageAdmin from "./pages/AdminPages/HomePageAdmin/HomePageAdmin";
 import { GetAllRequests, GetAllUsers, GetAllСontractors, GetContractorsItenerarity } from "./API/API";
 import Activate from "./pages/Login/Activate/Activate";
+import { useSelector } from "react-redux";
+import store from "./store/store";
+import { FilteredSample } from "./UI/SamplePoints/Function";
 
 function App() {
   const [selectContructor, setSelectContractor] = useState("")
@@ -27,8 +30,20 @@ function App() {
   const [nameClient, setnameClient] = useState("");
   const [activateId, setActivateId]= useState("");
   const [dataFilter, SetDataFilter] = useState([]);
+  const [isSamplePointsData, setSamplePointsData] = useState([]); // данные фильтрации по th
+  const [isChecked, setIsChecked] = useState([]); // состояние инпутов в SamplePoints //! сбросить
+  const [isAllChecked, setAllChecked] = useState([]); // инпут все в SamplePoints //! сбросить
+  const [filteredTableData, setFilteredTableData] = useState([]);
 
   const context = {
+    setFilteredTableData,
+    filteredTableData,
+    setIsChecked,
+    isChecked,
+    setAllChecked,
+    isAllChecked,
+    isSamplePointsData,
+    setSamplePointsData,
     SetDataFilter,
     dataFilter,
     popupErrorText,
@@ -63,8 +78,10 @@ function App() {
     setActivateId,
     activateId,
     selectContructor
-
   };
+
+  const isCheckedStore = useSelector((state) => state.isCheckedSlice.isChecked);
+
   useEffect(() => {
     console.log('selectContructor', selectContructor)
     if(selectedTable === "Заявки" && selectPage === "Main"){
@@ -84,14 +101,21 @@ function App() {
       let url = ``;
         if(textSearchTableData === ""){
           GetAllRequests("").then((resp) => {
+            const checks = isCheckedStore || [];
+            setIsChecked(checks);
             setTableData(resp.data.requestsDtos)
+            setFilteredTableData(FilteredSample(resp.data.requestsDtos, checks ))
             settableHeader(tableHeadAppoint);
+          
           })
         }else{
           url = `?search=${textSearchTableData}`;
           GetAllRequests(url).then((resp) => {
             if(resp) {
+              const checks = isCheckedStore || [];
+              setIsChecked(checks);
               setTableData(resp.data.requestsDtos)
+              setFilteredTableData(FilteredSample(resp.data.requestsDtos, checks ))
               settableHeader(tableHeadAppoint);
             }
           })
@@ -103,6 +127,7 @@ function App() {
           GetAllUsers().then((resp) => {
           if(resp) {
             setTableData(resp.data);
+            setFilteredTableData(resp.data)
             settableHeader(tableUser);
           }
         })
@@ -112,6 +137,7 @@ function App() {
         GetContractorsItenerarity(selectContructor, "").then((resp)=>{
           if(resp?.status == 200){
             setTableData(resp.data);
+            setFilteredTableData(resp.data)
             settableHeader(tableHeadAppoint);
           }
         })
@@ -120,6 +146,7 @@ function App() {
         GetContractorsItenerarity(selectContructor, url).then((resp)=>{
           if(resp?.status == 200){
             setTableData(resp.data);
+            setFilteredTableData(resp.data)
             settableHeader(tableHeadAppoint);
           }
         })
@@ -162,3 +189,5 @@ function App() {
 }
 
 export default App;
+
+
