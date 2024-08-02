@@ -92,7 +92,8 @@ const createRequest = async (
     repairPrice: number | undefined,
     comment: string | undefined,
     legalEntity: string | undefined,
-    fileName: string
+    fileName: string,
+    tgUserId: string
 ): Promise<RequestDto> => {
     const request = await RepairRequest.create({
         unit,
@@ -103,6 +104,7 @@ const createRequest = async (
         comment,
         legalEntity,
         fileName,
+        createdBy: tgUserId,
         number: 0,
     });
     return new RequestDto(request);
@@ -181,6 +183,11 @@ const update = async (
     );
 };
 
+const getCustomersRequests = async (tgUserId: string): Promise<RequestDto[]> => {
+    const requests = await RepairRequest.findAll({ where: { createdBy: tgUserId }, include: [{ model: Contractor }] });
+    return requests.map(r => new RequestDto(r));
+};
+
 export default {
     getAllRequests,
     getRequestById,
@@ -190,4 +197,5 @@ export default {
     setStatus,
     deleteRequest,
     update,
+    getCustomersRequests,
 };
