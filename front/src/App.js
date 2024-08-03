@@ -82,14 +82,11 @@ function App() {
     activateId,
     selectContructor
   };
-  useEffect(() => {
-    console.log('dataTableFix', dataTableFix)
-  },[dataTableFix])
+
 
   const isCheckedStore = useSelector((state) => state.isCheckedSlice.isChecked);
 
   useEffect(() => {
-    console.log('selectContructor', selectContructor)
     if(selectedTable === "Заявки" && selectPage === "Main"){
       UpdateTableReguest(1)
     }else if(selectedTable === "Пользователи" && selectPage === "Main"){
@@ -145,7 +142,7 @@ function App() {
         GetContractorsItenerarity(selectContructor, "").then((resp)=>{
           if(resp?.status == 200){
             setTableData(resp.data);
-            setFilteredTableData(resp.data)
+            setFilteredTableData(funFixEducator(resp.data))
             settableHeader(tableHeadAppoint);
           }
         })
@@ -154,7 +151,7 @@ function App() {
         GetContractorsItenerarity(selectContructor, url).then((resp)=>{
           if(resp?.status == 200){
             setTableData(resp.data);
-            setFilteredTableData(resp.data)
+            setFilteredTableData(funFixEducator(resp.data))
             settableHeader(tableHeadAppoint);
           }
         })
@@ -170,7 +167,6 @@ function App() {
   useEffect(() => {
     GetAllСontractors().then((resp) => {
       if(resp) {
-        console.log(resp.data)
         setDataContractors(resp.data);
       }
     })

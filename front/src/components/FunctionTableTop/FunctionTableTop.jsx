@@ -10,8 +10,6 @@ import { DeleteRequest, DeleteUserFunc } from "../../API/API";
 function FunctionTableTop(props) {
   const defaultValue = "Заявки";
   const { context } = React.useContext(DataContext);
-
-  console.log(context.selectedTable, context.selectPage)
   const DataList = [
     {
       id: 1,

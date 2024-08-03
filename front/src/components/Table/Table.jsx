@@ -5,6 +5,9 @@ import { GetAllRequests, GetAllUsers, RemoveContractor, ReseachDataRequest, SetR
 import App from "../../App";
 import { tableUser } from "./Data";
 import { SamplePoints } from "../../UI/SamplePoints/SamplePoints";
+import { removeTableCheckeds } from "../../store/filter/isChecked.slice";
+import { useDispatch } from "react-redux";
+import { FilteredSample, funFixEducator } from "../../UI/SamplePoints/Function";
 
 function Table() {
   const { context } = useContext(DataContext);
@@ -192,8 +195,6 @@ function Table() {
   // },[context.tableData, context.selectedTable])
 
   const checkHeights = (arr,index) =>{
-    console.log('arr', arr)
-    console.log('index', index)
     if(arr?.length-1 === index && index === arr?.length-1){
       return true
     }else{
@@ -233,7 +234,6 @@ function Table() {
   }
 
   const deleteBilder = (id) =>{
-    console.log(id)
     const data = {
       requestId: id
     }
@@ -279,49 +279,78 @@ function Table() {
     5: "Принята",
   };
   let modalData = [];
-  if(key === "status"){
-    modalData = context.tableData.map(
-      (item) => status[item[key]]);
-  }else{
-    modalData = context.tableData.map(
-      (item) => item[key].name || item[key]
-    );
-  }
-       context.setSamplePointsData([...modalData]);
-    setActiwFilter(key);
-  
+  if(key === "number" || key === "contractor" || key === "builder" || key === "status" || key === "unit"){
+    if(key === "status"){
+      modalData = context.tableData.map(
+        (item) => status[item[key]]);
+    }else{
+      modalData = context.tableData.map(
+        (item) => item[key].name || item[key]
+      );
+    }
+      context.setSamplePointsData([...modalData]);
+      setActiwFilter(key);
+  } 
 };
 
-console.log("context.isChecked", context.isChecked)
-  return (
+const dispatch = useDispatch();
+ //!функция сброса фильтров
+ const refreshFilters = () => {
+  context.setIsChecked([]);
+  context.setAllChecked([]);
+  dispatch(removeTableCheckeds());
+  const fdfix = FilteredSample(funFixEducator(context.tableData));
+  context.setFilteredTableData(fdfix, []);
+};
+
+return (
     <>
       
         <div className={styles.Table}>
           <table className={styles.TableInner}>
+          {(context.selectedTable === "Заявки" && context.selectPage === "Main") ?(
             <thead>
+            { (context.selectedTable === "Заявки" && context.selectPage === "Main") && <div className={styles.dropFilter} onClick={refreshFilters} title="нажмите для сброса фильтров"><img src="./img/ClearFilter.svg"/></div>}
               <tr>
                 {context.tableHeader.map((item,index) => (
-                  <th onClick={() => {clickTh(item.key, index)}} name={item.key} key={item.key}>{item.value} 
-                  
-                    {actiwFilter === item.key && <SamplePoints
-                        index={index+1}
-                        itemKey={item.key}
-                        isSamplePointsData={context.isSamplePointsData}
-                        isAllChecked={context.isAllChecked}
-                        isChecked={context.isChecked}
-                        setIsChecked={context.setIsChecked}
-                        workloadData={context.dataTableFix}
-                        setWorkloadDataFix={context.setFilteredTableData}
-                        setSpShow={setActiwFilter}
-                        sesionName={`isCheckedFilter`}
-                      />}
-                         {context.isChecked.find(el => el.itemKey === item.key) &&  <p>aa</p>}
+                  <th onClick={() => {clickTh(item.key, index)}} name={item.key} key={item.key}>
+                    <div className={styles.thTable}>
+
+                      {item.value} 
+                      {actiwFilter === item.key && <SamplePoints
+                          index={index+1}
+                          itemKey={item.key}
+                          isSamplePointsData={context.isSamplePointsData}
+                          isAllChecked={context.isAllChecked}
+                          isChecked={context.isChecked}
+                          setIsChecked={context.setIsChecked}
+                          workloadData={context.dataTableFix}
+                          setWorkloadDataFix={context.setFilteredTableData}
+                          setSpShow={setActiwFilter}
+                          sesionName={`isCheckedFilter`}
+                        />}
+                          {context.isChecked.find(el => el.itemKey === item.key) &&  <img src="./img/filterColumn.svg"/>}
+                    </div>
+
                   </th>
                   
                 ))}
              
               </tr>
             </thead>
+            )
+            :(
+              <thead>
+                <tr>
+                {context.tableHeader.map((item,index) => (
+                  <th onClick={() => {clickTh(item.key, index)}} name={item.key} key={item.key} className={styles.headerNotMain}>
+                      {item.value} 
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            )
+          }
             <tbody>
             {context.filteredTableData.length > 0 ? (
             

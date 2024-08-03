@@ -9,6 +9,35 @@
   height: 75vh;
   margin-bottom: 0;
   border-radius: 8px;
+  .dropFilter{
+    position: absolute;
+    left: 35px;
+    top: 245px;
+    z-index: 100;
+    transition: 0.1s linear all;
+    &:hover{
+      opacity: 0.6;
+      cursor: pointer;
+    }
+  }
+  .headerNotMain{
+    cursor: auto!important;
+    opacity: 1;
+    background-color: var(--tableTh)!important;
+    th{
+      text-align: center;
+      display: flex;
+      justify-content: center;
+    }
+  
+  }
+  .thTable{
+    display: flex;
+    justify-content: center;
+    img{
+      padding-left: 5px;
+    }
+  }
   .noteData{
     position: absolute;
     width: 98vw;
@@ -48,32 +77,32 @@
       @include font(14px, 500);
     }
     th[name="status"] {
-      cursor: pointer;
       &:hover {
+      cursor: pointer;
         background-color: var(--Active-gray-color);
       }
     }
     th[name="unit"] {
-      cursor: pointer;
       &:hover {
+        cursor: pointer;
         background-color: var(--Active-gray-color);
       }
     }
     th[name="builder"] {
-      cursor: pointer;
       &:hover {
+        cursor: pointer;
         background-color: var(--Active-gray-color);
       }
     }
     th[name="contractor"] {
-      cursor: pointer;
       &:hover {
+      cursor: pointer;
         background-color: var(--Active-gray-color);
       }
     }
     th[name="number"] {
-      cursor: pointer;
       &:hover {
+      cursor: pointer;
         background-color: var(--Active-gray-color);
       }
     }
