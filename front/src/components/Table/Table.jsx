@@ -292,7 +292,7 @@ function Table() {
   
 };
 
-console.log("context.tableHeader", context.tableHeader)
+console.log("context.isChecked", context.isChecked)
   return (
     <>
       
@@ -310,13 +310,16 @@ console.log("context.tableHeader", context.tableHeader)
                         isAllChecked={context.isAllChecked}
                         isChecked={context.isChecked}
                         setIsChecked={context.setIsChecked}
-                        workloadData={context.tableData}
+                        workloadData={context.dataTableFix}
                         setWorkloadDataFix={context.setFilteredTableData}
                         setSpShow={setActiwFilter}
                         sesionName={`isCheckedFilter`}
                       />}
+                         {context.isChecked.find(el => el.itemKey === item.key) &&  <p>aa</p>}
                   </th>
+                  
                 ))}
+             
               </tr>
             </thead>
             <tbody>
@@ -341,7 +344,7 @@ console.log("context.tableHeader", context.tableHeader)
                           className={context.selectPage === "Main" && styles.statusClick}
                           ref={statusPopRef}
                         >
-                          {status[row[headerItem.key]]}
+                          {row[headerItem.key]}
                           {shovStatusPop === row.id && (
                             <div className={styles.shovStatusPop} style={checkHeights(context.filteredTableData,index) ? {top:"-70%", width: "150px"} : {width: "150px"}}>
                               <ul>
@@ -379,7 +382,7 @@ console.log("context.tableHeader", context.tableHeader)
                           className={context.selectPage === "Main" && styles.statusClick}
                           ref={builderPopRef}
                         >
-                          {row[headerItem.key] !== null ? row[headerItem.key]?.name : "___"}
+                          {row[headerItem.key] !== null ? row[headerItem.key] : "___"}
                           {shovBulderPop === row.id && (
                             <div className={styles.shovStatusPop} style={checkHeights(context.filteredTableData,index) ? {top:"-70%", width: "200%"} : {width: "200%"}}  >
                               <ul>

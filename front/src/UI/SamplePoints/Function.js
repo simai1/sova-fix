@@ -9,3 +9,19 @@ export function FilteredSample(data, isChecked, sesionName = "") {
     );
   }
 }
+
+//! функция замены преподавательского массива на его имя
+export function funFixEducator(data) {
+  const status = {
+    1: "Новая заявка",
+    2: "В работе",
+    3: "Выполнена",
+    4: "Неактуальна",
+    5: "Принята",
+  };
+  return data.map((item) => ({
+    ...item,
+    contractor: item.contractor.name,
+    status: status[item.status],
+  }));
+}

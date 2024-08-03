@@ -9,7 +9,7 @@ import { GetAllRequests, GetAllUsers, GetAllСontractors, GetContractorsItenerar
 import Activate from "./pages/Login/Activate/Activate";
 import { useSelector } from "react-redux";
 import store from "./store/store";
-import { FilteredSample } from "./UI/SamplePoints/Function";
+import { FilteredSample, funFixEducator } from "./UI/SamplePoints/Function";
 
 function App() {
   const [selectContructor, setSelectContractor] = useState("")
@@ -34,8 +34,11 @@ function App() {
   const [isChecked, setIsChecked] = useState([]); // состояние инпутов в SamplePoints //! сбросить
   const [isAllChecked, setAllChecked] = useState([]); // инпут все в SamplePoints //! сбросить
   const [filteredTableData, setFilteredTableData] = useState([]);
+  const [dataTableFix, setDataTableFix] = useState([]);
 
   const context = {
+    setDataTableFix,
+    dataTableFix,
     setFilteredTableData,
     filteredTableData,
     setIsChecked,
@@ -79,6 +82,9 @@ function App() {
     activateId,
     selectContructor
   };
+  useEffect(() => {
+    console.log('dataTableFix', dataTableFix)
+  },[dataTableFix])
 
   const isCheckedStore = useSelector((state) => state.isCheckedSlice.isChecked);
 
@@ -104,9 +110,10 @@ function App() {
             const checks = isCheckedStore || [];
             setIsChecked(checks);
             setTableData(resp.data.requestsDtos)
-            setFilteredTableData(FilteredSample(resp.data.requestsDtos, checks ))
+            setDataTableFix(funFixEducator(resp.data.requestsDtos))
+            setFilteredTableData(FilteredSample(funFixEducator(resp.data.requestsDtos), checks ))
             settableHeader(tableHeadAppoint);
-          
+      
           })
         }else{
           url = `?search=${textSearchTableData}`;
@@ -115,7 +122,8 @@ function App() {
               const checks = isCheckedStore || [];
               setIsChecked(checks);
               setTableData(resp.data.requestsDtos)
-              setFilteredTableData(FilteredSample(resp.data.requestsDtos, checks ))
+              setDataTableFix(funFixEducator(resp.data.requestsDtos))
+              setFilteredTableData(FilteredSample(funFixEducator(resp.data.requestsDtos), checks ))
               settableHeader(tableHeadAppoint);
             }
           })
