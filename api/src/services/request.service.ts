@@ -37,7 +37,7 @@ const getAllRequests = async (filter: any): Promise<RequestDto[]> => {
             { unit: { [Op.iLike]: `%${filter.search}%` } },
             { builder: { [Op.iLike]: `%${filter.search}%` } },
             { object: { [Op.iLike]: `%${filter.search}%` } },
-            { problemDescription: { [Op.like]: `%${filter.search}%` } },
+            { problemDescription: { [Op.iLike]: `%${filter.search}%` } },
             { urgency: { [Op.iLike]: `%${filter.search}%` } },
             sequelize.where(sequelize.cast(sequelize.col('repair_price'), 'varchar'), {
                 [Op.iLike]: `%${filter.search}%`,
