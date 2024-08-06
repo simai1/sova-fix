@@ -68,7 +68,6 @@ const getAllRequests = async (filter: any): Promise<RequestDto[]> => {
                     model: Contractor,
                 },
             ],
-            logging: true,
             order: [['number', 'asc']],
         });
     } else {
