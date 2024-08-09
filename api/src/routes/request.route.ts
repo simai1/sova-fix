@@ -33,7 +33,7 @@ router.route('/').get(requestController.getAll).post(upload.single('file'), requ
 router.route('/:requestId').get(requestController.getOne);
 router.route('/set/contractor').patch(verifyToken.auth, requestController.setContractor);
 router.route('/remove/contractor').patch(requestController.removeContractor);
-router.route('/set/status').patch(verifyToken.auth, requestController.setStatus);
+router.route('/set/status').patch(requestController.setStatus);
 router.route('/:requestId/delete').delete(verifyToken.auth, requestController.deleteRequest);
 router.route('/:requestId/update').put(verifyToken.auth, requestController.update);
 router.route('/customer/:tgUserId').get(requestController.getCustomersRequests);
