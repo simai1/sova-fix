@@ -71,6 +71,14 @@ const setContractor = catchAsync(async (req, res) => {
     res.json({ status: 'OK' });
 });
 
+const setComment = catchAsync(async (req, res) => {
+    const { requestId, comment } = req.body;
+    if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
+    if (!comment) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing comment');
+    await requestService.setComment(requestId, comment);
+    res.json({ status: 'OK' });
+});
+
 const removeContractor = catchAsync(async (req, res) => {
     const { requestId } = req.body;
     if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
@@ -153,6 +161,7 @@ export default {
     getOne,
     create,
     setContractor,
+    setComment,
     removeContractor,
     setStatus,
     deleteRequest,
