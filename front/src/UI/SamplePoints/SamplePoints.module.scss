@@ -1,0 +1,89 @@
+@import "./../../styles/color.scss";
+@import "./../../styles/mixins.scss";
+
+.SamplePoints {
+  position: absolute;
+  top: 80px;
+  left: 10px;
+  max-height: 380px;
+  background-color: #fff;
+  max-width: 350px;
+  min-width: 200px;
+  box-shadow: 9px 3px 18px rgba(0, 0, 0, 0.2);
+  padding: 16px;
+  display: flex;
+  border-radius: 8px;
+  z-index: 100;
+  .search {
+    width: 95%;
+    position: relative;
+    box-sizing: border-box;
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 8px;
+    border: 1px solid #757575;
+    outline: none;
+  }
+  .points {
+    position: relative;
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 85%;
+    font-size: 16px;
+    margin-top: 10px;
+    input {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+      margin-left: 0px;
+      // opacity: 0;
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      border: none;
+     
+    }
+    input[type="checkbox"]:before {
+      content: "";
+      display: block;
+      position: absolute;
+      top: -1.5px;
+      left: 0px;
+      width: 16px;
+      height: 17px;
+      border: 3px solid var(--turquoise-color);
+      border-radius: 4px;
+    }
+    
+    input[type="checkbox"]:checked:before {
+      background-color:var(--turquoise-color);
+      border-color: var(--turquoise-color);
+    }
+    
+ 
+    p {
+      margin-left: 35px;
+      font-size: 16px;
+      font-weight: 400;
+      text-align: left;
+    }
+  }
+  .points::-webkit-scrollbar {
+    width: 5px; /* ширина scrollbar */
+  }
+  .points::-webkit-scrollbar-track {
+    background: #fff; /* цвет дорожки */
+  }
+  .points::-webkit-scrollbar-thumb,
+  .points::-webkit-scrollbar-thumb {
+    background-color: #a6a6a6;
+    border-radius: 5px;
+    border: 3px solid #a6a6a6;
+  }
+  .container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+  }
+}

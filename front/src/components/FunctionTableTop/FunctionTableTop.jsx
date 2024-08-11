@@ -8,14 +8,12 @@ import { DeleteRequest, DeleteUserFunc } from "../../API/API";
 
 
 function FunctionTableTop(props) {
-  const defaultValue = "Заказы";
+  const defaultValue = "Заявки";
   const { context } = React.useContext(DataContext);
-
-
   const DataList = [
     {
       id: 1,
-      name: "Заказы",
+      name: "Заявки",
     },
     {
       id: 2,
@@ -33,7 +31,7 @@ function FunctionTableTop(props) {
         }
       })
     }else{
-      context.setPopupErrorText("Сначала выберите заказ!");
+      context.setPopupErrorText("Сначала выберите заявку!");
       context.setPopUp("PopUpError")
     }
   }
@@ -42,20 +40,23 @@ const editAppoint = ()=>{
   if(context.selectedTr != null){
   context.setPopUp("PopUpEditAppoint")
   }else{
-    context.setPopupErrorText("Сначала выберите заказ!");
+    context.setPopupErrorText("Сначала выберите заявку!");
       context.setPopUp("PopUpError")
   }
 }
 
   const deletedUser = ()=>{
-    if(context.selectedTr != null){
+    if(context.selectedTr != null &&  context.selectedTr !== JSON.parse(sessionStorage.getItem("userData")).user?.id){
       DeleteUserFunc(context.selectedTr).then((resp)=>{
         if(resp?.status === 200){
           context.UpdateTableReguest(2);
         }
       })
-    }else{
+    }else if(context.selectedTr === null){
       context.setPopupErrorText("Сначала выберите пользователя!");
+      context.setPopUp("PopUpError")
+    }else{
+      context.setPopupErrorText("Вы не можете удалить себя!");
       context.setPopUp("PopUpError")
     }
   }
@@ -76,25 +77,26 @@ const editAppoint = ()=>{
             <button className={styles.buttonBack} onClick={()=>{
                 context.setDataitinerary([]);
                 context.setSelectedTr(null);
+                context.setSelectContractor("");
             }}> Назад</button>
             }
             <div className={styles.searchForTable}>
-              <Input
+              { context.selectedTable === "Заявки" && <Input
                 placeholder={"Поиск..."}
                 settextSearchTableData={context.setextSearchTableData}
-              />
+              />}
               <img src="./img/Search_light.png" />
             </div>
           </div>
-          {context.selectedTable === "Заказы" && context.selectPage === "Main" ? (
+          {context.selectedTable === "Заявки" && context.selectPage === "Main" ? (
             <div className={styles.HeadMenu}>
              <button onClick={(()=>editAppoint())}>
-                <img src="./img/Edit.png" alt="View" />
-                Редактировать заказ
+                <img src="./img/Edit.svg" alt="View" />
+                Редактировать заявку
               </button>
               <button onClick={(()=>deleteRequestFunc())}>
-                <img src="./img/Trash.png" alt="View" />
-                Удалить заказ
+                <img src="./img/Trash.svg" alt="View" />
+                Удалить заявку
               </button>
             </div>
           ) : context.selectedTable === "Пользователи" && context.selectPage === "Main" &&  JSON.parse(sessionStorage.getItem("userData")).user.role === "ADMIN" ? (
@@ -104,7 +106,7 @@ const editAppoint = ()=>{
                     Добавить пользователя
               </button>
               <button onClick={()=>{deletedUser()}}>
-                  <img src="./img/Trash.png" alt="View" />
+                  <img src="./img/Trash.svg" alt="View" />
                     Удалить пользователя
               </button>
             </div>

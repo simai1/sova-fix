@@ -43,8 +43,8 @@ function PopUpCreateUser() {
         </div>
       </div>
       <div className={styles.button}>
-        <button className={styles.buttonSave} onClick={CreateNewClient} disabled={!isInputValid}>
-          Сохранить
+        <button className={styles.buttonSave} onClick={CreateNewClient} disabled={!isInputValid} style={{ backgroundColor: isInputValid ? "#FFE20D" : "#B7AB9E", cursor: isInputValid ? "pointer" : "not-allowed" }}>
+          Добавить
         </button>
       </div>
     </PopUpContainer>

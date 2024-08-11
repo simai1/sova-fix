@@ -15,7 +15,7 @@
   .buttonBlock{
     display: flex;
     button{
-      @include button(var(--dark-grey-color));
+      @include button(var( --turquoise-color));
       margin: 0px 5px;
       width: 180px;
       padding: 12.5px 0px;
@@ -29,7 +29,7 @@
     @include font(21px, 700);
   }
   button {
-    @include button(var(--dark-grey-color));
+    @include button(var( --turquoise-color));
     margin: auto 0;
     width: 100px;
     display: flex;

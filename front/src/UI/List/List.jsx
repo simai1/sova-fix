@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styles from "./List.module.scss";
 import DataContext from "../../context";
 
@@ -7,7 +7,7 @@ function List({ dataList, Textlabel, defaultValue, funSetData, itemKey, placehol
 
   const [activeList, setactiveList] = useState(false);
   const addClient = (el) => {
-    if(el.name === "Заказы") {
+    if(el.name === "Заявки") {
       context.UpdateTableReguest(1)
     }else if(el.name === "Пользователи") {
       context.UpdateTableReguest(2)
@@ -22,8 +22,24 @@ function List({ dataList, Textlabel, defaultValue, funSetData, itemKey, placehol
     context.setnameClient(defaultValue);
   }, []);
 
+  //!   Закрытие списка при клике за его пределами
+  const listRef = useRef(null);
+  const handleClickOutside = (event) => {
+    if (listRef.current && !listRef.current.contains(event.target)) {
+      setactiveList(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+
   return (
-    <div className={styles.List}>
+    <div className={styles.List} ref={listRef}>
       <div>
         {Textlabel && (
           <div>

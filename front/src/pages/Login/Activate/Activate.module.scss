@@ -5,6 +5,12 @@
   margin-top: 250px;
   display: flex;
   justify-content: center;
+  .LogoAuth{
+    height: 345px;
+    position: relative;
+    right: -40px;
+    top: 30px;
+  }
   .box {
     label{
       display: flex;
@@ -27,6 +33,7 @@
       @include flexbox-center(17px);
       flex-direction: column;
       position: relative;
+      padding-top: 70px;
       h2 {
         width: 100%;
         @include flexbox-center(0);
@@ -51,6 +58,10 @@
         @include button(var(--gray--button--color));
       }
     }
+  }
+  .text_Logo{
+    position: relative;
+    top: -15px;
   }
 }
 

@@ -3,17 +3,20 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import DataContext from "./context";
 import "./styles/style.css";
-import AdminPage from "./pages/AdminPages/HomePage/AdminPage";
 import { tableHeadAppoint, tableUser } from "./components/Table/Data";
 import HomePageAdmin from "./pages/AdminPages/HomePageAdmin/HomePageAdmin";
 import { GetAllRequests, GetAllUsers, GetAllСontractors, GetContractorsItenerarity } from "./API/API";
 import Activate from "./pages/Login/Activate/Activate";
+import { useSelector } from "react-redux";
+import store from "./store/store";
+import { FilteredSample, funFixEducator } from "./UI/SamplePoints/Function";
 
 function App() {
+  const [selectContructor, setSelectContractor] = useState("")
   const [popupErrorText, setPopupErrorText] = useState("")
   const [tableData, setTableData] = useState([]); // данные таблицы
   const [selectedTr, setSelectedTr] = useState(null); // выбранная строка
-  const [selectedTable, setSelectedTable] = useState("Заказы"); // выбранная таблица
+  const [selectedTable, setSelectedTable] = useState("Заявки"); // выбранная таблица
   const [searchDataForTable, setsearchDataForTable] = useState(" "); // поиск по таблице
   const [tableHeader, settableHeader] = useState(tableHeadAppoint);
   const [dataApointment, setDataAppointment] = useState([]);
@@ -26,9 +29,28 @@ function App() {
   const [Dataitinerary, setDataitinerary] = useState([])
   const [nameClient, setnameClient] = useState("");
   const [activateId, setActivateId]= useState("");
+  const [dataFilter, SetDataFilter] = useState([]);
+  const [isSamplePointsData, setSamplePointsData] = useState([]); // данные фильтрации по th
+  const [isChecked, setIsChecked] = useState([]); // состояние инпутов в SamplePoints //! сбросить
+  const [isAllChecked, setAllChecked] = useState([]); // инпут все в SamplePoints //! сбросить
+  const [filteredTableData, setFilteredTableData] = useState([]);
+  const [dataTableFix, setDataTableFix] = useState([]);
 
   const context = {
+    setDataTableFix,
+    dataTableFix,
+    setFilteredTableData,
+    filteredTableData,
+    setIsChecked,
+    isChecked,
+    setAllChecked,
+    isAllChecked,
+    isSamplePointsData,
+    setSamplePointsData,
+    SetDataFilter,
+    dataFilter,
     popupErrorText,
+    setSelectContractor,
     setPopupErrorText,
     nameClient,
     setnameClient,
@@ -57,32 +79,86 @@ function App() {
     Dataitinerary,
     setDataitinerary,
     setActivateId,
-    activateId
-
+    activateId,
+    selectContructor
   };
 
-  function UpdateTableReguest(param, idInteger = null) {
-    if(param == 1){
-      GetAllRequests().then((resp) => {
-        if(resp) {
-          setDataAppointment(resp.data.requestsDtos);
-          setTableData(resp.data.requestsDtos);
-          settableHeader(tableHeadAppoint);
+
+  const isCheckedStore = useSelector((state) => state.isCheckedSlice.isChecked);
+
+  useEffect(() => {
+    if(selectedTable === "Заявки" && selectPage === "Main"){
+      UpdateTableReguest(1)
+    }else if(selectedTable === "Пользователи" && selectPage === "Main"){
+      UpdateTableReguest(2)
+    }else if(selectPage === "Card"){
+      if(selectContructor !== ""){
+        UpdateTableReguest(3)
+      }
+    }
+  },[textSearchTableData, selectedTable, selectContructor] )
+
+
+  function UpdateTableReguest(param) {
+    if(param === 1){
+      let url = ``;
+        if(textSearchTableData === ""){
+          GetAllRequests("").then((resp) => {
+            const checks = isCheckedStore || [];
+            setIsChecked(checks);
+            setTableData(resp.data.requestsDtos)
+            setDataTableFix(funFixEducator(resp.data.requestsDtos))
+            setFilteredTableData(FilteredSample(funFixEducator(resp.data.requestsDtos), checks ))
+            settableHeader(tableHeadAppoint);
+      
+          })
+        }else{
+          url = `?search=${textSearchTableData}`;
+          GetAllRequests(url).then((resp) => {
+            if(resp) {
+              const checks = isCheckedStore || [];
+              setIsChecked(checks);
+              setTableData(resp.data.requestsDtos)
+              setDataTableFix(funFixEducator(resp.data.requestsDtos))
+              setFilteredTableData(FilteredSample(funFixEducator(resp.data.requestsDtos), checks ))
+              settableHeader(tableHeadAppoint);
+            }
+          })
         }
-      })
-    }if(param == 2){
+        GetAllRequests("").then((resp) => {
+          setDataAppointment(resp.data.requestsDtos)
+        })
+    }if(param === 2){
           GetAllUsers().then((resp) => {
           if(resp) {
-             setTableData(resp.data);
+            setTableData(resp.data);
+            setFilteredTableData(resp.data)
             settableHeader(tableUser);
           }
         })
-    }if(param == 3){
-      GetContractorsItenerarity(idInteger).then((resp)=>{
-        if(resp.status == 200){
+    }if(param === 3){
+      let url = ``;
+      if(textSearchTableData === ""){
+        GetContractorsItenerarity(selectContructor, "").then((resp)=>{
+          if(resp?.status == 200){
+            setTableData(resp.data);
+            setFilteredTableData(funFixEducator(resp.data))
+            settableHeader(tableHeadAppoint);
+          }
+        })
+      }else{
+        url = `/?search=${textSearchTableData}`;
+        GetContractorsItenerarity(selectContructor, url).then((resp)=>{
+          if(resp?.status == 200){
+            setTableData(resp.data);
+            setFilteredTableData(funFixEducator(resp.data))
+            settableHeader(tableHeadAppoint);
+          }
+        })
+      }
+      GetContractorsItenerarity(selectContructor, "").then((resp)=>{
+        if(resp?.status == 200){
           context.setDataitinerary(resp.data)
-          setTableData(resp.data);
-          settableHeader(tableHeadAppoint);
         }
       })
     }
@@ -106,11 +182,9 @@ function App() {
       <BrowserRouter>
         <main>
           <Routes>
-            <Route path="/" element={<Authorization />}></Route>
+            <Route path="/" element={<HomePageAdmin />}></Route>
             <Route path="/Activate" element={<Activate />}></Route>
-            <Route path="/AdminPage/*" element={<AdminPage />}>
-              <Route path="*" element={<HomePageAdmin />}></Route>
-            </Route>
+            <Route path="/Authorization" element={<Authorization />}></Route>
           </Routes>
         </main>
       </BrowserRouter>
@@ -119,3 +193,5 @@ function App() {
 }
 
 export default App;
+
+

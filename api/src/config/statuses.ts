@@ -10,4 +10,12 @@ const statuses = {
 
 export default statuses;
 
+export const statusesRuLocale = {
+    1: 'новая заявка',
+    2: 'в работе',
+    3: 'выполнена',
+    4: 'неактуальна',
+    5: 'принята',
+};
+
 export const mapStatuses = mapObjectKeys(statuses);

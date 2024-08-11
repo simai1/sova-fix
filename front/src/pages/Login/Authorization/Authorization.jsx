@@ -4,9 +4,11 @@ import { useNavigate } from "react-router-dom"
 import DataContext from "../../../context";
 import { tableHeadAppoint } from "../../../components/Table/Data";
 import { LoginFunc } from "../../../API/API";
+import ErrorAuth from "../ErrorAuth/ErrorAuth";
 
 function Authorization() {
   const { context } = React.useContext(DataContext);
+  const [errorAuth, setErrorAuth] = useState(false);
   const navigate = useNavigate();
 
   // State for form data and error messages
@@ -57,8 +59,10 @@ function Authorization() {
             navigate("/Activate");
           } else {
             context.setDataUsers(resp);
-            navigate("/AdminPage");
+            navigate("/");
           }
+        }else{
+          setErrorAuth(true)
         }
       });
     }
@@ -69,12 +73,17 @@ function Authorization() {
   useEffect(() => {
     context.setTableData([]);
     context.settableHeader(tableHeadAppoint);
-    context.setSelectedTable("Заказы");
+    context.setSelectedTable("Заявки");
   }, []);
 
   return (
     <div className={styles.AuthorRegistrar}>
       <div className={styles.box}>
+      <div className={styles.text_Logo}>
+        <img  src="./img/SOVA.jpg" className={styles.LogoAuth}/>
+        {(errorAuth || Object.values(errors).some((error) => error)) && <ErrorAuth/>}
+      </div>
+     
         <div className={styles.container}>
           <h2>Вход в аккаунт</h2>
           <input

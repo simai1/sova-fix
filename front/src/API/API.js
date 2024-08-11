@@ -2,7 +2,7 @@ import axios from "axios";
 const http = axios.create({
   withCredentials: true,
 });
-const server = "http://localhost:3000";
+const server = process.env.REACT_APP_API_URL;
 
 const REFRESH_INTERVAL = 1500000; // 25 минут 1500000
 let refreshTokensTimeout;
@@ -71,7 +71,11 @@ export const LoginFunc = async (UserData) => {
       refreshTokensTimer();
     return response;
   } catch (error) {
-    alert("Пользователь не найден!");
+    if (error.response.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      return false   
+    }
   }
 };
 
@@ -85,7 +89,12 @@ export const Register = async (UserData) => {
     });
     return response;
   } catch (error) {
-    alert("Такой пользователь уже существует!")
+    if (error.response.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      alert("Такой пользователь уже существует!")
+      return false   
+    }
   }
 };
 
@@ -100,7 +109,11 @@ export const ActivateFunc = async (UserData, idUser) => {
       refreshTokensTimer();
     return response;
   } catch (error) {
-    alert("Возникла ошибка при создании пользователя!");
+    if (error.response.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      alert("Возникла ошибка при создании пользователя!");
+    }
   }
 };
 
@@ -120,23 +133,31 @@ export const LogOut = async () => {
     );
     return response;
   } catch (error) {
-    alert("Возникла ошибка при выходе!");
+    if (error.response.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      alert("Возникла ошибка при выходе!");
+    }
   }
 };
 
 
 
 //!полуение всех заявок
-export const GetAllRequests = async () => {
+export const GetAllRequests = async (param) => {
   try {
-    const response = await http.get(`${server}/requests`, {
+    const response = await http.get(`${server}/requests${param}`, {
       headers: {
         Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
       },
     });
     return response;
   } catch (error) {
-    alert("Ошибка при получении списка заявок!");
+    if (error.response.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      alert("Ошибка при получении списка заявок!");
+    }
   }
 };
 
@@ -150,7 +171,11 @@ export const GetAllUsers = async () => {
     });
     return response;
   } catch (error) {
-    alert("Ошибка при получении списка пользователей!");
+    if (error.response.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      alert("Ошибка при получении списка пользователей!");
+    }
   }
 };
 export const GetAllСontractors = async () => {
@@ -162,7 +187,11 @@ export const GetAllСontractors = async () => {
     });
     return response;
   } catch (error) {
-    alert("Ошибка при получении списка исполнителей!");
+    if (error.response.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      alert("Ошибка при получении списка исполнителей!");
+    }
   }
 };
 
@@ -176,7 +205,11 @@ export const SetStatusRequest = async (data) => {
     });
     return response;
   } catch (error) {
-    alert("Ошибка при изменении статуса заявки!");
+    if (error.response.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      alert("Ошибка при изменении статуса заявки!");
+    }
   }
 };
 
@@ -190,7 +223,11 @@ export const SetcontractorRequest = async (data) => {
     });
     return response;
   } catch (error) {
-    alert("Ошибка при изменении исполнителя заявки!");
+    if (error.response.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      alert("Ошибка при изменении исполнителя заявки!");
+    }
   }
 };
 
@@ -204,21 +241,30 @@ export const DeleteRequest = async (id) => {
     });
     return response;
   } catch (error) {
-    alert("Ошибка при удалении заявки!");
+    if (error.response.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      alert("Ошибка при удалении заявки!");
+    }
   }
 };
 
 //! Получение карты пользователя
-export const GetContractorsItenerarity = async (id) => {
+export const GetContractorsItenerarity = async (id, search) => {
+  
   try {
-    const response = await http.get(`${server}/contractors/${id}/itinerary`, {
+    const response = await http.get(`${server}/contractors/${id}/itinerary${search}`, {
       headers: {
         Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
       },
     });
     return response;
   } catch (error) {
-    alert("Ошибка при получении карты пользователя!");
+    if (error.response.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      alert("Ошибка при получении карты пользователя!");
+    }
   }
 };
 
@@ -233,7 +279,11 @@ export const ReseachDataRequest = async (id,data) => {
     });
     return response;
   } catch (error) {
-    alert("Ошибка при изменении заявки!");
+    if (error.response.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      alert("Ошибка при изменении заявки!");
+    }
   }
 };
 
@@ -248,7 +298,11 @@ export const DeleteUserFunc = async (id) => {
     });
     return response;
   } catch (error) {
-    alert("Ошибка при удалении пользователя!");
+    if (error.response.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      alert("Ошибка при удалении пользователя!");
+    }
   }
 };
 
@@ -261,6 +315,29 @@ export const RemoveContractor = async (data) => {
     });
     return response;
   } catch (error) {
-    alert("Ошибка при удалении исполнителя!");
+    if (error.response.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      alert("Ошибка при удалении исполнителя!");
+    }
+  }
+};
+
+
+
+export const SetRole = async (data) => {
+  try {
+    const response = await http.post(`${server}/users/setRole`, data, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error.response.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      alert("Ошибка при смены роли!");
+    }
   }
 };

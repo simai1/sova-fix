@@ -3,9 +3,32 @@ import requestService from '../services/request.service';
 import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
 import statuses from '../config/statuses';
+import pick from '../utils/pick';
+import prepare from '../utils/prepare';
+import TgUser from '../models/tgUser';
 
 const getAll = catchAsync(async (req, res) => {
-    const requestsDtos = await requestService.getAllRequests();
+    const filter = prepare(
+        pick(req.query, [
+            'search',
+            'number',
+            'status',
+            'unit',
+            'builder',
+            'object',
+            'problemDescription',
+            'urgency',
+            'itineraryOrder',
+            'repairPrice',
+            'comment',
+            'legalEntity',
+            'daysAtWork',
+            'createdAt',
+            'contractor',
+        ])
+    );
+    console.log(filter);
+    const requestsDtos = await requestService.getAllRequests(filter);
     res.json({ requestsDtos });
 });
 
@@ -16,12 +39,16 @@ const getOne = catchAsync(async (req, res) => {
 });
 
 const create = catchAsync(async (req, res) => {
-    const { unit, object, problemDescription, urgency, repairPrice, comment, legalEntity } = req.body;
+    const { unit, object, problemDescription, urgency, repairPrice, comment, legalEntity, tgUserId } = req.body;
     const fileName = req.file?.filename;
     if (!fileName) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing file');
+    if (!tgUserId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing tgUserId');
     if (!unit) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing unit');
     if (!object) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing object');
     if (!urgency) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing urgency');
+    const tgUser = await TgUser.findByPk(tgUserId);
+    // @ts-expect-error 'tgUser' is possibly 'null'
+    if (!tgUser && tgUser.role !== 3) throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid tgUser');
     const requestDto = await requestService.createRequest(
         unit,
         object,
@@ -30,7 +57,8 @@ const create = catchAsync(async (req, res) => {
         repairPrice,
         comment,
         legalEntity,
-        fileName
+        fileName,
+        tgUserId
     );
     res.json({ requestDto });
 });
@@ -40,6 +68,14 @@ const setContractor = catchAsync(async (req, res) => {
     if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
     if (!contractorId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing contractorId');
     await requestService.setContractor(requestId, contractorId);
+    res.json({ status: 'OK' });
+});
+
+const setComment = catchAsync(async (req, res) => {
+    const { requestId, comment } = req.body;
+    if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
+    if (!comment) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing comment');
+    await requestService.setComment(requestId, comment);
     res.json({ status: 'OK' });
 });
 
@@ -113,13 +149,22 @@ const update = catchAsync(async (req, res) => {
     res.json({ status: 'OK' });
 });
 
+const getCustomersRequests = catchAsync(async (req, res) => {
+    const { tgUserId } = req.params;
+    if (!tgUserId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing tgUserId');
+    const requestsDtos = await requestService.getCustomersRequests(tgUserId);
+    res.json(requestsDtos);
+});
+
 export default {
     getAll,
     getOne,
     create,
     setContractor,
+    setComment,
     removeContractor,
     setStatus,
     deleteRequest,
     update,
+    getCustomersRequests,
 };
