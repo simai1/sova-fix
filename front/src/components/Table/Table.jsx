@@ -360,7 +360,7 @@ return (
                   key={index}
                   onClick={() => trClick(row)}
                   className={
-                    context.selectedTr === row.id ? styles.setectedTr : null
+                    context.selectedTr === row.id && styles.setectedTr
                   }
                 >
                   {context.tableHeader.map((headerItem) => (

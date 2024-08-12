@@ -54,8 +54,8 @@ function Authorization() {
     if (formIsValid) {
       LoginFunc(formData).then((resp) => {
         if (resp?.status === 200) {
-          if (resp?.data.userId != null || resp?.data.userId != undefined) {
-            context.setActivateId(resp?.data.userId);
+          if (resp?.data?.userId != null || resp?.data?.userId != undefined) {
+            context.setActivateId(resp?.data?.userId);
             navigate("/Activate");
           } else {
             context.setDataUsers(resp);
