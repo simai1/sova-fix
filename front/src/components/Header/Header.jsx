@@ -11,7 +11,7 @@ function Header() {
 
 useEffect(()=>{
   if(!sessionStorage.getItem("userData")){navigate("/Authorization")}else{
-    const userData = JSON.parse(sessionStorage.getItem("userData")).user?.name;
+    const userData = JSON.parse(sessionStorage.getItem("userData"))?.user?.name;
     const parts = userData?.split(' '); // Разбиваем полное имя на части по пробелу
     if(parts){
       if(parts[1] === undefined){

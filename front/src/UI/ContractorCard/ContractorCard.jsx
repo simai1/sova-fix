@@ -5,7 +5,7 @@ const ContractorCard = (props) => {
   const { context } = React.useContext(DataContext);
   const [count, setCount] = useState(0)
   const clickCard = () =>{
-    const idInteger = context.dataContractors.find(el => el.name === props?.name)?.id;
+    const idInteger = context?.dataContractors.find(el => el.name === props?.name)?.id;
     context.setSelectContractor(idInteger)
     // context.UpdateTableReguest(3)
   }

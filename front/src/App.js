@@ -106,9 +106,9 @@ function App() {
           GetAllRequests("").then((resp) => {
             const checks = isCheckedStore || [];
             setIsChecked(checks);
-            setTableData(resp.data.requestsDtos)
-            setDataTableFix(funFixEducator(resp.data.requestsDtos))
-            setFilteredTableData(FilteredSample(funFixEducator(resp.data.requestsDtos), checks ))
+            setTableData(resp?.data?.requestsDtos)
+            setDataTableFix(funFixEducator(resp?.data?.requestsDtos))
+            setFilteredTableData(FilteredSample(funFixEducator(resp?.data?.requestsDtos), checks ))
             settableHeader(tableHeadAppoint);
       
           })
@@ -118,21 +118,21 @@ function App() {
             if(resp) {
               const checks = isCheckedStore || [];
               setIsChecked(checks);
-              setTableData(resp.data.requestsDtos)
-              setDataTableFix(funFixEducator(resp.data.requestsDtos))
-              setFilteredTableData(FilteredSample(funFixEducator(resp.data.requestsDtos), checks ))
+              setTableData(resp?.data.requestsDtos)
+              setDataTableFix(funFixEducator(resp?.data.requestsDtos))
+              setFilteredTableData(FilteredSample(funFixEducator(resp?.data.requestsDtos), checks ))
               settableHeader(tableHeadAppoint);
             }
           })
         }
         GetAllRequests("").then((resp) => {
-          setDataAppointment(resp.data.requestsDtos)
+          setDataAppointment(resp?.data.requestsDtos)
         })
     }if(param === 2){
           GetAllUsers().then((resp) => {
           if(resp) {
-            setTableData(resp.data);
-            setFilteredTableData(resp.data)
+            setTableData(resp?.data);
+            setFilteredTableData(resp?.data)
             settableHeader(tableUser);
           }
         })
@@ -141,8 +141,8 @@ function App() {
       if(textSearchTableData === ""){
         GetContractorsItenerarity(selectContructor, "").then((resp)=>{
           if(resp?.status == 200){
-            setTableData(resp.data);
-            setFilteredTableData(funFixEducator(resp.data))
+            setTableData(resp?.data);
+            setFilteredTableData(funFixEducator(resp?.data))
             settableHeader(tableHeadAppoint);
           }
         })
@@ -150,15 +150,15 @@ function App() {
         url = `/?search=${textSearchTableData}`;
         GetContractorsItenerarity(selectContructor, url).then((resp)=>{
           if(resp?.status == 200){
-            setTableData(resp.data);
-            setFilteredTableData(funFixEducator(resp.data))
+            setTableData(resp?.data);
+            setFilteredTableData(funFixEducator(resp?.data))
             settableHeader(tableHeadAppoint);
           }
         })
       }
       GetContractorsItenerarity(selectContructor, "").then((resp)=>{
         if(resp?.status == 200){
-          context.setDataitinerary(resp.data)
+          context.setDataitinerary(resp?.data)
         }
       })
     }
@@ -167,7 +167,7 @@ function App() {
   useEffect(() => {
     GetAllСontractors().then((resp) => {
       if(resp) {
-        setDataContractors(resp.data);
+        setDataContractors(resp?.data);
       }
     })
     UpdateTableReguest(1)
