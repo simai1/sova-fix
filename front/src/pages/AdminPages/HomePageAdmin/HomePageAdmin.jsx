@@ -18,7 +18,7 @@ function HomePageAdmin() {
     {context.selectPage === "Main" ? 
       <>
         <FunctionTableTop />
-        <div className={styles.Table}>
+        <div className={styles.Table} >
           <Table />
         </div>
       </>:

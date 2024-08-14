@@ -11,10 +11,17 @@ function Header() {
 
 useEffect(()=>{
   if(!sessionStorage.getItem("userData")){navigate("/Authorization")}else{
-    const userData = JSON.parse(sessionStorage.getItem("userData")).user?.name;
+    const userData = JSON.parse(sessionStorage.getItem("userData"))?.user?.name;
     const parts = userData?.split(' '); // Разбиваем полное имя на части по пробелу
     if(parts){
-      setShortName(parts[0] + ' ' + parts[1])
+      if(parts[1] === undefined){
+        setShortName(parts[0])
+      }else{
+        setShortName(parts[0] + ' ' + parts[1])
+      }
+    }
+    else{
+      setShortName("")
     }
   }
 },[])

@@ -71,7 +71,7 @@ export const LoginFunc = async (UserData) => {
       refreshTokensTimer();
     return response;
   } catch (error) {
-    if (error.response.status === 403) {
+    if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
     }else{
       return false   
@@ -89,7 +89,7 @@ export const Register = async (UserData) => {
     });
     return response;
   } catch (error) {
-    if (error.response.status === 403) {
+    if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
     }else{
       alert("Такой пользователь уже существует!")
@@ -109,7 +109,7 @@ export const ActivateFunc = async (UserData, idUser) => {
       refreshTokensTimer();
     return response;
   } catch (error) {
-    if (error.response.status === 403) {
+    if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
     }else{
       alert("Возникла ошибка при создании пользователя!");
@@ -133,7 +133,7 @@ export const LogOut = async () => {
     );
     return response;
   } catch (error) {
-    if (error.response.status === 403) {
+    if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
     }else{
       alert("Возникла ошибка при выходе!");
@@ -153,7 +153,7 @@ export const GetAllRequests = async (param) => {
     });
     return response;
   } catch (error) {
-    if (error.response.status === 403) {
+    if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
     }else{
       alert("Ошибка при получении списка заявок!");
@@ -171,7 +171,7 @@ export const GetAllUsers = async () => {
     });
     return response;
   } catch (error) {
-    if (error.response.status === 403) {
+    if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
     }else{
       alert("Ошибка при получении списка пользователей!");
@@ -187,7 +187,7 @@ export const GetAllСontractors = async () => {
     });
     return response;
   } catch (error) {
-    if (error.response.status === 403) {
+    if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
     }else{
       alert("Ошибка при получении списка исполнителей!");
@@ -205,7 +205,7 @@ export const SetStatusRequest = async (data) => {
     });
     return response;
   } catch (error) {
-    if (error.response.status === 403) {
+    if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
     }else{
       alert("Ошибка при изменении статуса заявки!");
@@ -223,7 +223,7 @@ export const SetcontractorRequest = async (data) => {
     });
     return response;
   } catch (error) {
-    if (error.response.status === 403) {
+    if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
     }else{
       alert("Ошибка при изменении исполнителя заявки!");
@@ -241,7 +241,7 @@ export const DeleteRequest = async (id) => {
     });
     return response;
   } catch (error) {
-    if (error.response.status === 403) {
+    if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
     }else{
       alert("Ошибка при удалении заявки!");
@@ -260,7 +260,7 @@ export const GetContractorsItenerarity = async (id, search) => {
     });
     return response;
   } catch (error) {
-    if (error.response.status === 403) {
+    if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
     }else{
       alert("Ошибка при получении карты пользователя!");
@@ -279,7 +279,7 @@ export const ReseachDataRequest = async (id,data) => {
     });
     return response;
   } catch (error) {
-    if (error.response.status === 403) {
+    if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
     }else{
       alert("Ошибка при изменении заявки!");
@@ -298,7 +298,7 @@ export const DeleteUserFunc = async (id) => {
     });
     return response;
   } catch (error) {
-    if (error.response.status === 403) {
+    if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
     }else{
       alert("Ошибка при удалении пользователя!");
@@ -315,7 +315,7 @@ export const RemoveContractor = async (data) => {
     });
     return response;
   } catch (error) {
-    if (error.response.status === 403) {
+    if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
     }else{
       alert("Ошибка при удалении исполнителя!");
@@ -334,7 +334,7 @@ export const SetRole = async (data) => {
     });
     return response;
   } catch (error) {
-    if (error.response.status === 403) {
+    if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
     }else{
       alert("Ошибка при смены роли!");

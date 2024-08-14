@@ -21,7 +21,7 @@ export function funFixEducator(data) {
   };
   return data.map((item) => ({
     ...item,
-    contractor: item.contractor.name,
-    status: status[item.status],
+    contractor: item?.contractor?.name,
+    status: status[item?.status],
   }));
 }
