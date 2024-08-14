@@ -4,8 +4,9 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 
-from code.command.register.registration_keyboard import get_roles_kb
-from code.util import crm
+from bot.command.register.registration_keyboard import get_roles_kb
+from bot.common.keyboard import to_start_kb
+from bot.util import crm
 
 
 class RegistrationStates(StatesGroup):
@@ -34,9 +35,12 @@ async def register_handler(message_or_query: Message | CallbackQuery, state: FSM
     else:
         message = message_or_query
 
-    user_id = message_or_query.from_user.id
+    user_id: int = message_or_query.from_user.id
 
-    # запрос на проверку наличия юзера в базе
+    if await crm.user_already_exists(user_id):
+        await send_already_registered(message, state)
+        return
+
     await ask_name(message, state)
 
 
@@ -56,19 +60,27 @@ async def ask_role(message: Message, state: FSMContext) -> None:
 
 @router.callback_query(RegistrationStates.await_role)
 async def finish_registration(query: CallbackQuery, state: FSMContext) -> None:
-    await state.update_data(role=query.data)
+    await state.update_data(role=crm.roles.get_num(query.data))
     user_id = query.from_user.id
 
     data = await state.get_data()
     await state.clear()
 
     # зарегистрировать пользователя через апи
-    await crm.register_user(user_id, data['name'], data['role'])
+    user = await crm.register_user(user_id, data['name'], data['role'])
 
-    await query.message.answer('Регистриция окончена')
+    if user is None:
+        await send_already_registered(query.message, state)
+    else:
+        await query.message.answer('Регистриция окончена', reply_markup=to_start_kb())
 
+    await query.message.edit_reply_markup(reply_markup=None)
     await query.answer()
 
+
+async def send_already_registered(message: Message, state: FSMContext) -> None:
+    await state.clear()
+    await message.answer('Вы уже зарегистрированы', reply_markup=to_start_kb())
 
 
 
