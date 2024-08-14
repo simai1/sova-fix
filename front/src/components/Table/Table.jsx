@@ -281,11 +281,11 @@ function Table() {
   let modalData = [];
   if(key === "number" || key === "contractor" || key === "builder" || key === "status" || key === "unit"){
     if(key === "status"){
-      modalData = context.tableData.map(
+      modalData = context?.tableData.map(
         (item) => status[item[key]]);
     }else{
-      modalData = context.tableData.map(
-        (item) => item[key].name || item[key]
+      modalData = context?.tableData.map(
+        (item) => item[key]?.name || item[key] 
       );
     }
       context.setSamplePointsData([...modalData]);
