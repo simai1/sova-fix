@@ -9,6 +9,7 @@ const create = async (name: string, role: number, tgId: string): Promise<TgUserD
     if (checkUser) throw new ApiError(httpStatus.BAD_REQUEST, 'Already exists tgUser');
     const user = await TgUser.create({ name, role, tgId });
     if (role === 4) user.Contractor = await Contractor.create({ name, tgUserId: user.id });
+    await user.save();
     return new TgUserDto(user);
 };
 
