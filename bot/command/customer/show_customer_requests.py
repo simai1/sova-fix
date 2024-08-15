@@ -1,18 +1,13 @@
-import asyncio
-import json
-
 from aiogram import Router, F
-from aiogram.exceptions import TelegramNetworkError
 from aiogram.filters import Command
-from aiogram.types import Message, CallbackQuery, FSInputFile
 from aiogram.fsm.context import FSMContext
-from colorama import Style, Fore
 from aiogram.types import InlineKeyboardButton as IKB, InlineKeyboardMarkup as IKM
+from aiogram.types import Message, CallbackQuery
 
 from bot.common.keyboard import to_start_kb
 from bot.common.messages import send_several_requests, send_repair_request
 from bot.handler import pagination
-from bot.util import crm, logger
+from bot.util import crm
 from bot.util.crm import roles
 from bot.util.verification import verify_user, VerificationError
 

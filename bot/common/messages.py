@@ -3,8 +3,8 @@ from typing import Callable
 
 from aiogram.exceptions import TelegramNetworkError
 from aiogram.fsm.context import FSMContext
+from aiogram.types import InlineKeyboardMarkup as IKM
 from aiogram.types import Message, FSInputFile
-from aiogram.types import InlineKeyboardButton as IKB, InlineKeyboardMarkup as IKM
 
 from bot.data.const import statuses_ru_locale
 from bot.handler import pagination

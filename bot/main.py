@@ -34,6 +34,8 @@ routers = [
 
 dp = Dispatcher()
 
+logger.init()
+
 
 async def include_routers() -> None:
     for router in routers:
@@ -45,7 +47,7 @@ async def main() -> None:
     await include_routers()
 
     try:
-        logger.info('bot is running!')
+        logger.info('bot is running')
         await dp.start_polling(bot)
     except (CancelledError, KeyboardInterrupt, SystemExit):
         dp.shutdown()
