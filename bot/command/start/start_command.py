@@ -3,11 +3,11 @@ from aiogram.filters import CommandStart
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 
-from bot.command.contractor.contractor_menu import send_contractor_menu
-from bot.command.start.start_keyboard import get_start_kb
-from bot.util import crm
-from bot.util.crm import roles
-from bot.command.customer.customer_menu import send_customer_menu
+from command.contractor.contractor_menu import send_contractor_menu
+from command.start.start_keyboard import get_start_kb
+from util import crm
+from util.crm import roles
+from command.customer.customer_menu import send_customer_menu
 
 router = Router(name=__name__)
 

@@ -1,10 +1,11 @@
+from dotenv import load_dotenv
 from os import getenv
 
 import pytz
 
+load_dotenv(dotenv_path='.env')
 
-TOKEN = getenv('TOKEN')
+BOT_TOKEN = getenv('BOT_TOKEN')
+API_URL = getenv('API_URL')
 
 TIMEZONE = pytz.timezone('Europe/Moscow')
-
-CONTENT_ROOT = 'C:/Users/olego/PycharmProjects/SOVA-fix'

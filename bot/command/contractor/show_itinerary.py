@@ -14,12 +14,12 @@ from util.verification import verify_user, VerificationError
 router = Router(name=__name__)
 
 
-@router.message(Command('contractor_requests'))
+@router.message(Command('contractor_itinerary'))
 async def show_contractor_requests_command_handler(message: Message, state: FSMContext) -> None:
     await show_contractor_requests_handler(message.from_user.id, message, state)
 
 
-@router.callback_query(F.data == 'contractor_requests')
+@router.callback_query(F.data == 'contractor_itinerary')
 async def show_contractor_requests_callback_handler(query: CallbackQuery, state: FSMContext) -> None:
     await show_contractor_requests_handler(query.from_user.id, query.message, state)
     await query.answer()
@@ -33,10 +33,10 @@ async def show_contractor_requests_handler(user_id: int, message: Message, state
     except VerificationError:
         return
 
-    repair_requests = await crm.get_contractor_requests(user_id)
+    repair_requests = await crm.get_itinerary(user_id)
 
     if not repair_requests:
-        await message.answer('У вас пока что нет заявок', reply_markup=to_start_kb())
+        await message.answer('В маршрутном листе пока что нет заявок', reply_markup=to_start_kb())
 
     await pagination.set_page_in_state(state, 0)
     await send_many_rr_for_contractor(repair_requests, message, state)

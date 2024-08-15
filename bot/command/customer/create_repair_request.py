@@ -1,21 +1,16 @@
-import io
-import pprint
-
 from aiogram import Router, F
 from aiogram.filters import Command
-from aiogram.types import Message, CallbackQuery
-from aiogram.fsm.context import FSMContext
 from aiogram.filters.state import StatesGroup, State
-from aiogram.types import InlineKeyboardButton as IKB, InlineKeyboardMarkup as IKM
+from aiogram.fsm.context import FSMContext
+from aiogram.types import Message, CallbackQuery
 
-from bot.common.keyboard import to_start_kb
-from bot.common.messages import you_cant_do_that
-from bot.data import data_loader
-from bot.data.const import urgencies_ru_locale
-from bot.handler import pagination
-from bot.util import crm, logger
-from bot.util.crm import roles
-from bot.util.verification import verify_user, VerificationError
+from common.keyboard import to_start_kb
+from data import data_loader
+from data.const import urgencies_ru_locale
+from handler import pagination
+from util import crm
+from util.crm import roles
+from util.verification import verify_user, VerificationError
 
 router = Router(name=__name__)
 
@@ -78,20 +73,6 @@ async def ask_object(query: CallbackQuery, state: FSMContext) -> None:
 
     await query.answer()
     await query.message.edit_reply_markup(reply_markup=None)
-
-
-# выбор категории
-# @router.callback_query(FSMRepairRequest.object_input, F.data.startswith('object'))
-# async def ask_category(query: CallbackQuery, state: FSMContext) -> None:
-#     await state.update_data(object=await pagination.get_selected(query, state))
-#
-#     data = await pagination.set_pages_data(data_loader.get_categories(), state)
-#     kb = pagination.make_kb(0, data, prefix='category')
-#     await state.set_state(FSMRepairRequest.category_input)
-#     await query.message.answer(f'Выберите категорию', reply_markup=kb)
-#
-#     await query.answer()
-#     await query.message.edit_reply_markup(reply_markup=None)
 
 
 @router.callback_query(FSMRepairRequest.object_input, F.data.startswith('object'))

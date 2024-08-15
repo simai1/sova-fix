@@ -3,12 +3,12 @@ from typing import Callable
 
 from aiogram.exceptions import TelegramNetworkError
 from aiogram.fsm.context import FSMContext
+from aiogram.types import InlineKeyboardMarkup as IKM
 from aiogram.types import Message, FSInputFile
-from aiogram.types import InlineKeyboardButton as IKB, InlineKeyboardMarkup as IKM
 
-from bot.data.const import statuses_ru_locale
-from bot.handler import pagination
-from bot.util import logger
+from data.const import statuses_ru_locale
+from handler import pagination
+from util import logger
 
 
 async def you_cant_do_that(message: Message) -> None:
@@ -29,7 +29,7 @@ def get_repair_request_text(repair_reqest: dict) -> str:
 ✍️{repair_reqest['problemDescription']}
 
 <b>👨‍🔧Исполнитель</b>: 
-👤{repair_reqest['contractor'] if repair_reqest['contractor'] is not None else '<i>не указан</i>'}
+👤{repair_reqest['contractor']['name'] if repair_reqest['contractor'] is not None else '<i>не указан</i>'}
 
 <b>▶️Статус заявки</b>: {statuses_ru_locale[repair_reqest['status']]}
 

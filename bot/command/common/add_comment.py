@@ -1,21 +1,11 @@
-import asyncio
-import datetime
-
 from aiogram import Router, F
-from aiogram.exceptions import TelegramNetworkError
-from aiogram.filters import Command
-from aiogram.fsm.state import StatesGroup, State
-from aiogram.types import Message, CallbackQuery, FSInputFile
 from aiogram.fsm.context import FSMContext
-from aiogram.types import InlineKeyboardButton as IKB, InlineKeyboardMarkup as IKM
+from aiogram.fsm.state import StatesGroup, State
+from aiogram.types import Message, CallbackQuery
 
-from bot.common.keyboard import to_start_kb
-from bot.common.messages import send_several_requests, send_repair_request
-from bot.handler import pagination
-from bot.util import logger, crm
-from bot.util.crm import roles
-from bot.util.verification import verify_user, VerificationError
-from bot import config as cf
+from common.keyboard import to_start_kb
+from util import crm
+from util.crm import roles
 
 router = Router(name=__name__)
 
