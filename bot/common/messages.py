@@ -29,7 +29,7 @@ def get_repair_request_text(repair_reqest: dict) -> str:
 ✍️{repair_reqest['problemDescription']}
 
 <b>👨‍🔧Исполнитель</b>: 
-👤{repair_reqest['contractor'] if repair_reqest['contractor'] is not None else '<i>не указан</i>'}
+👤{repair_reqest['contractor']['name'] if repair_reqest['contractor'] is not None else '<i>не указан</i>'}
 
 <b>▶️Статус заявки</b>: {statuses_ru_locale[repair_reqest['status']]}
 
