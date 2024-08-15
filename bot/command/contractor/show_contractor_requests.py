@@ -57,11 +57,11 @@ async def show_more_requests(query: CallbackQuery, state: FSMContext) -> None:
 
 async def send_rr_for_contractor(message: Message, repair_reqest: dict) -> None:
     if repair_reqest['status'] == 3:
-        kb = IKM(inline_keyboard=[[IKB(text='Добавить комментарий 📝', callback_data=f'add_comment:{repair_reqest['id']}')]])
+        kb = IKM(inline_keyboard=[[IKB(text='Добавить комментарий 📝', callback_data=f'add_comment:{repair_reqest["id"]}')]])
     else:
         kb = IKM(inline_keyboard=[
-            [IKB(text='Выполнено ✅', callback_data=f'con:done:{repair_reqest['id']}')],
-            [IKB(text='Добавить комментарий 📝', callback_data=f'add_comment:{repair_reqest['id']}')]
+            [IKB(text='Выполнено ✅', callback_data=f'con:done:{repair_reqest["id"]}')],
+            [IKB(text='Добавить комментарий 📝', callback_data=f'add_comment:{repair_reqest["id"]}')]
         ])
 
     await send_repair_request(message, repair_reqest, kb)
