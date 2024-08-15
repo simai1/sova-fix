@@ -7,7 +7,7 @@ import sendMail from './email.service';
 
 import userService from './user.service';
 import jwtUtils from '../utils/jwt';
-import { encryptPassword, isPasswordMatch } from '../utils/encryption';
+import { encrypt, isMatch } from '../utils/encryption';
 
 type data = {
     accessToken: string;
@@ -23,7 +23,7 @@ const register = async (login: string): Promise<UserDto> => {
         numbers: true,
     });
 
-    const encryptedPassword = await encryptPassword(password);
+    const encryptedPassword = await encrypt(password);
     const user = await User.create({
         login,
         password: encryptedPassword,
@@ -35,7 +35,7 @@ const register = async (login: string): Promise<UserDto> => {
 
 const login = async (email: string, password: string): Promise<data> => {
     const user = await userService.getUserByEmail(email);
-    if (!user || !(await isPasswordMatch(password, user.password)))
+    if (!user || !(await isMatch(password, user.password)))
         throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid login data');
 
     const userDto = new UserDto(user);
@@ -53,7 +53,7 @@ const activate = async (password: string, name: string, userId: string): Promise
     if (!user) throw new ApiError(httpStatus.BAD_REQUEST, 'User doesnt exists');
     if (user.isActivated) throw new ApiError(httpStatus.BAD_REQUEST, 'User already activated');
 
-    const encryptedPassword = await encryptPassword(password);
+    const encryptedPassword = await encrypt(password);
     await user.update({ isActivated: true, password: encryptedPassword, name });
     const userDto = new UserDto(user);
     const { accessToken, refreshToken } = jwtUtils.generate({ ...userDto });
