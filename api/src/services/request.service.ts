@@ -74,7 +74,7 @@ const getAllRequests = async (filter: any): Promise<RequestDto[]> => {
         requests = await RepairRequest.findAll({
             where: whereParams,
             include: [{ model: Contractor }],
-            order: [['number', 'asc']],
+            order: [['number', 'desc']],
         });
     }
     return requests.map(request => new RequestDto(request));

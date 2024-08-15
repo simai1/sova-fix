@@ -29,7 +29,7 @@ const register = async (login: string): Promise<UserDto> => {
         password: encryptedPassword,
     });
 
-    sendMail(login, 'registration', password, `${process.env.WEB_URL}/login`);
+    sendMail(login, 'registration', password, `${process.env.WEB_URL}`);
     return new UserDto(user);
 };
 
