@@ -16,7 +16,7 @@ async def you_cant_do_that(message: Message) -> None:
 
 
 def get_repair_request_text(repair_reqest: dict) -> str:
-    return f'''
+    return f"""
 <b>Заявка №{repair_reqest['number']}</b>
 
 <b>▶️Подразделение</b>: 
@@ -37,7 +37,7 @@ def get_repair_request_text(repair_reqest: dict) -> str:
 
 <b>💬Комментарии</b>:
 {repair_reqest['comment'] if repair_reqest['comment'] is not None else '<i>нет</i>'}
-'''
+"""
 
 
 async def send_repair_request(message: Message, repair_reqest: dict, kb: IKM) -> None:
@@ -49,7 +49,7 @@ async def send_repair_request(message: Message, repair_reqest: dict, kb: IKM) ->
         photo = FSInputFile(path=photo_path, filename='фото.jpg')
         await message.answer_photo(photo, text, reply_markup=kb)
     except TelegramNetworkError:
-        logger.error(f'photo not found', f'{photo_path}')
+        logger.error(f"photo not found", f"{photo_path}")
         return
 
 

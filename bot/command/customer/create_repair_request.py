@@ -96,7 +96,7 @@ async def ask_photo(message: Message, state: FSMContext) -> None:
     await state.update_data(problem_description=text)
 
     await state.set_state(FSMRepairRequest.photo_input)
-    await message.answer(f'Пришлите фото')
+    await message.answer('Пришлите фото')
 
 
 @router.message(FSMRepairRequest.photo_input)
@@ -118,7 +118,7 @@ async def ask_urgency(message: Message, state: FSMContext) -> None:
     data = await pagination.set_pages_data(urgencies_ru_locale, state)
     kb = pagination.make_kb(0, data, prefix='urgency', make_pages=False)
     await state.set_state(FSMRepairRequest.unregncy_input)
-    await message.answer(f'Выберите срочность', reply_markup=kb)
+    await message.answer('Выберите срочность', reply_markup=kb)
 
 
 @router.callback_query(FSMRepairRequest.unregncy_input, F.data.startswith('urgency'))
