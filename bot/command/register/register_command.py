@@ -4,9 +4,9 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 
-from bot.command.register.registration_keyboard import get_roles_kb
-from bot.common.keyboard import to_start_kb
-from bot.util import crm
+from command.register.registration_keyboard import get_roles_kb
+from common.keyboard import to_start_kb
+from util import crm
 
 
 class RegistrationStates(StatesGroup):

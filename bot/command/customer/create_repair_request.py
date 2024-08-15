@@ -4,13 +4,13 @@ from aiogram.filters.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
-from bot.common.keyboard import to_start_kb
-from bot.data import data_loader
-from bot.data.const import urgencies_ru_locale
-from bot.handler import pagination
-from bot.util import crm
-from bot.util.crm import roles
-from bot.util.verification import verify_user, VerificationError
+from common.keyboard import to_start_kb
+from data import data_loader
+from data.const import urgencies_ru_locale
+from handler import pagination
+from util import crm
+from util.crm import roles
+from util.verification import verify_user, VerificationError
 
 router = Router(name=__name__)
 

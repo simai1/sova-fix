@@ -3,9 +3,9 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
-from bot.common.keyboard import to_start_kb
-from bot.util import crm
-from bot.util.crm import roles
+from common.keyboard import to_start_kb
+from util import crm
+from util.crm import roles
 
 router = Router(name=__name__)
 

@@ -5,19 +5,19 @@ from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 
-from bot import config as cf
-from bot.util import logger
+import config as cf
+from command.common.add_comment import router as add_comment_router
+from command.contractor.request_done import router as contractor_request_done_router
+from command.contractor.show_contractor_requests import router as show_contractor_requests_command_router
+from command.contractor.show_itinerary import router as show_itinerary_router
+from command.customer.create_repair_request import router as create_repair_request_command_router
+from command.customer.request_not_relevant import router as customer_request_not_relevant_router
+from command.customer.show_customer_requests import router as show_customer_requests_command_router
+from command.register.register_command import router as register_command_router
 # routers
-from bot.command.start.start_command import router as start_command_router
-from bot.command.register.register_command import router as register_command_router
-from bot.command.customer.create_repair_request import router as create_repair_request_command_router
-from bot.command.customer.show_customer_requests import router as show_customer_requests_command_router
-from bot.command.customer.request_not_relevant import router as customer_request_not_relevant_router
-from bot.command.contractor.show_contractor_requests import router as show_contractor_requests_command_router
-from bot.command.contractor.show_itinerary import router as show_itinerary_router
-from bot.command.contractor.request_done import router as contractor_request_done_router
-from bot.command.common.add_comment import router as add_comment_router
-from bot.handler.pagination import router as pagination_router
+from command.start.start_command import router as start_command_router
+from handler.pagination import router as pagination_router
+from util import logger
 
 routers = [
     start_command_router,

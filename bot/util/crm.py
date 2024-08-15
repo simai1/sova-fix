@@ -2,8 +2,8 @@ from typing import BinaryIO
 
 import requests
 
-from bot import config as cf
-from bot.util import logger
+import config as cf
+from util import logger
 
 
 class roles:

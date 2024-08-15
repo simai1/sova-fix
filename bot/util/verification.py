@@ -1,8 +1,8 @@
 from aiogram.types import Message
 
-from bot.common.messages import you_cant_do_that
-from bot.util import crm, logger
-from bot.util.crm import roles
+from common.messages import you_cant_do_that
+from util import crm, logger
+from util.crm import roles
 
 
 class VerificationError(BaseException):

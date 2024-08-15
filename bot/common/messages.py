@@ -6,9 +6,9 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import InlineKeyboardMarkup as IKM
 from aiogram.types import Message, FSInputFile
 
-from bot.data.const import statuses_ru_locale
-from bot.handler import pagination
-from bot.util import logger
+from data.const import statuses_ru_locale
+from handler import pagination
+from util import logger
 
 
 async def you_cant_do_that(message: Message) -> None:

@@ -1,4 +1,4 @@
-from bot import config as cf
+import config as cf
 from datetime import datetime
 
 log = True
