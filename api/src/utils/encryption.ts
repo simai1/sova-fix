@@ -1,9 +1,9 @@
 import * as bcrypt from 'bcryptjs';
 
-export const encryptPassword = async (password: string) => {
-    return await bcrypt.hash(password, 8);
+export const encrypt = async (value: string) => {
+    return await bcrypt.hash(value, 8);
 };
 
-export const isPasswordMatch = async (password: string, userPassword: string) => {
-    return bcrypt.compare(password, userPassword);
+export const isMatch = async (value: string, checkValue: string) => {
+    return bcrypt.compare(value, checkValue);
 };
