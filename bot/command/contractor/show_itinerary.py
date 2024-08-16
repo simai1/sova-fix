@@ -33,29 +33,29 @@ async def show_contractor_requests_handler(user_id: int, message: Message, state
     except VerificationError:
         return
 
-    repair_requests = await crm.get_itinerary(user_id)
+    itinerary = await crm.get_itinerary(user_id)
 
-    if not repair_requests:
+    if not itinerary:
         await message.answer('В маршрутном листе пока что нет заявок', reply_markup=to_start_kb())
 
     await pagination.set_page_in_state(state, 0)
-    await send_many_rr_for_contractor(repair_requests, message, state)
-    await pagination.send_next_button_if_needed(len(repair_requests), message, state, prefix='it:')
+    await send_many_rr_for_itinerary(itinerary, message, state)
+    await pagination.send_next_button_if_needed(len(itinerary), message, state, prefix='it:')
 
 
 @router.callback_query(F.data == 'it:show_more')
 async def show_more_requests(query: CallbackQuery, state: FSMContext) -> None:
     await pagination.next_page_in_state(state)
 
-    repair_requests = await crm.get_contractor_requests(query.from_user.id)
-    await send_many_rr_for_contractor(repair_requests, query.message, state)
-    await pagination.send_next_button_if_needed(len(repair_requests), query.message, state, prefix='it:')
+    itinerary = await crm.get_itinerary(query.from_user.id)
+    await send_many_rr_for_itinerary(itinerary, query.message, state)
+    await pagination.send_next_button_if_needed(len(itinerary), query.message, state, prefix='it:')
 
     await query.message.delete()
     await query.answer()
 
 
-async def send_rr_for_contractor(message: Message, repair_reqest: dict) -> None:
+async def send_rr_for_itinerary(message: Message, repair_reqest: dict) -> None:
     if repair_reqest['status'] == 3:
         kb = IKM(inline_keyboard=[[IKB(text='Добавить комментарий 📝', callback_data=f'add_comment:{repair_reqest["id"]}')]])
     else:
@@ -67,5 +67,5 @@ async def send_rr_for_contractor(message: Message, repair_reqest: dict) -> None:
     await send_repair_request(message, repair_reqest, kb)
 
 
-async def send_many_rr_for_contractor(repair_requests: list, message: Message, state: FSMContext) -> None:
-    await send_several_requests(repair_requests, message, state, send_rr_for_contractor)
+async def send_many_rr_for_itinerary(itinerary: list, message: Message, state: FSMContext) -> None:
+    await send_several_requests(itinerary, message, state, send_rr_for_itinerary)
