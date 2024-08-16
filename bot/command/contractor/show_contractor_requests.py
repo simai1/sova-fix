@@ -40,16 +40,16 @@ async def show_contractor_requests_handler(user_id: int, message: Message, state
 
     await pagination.set_page_in_state(state, 0)
     await send_many_rr_for_contractor(repair_requests, message, state)
-    await pagination.send_next_button_if_needed(len(repair_requests), message, state)
+    await pagination.send_next_button_if_needed(len(repair_requests), message, state, prefix='con:')
 
 
-@router.callback_query(F.data == 'show_more')
+@router.callback_query(F.data == 'con:show_more')
 async def show_more_requests(query: CallbackQuery, state: FSMContext) -> None:
     await pagination.next_page_in_state(state)
 
     repair_requests = await crm.get_contractor_requests(query.from_user.id)
     await send_many_rr_for_contractor(repair_requests, query.message, state)
-    await pagination.send_next_button_if_needed(len(repair_requests), query.message, state)
+    await pagination.send_next_button_if_needed(len(repair_requests), query.message, state, prefix='con:')
 
     await query.message.delete()
     await query.answer()

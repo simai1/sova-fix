@@ -123,10 +123,10 @@ async def next_page_in_state(state: FSMContext) -> None:
     await state.update_data(page=page+1)
 
 
-async def send_next_button_if_needed(length: int, message: Message, state: FSMContext) -> None:
+async def send_next_button_if_needed(length: int, message: Message, state: FSMContext, prefix: str) -> None:
     page = await get_page_in_state(state)
 
-    next_btn = IKB(text='Далее ➡️', callback_data='show_more')
+    next_btn = IKB(text='Далее ➡️', callback_data=f"{prefix}show_more")
     home_btn = IKB(text='На главную ↩️', callback_data='start_remove_kb')
 
     if length == 0:

@@ -31,7 +31,7 @@ async def write_comment(message: Message, state: FSMContext) -> None:
     data = await state.get_data()
     request_id = data['request_id']
     user = await crm.get_user(message.from_user.id)
-    role = roles.m_roles_list_ru_locale[roles.get_num(user['role'])]
+    role = roles.m_roles_list_ru_locale[roles.get_num(user['role'])-1]
     name = user['name']
 
     old_comment = await crm.get_repair_request_comment(request_id)
