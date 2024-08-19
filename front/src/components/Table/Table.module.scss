@@ -1,6 +1,5 @@
 @import "./../../styles/color.scss";
 @import "./../../styles/mixins.scss";
-
 .Table {
   width: 100%;
   display: flex;
@@ -11,9 +10,20 @@
   border-radius: 8px;
   .dropFilter{
     position: absolute;
-    left: 35px;
-    top: 245px;
+    left: 20px;
+    top: 195px;
+    height: 51px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--turquoise-color);
+    border-radius: 8px;
+    padding: 10px;
     z-index: 100;
+    img{
+      width: 25px;
+      height: 25px;
+    }
     transition: 0.1s linear all;
     &:hover{
       opacity: 0.6;
@@ -110,6 +120,9 @@
       text-align: center;
       padding: 10px;
       position: relative;
+      #statusGreen{
+        background-color: red!important;
+      }
       .statusClick {
         padding: 4px 8px;
         border-radius: 8px;

@@ -11,11 +11,20 @@
     @include buttonSave(var(--turquoise-color));
   }
 }
-
+input{
+  height: 16px;
+}
 .popBox {
   display: flex;
   flex-direction: row;
   .popLeft {
-    margin-right: 20px;
+    // margin-right: 20px;
+    display: flex;
   }
+}
+.FirstBlock{
+margin: 10px;
+}
+.SecondBlock{
+margin: 10px;
 }
