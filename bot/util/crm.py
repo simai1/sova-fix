@@ -135,7 +135,7 @@ async def create_repair_request(
 
     if request.status_code == 200:
         logger.info('new repair request!', f'{values}')
-        return values
+        return request.json()['requestDto']
     else:
         logger.error('could not create repair request', f'{request.status_code} \n{values}')
         return None

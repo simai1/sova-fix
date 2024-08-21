@@ -49,4 +49,4 @@ async def start_handler(user_id: int, message: Message, state: FSMContext) -> No
 
 
 async def send_registration_menu(message: Message) -> None:
-    await message.answer('Привет! Я бот', reply_markup=get_start_kb())
+    await message.answer('Привет! Я бот SOVA-fix', reply_markup=get_start_kb())
