@@ -35,8 +35,10 @@ function App() {
   const [isAllChecked, setAllChecked] = useState([]); // инпут все в SamplePoints //! сбросить
   const [filteredTableData, setFilteredTableData] = useState([]);
   const [dataTableFix, setDataTableFix] = useState([]);
-
+  const [editListOpen, setEditListOpen] = useState(false);
   const context = {
+    editListOpen,
+    setEditListOpen,
     setDataTableFix,
     dataTableFix,
     setFilteredTableData,

@@ -37,9 +37,8 @@ function PopUpEditAppoint(props) {
     {id:2, name:"В течении текущего дня"},
     {id:3, name:"В течении 3-х дней"},
     {id:4, name:"В течении недели"},
-    {id:5, name:"ВЫПОЛНИТЬ СЕГОДНЯ"},
-    {id:6, name:"Маршрут"},
-    {id:7, name:"Выполнено"}
+    {id:5, name:"Маршрут"},
+    {id:6, name:"Выполнено"}
   ];
 
   useEffect(()=>{
@@ -93,47 +92,51 @@ function PopUpEditAppoint(props) {
         });
       };
   
-
+      const [activeDropdown, setActiveDropdown] = useState(null);
+      const toggleDropdown = (name) => {
+        setActiveDropdown(activeDropdown === name ? null : name);
+      };
   return (
     <PopUpContainer width={true} title={"Редактирование заказа"} mT={75}>
       <div className={styles.popBox}>
-        <div className={styles.popLeft}>        
-          <ListInput
-            Textlabel={"Исполнитель"}
-            handleListData={handleListData}
-            name="contractorId"
-            dataList={context.dataContractors}
-            value={dataApointment.contractorId}
-            placeholder="Выберите исполнителя"
-          />
-           <Input
-            Textlabel={"Подрядчик"}
-            handleInputChange={handleInputChange}
-            name="builder"
-            placeholder="Укажите подрядчика"
-            value={dataApointment.builder}
-          />
-          <ListInput
-            Textlabel={"Статус заявки"}
-            handleListData={handleListData}
-            name="status"
-            dataList={DataStatus}
-            value={dataApointment.status}
-            placeholder="Выберите статус"
-          />
+        <div className={styles.popLeft}>   
+        <div className={styles.FirstBlock}>
+        <ListInput
+        Textlabel={"Исполнитель"}
+        handleListData={handleListData}
+        name="contractorId"
+        dataList={context.dataContractors}
+        value={dataApointment.contractorId}
+        placeholder="Выберите исполнителя"
+        isActive={activeDropdown === "contractorId"}
+        toggleDropdown={() => toggleDropdown("contractorId")}
+      />
+      <ListInput
+        Textlabel={"Срочность"}
+        handleListData={handleListData}
+        name="urgency"
+        dataList={DataUrgency}
+        value={dataApointment.urgency}
+        placeholder="Выберите срочность заявки"
+        isActive={activeDropdown === "urgency"}
+        toggleDropdown={() => toggleDropdown("urgency")}
+      />
+      <ListInput
+        Textlabel={"Статус заявки"}
+        handleListData={handleListData}
+        name="status"
+        dataList={DataStatus}
+        value={dataApointment.status}
+        placeholder="Выберите статус"
+        isActive={activeDropdown === "status"}
+        toggleDropdown={() => toggleDropdown("status")}
+      />
            <Input
             Textlabel={"Подразделение"}
             handleInputChange={handleInputChange}
             name="unit"
             placeholder="КЕКС"
             value={dataApointment.unit}
-          />
-           <Input
-            Textlabel={"Объект"}
-            handleInputChange={handleInputChange}
-            name="object"
-            placeholder="Ворошиловский 53"
-            value={dataApointment.object}
           />
             <Input
             Textlabel={"Описание проблемы"}
@@ -143,13 +146,21 @@ function PopUpEditAppoint(props) {
             type = "textArea"
             value={dataApointment.problemDescription}
           />
-            <ListInput
-            Textlabel={"Порядок маршрута"}
-            handleListData={handleListData}
-            name="urgency"
-            dataList={DataUrgency}
-            value={dataApointment.urgency}
-            placeholder="Выберите порядок маршрута"
+        </div>     
+          <div className={styles.SecondBlock}>
+          <Input
+            Textlabel={"Объект"}
+            handleInputChange={handleInputChange}
+            name="object"
+            placeholder="Ворошиловский 53"
+            value={dataApointment.object}
+          />
+             <Input
+            Textlabel={"Подрядчик"}
+            handleInputChange={handleInputChange}
+            name="builder"
+            placeholder="Укажите подрядчика"
+            value={dataApointment.builder}
           />
             <Input
             Textlabel={"Бюджет ремонта (Рублей)"}
@@ -174,6 +185,7 @@ function PopUpEditAppoint(props) {
             placeholder="Пекарь ООО"
             value={dataApointment.legalEntity}
           />
+          </div>
         </div>
       </div>
       <div className={styles.button}>

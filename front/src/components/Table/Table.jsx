@@ -29,9 +29,9 @@ function Table() {
     {id:2, name:"В течении текущего дня"},
     {id:3, name:"В течении 3-х дней"},
     {id:4, name:"В течении недели"},
-    {id:5, name:"ВЫПОЛНИТЬ СЕГОДНЯ"},
-    {id:6, name:"Маршрут"},
-    {id:7, name:"Выполнено"}
+    // {id:5, name:"ВЫПОЛНИТЬ СЕГОДНЯ"},
+    {id:5, name:"Маршрут"},
+    {id:6, name:"Выполнено"}
   ];
 
   const roleUser =[
@@ -162,22 +162,22 @@ function Table() {
 
   const handleClickOutside = (event) => {
     if (
-      statusPopRef.current && !statusPopRef.current.contains(event.target) && event.target.tagName != "LI"
+      statusPopRef.current && !statusPopRef.current.contains(event.target) && event.target.tagName != "LI" && event.target.className != "Table_shovStatusPop__LcpzL"
     ) {
       setshovStatusPop("");
     }
     if (
-      builderPopRef.current && !builderPopRef.current.contains(event.target) && event.target.tagName != "LI"
+      builderPopRef.current && !builderPopRef.current.contains(event.target) && event.target.tagName != "LI" && event.target.className != "Table_shovStatusPop__LcpzL"
     ) {
       setshovBulderPop("");
     }
     if (
-      urgencyPopRef.current && !urgencyPopRef.current.contains(event.target) && event.target.tagName != "LI"
+      urgencyPopRef.current && !urgencyPopRef.current.contains(event.target) && event.target.tagName != "LI" && event.target.className != "Table_shovStatusPop__LcpzL"
     ) {
       setshovUrgencyPop("");
     }
     if (
-      ItineraryOrderPopRef.current && !ItineraryOrderPopRef.current.contains(event.target) && event.target.tagName != "LI"
+      ItineraryOrderPopRef.current && !ItineraryOrderPopRef.current.contains(event.target) && event.target.tagName != "LI" && event.target.className != "Table_shovStatusPop__LcpzL"
     ) {
       setItineraryOrderPop("");
     }
@@ -227,7 +227,7 @@ function Table() {
     if(value){
       let date = value.split("T")
       let dateFormat = date[0].split("-")
-      return `${dateFormat[2]}-${dateFormat[1]}-${dateFormat[0]}`
+      return `${dateFormat[2]}.${dateFormat[1]}.${dateFormat[0]}`
     }else{
       return "___"
     }
@@ -303,6 +303,48 @@ const dispatch = useDispatch();
   context.setFilteredTableData(fdfix, []);
 };
 
+const getRole = (value) =>{
+  if(value !== null){
+    if(value === "ADMIN"){
+      return "Администратор"
+    }else{
+      return "Пользователь"
+    }
+  }else{
+    return "___"
+  }
+}
+// const GetClassName = (selectPage, value) => {
+//   if (selectPage === "Main") {
+//     if (value === "Новая заявка") {
+//       return "RedColor";
+//     } else if (value === "В работе") {
+//       return "YellowColor";
+//     } else if (value === "Выполнена") {
+//       return "GreenColor"; // Fixed typo from 'GeenColor' to 'GreenColor'
+//     } else {
+//       return "StatusClick"; // Fixed typo from 'tatusClick' to 'StatusClick'
+//     }
+//   } else {
+//     return "";
+//   }
+// }
+const GetClassName = (selectPage, value) => {
+  if (selectPage === "Main") {
+    switch (value) {
+      case "Новая заявка":
+        return styles.RedColor;
+      case "В работе":
+        return styles.YellowColor;
+      case "Выполнена":
+        return styles.GreenColor;
+      default:
+        return styles.StatusClick;
+    }
+  }
+  return "";
+}
+
 return (
     <>
       
@@ -371,7 +413,20 @@ return (
                         <div
                           onClick={() => context.selectPage === "Main" && funSetStatus(row.id)}
                           className={context.selectPage === "Main" && styles.statusClick}
-                          ref={statusPopRef}
+                          style={{
+                          whiteSpace: 'nowrap',
+                          backgroundColor: 
+                            context.selectPage === "Main" 
+                              ? row[headerItem.key] === "Новая заявка" 
+                                ? "#dd2e2e" //красный
+                                : row[headerItem.key] === "В работе" 
+                                ? "#FFE20D" // желтый
+                                : row[headerItem.key] === "Выполнена" 
+                                ? "#22bf22"  // зеленый
+                                : ""
+                              : ""
+                        }}                         
+                        ref={statusPopRef}
                         >
                           {row[headerItem.key]}
                           {shovStatusPop === row.id && (
@@ -432,13 +487,31 @@ return (
                         </div>
                       ) : headerItem.key === "urgency" ? (
                         <div
+                        
                           onClick={() => context.selectPage === "Main" && funSetUrgency(row.id)}
                           className={context.selectPage === "Main" && styles.statusClick}
+                          style={{
+                          backgroundColor: 
+                            context.selectPage === "Main" 
+                              ? row[headerItem.key] === "В течении часа" 
+                                ? "#dd2e2e" //красный
+                                : row[headerItem.key] === "В течении текущего дня" 
+                                ? "#f9ab23" // оранжевый
+                                : row[headerItem.key] === "В течении 3-х дней" 
+                                ? "#FFE20D"  // желтый
+                                : row[headerItem.key] === "В течении недели" 
+                                ? "#eaf45b"  // светло желтый
+                                : row[headerItem.key] === "Выполнено" 
+                                ? "#22bf22"  // зеленый
+                                : ""
+                              : ""
+                        }}     
                           ref={urgencyPopRef}
                         >
                           {row[headerItem.key] !== null ? row[headerItem.key] : "___"}
                           {shovUrgencyPop === row.id && (
-                            <div className={styles.shovStatusPop} style={checkHeights(context.filteredTableData,index) ? {top:"-70%", width: "200%"} : {width: "200%"}}>
+                            <div className={styles.shovStatusPop} style={checkHeights(context.filteredTableData,index) ? {top:"-70%", width: "200%"} : {width: "200%"}}
+                            >
                               <ul>
                                 {DataUrgency?.map((value, index) => (
                                   <li
@@ -458,7 +531,7 @@ return (
                           onClick={() =>ClickRole(row.id, row[headerItem.key])}
                           className={styles.statusClick}
                         >
-                          {row[headerItem.key]}
+                          {getRole(row[headerItem.key])}
                         </div>
                       ):
                        headerItem.key === "itineraryOrder" ? (
@@ -467,7 +540,7 @@ return (
                           className={context.selectPage != "Main" && styles.statusClick}
                           ref={ItineraryOrderPopRef}
                         >
-                          {row[headerItem.key] !== null ? row[headerItem.key] : "___"}
+                          { getRole(row[headerItem.key])}
                           {itineraryOrderPop === row.id && (
                             <div className={styles.shovStatusPop} style={checkHeights(context.filteredTableData, index) ? {top:"-10%", right:"-50px", width: "auto"} : {width: "auto"}}>
                               <ul>
@@ -482,7 +555,7 @@ return (
                           )}
                         </div>
                       ) : (
-                        (headerItem.key === "createdAt" ||  headerItem.key === "completeDate") ? resechDate(row[headerItem.key]) : getItem(row[headerItem.key])
+                        <p style={{whiteSpace: (headerItem.key === "createdAt" ||  headerItem.key === "completeDate") ? 'nowrap' : 'wrap'}}>{(headerItem.key === "createdAt" ||  headerItem.key === "completeDate") ? resechDate(row[headerItem.key]) : getItem(row[headerItem.key])}</p>
                       )}
                     </td>
                   ))}

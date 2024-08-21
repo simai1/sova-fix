@@ -6,7 +6,7 @@
   justify-content: center;
   position: relative;
   label {
-    font-size: 14px;
+    font-size: 16px;
   }
   input {
     @include input-text(420px, 8px);
