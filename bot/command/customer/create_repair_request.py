@@ -2,7 +2,7 @@ from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.filters.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, FSInputFile
 
 from common.keyboard import to_start_kb
 from data import data_loader
@@ -11,6 +11,8 @@ from handler import pagination
 from util import crm
 from util.crm import roles
 from util.verification import verify_user, VerificationError
+
+import config as cf
 
 router = Router(name=__name__)
 
@@ -49,10 +51,10 @@ async def create_repair_request(user_id: int, message: Message, state: FSMContex
         return
 
     # анкета
-    await ask_unit(user_id, message, state)
+    await ask_unit(message, state)
 
 
-async def ask_unit(user_id: int, message: Message, state: FSMContext) -> None:
+async def ask_unit(message: Message, state: FSMContext) -> None:
     await state.clear()
     await state.set_state(FSMRepairRequest.unit_input)
 
@@ -155,9 +157,14 @@ async def create_request(query: CallbackQuery, state: FSMContext) -> None:
     )
 
     if rr is None:
-        await query.message.answer('Что-то пошло не так :(')
+        await query.message.answer('Что-то пошло не так. Попробуйте снова позже')
     else:
-        await query.message.answer('Успешно', reply_markup=to_start_kb())
+        file = FSInputFile(path=f"./{cf.IMG_PATH}/photo_2024-08-21_17-47-11.jpg", filename="фото.jpg")
+        await query.message.answer_photo(
+            photo=file,
+            caption=f"✅Ваша заявка №{rr['number']} успешно отправлена менеджеру",
+            reply_markup=to_start_kb()
+        )
 
     await query.answer()
     await query.message.edit_reply_markup(reply_markup=None)
