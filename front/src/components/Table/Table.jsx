@@ -540,9 +540,9 @@ return (
                           className={context.selectPage != "Main" && styles.statusClick}
                           ref={ItineraryOrderPopRef}
                         >
-                          { getRole(row[headerItem.key])}
+                         {row[headerItem.key]}
                           {itineraryOrderPop === row.id && (
-                            <div className={styles.shovStatusPop} style={checkHeights(context.filteredTableData, index) ? {top:"-10%", right:"-50px", width: "auto"} : {width: "auto"}}>
+                            <div className={styles.shovStatusPop} style={checkHeights(context.filteredTableData, index) ? {top:"-10%", right:"100px", width: "auto"} : {width: "auto"}}>
                               <ul>
                               {
                                 arrCount.map((el)=>{
