@@ -45,7 +45,6 @@ const getContractorsItinerary = catchAsync(async (req, res) => {
             'contractor',
         ])
     );
-    console.log(filter);
     if (!contractorId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing contractorId');
     const requests = await contractorService.getContractorsItinerary(contractorId, filter);
     res.json(requests);

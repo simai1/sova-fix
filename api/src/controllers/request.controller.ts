@@ -27,7 +27,6 @@ const getAll = catchAsync(async (req, res) => {
             'contractor',
         ])
     );
-    console.log(filter);
     const requestsDtos = await requestService.getAllRequests(filter);
     res.json({ requestsDtos });
 });
