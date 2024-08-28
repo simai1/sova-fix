@@ -7,6 +7,7 @@ import contractorService from './contractor.service';
 import { Op } from 'sequelize';
 import { statusesRuLocale } from '../config/statuses';
 import sequelize from 'sequelize';
+import { sendMsg, WsMsgData } from '../utils/ws';
 
 const getAllRequests = async (filter: any): Promise<RequestDto[]> => {
     let requests;
@@ -121,6 +122,16 @@ const setContractor = async (requestId: string, contractorId: string): Promise<v
 const setComment = async (requestId: string, comment: string): Promise<void> => {
     const request = await RepairRequest.findByPk(requestId);
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
+    sendMsg({
+        msg: {
+            newComment: comment,
+            oldComment: request.comment,
+            requestId: requestId,
+            contractor: request.contractorId,
+            customer: request.createdBy,
+        },
+        event: 'COMMENT_UPDATE',
+    } as WsMsgData);
     await request.update({ comment });
 };
 
@@ -133,6 +144,16 @@ const removeContractor = async (requestId: string): Promise<void> => {
 const setStatus = async (requestId: string, status: number): Promise<void> => {
     const request = await RepairRequest.findByPk(requestId);
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
+    sendMsg({
+        msg: {
+            newStatus: status,
+            oldStatus: request.status,
+            requestId: requestId,
+            contractor: request.contractorId,
+            customer: request.createdBy,
+        },
+        event: 'STATUS_UPDATE',
+    } as WsMsgData);
     await request.update({
         status,
         completeDate: status === 3 ? new Date() : null,
@@ -170,6 +191,18 @@ const update = async (
                 await RepairRequest.update({ itineraryOrder: request.itineraryOrder }, { where: { id: it.id } });
         }
     }
+
+    if (typeof urgency !== 'undefined')
+        sendMsg({
+            msg: {
+                newUrgency: urgency,
+                oldUrgency: request.urgency,
+                requestId: requestId,
+                contractor: request.contractorId,
+                customer: request.createdBy,
+            },
+            event: 'URGENCY_UPDATE',
+        } as WsMsgData);
 
     await RepairRequest.update(
         {

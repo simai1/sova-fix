@@ -21,6 +21,7 @@ export default class RepairRequest extends Model {
     createdAt!: Date;
     contractorId?: string;
     Contractor?: Contractor;
+    createdBy!: string;
 
     static initialize(sequelize: Sequelize) {
         RepairRequest.init(
