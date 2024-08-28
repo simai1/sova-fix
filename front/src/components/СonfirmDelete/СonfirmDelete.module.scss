@@ -1,0 +1,45 @@
+
+@import "./../../styles/color.scss";
+@import "./../../styles/mixins.scss";
+
+.СonfirmDelete{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    align-items: center;
+    // background-color: rgba(0, 0, 0, 0.433);
+    z-index: 99999;
+    .СonfirmDeleteInner{
+        width: 350px;
+        height: 175px;
+        background-color: rgb(255, 255, 255);
+        box-shadow: 4px 4px 20px 0px #00000026;
+        border-radius: 12px;
+        text-align: center;
+        position: relative;
+        font-size: 18px;
+        .ButtonInner{
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            position: absolute;
+            bottom: 20px;
+            button{
+                width: 40%;
+                height: 100%;
+                border-radius: 12px;
+                font-size: 20px;
+                margin: 0 10px;
+                @include button(var(--turquoise-color));
+                text-align: center;
+                display: flex;
+                justify-content: center;
+            }
+        }
+       
+    }
+}

@@ -24,12 +24,7 @@ function FunctionTableTop(props) {
   //!удаление заявки
   const deleteRequestFunc = () =>{
     if(context.selectedTr != null){
-      DeleteRequest(context.selectedTr).then((resp)=>{
-        if(resp?.status === 200){
-          context.UpdateTableReguest(1);
-          context.setSelectedTr(null)
-        }
-      })
+      context.setPopUp("СonfirmDelete")
     }else{
       context.setPopupErrorText("Сначала выберите заявку!");
       context.setPopUp("PopUpError")

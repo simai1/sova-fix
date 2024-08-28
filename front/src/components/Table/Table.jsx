@@ -8,7 +8,7 @@ import { SamplePoints } from "../../UI/SamplePoints/SamplePoints";
 import { removeTableCheckeds } from "../../store/filter/isChecked.slice";
 import { useDispatch } from "react-redux";
 import { FilteredSample, funFixEducator } from "../../UI/SamplePoints/Function";
-
+import СonfirmDelete from "../СonfirmDelete/СonfirmDelete";
 function Table() {
   const { context } = useContext(DataContext);
   const [actiwFilter, setActiwFilter] = useState(null);
@@ -203,7 +203,8 @@ function Table() {
   }
 
   const getItem = (item) =>{
-    if(item === null || item === undefined){
+    console.log(item)
+    if(item === null || item === undefined || item === "null" || item === "undefined" || item === " "){
       return "___"
     }else{
       return item
@@ -223,15 +224,15 @@ function Table() {
     getCountList()
   },[context.Dataitinerary])
 
-  const resechDate = (value)=>{
-    if(value){
-      let date = value.split("T")
-      let dateFormat = date[0].split("-")
-      return `${dateFormat[2]}.${dateFormat[1]}.${dateFormat[0]}`
-    }else{
-      return "___"
-    }
-  }
+  // const resechDate = (value)=>{
+  //   if(value){
+  //     let date = value.split("T")
+  //     let dateFormat = date[0].split("-")
+  //     return `${dateFormat[2]}.${dateFormat[1]}.${dateFormat[0]}`
+  //   }else{
+  //     return "___"
+  //   }
+  // }
 
   const deleteBilder = (id) =>{
     const data = {
@@ -279,7 +280,7 @@ function Table() {
     5: "Принята",
   };
   let modalData = [];
-  if(key === "number" || key === "contractor" || key === "builder" || key === "status" || key === "unit"){
+  if(key != "photo"){
     if(key === "status"){
       modalData = context?.tableData.map(
         (item) => status[item[key]]);
@@ -361,6 +362,7 @@ return (
                       {item.value} 
                       {actiwFilter === item.key && <SamplePoints
                           index={index+1}
+                          actiwFilter={actiwFilter}
                           itemKey={item.key}
                           isSamplePointsData={context.isSamplePointsData}
                           isAllChecked={context.isAllChecked}
@@ -466,7 +468,7 @@ return (
                           className={context.selectPage === "Main" && styles.statusClick}
                           ref={builderPopRef}
                         >
-                          {row[headerItem.key] !== null ? row[headerItem.key] : "___"}
+                          {getItem(row[headerItem.key])}
                           {shovBulderPop === row.id && (
                             <div className={styles.shovStatusPop} style={checkHeights(context.filteredTableData,index) ? {top:"-70%", width: "200%"} : {width: "200%"}}  >
                               <ul>
@@ -555,7 +557,7 @@ return (
                           )}
                         </div>
                       ) : (
-                        <p style={{whiteSpace: (headerItem.key === "createdAt" ||  headerItem.key === "completeDate") ? 'nowrap' : 'wrap'}}>{(headerItem.key === "createdAt" ||  headerItem.key === "completeDate") ? resechDate(row[headerItem.key]) : getItem(row[headerItem.key])}</p>
+                        <p style={{whiteSpace: (headerItem.key === "createdAt" ||  headerItem.key === "completeDate") ? 'nowrap' : 'wrap'}}>{getItem(row[headerItem.key])}</p>
                       )}
                     </td>
                   ))}
@@ -576,6 +578,10 @@ return (
           <img className={styles.modalContent} src={modalImage} alt="Full size" />
         </div>
       )}
+      {
+        context.popUp === "СonfirmDelete" &&  <СonfirmDelete />
+      }
+     
     </>
   );
 }
