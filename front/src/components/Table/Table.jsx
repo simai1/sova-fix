@@ -204,7 +204,7 @@ function Table() {
 
   const getItem = (item) =>{
     console.log(item)
-    if(item === null || item === undefined || item === "null" || item === "undefined" || item === " "){
+    if(item === null || item === undefined || item === "null" || item === "undefined" || item === "" || item === " "){
       return "___"
     }else{
       return item
@@ -224,15 +224,6 @@ function Table() {
     getCountList()
   },[context.Dataitinerary])
 
-  // const resechDate = (value)=>{
-  //   if(value){
-  //     let date = value.split("T")
-  //     let dateFormat = date[0].split("-")
-  //     return `${dateFormat[2]}.${dateFormat[1]}.${dateFormat[0]}`
-  //   }else{
-  //     return "___"
-  //   }
-  // }
 
   const deleteBilder = (id) =>{
     const data = {
@@ -542,7 +533,7 @@ return (
                           className={context.selectPage != "Main" && styles.statusClick}
                           ref={ItineraryOrderPopRef}
                         >
-                         {row[headerItem.key]}
+                         {row[headerItem.key] !== null ? row[headerItem.key] : "___"}
                           {itineraryOrderPop === row.id && (
                             <div className={styles.shovStatusPop} style={checkHeights(context.filteredTableData, index) ? {top:"-10%", right:"100px", width: "auto"} : {width: "auto"}}>
                               <ul>
