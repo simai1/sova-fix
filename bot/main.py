@@ -6,6 +6,7 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 
 import config as cf
+from util.websocket_worker import WebSocketWorker
 from command.common.add_comment import router as add_comment_router
 from command.contractor.request_done import router as contractor_request_done_router
 from command.contractor.show_contractor_requests import router as show_contractor_requests_command_router
@@ -46,11 +47,15 @@ async def main() -> None:
     bot = Bot(token=cf.BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     await include_routers()
 
+    ws_worker = WebSocketWorker(bot)
+    ws_worker.open_connection()
+
     try:
         logger.info('bot is running')
         await dp.start_polling(bot)
     except (CancelledError, KeyboardInterrupt, SystemExit):
         dp.shutdown()
+        ws_worker.close_connection()
         logger.info('stopping')
 
 

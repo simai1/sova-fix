@@ -255,8 +255,8 @@ async def change_repair_request_comment(request_id: str, new_comment: str) -> bo
     request = requests.patch(url, json=data)
 
     if request.status_code == 200:
-        logger.info('successfully changed comment', f'\nrequest_id={request_id}')
+        logger.info('successfully changed comment', f'request_id={request_id}')
         return True
     else:
-        logger.error('could not change request comment', f'{request.status_code}\nrequest_id={request_id}')
+        logger.error('could not change request comment', f'{request.status_code}request_id={request_id}')
         return False
