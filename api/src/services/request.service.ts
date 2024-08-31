@@ -125,15 +125,13 @@ const setComment = async (requestId: string, comment: string): Promise<void> => 
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
     const customer = await TgUser.findByPk(request.createdBy);
     const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
-    if (!customer) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found customer');
-    if (!contractor) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found contractor');
     sendMsg({
         msg: {
             newComment: comment,
             oldComment: request.comment,
             requestId: requestId,
-            contractor: contractor.TgUser ? contractor.TgUser.tgId : null,
-            customer: customer.tgId,
+            contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
+            customer: customer ? customer.tgId : null,
         },
         event: 'COMMENT_UPDATE',
     } as WsMsgData);
@@ -151,15 +149,13 @@ const setStatus = async (requestId: string, status: number): Promise<void> => {
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
     const customer = await TgUser.findByPk(request.createdBy);
     const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
-    if (!customer) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found customer');
-    if (!contractor) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found contractor');
     sendMsg({
         msg: {
             newStatus: status,
             oldStatus: request.status,
             requestId: requestId,
-            contractor: contractor.TgUser ? contractor.TgUser.tgId : null,
-            customer: customer.tgId,
+            contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
+            customer: customer ? customer.tgId : null,
         },
         event: 'STATUS_UPDATE',
     } as WsMsgData);
@@ -205,15 +201,13 @@ const update = async (
     if (typeof urgency !== 'undefined') {
         const customer = await TgUser.findByPk(request.createdBy);
         const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
-        if (!customer) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found customer');
-        if (!contractor) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found contractor');
         sendMsg({
             msg: {
                 newUrgency: urgency,
                 oldUrgency: request.urgency,
                 requestId: requestId,
-                contractor: contractor.TgUser ? contractor.TgUser.tgId : null,
-                customer: customer.tgId,
+                contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
+                customer: customer ? customer.tgId : null,
             },
             event: 'URGENCY_UPDATE',
         } as WsMsgData);
