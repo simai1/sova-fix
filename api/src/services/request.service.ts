@@ -8,6 +8,7 @@ import { Op } from 'sequelize';
 import { statusesRuLocale } from '../config/statuses';
 import sequelize from 'sequelize';
 import { sendMsg, WsMsgData } from '../utils/ws';
+import TgUser from '../models/tgUser';
 
 const getAllRequests = async (filter: any): Promise<RequestDto[]> => {
     let requests;
@@ -122,13 +123,17 @@ const setContractor = async (requestId: string, contractorId: string): Promise<v
 const setComment = async (requestId: string, comment: string): Promise<void> => {
     const request = await RepairRequest.findByPk(requestId);
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
+    const customer = await TgUser.findByPk(request.createdBy);
+    const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
+    if (!customer) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found customer');
+    if (!contractor) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found contractor');
     sendMsg({
         msg: {
             newComment: comment,
             oldComment: request.comment,
             requestId: requestId,
-            contractor: request.contractorId,
-            customer: request.createdBy,
+            contractor: contractor.TgUser ? contractor.TgUser.tgId : null,
+            customer: customer.tgId,
         },
         event: 'COMMENT_UPDATE',
     } as WsMsgData);
@@ -144,13 +149,17 @@ const removeContractor = async (requestId: string): Promise<void> => {
 const setStatus = async (requestId: string, status: number): Promise<void> => {
     const request = await RepairRequest.findByPk(requestId);
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
+    const customer = await TgUser.findByPk(request.createdBy);
+    const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
+    if (!customer) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found customer');
+    if (!contractor) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found contractor');
     sendMsg({
         msg: {
             newStatus: status,
             oldStatus: request.status,
             requestId: requestId,
-            contractor: request.contractorId,
-            customer: request.createdBy,
+            contractor: contractor.TgUser ? contractor.TgUser.tgId : null,
+            customer: customer.tgId,
         },
         event: 'STATUS_UPDATE',
     } as WsMsgData);
@@ -192,18 +201,23 @@ const update = async (
         }
     }
 
-    if (typeof urgency !== 'undefined')
+    // ws section
+    if (typeof urgency !== 'undefined') {
+        const customer = await TgUser.findByPk(request.createdBy);
+        const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
+        if (!customer) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found customer');
+        if (!contractor) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found contractor');
         sendMsg({
             msg: {
                 newUrgency: urgency,
                 oldUrgency: request.urgency,
                 requestId: requestId,
-                contractor: request.contractorId,
-                customer: request.createdBy,
+                contractor: contractor.TgUser ? contractor.TgUser.tgId : null,
+                customer: customer.tgId,
             },
             event: 'URGENCY_UPDATE',
         } as WsMsgData);
-
+    }
     await RepairRequest.update(
         {
             unit,
