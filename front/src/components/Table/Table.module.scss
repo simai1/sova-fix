@@ -85,36 +85,29 @@
       background-color: var(--tableTh);
       @include font(14px, 500);
     }
-    th[name="status"] {
+    th[name="photo"] {
+      &:hover {
+      background-color: var(--tableTh);
+      cursor: auto;
+      }
+    }
+   
+    th{
       &:hover {
       cursor: pointer;
         background-color: var(--Active-gray-color);
       }
     }
-    th[name="unit"] {
-      &:hover {
-        cursor: pointer;
-        background-color: var(--Active-gray-color);
-      }
-    }
-    th[name="builder"] {
-      &:hover {
-        cursor: pointer;
-        background-color: var(--Active-gray-color);
-      }
-    }
-    th[name="contractor"] {
-      &:hover {
+
+    .thSort{
       cursor: pointer;
-        background-color: var(--Active-gray-color);
+      z-index: 120;
+      margin-left: 5px;
+      &:hover{
+        opacity: 0.6;
       }
     }
-    th[name="number"] {
-      &:hover {
-      cursor: pointer;
-        background-color: var(--Active-gray-color);
-      }
-    }
+  
     td {
       text-align: center;
       padding: 10px;

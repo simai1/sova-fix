@@ -9,7 +9,6 @@ import PageCardContractors from "../PageCardContractors/PageCardContractors";
 import PopUpEditAppoint from "../../../components/PopUp/PopUpEditAppoint/PopUpEditAppoint";
 import { PopUpError } from "../../../UI/PopUpError/PopUpError";
 import Header from "../../../components/Header/Header";
-import Filter from "../../../components/Filtred/Filter";
 function HomePageAdmin() {
   const { context } = React.useContext(DataContext);
   return (
@@ -31,7 +30,6 @@ function HomePageAdmin() {
       {context.popUp === "PopUpEditAppoint" && <PopUpEditAppoint />}
       {context.popUp === "PopUpCreateUser" && <PopUpCreateUser />}
       {context.popUp === "PopUpGoodMessage" && <PopUpGoodMessage />}
-      {context.popUp === "Filter" && <Filter />}
     </div>
   );
 }

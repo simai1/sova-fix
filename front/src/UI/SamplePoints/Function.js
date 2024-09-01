@@ -19,9 +19,11 @@ export function funFixEducator(data) {
     4: "Неактуальна",
     5: "Принята",
   };
-  return data.map((item) => ({
-    ...item,
-    contractor: item?.contractor?.name,
-    status: status[item?.status],
-  }));
+  return data.map((item) => {
+    return {
+      ...item,
+      contractor: item?.contractor?.name,
+      status: status[item?.status],
+    };
+  });
 }

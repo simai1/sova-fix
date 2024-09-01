@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styles from "./Authorization.module.scss";
-import { useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom";
 import DataContext from "../../../context";
 import { tableHeadAppoint } from "../../../components/Table/Data";
 import { LoginFunc } from "../../../API/API";
@@ -11,7 +11,6 @@ function Authorization() {
   const [errorAuth, setErrorAuth] = useState(false);
   const navigate = useNavigate();
 
-  // State for form data and error messages
   const [formData, setFormData] = useState({
     login: "",
     password: "",
@@ -33,7 +32,7 @@ function Authorization() {
     }));
   };
 
- const handleLogin = () => {
+  const handleLogin = () => {
     let formIsValid = true;
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(formData.login)) {
@@ -50,7 +49,7 @@ function Authorization() {
       }));
       formIsValid = false;
     }
-  
+
     if (formIsValid) {
       LoginFunc(formData).then((resp) => {
         if (resp?.status === 200) {
@@ -61,15 +60,13 @@ function Authorization() {
             context.setDataUsers(resp);
             navigate("/");
           }
-        }else{
-          setErrorAuth(true)
+        } else {
+          setErrorAuth(true);
         }
       });
     }
   };
-  
 
-  // Effect to reset context and set table data
   useEffect(() => {
     context.setTableData([]);
     context.settableHeader(tableHeadAppoint);
@@ -78,36 +75,48 @@ function Authorization() {
 
   return (
     <div className={styles.AuthorRegistrar}>
-      <div className={styles.box}>
-      <div className={styles.text_Logo}>
-        <img  src="./img/SOVA.jpg" className={styles.LogoAuth}/>
-        {(errorAuth || Object.values(errors).some((error) => error)) && <ErrorAuth/>}
-      </div>
-     
-        <div className={styles.container}>
-          <h2>Вход в аккаунт</h2>
-          <input
-            type="text"
-            placeholder="Логин"
-            name="login"
-            value={formData.login}
-            onChange={handleInputChange}
-            style={{ borderColor: errors.login ? "red" : "" }} // Highlight with red border
-          />
-          {/* {errors.login && <div style={{ color: "red" }}>{errors.login}</div>} Display error message */}
-          <input
-            type="password"
-            placeholder="Пароль"
-            name="password"
-            value={formData.password}
-            onChange={handleInputChange}
-            style={{ borderColor: errors.password ? "red" : "" }} // Highlight with red border
-          />
-          {/* {errors.password && <div style={{ color: "red" }}>{errors.password}</div>}  */}
-          <button className={styles.button} onClick={handleLogin}>
-            Войти
-          </button>
+      <div>
+        <div className={styles.box}>
+          <div className={styles.text_Logo}>
+            <img src="./img/SOVA.jpg" className={styles.LogoAuth} />
+          </div>
+
+          <div className={styles.container}>
+            <h2>Вход в аккаунт</h2>
+            <input
+              type="text"
+              placeholder="Логин"
+              name="login"
+              value={formData.login}
+              onChange={handleInputChange}
+              style={{ borderColor: errors.login ? "red" : "" }}
+            />
+            <input
+              type="password"
+              placeholder="Пароль"
+              name="password"
+              value={formData.password}
+              onChange={handleInputChange}
+              style={{ borderColor: errors.password ? "red" : "" }}
+            />
+            <button className={styles.button} onClick={handleLogin}>
+              Войти
+            </button>
+          </div>
         </div>
+        <div
+  className={`${styles.ErrorLogin} ${
+    errorAuth || Object.values(errors).some((error) => error)
+      ? styles.visible
+      : ""
+  }`}
+  style={{ opacity: errorAuth || Object.values(errors).some((error) => error) ? 1 : 0 }}
+>
+  {(errorAuth || Object.values(errors).some((error) => error)) && (
+    <p>Неверный логин или пароль!</p>
+  )}
+</div>
+
       </div>
     </div>
   );

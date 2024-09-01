@@ -27,7 +27,10 @@ const getAll = catchAsync(async (req, res) => {
             'contractor',
         ])
     );
-    const requestsDtos = await requestService.getAllRequests(filter);
+    const order = prepare(pick(req.query, ['col', 'type']));
+    if (order.type && ['asc', 'desc'].indexOf(order.type) === -1)
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid order type');
+    const requestsDtos = await requestService.getAllRequests(filter, order);
     res.json({ requestsDtos });
 });
 

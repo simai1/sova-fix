@@ -9,7 +9,7 @@ import ErrorAuth from "../ErrorAuth/ErrorAuth";
 function Activate() {
   const { context } = React.useContext(DataContext);
   const navigate = useNavigate();
-
+  const [errorAuth, setErrorAuth] = useState(false);
   const [formData, setFormData] = useState({
     FIO: "",
     password: "",
@@ -70,6 +70,8 @@ function Activate() {
         if (resp?.status === 200) {
           context.setDataUsers(resp);
           navigate("/");
+        }else{
+          setErrorAuth(true);
         }
       });
     }
@@ -83,10 +85,10 @@ function Activate() {
 
   return (
     <div className={styles.AuthorRegistrar}>
+    <div>
       <div className={styles.box}>
       <div className={styles.text_Logo}>
         <img  src="./img/SOVA.jpg" className={styles.LogoAuth}/>
-        {Object.values(errors).some((error) => error) && <ErrorAuth text={errors}/>}
       </div>
         <div className={styles.container}>
           <h2>Активация аккаунта</h2>
@@ -124,6 +126,19 @@ function Activate() {
             Войти
           </button>
         </div>
+      </div>
+        <div
+        className={`${styles.ErrorLogin} ${
+          errorAuth
+            ? styles.visible
+            : ""
+        }`}
+        style={{ opacity: errorAuth ? 1 : 0 }}
+      >
+        {errorAuth && (
+          <p>Произошла ошибка при активации аккаунта!</p>
+        )}
+      </div>
       </div>
     </div>
   );

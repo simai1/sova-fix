@@ -10,7 +10,7 @@ import sequelize from 'sequelize';
 import { sendMsg, WsMsgData } from '../utils/ws';
 import TgUser from '../models/tgUser';
 
-const getAllRequests = async (filter: any): Promise<RequestDto[]> => {
+const getAllRequests = async (filter: any, order: any): Promise<RequestDto[]> => {
     let requests;
     const whereParams = {};
     Object.keys(filter).forEach((k: any) =>
@@ -70,15 +70,26 @@ const getAllRequests = async (filter: any): Promise<RequestDto[]> => {
                     model: Contractor,
                 },
             ],
-            order: [['number', 'asc']],
+            order:
+                order.col && order.type
+                    ? order.col === 'contractor'
+                        ? [['Contractor', 'name', order.type]]
+                        : [[order.col, order.type]]
+                    : [['number', 'desc']],
         });
     } else {
         requests = await RepairRequest.findAll({
             where: whereParams,
             include: [{ model: Contractor }],
-            order: [['number', 'desc']],
+            order:
+                order.col && order.type
+                    ? order.col === 'contractor'
+                        ? [['Contractor', 'name', order.type]]
+                        : [[order.col, order.type]]
+                    : [['number', 'desc']],
         });
     }
+
     return requests.map(request => new RequestDto(request));
 };
 
@@ -117,7 +128,7 @@ const createRequest = async (
 const setContractor = async (requestId: string, contractorId: string): Promise<void> => {
     const request = await RepairRequest.findByPk(requestId);
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
-    await request.update({ contractorId, builder: 'Внутренний сотрудник' });
+    await request.update({ contractorId, builder: 'Внутренний сотрудник', status: 2 });
 };
 
 const setComment = async (requestId: string, comment: string): Promise<void> => {

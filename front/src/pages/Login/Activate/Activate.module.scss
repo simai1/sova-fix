@@ -63,5 +63,35 @@
     position: relative;
     top: -15px;
   }
+  @keyframes bounce {
+    0% {
+      transform: translateY(0);
+    }
+    30% {
+      transform: translateY(-10px); // Move up
+    }
+    50% {
+      transform: translateY(0); // Back to original position
+    }
+    70% {
+      transform: translateY(-5px); // Slightly bounce up again
+    }
+    100% {
+      transform: translateY(0); // Back to original position
+    }
+  }
+  
+  .ErrorLogin {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    font-size: 24px;
+    opacity: 0; // Start hidden
+    transition: opacity 0.2s linear; // Smooth transition for opacity
+    &.visible {
+      opacity: 1; // Make the element visible
+      animation: bounce 0.5s; // Apply bounce animation
+    }
+  }
 }
 
