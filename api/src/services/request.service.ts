@@ -10,7 +10,7 @@ import sequelize from 'sequelize';
 import { sendMsg, WsMsgData } from '../utils/ws';
 import TgUser from '../models/tgUser';
 
-const getAllRequests = async (filter: any): Promise<RequestDto[]> => {
+const getAllRequests = async (filter: any, order: any): Promise<RequestDto[]> => {
     let requests;
     const whereParams = {};
     Object.keys(filter).forEach((k: any) =>
@@ -70,13 +70,13 @@ const getAllRequests = async (filter: any): Promise<RequestDto[]> => {
                     model: Contractor,
                 },
             ],
-            order: [['number', 'asc']],
+            order: order.col && order.type ? [[order.col, order.type]] : [['number', 'asc']],
         });
     } else {
         requests = await RepairRequest.findAll({
             where: whereParams,
             include: [{ model: Contractor }],
-            order: [['number', 'desc']],
+            order: order.col && order.type ? [[order.col, order.type]] : [['number', 'asc']],
         });
     }
     return requests.map(request => new RequestDto(request));
