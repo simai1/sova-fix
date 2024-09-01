@@ -75,7 +75,7 @@ const getAllRequests = async (filter: any, order: any): Promise<RequestDto[]> =>
                     ? order.col === 'contractor'
                         ? [['Contractor', 'name', order.type]]
                         : [[order.col, order.type]]
-                    : [['number', 'asc']],
+                    : [['number', 'desc']],
         });
     } else {
         requests = await RepairRequest.findAll({
@@ -86,7 +86,7 @@ const getAllRequests = async (filter: any, order: any): Promise<RequestDto[]> =>
                     ? order.col === 'contractor'
                         ? [['Contractor', 'name', order.type]]
                         : [[order.col, order.type]]
-                    : [['number', 'asc']],
+                    : [['number', 'desc']],
         });
     }
 
