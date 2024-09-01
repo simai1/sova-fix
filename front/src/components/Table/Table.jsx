@@ -411,11 +411,11 @@ return (
                           backgroundColor: 
                             context.selectPage === "Main" 
                               ? row[headerItem.key] === "Новая заявка" 
-                                ? "#dd2e2e" //красный
+                                ? "#d69a81" //красный
                                 : row[headerItem.key] === "В работе" 
-                                ? "#FFE20D" // желтый
+                                ? "#ffe78f" // желтый
                                 : row[headerItem.key] === "Выполнена" 
-                                ? "#22bf22"  // зеленый
+                                ? "#C5E384"  // зеленый
                                 : ""
                               : ""
                         }}                         
@@ -487,15 +487,15 @@ return (
                           backgroundColor: 
                             context.selectPage === "Main" 
                               ? row[headerItem.key] === "В течении часа" 
-                                ? "#dd2e2e" //красный
+                                ? "#d69a81" //красный
                                 : row[headerItem.key] === "В течении текущего дня" 
-                                ? "#f9ab23" // оранжевый
+                                ? "#f9ab23" // ?оранжевый
                                 : row[headerItem.key] === "В течении 3-х дней" 
-                                ? "#FFE20D"  // желтый
+                                ? "#ffe78f"  // желтый
                                 : row[headerItem.key] === "В течении недели" 
-                                ? "#eaf45b"  // светло желтый
+                                ? "#eaf45b"  // ?светло желтый
                                 : row[headerItem.key] === "Выполнено" 
-                                ? "#22bf22"  // зеленый
+                                ? "#C5E384"  // зеленый
                                 : ""
                               : ""
                         }}     
