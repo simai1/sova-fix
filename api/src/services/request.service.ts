@@ -8,8 +8,9 @@ import { Op } from 'sequelize';
 import { statusesRuLocale } from '../config/statuses';
 import sequelize from 'sequelize';
 import { sendMsg, WsMsgData } from '../utils/ws';
+import TgUser from '../models/tgUser';
 
-const getAllRequests = async (filter: any): Promise<RequestDto[]> => {
+const getAllRequests = async (filter: any, order: any): Promise<RequestDto[]> => {
     let requests;
     const whereParams = {};
     Object.keys(filter).forEach((k: any) =>
@@ -69,13 +70,13 @@ const getAllRequests = async (filter: any): Promise<RequestDto[]> => {
                     model: Contractor,
                 },
             ],
-            order: [['number', 'asc']],
+            order: order.col && order.type ? [[order.col, order.type]] : [['number', 'asc']],
         });
     } else {
         requests = await RepairRequest.findAll({
             where: whereParams,
             include: [{ model: Contractor }],
-            order: [['number', 'desc']],
+            order: order.col && order.type ? [[order.col, order.type]] : [['number', 'asc']],
         });
     }
     return requests.map(request => new RequestDto(request));
@@ -122,13 +123,15 @@ const setContractor = async (requestId: string, contractorId: string): Promise<v
 const setComment = async (requestId: string, comment: string): Promise<void> => {
     const request = await RepairRequest.findByPk(requestId);
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
+    const customer = await TgUser.findByPk(request.createdBy);
+    const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
     sendMsg({
         msg: {
             newComment: comment,
             oldComment: request.comment,
             requestId: requestId,
-            contractor: request.contractorId,
-            customer: request.createdBy,
+            contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
+            customer: customer ? customer.tgId : null,
         },
         event: 'COMMENT_UPDATE',
     } as WsMsgData);
@@ -144,13 +147,15 @@ const removeContractor = async (requestId: string): Promise<void> => {
 const setStatus = async (requestId: string, status: number): Promise<void> => {
     const request = await RepairRequest.findByPk(requestId);
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
+    const customer = await TgUser.findByPk(request.createdBy);
+    const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
     sendMsg({
         msg: {
             newStatus: status,
             oldStatus: request.status,
             requestId: requestId,
-            contractor: request.contractorId,
-            customer: request.createdBy,
+            contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
+            customer: customer ? customer.tgId : null,
         },
         event: 'STATUS_UPDATE',
     } as WsMsgData);
@@ -192,18 +197,21 @@ const update = async (
         }
     }
 
-    if (typeof urgency !== 'undefined')
+    // ws section
+    if (typeof urgency !== 'undefined') {
+        const customer = await TgUser.findByPk(request.createdBy);
+        const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
         sendMsg({
             msg: {
                 newUrgency: urgency,
                 oldUrgency: request.urgency,
                 requestId: requestId,
-                contractor: request.contractorId,
-                customer: request.createdBy,
+                contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
+                customer: customer ? customer.tgId : null,
             },
             event: 'URGENCY_UPDATE',
         } as WsMsgData);
-
+    }
     await RepairRequest.update(
         {
             unit,
