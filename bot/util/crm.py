@@ -260,3 +260,13 @@ async def change_repair_request_comment(request_id: str, new_comment: str) -> bo
     else:
         logger.error('could not change request comment', f'{request.status_code}request_id={request_id}')
         return False
+
+
+async def get_repair_request_number(request_id: str) -> int | None:
+    rr = await get_repair_request(request_id)
+
+    if rr is None:
+        return None
+
+    return rr['number']
+

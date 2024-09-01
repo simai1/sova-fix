@@ -1,4 +1,5 @@
 import threading
+import time
 
 import websocket
 import asyncio
@@ -15,53 +16,67 @@ events = [
     "COMMENT_UPDATE"
 ]
 
-
-def on_open(ws) -> None:
-    logger.info("websocket: Connection opened")
-
-
-def on_message(ws, message, bot: Bot) -> None:
-    # logger.info(f"websocket: Received message: {message}")
-
-    # loop = asyncio.get_running_loop()
-    # asyncio.run_coroutine_threadsafe(
-    #     send_notification.send_notification_from_websocket_message(bot, message),
-    #     loop
-    # )
-
-    asyncio.run(
-        send_notification.send_notification_from_websocket_message(bot, message)
-    )
-
-
-def on_error(ws, error) -> None:
-    logger.info(f"websocket: An error occured: {error}")
-
-
-def on_close(ws, close_status_code, close_msg):
-    logger.info(f"websocket: Connection closed")
-
-
 class WebSocketWorker:
     ws: websocket.WebSocketApp
+    bot: Bot
     websocket_run_thread: threading.Thread
+    should_run: bool = True
+    connection_opened: bool = False
 
-    def __init__(self, bot: Bot) -> None:
+    def __init__(self, bot: Bot, loop) -> None:
+        self.bot = bot
+        self.loop = loop
         self.ws = websocket.WebSocketApp(
             url=cf.WEBSOKET_URL,
-            on_open=on_open,
-            on_message=lambda _ws, message: on_message(_ws, message, bot),
-            on_close=on_close
+            on_open=self.on_open,
+            on_message=self.on_message,
+            on_close=self.on_close,
+            keep_running=False
         )
         self.websocket_run_thread = threading.Thread(
-            target=self.ws.run_forever
+            target=self.websocket_run
         )
 
+    def websocket_run(self) -> None:
+        self.ws.run_forever()
+
     def open_connection(self) -> None:
+        logger.info("websocket: Openning connection...")
+        self.should_run = True
         self.websocket_run_thread.start()
 
     def close_connection(self) -> None:
+        logger.info("websocket: Closing connection...")
+        self.should_run = False
         self.ws.close()
         self.websocket_run_thread.join()
 
+    # events
+    def on_open(self, ws) -> None:
+        logger.info("websocket: Connection opened")
+        self.connection_opened = True
 
+    def on_message(self, ws, message) -> None:
+        logger.info("websocket: Got new message")
+        coro = send_notification.from_websocket_message(self.bot, message)
+        asyncio.run_coroutine_threadsafe(coro, self.loop)
+
+    def on_error(self, ws, error) -> None:
+        logger.info(f"websocket: An error occured: {error}")
+
+    def on_close(self, ws, close_status_code, close_msg):
+        logger.info(f"websocket: Connection closed")
+        self.connection_opened = False
+
+        while not self.connection_opened and self.should_run:
+            logger.info("websocket: Try reopening connection in 5 seconds")
+
+            time.sleep(5)
+
+            if self.websocket_run_thread.is_alive():
+                self.ws.close()
+                self.ws.run_forever()
+            else:
+                self.open_connection()
+
+            time.sleep(1)

@@ -11,6 +11,8 @@ from util import crm
 from util.crm import roles
 from util.verification import verify_user, VerificationError
 
+from common.messages import send_many_rr_for_customer
+
 router = Router(name=__name__)
 
 
@@ -53,19 +55,3 @@ async def show_more_requests(query: CallbackQuery, state: FSMContext) -> None:
 
     await query.message.delete()
     await query.answer()
-
-
-async def send_rr_for_customer(message: Message, repair_reqest: dict) -> None:
-    if repair_reqest['status'] == 4:
-        kb = IKM(inline_keyboard=[[IKB(text='Добавить комментарий 📝', callback_data=f"add_comment:{repair_reqest['id']}")]])
-    else:
-        kb = IKM(inline_keyboard=[
-            [IKB(text='Неактуально ❌', callback_data=f"cus:not_relevant:{repair_reqest['id']}")],
-            [IKB(text='Добавить комментарий 📝', callback_data=f"add_comment:{repair_reqest['id']}")]
-        ])
-
-    await send_repair_request(message, repair_reqest, kb)
-
-
-async def send_many_rr_for_customer(repair_requests: list, message: Message, state: FSMContext) -> None:
-    await send_several_requests(repair_requests, message, state, send_rr_for_customer)
