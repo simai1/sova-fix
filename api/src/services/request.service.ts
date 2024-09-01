@@ -117,7 +117,7 @@ const createRequest = async (
 const setContractor = async (requestId: string, contractorId: string): Promise<void> => {
     const request = await RepairRequest.findByPk(requestId);
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
-    await request.update({ contractorId, builder: 'Внутренний сотрудник' });
+    await request.update({ contractorId, builder: 'Внутренний сотрудник', status: 2 });
 };
 
 const setComment = async (requestId: string, comment: string): Promise<void> => {
