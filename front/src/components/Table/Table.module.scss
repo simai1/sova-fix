@@ -98,6 +98,15 @@
         background-color: var(--Active-gray-color);
       }
     }
+
+    .thSort{
+      cursor: pointer;
+      z-index: 120;
+      margin-left: 5px;
+      &:hover{
+        opacity: 0.6;
+      }
+    }
   
     td {
       text-align: center;

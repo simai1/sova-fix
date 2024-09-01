@@ -36,8 +36,15 @@ function App() {
   const [filteredTableData, setFilteredTableData] = useState([]);
   const [dataTableFix, setDataTableFix] = useState([]);
   const [editListOpen, setEditListOpen] = useState(false);
+  const [sortState, setSortState] = useState("");
+  const [sortStateParam, setSortStateParam] = useState("");
+
   const context = {
     editListOpen,
+    setSortStateParam,
+    sortStateParam,
+    sortState,
+    setSortState,
     setEditListOpen,
     setDataTableFix,
     dataTableFix,
@@ -101,21 +108,25 @@ function App() {
   },[textSearchTableData, selectedTable, selectContructor] )
 
 
-  function UpdateTableReguest(param) {
+  function UpdateTableReguest(param, par = sortStateParam) {
     if(param === 1){
-      let url = ``;
-        if(textSearchTableData === ""){
-          GetAllRequests("").then((resp) => {
-            const checks = isCheckedStore || [];
-            setIsChecked(checks);
-            setTableData(resp?.data?.requestsDtos)
-            setDataTableFix(funFixEducator(resp?.data?.requestsDtos))
-            setFilteredTableData(FilteredSample(funFixEducator(resp?.data?.requestsDtos), checks ))
-            settableHeader(tableHeadAppoint);
-      
-          })
-        }else{
-          url = `?search=${textSearchTableData}`;
+      let url = '';
+      console.log("sort", par);
+      console.log("textSearchTableData", par);
+      if (par || textSearchTableData) {
+        if(par != "" && !textSearchTableData){
+          url = `?${par}`;
+        }
+       else{
+          url = `?search=${textSearchTableData}&${par}`
+        }
+      }
+    else {
+        url = '';
+    } 
+    console.log("url", url);
+
+
           GetAllRequests(url).then((resp) => {
             if(resp) {
               const checks = isCheckedStore || [];
@@ -126,7 +137,6 @@ function App() {
               settableHeader(tableHeadAppoint);
             }
           })
-        }
         GetAllRequests("").then((resp) => {
           setDataAppointment(resp?.data.requestsDtos)
         })
