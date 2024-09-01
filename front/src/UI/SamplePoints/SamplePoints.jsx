@@ -152,7 +152,6 @@ export function SamplePoints(props) {
   };
 
   const getText = (index, el) => {
-    
     if (index === 0) {
       return index + 1;
     } else {
@@ -165,8 +164,17 @@ export function SamplePoints(props) {
   };
 
   return (
-    <main className={styles.SamplePoints} ref={spRef}>
-      <div className={styles.container}>
+    <main className={styles.SamplePoints} style={{ 
+          marginLeft: 
+            props.actiwFilter === "itineraryOrder"
+              ? "-50px" 
+              : props.actiwFilter === "comment" 
+              ? "126px" 
+              : props.actiwFilter === "legalEntity"
+              ? "8px" 
+              : "0px" 
+        }}  ref={spRef}>
+        <div className={styles.container}>
         <div>
           <input
             className={styles.search}

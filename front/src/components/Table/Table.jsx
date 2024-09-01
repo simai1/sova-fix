@@ -8,7 +8,7 @@ import { SamplePoints } from "../../UI/SamplePoints/SamplePoints";
 import { removeTableCheckeds } from "../../store/filter/isChecked.slice";
 import { useDispatch } from "react-redux";
 import { FilteredSample, funFixEducator } from "../../UI/SamplePoints/Function";
-
+import СonfirmDelete from "../СonfirmDelete/СonfirmDelete";
 function Table() {
   const { context } = useContext(DataContext);
   const [actiwFilter, setActiwFilter] = useState(null);
@@ -162,22 +162,22 @@ function Table() {
 
   const handleClickOutside = (event) => {
     if (
-      statusPopRef.current && !statusPopRef.current.contains(event.target) && event.target.tagName != "LI" && event.target.className != "Table_shovStatusPop__LcpzL"
+      statusPopRef.current && !statusPopRef.current.contains(event.target) && event.target.tagName !== "LI" && event.target.className !== "Table_shovStatusPop__LcpzL"
     ) {
       setshovStatusPop("");
     }
     if (
-      builderPopRef.current && !builderPopRef.current.contains(event.target) && event.target.tagName != "LI" && event.target.className != "Table_shovStatusPop__LcpzL"
+      builderPopRef.current && !builderPopRef.current.contains(event.target) && event.target.tagName !== "LI" && event.target.className !== "Table_shovStatusPop__LcpzL"
     ) {
       setshovBulderPop("");
     }
     if (
-      urgencyPopRef.current && !urgencyPopRef.current.contains(event.target) && event.target.tagName != "LI" && event.target.className != "Table_shovStatusPop__LcpzL"
+      urgencyPopRef.current && !urgencyPopRef.current.contains(event.target) && event.target.tagName !== "LI" && event.target.className !== "Table_shovStatusPop__LcpzL"
     ) {
       setshovUrgencyPop("");
     }
     if (
-      ItineraryOrderPopRef.current && !ItineraryOrderPopRef.current.contains(event.target) && event.target.tagName != "LI" && event.target.className != "Table_shovStatusPop__LcpzL"
+      ItineraryOrderPopRef.current && !ItineraryOrderPopRef.current.contains(event.target) && event.target.tagName !== "LI" && event.target.className !== "Table_shovStatusPop__LcpzL"
     ) {
       setItineraryOrderPop("");
     }
@@ -203,7 +203,7 @@ function Table() {
   }
 
   const getItem = (item) =>{
-    if(item === null || item === undefined){
+    if(item === null || item === undefined || item === "null" || item === "undefined" || item === "" || item === " "){
       return "___"
     }else{
       return item
@@ -223,15 +223,6 @@ function Table() {
     getCountList()
   },[context.Dataitinerary])
 
-  const resechDate = (value)=>{
-    if(value){
-      let date = value.split("T")
-      let dateFormat = date[0].split("-")
-      return `${dateFormat[2]}.${dateFormat[1]}.${dateFormat[0]}`
-    }else{
-      return "___"
-    }
-  }
 
   const deleteBilder = (id) =>{
     const data = {
@@ -270,7 +261,9 @@ function Table() {
 
  }
  //! открытие модального окна фильтрации столбца
- const clickTh = (key,index) => {
+ const clickTh = (key,index, el) => {
+  // console.log("el", el.target.tagName)
+  if(el.target.tagName !== "IMG"){
   const status = {
     1: "Новая заявка",
     2: "В работе",
@@ -279,7 +272,7 @@ function Table() {
     5: "Принята",
   };
   let modalData = [];
-  if(key === "number" || key === "contractor" || key === "builder" || key === "status" || key === "unit"){
+  if(key !== "photo"){
     if(key === "status"){
       modalData = context?.tableData.map(
         (item) => status[item[key]]);
@@ -290,7 +283,7 @@ function Table() {
     }
       context.setSamplePointsData([...modalData]);
       setActiwFilter(key);
-  } 
+  }}
 };
 
 const dispatch = useDispatch();
@@ -301,6 +294,9 @@ const dispatch = useDispatch();
   dispatch(removeTableCheckeds());
   const fdfix = FilteredSample(funFixEducator(context.tableData));
   context.setFilteredTableData(fdfix, []);
+  context.setSortState("");
+  context.setSortStateParam("");
+  context.UpdateTableReguest(1, "");
 };
 
 const getRole = (value) =>{
@@ -314,70 +310,93 @@ const getRole = (value) =>{
     return "___"
   }
 }
-// const GetClassName = (selectPage, value) => {
-//   if (selectPage === "Main") {
-//     if (value === "Новая заявка") {
-//       return "RedColor";
-//     } else if (value === "В работе") {
-//       return "YellowColor";
-//     } else if (value === "Выполнена") {
-//       return "GreenColor"; // Fixed typo from 'GeenColor' to 'GreenColor'
-//     } else {
-//       return "StatusClick"; // Fixed typo from 'tatusClick' to 'StatusClick'
-//     }
-//   } else {
-//     return "";
-//   }
-// }
-const GetClassName = (selectPage, value) => {
-  if (selectPage === "Main") {
-    switch (value) {
-      case "Новая заявка":
-        return styles.RedColor;
-      case "В работе":
-        return styles.YellowColor;
-      case "Выполнена":
-        return styles.GreenColor;
-      default:
-        return styles.StatusClick;
-    }
+
+// Initialize sort state as an object
+const [sortImg, setSortImg] = useState(0);
+
+// Function to handle sorting
+const funSortByColumn = (key) => {
+  let par = "";
+  const newSortState = { ...context.sortState }; // Копируем текущее состояние сортировки
+
+  // Проверяем, есть ли уже сортировка по этому столбцу
+  if (!newSortState[key]) {
+      par = `col=${key}&type=${"asc"}`;
+      newSortState[key] = { type: "asc" }; // Устанавливаем сортировку по возрастанию
+  } else if (newSortState[key].type === "asc") {
+      par = `col=${key}&type=${"desc"}`;
+      newSortState[key] = { type: "desc" }; // Устанавливаем сортировку по убыванию
+  } else {
+      par = ""; // Сбрасываем сортировку
+      newSortState[key] = null; // Убираем сортировку для этого столбца
   }
-  return "";
-}
+
+  // Сбрасываем сортировку для остальных столбцов
+  for (const col in newSortState) {
+      if (col !== key) {
+          newSortState[col] = null; // Сбрасываем состояние для остальных столбцов
+      }
+  }
+
+  context.setSortState(newSortState); // Обновляем состояние сортировки
+  context.setSortStateParam(par);
+  context.UpdateTableReguest(1, par);
+};
+
+
 
 return (
     <>
       
-        <div className={styles.Table}>
-          <table className={styles.TableInner}>
+        <div className={styles.Table} style={{overflow: context.filteredTableData.length === 0 ? 'hidden' : 'auto'}}>
+          <table className={styles.TableInner} >
           {(context.selectedTable === "Заявки" && context.selectPage === "Main") ?(
             <thead>
             { (context.selectedTable === "Заявки" && context.selectPage === "Main") && <div className={styles.dropFilter} onClick={refreshFilters} title="нажмите для сброса фильтров"><img src="./img/ClearFilter.svg"/></div>}
               <tr>
-                {context.tableHeader.map((item,index) => (
-                  <th onClick={() => {clickTh(item.key, index)}} name={item.key} key={item.key}>
-                    <div className={styles.thTable}>
+              {context.tableHeader.map((item, index) => (
+                                <th onClick={(el) => { clickTh(item.key, index, el) }} name={item.key} key={item.key}>
+                                    <div className={styles.thTable}>
+                                        {item.value}
+                                        
+                                        { item.key !== "number" && item.key !== "photo" &&
+                                          <img
+                                            onClick={() => funSortByColumn(item.key)}
+                                            className={styles.thSort}
+                                            src={
+                                                context?.sortState[item.key]?.type === "desc"
+                                                    ? "./img/sort.svg"
+                                                    : context?.sortState[item.key]?.type === "asc"
+                                                    ? "./img/sort.svg"
+                                                    : "./img/=.svg" // Нейтральное состояние
+                                            }
+                                            title="Сортировать колонку"
+                                            alt=">"
+                                            style={{
+                                                transition: "all 0.2s ease",
+                                                transform: context?.sortState[item.key]?.type === "asc" ? "rotate(-180deg)" : "none"
+                                            }}  
+                                          />
+                                        }
 
-                      {item.value} 
-                      {actiwFilter === item.key && <SamplePoints
-                          index={index+1}
-                          itemKey={item.key}
-                          isSamplePointsData={context.isSamplePointsData}
-                          isAllChecked={context.isAllChecked}
-                          isChecked={context.isChecked}
-                          setIsChecked={context.setIsChecked}
-                          workloadData={context.dataTableFix}
-                          setWorkloadDataFix={context.setFilteredTableData}
-                          setSpShow={setActiwFilter}
-                          sesionName={`isCheckedFilter`}
-                        />}
-                          {context.isChecked.find(el => el.itemKey === item.key) &&  <img src="./img/filterColumn.svg"/>}
-                    </div>
 
-                  </th>
-                  
-                ))}
-             
+                                        {actiwFilter === item.key && <SamplePoints
+                                            index={index + 1}
+                                            actiwFilter={actiwFilter}
+                                            itemKey={item.key}
+                                            isSamplePointsData={context.isSamplePointsData}
+                                            isAllChecked={context.isAllChecked}
+                                            isChecked={context.isChecked}
+                                            setIsChecked={context.setIsChecked}
+                                            workloadData={context.dataTableFix}
+                                            setWorkloadDataFix={context.setFilteredTableData}
+                                            setSpShow={setActiwFilter}
+                                            sesionName={`isCheckedFilter`}
+                                        />}
+                                        {context.isChecked.find(el => el.itemKey === item.key) && <img src="./img/filterColumn.svg" />}
+                                    </div>
+                                </th>
+                            ))}
               </tr>
             </thead>
             )
@@ -393,7 +412,7 @@ return (
             </thead>
             )
           }
-            <tbody>
+            <tbody >
             {context.filteredTableData.length > 0 ? (
             
            <>
@@ -418,11 +437,11 @@ return (
                           backgroundColor: 
                             context.selectPage === "Main" 
                               ? row[headerItem.key] === "Новая заявка" 
-                                ? "#dd2e2e" //красный
+                                ? "#d69a81" //красный
                                 : row[headerItem.key] === "В работе" 
-                                ? "#FFE20D" // желтый
+                                ? "#ffe78f" // желтый
                                 : row[headerItem.key] === "Выполнена" 
-                                ? "#22bf22"  // зеленый
+                                ? "#C5E384"  // зеленый
                                 : ""
                               : ""
                         }}                         
@@ -466,7 +485,7 @@ return (
                           className={context.selectPage === "Main" && styles.statusClick}
                           ref={builderPopRef}
                         >
-                          {row[headerItem.key] !== null ? row[headerItem.key] : "___"}
+                          {getItem(row[headerItem.key])}
                           {shovBulderPop === row.id && (
                             <div className={styles.shovStatusPop} style={checkHeights(context.filteredTableData,index) ? {top:"-70%", width: "200%"} : {width: "200%"}}  >
                               <ul>
@@ -494,15 +513,15 @@ return (
                           backgroundColor: 
                             context.selectPage === "Main" 
                               ? row[headerItem.key] === "В течении часа" 
-                                ? "#dd2e2e" //красный
+                                ? "#d69a81" //красный
                                 : row[headerItem.key] === "В течении текущего дня" 
-                                ? "#f9ab23" // оранжевый
+                                ? "#f9ab23" // ?оранжевый
                                 : row[headerItem.key] === "В течении 3-х дней" 
-                                ? "#FFE20D"  // желтый
+                                ? "#ffe78f"  // желтый
                                 : row[headerItem.key] === "В течении недели" 
-                                ? "#eaf45b"  // светло желтый
+                                ? "#eaf45b"  // ?светло желтый
                                 : row[headerItem.key] === "Выполнено" 
-                                ? "#22bf22"  // зеленый
+                                ? "#C5E384"  // зеленый
                                 : ""
                               : ""
                         }}     
@@ -536,11 +555,11 @@ return (
                       ):
                        headerItem.key === "itineraryOrder" ? (
                         <div
-                          onClick={() => context.selectPage != "Main" && funSetItineraryOrder(row.id)}
-                          className={context.selectPage != "Main" && styles.statusClick}
+                          onClick={() => context.selectPage !== "Main" && funSetItineraryOrder(row.id)}
+                          className={context.selectPage !== "Main" && styles.statusClick}
                           ref={ItineraryOrderPopRef}
                         >
-                         {row[headerItem.key]}
+                         {row[headerItem.key] !== null ? row[headerItem.key] : "___"}
                           {itineraryOrderPop === row.id && (
                             <div className={styles.shovStatusPop} style={checkHeights(context.filteredTableData, index) ? {top:"-10%", right:"100px", width: "auto"} : {width: "auto"}}>
                               <ul>
@@ -555,7 +574,7 @@ return (
                           )}
                         </div>
                       ) : (
-                        <p style={{whiteSpace: (headerItem.key === "createdAt" ||  headerItem.key === "completeDate") ? 'nowrap' : 'wrap'}}>{(headerItem.key === "createdAt" ||  headerItem.key === "completeDate") ? resechDate(row[headerItem.key]) : getItem(row[headerItem.key])}</p>
+                        <p style={{whiteSpace: (headerItem.key === "createdAt" ||  headerItem.key === "completeDate") ? 'nowrap' : 'wrap'}}>{getItem(row[headerItem.key])}</p>
                       )}
                     </td>
                   ))}
@@ -576,6 +595,10 @@ return (
           <img className={styles.modalContent} src={modalImage} alt="Full size" />
         </div>
       )}
+      {
+        context.popUp === "СonfirmDelete" &&  <СonfirmDelete />
+      }
+     
     </>
   );
 }

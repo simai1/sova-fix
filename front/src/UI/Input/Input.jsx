@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styles from "./Input.module.scss";
+import DataContext from "../../context";
 
 function Input({
   Textlabel,
@@ -15,7 +16,7 @@ function Input({
   const [errors, setErrors] = useState({});
   const [isValid, setIsValid] = useState(true);
   const [isFirstRender, setIsFirstRender] = useState(true); // new state variable to track first render
-
+  const context = React.useContext(DataContext);
   const InputText = (e) => {
     settextInput(e.target.value);
     settextSearchTableData && settextSearchTableData(e.target.value);
