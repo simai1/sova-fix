@@ -24,6 +24,8 @@
     "sass": "^1.77.1",
     "web-vitals": "^2.1.4"
   },
+    
+
   "scripts": {
     "start": "cross-env PORT=3002 react-scripts start",
     "build": "react-scripts build",
