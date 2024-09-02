@@ -209,7 +209,7 @@ const update = async (
     }
 
     // ws section
-    if (typeof urgency !== 'undefined') {
+    if (typeof urgency !== 'undefined' && urgency !== request.urgency) {
         const customer = await TgUser.findByPk(request.createdBy);
         const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
         sendMsg({
@@ -221,6 +221,19 @@ const update = async (
                 customer: customer ? customer.tgId : null,
             },
             event: 'URGENCY_UPDATE',
+        } as WsMsgData);
+    } else if (typeof comment !== 'undefined' && comment !== request.comment) {
+        const customer = await TgUser.findByPk(request.createdBy);
+        const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
+        sendMsg({
+            msg: {
+                newComment: comment,
+                oldComment: request.comment,
+                requestId: requestId,
+                contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
+                customer: customer ? customer.tgId : null,
+            },
+            event: 'COMMENT_UPDATE',
         } as WsMsgData);
     }
     await RepairRequest.update(
