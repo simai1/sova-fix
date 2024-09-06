@@ -12,7 +12,7 @@ const setRole = catchAsync(async (req, res) => {
 });
 
 const getAll = catchAsync(async (req, res) => {
-    const users = await userService.getAllUsers();
+    const users = await userService.getUsersDir();
     res.json(users);
 });
 

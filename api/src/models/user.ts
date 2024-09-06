@@ -6,7 +6,7 @@ export default class User extends Model {
     id!: string;
     login!: string;
     password!: string;
-    name?: string;
+    name!: string;
     isActivated!: boolean;
     role!: number;
 
@@ -31,7 +31,7 @@ export default class User extends Model {
                 },
                 name: {
                     type: DataTypes.STRING,
-                    allowNull: true,
+                    allowNull: false,
                 },
                 role: {
                     type: DataTypes.SMALLINT,
