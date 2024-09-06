@@ -22,8 +22,16 @@ const destroy = catchAsync(async (req, res) => {
     res.json({ status: 'OK' });
 });
 
+const confirmTgUser = catchAsync(async (req, res) => {
+    const { userId } = req.params;
+    if (!userId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing userId');
+    await userService.confirmTgUser(userId);
+    res.json({ status: 'OK' });
+});
+
 export default {
     setRole,
     getAll,
     destroy,
+    confirmTgUser,
 };

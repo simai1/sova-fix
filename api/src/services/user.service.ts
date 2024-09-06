@@ -13,6 +13,7 @@ type userDir = {
     tgId: string | null | undefined;
     name: string;
     role: number;
+    isTgUser: boolean;
 };
 
 const getUserById = async (userId: string): Promise<User | null> => {
@@ -53,6 +54,7 @@ const getUsersDir = async (): Promise<userDir[]> => {
             tgId: null,
             name: user.name,
             role: user.role,
+            isTgUser: false,
         });
     });
     tgUsers.forEach(user => {
@@ -63,6 +65,7 @@ const getUsersDir = async (): Promise<userDir[]> => {
             tgId: user.tgId,
             name: user.name,
             role: user.role,
+            isTgUser: true,
         });
     });
     return userDirs;
@@ -70,6 +73,12 @@ const getUsersDir = async (): Promise<userDir[]> => {
 
 const deleteUser = async (userId: string): Promise<void> => {
     await User.destroy({ where: { id: userId }, force: true, individualHooks: true });
+};
+
+const confirmTgUser = async (userId: string): Promise<void> => {
+    const user = await TgUser.findByPk(userId);
+    if (!user) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found user with id ' + userId);
+    await user.update({ isConfirmed: true });
 };
 
 export default {
@@ -80,4 +89,5 @@ export default {
     getUsersDir,
     getAllUsers,
     deleteUser,
+    confirmTgUser,
 };
