@@ -128,7 +128,21 @@ const createRequest = async (
 const setContractor = async (requestId: string, contractorId: string): Promise<void> => {
     const request = await RepairRequest.findByPk(requestId);
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
+    const oldStatus = request.status;
     await request.update({ contractorId, builder: 'Внутренний сотрудник', status: 2 });
+
+    const customer = await TgUser.findByPk(request.createdBy);
+    const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
+    sendMsg({
+        msg: {
+            newStatus: 2,
+            oldStatus: oldStatus,
+            requestId: requestId,
+            contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
+            customer: customer ? customer.tgId : null,
+        },
+        event: 'STATUS_UPDATE',
+    } as WsMsgData);
 };
 
 const setComment = async (requestId: string, comment: string): Promise<void> => {
