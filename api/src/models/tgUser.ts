@@ -1,6 +1,7 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
 import Contractor from './contractor';
 import roles from '../config/roles';
+import User from './user';
 
 export default class TgUser extends Model {
     id!: string;
@@ -9,6 +10,8 @@ export default class TgUser extends Model {
     tgId!: string;
     contractorId?: string;
     Contractor?: Contractor;
+    userId?: string;
+    User?: User;
 
     static initialize(sequelize: Sequelize) {
         TgUser.init(

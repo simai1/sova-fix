@@ -15,6 +15,16 @@ const create = catchAsync(async (req, res) => {
     res.json(user);
 });
 
+const syncManager = catchAsync(async (req, res) => {
+    const { email, password, name, tgId } = req.body;
+    if (!email) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing email');
+    if (!password) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing password');
+    if (!name) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing name');
+    if (!tgId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing tgId');
+    const user = await tgUserService.syncManagerToTgUser(email, password, name, tgId);
+    res.json(user);
+});
+
 const findOneByTgId = catchAsync(async (req, res) => {
     const { tgId } = req.params;
     if (!tgId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing tgId');
@@ -29,6 +39,7 @@ const getAll = catchAsync(async (req, res) => {
 
 export default {
     create,
+    syncManager,
     findOneByTgId,
     getAll,
 };

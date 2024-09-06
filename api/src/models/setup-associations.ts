@@ -12,6 +12,9 @@ export default function () {
     TgUser.hasOne(Contractor, { foreignKey: 'tgUserId' });
     Contractor.belongsTo(TgUser, { foreignKey: 'tgUserId' });
 
+    TgUser.hasOne(User, { foreignKey: 'tgManagerId' });
+    User.belongsTo(TgUser, { foreignKey: 'tgManagerId' });
+
     TgUser.hasOne(RepairRequest, { foreignKey: 'createdBy' });
     RepairRequest.belongsTo(TgUser, { foreignKey: 'createdBy' });
 }

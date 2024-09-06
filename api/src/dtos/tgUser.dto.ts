@@ -1,6 +1,7 @@
 import TgUser from '../models/tgUser';
 import { mapRoles } from '../config/roles';
 import ContractorDto from './contractor.dto';
+import UserDto from './user.dto';
 
 export default class TgUserDto {
     id!: string;
@@ -8,6 +9,7 @@ export default class TgUserDto {
     role!: number;
     tgId!: string;
     contractor?: ContractorDto | null;
+    manager?: UserDto | null;
 
     constructor(model: TgUser) {
         this.id = model.id;
@@ -16,5 +18,6 @@ export default class TgUserDto {
         this.role = mapRoles[model.role];
         this.tgId = model.tgId;
         this.contractor = model.Contractor ? new ContractorDto(model.Contractor) : null;
+        this.manager = model.User ? new UserDto(model.User) : null;
     }
 }
