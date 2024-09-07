@@ -8,27 +8,7 @@
   height: 75vh;
   margin-bottom: 0;
   border-radius: 8px;
-  .dropFilter{
-    position: absolute;
-    left: 20px;
-    height: 51px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--turquoise-color);
-    border-radius: 8px;
-    padding: 10px;
-    z-index: 100;
-    img{
-      width: 25px;
-      height: 25px;
-    }
-    transition: 0.1s linear all;
-    &:hover{
-      opacity: 0.6;
-      cursor: pointer;
-    }
-  }
+  
   .headerNotMain{
     cursor: auto!important;
     opacity: 1;

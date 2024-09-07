@@ -2,39 +2,91 @@
 @import "./../../styles/mixins.scss";
 
 .Header {
-  box-sizing: border-box;
   width: 100%;
-  background-color: var(--white-color);
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 20px;
-  border-radius: 17px;
-  margin-bottom: 20px;
-  .buttonBlock{
+  justify-content: start;
+
+  .button {
+    @include button(var(--turquoise-color));
+    margin: 0px 5px;
+    width: 180px;
+    height: 40px;
+    padding: 12.5px 0px;
+    text-align: center;
     display: flex;
-    button{
-      @include button(var( --turquoise-color));
+    justify-content: center;
+    @include font(14px, 700);
+    margin-bottom: 15px;
+}
+
+  .menuUl{
+    margin-top: 100px;
+    position: relative;
+    img{
+      position: absolute;
+      right: 5px;
+      margin-top: 5px;
+    }
+  }
+  .menuUlSecond{
+    margin-left: 20px;
+  }
+  ul {
+      .menuLi {
+          padding: 8px 15px;
+          margin: 3px 0px;
+          @include font(14px, 700);
+          cursor: pointer; // Move cursor style here for better clarity
+          border-radius: 5px;
+          &:hover {
+              background-color: var(--turquoise-color)!important;
+              transition: 0.1s linear all;
+              border-radius: 5px;
+          }
+      }
+  }
+  .ButonFunc{
+    position: absolute;
+    bottom: 50px;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    left: 0;
+    button {
+      @include button(var(--turquoise-color));
       margin: 0px 5px;
-      width: 180px;
+      width: 200px;
+      height: 40px;
       padding: 12.5px 0px;
       text-align: center;
       display: flex;
       justify-content: center;
       @include font(14px, 700);
-    }  
+      margin-bottom: 15px;
   }
-  h3 {
-    @include font(21px, 700);
   }
-  button {
-    @include button(var( --turquoise-color));
-    margin: auto 0;
-    width: 100px;
-    display: flex;
-    justify-content: center;
-    padding: 12.5px 0px;
-    @include font(14px, 700);
+}
+
+.Opacity{
+  opacity: 0.6;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100%;
+  background-color: #000;
+  z-index: 900;
+}
+.TitleSitte{
+width: 100%;
+  display: flex;
+  justify-content: center;
+  .TitleSitteInner{
+    max-width: 900px;
+    text-align: center;
+h1{
+  font-weight: 500;
+  font-size: 30px;
+}
   }
 }

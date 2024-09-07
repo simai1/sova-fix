@@ -286,18 +286,7 @@ function Table() {
   }}
 };
 
-const dispatch = useDispatch();
- //!функция сброса фильтров
- const refreshFilters = () => {
-  context.setIsChecked([]);
-  context.setAllChecked([]);
-  dispatch(removeTableCheckeds());
-  const fdfix = FilteredSample(funFixEducator(context.tableData));
-  context.setFilteredTableData(fdfix, []);
-  context.setSortState("");
-  context.setSortStateParam("");
-  context.UpdateTableReguest(1, "");
-};
+
 
 const getRole = (value) =>{
   if(value !== null){
@@ -352,7 +341,6 @@ return (
           <table className={styles.TableInner} >
           {(context.selectedTable === "Заявки" && context.selectPage === "Main") ?(
             <thead>
-            { (context.selectedTable === "Заявки" && context.selectPage === "Main") && <div className={styles.dropFilter} onClick={refreshFilters} title="нажмите для сброса фильтров"><img src="./img/ClearFilter.svg"/></div>}
               <tr>
               {context.tableHeader.map((item, index) => (
                                 <th onClick={(el) => { clickTh(item.key, index, el) }} name={item.key} key={item.key}>

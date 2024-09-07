@@ -21,11 +21,10 @@
     "react-router-dom": "^6.23.1",
     "react-scripts": "5.0.1",
     "redux-persist": "^6.0.0",
+    "redux-thunk": "^3.1.0",
     "sass": "^1.77.1",
     "web-vitals": "^2.1.4"
   },
-    
-
   "scripts": {
     "start": "cross-env PORT=3002 react-scripts start",
     "build": "react-scripts build",

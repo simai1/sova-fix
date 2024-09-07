@@ -7,7 +7,7 @@ import { tableHeadAppoint, tableUser } from "./components/Table/Data";
 import HomePageAdmin from "./pages/AdminPages/HomePageAdmin/HomePageAdmin";
 import { GetAllRequests, GetAllUsers, GetAllСontractors, GetContractorsItenerarity } from "./API/API";
 import Activate from "./pages/Login/Activate/Activate";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import store from "./store/store";
 import { FilteredSample, funFixEducator } from "./UI/SamplePoints/Function";
 
@@ -92,9 +92,18 @@ function App() {
     selectContructor
   };
 
+  const dispatch = useDispatch();
+
+  // useEffect(() => {
+  //   if(filteredTableData != null){
+  //   dispatch(setTableData({tableData: 234}))
+  //   }
+  // }, [filteredTableData])
+
 
   const isCheckedStore = useSelector((state) => state.isCheckedSlice.isChecked);
-
+  const tableDataStore = useSelector((state) => state.tableDataSlice);
+  console.log("tableDataSlice", tableDataStore)
   useEffect(() => {
     if(selectedTable === "Заявки" && selectPage === "Main"){
       UpdateTableReguest(1)
@@ -125,8 +134,6 @@ function App() {
         url = '';
     } 
     console.log("url", url);
-
-
           GetAllRequests(url).then((resp) => {
             if(resp) {
               const checks = isCheckedStore || [];

@@ -1,0 +1,25 @@
+@import "./../../styles/color.scss";
+@import "./../../styles/mixins.scss";
+
+
+.CountInfoBlock{
+    display: flex;
+    div{
+        border-radius: 8px;
+        p{
+            margin: 0;
+            padding: 8px 12px;
+        }
+    }
+    .contNew{
+        margin: 0px 10px 0px 0px;
+        background-color: #d69a81;
+    }
+    .contWork{
+        background-color: #ffe78f;
+    }
+    .contComplete{
+        margin-left: 10px;
+        background-color: #C5E384;
+    }
+}

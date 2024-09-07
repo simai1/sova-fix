@@ -4,22 +4,16 @@ import List from "../../UI/List/List";
 import Input from "../../UI/Input/Input";
 import DataContext from "../../context";
 import { DeleteRequest, DeleteUserFunc } from "../../API/API";
+import { useDispatch } from "react-redux";
+import { FilteredSample, funFixEducator } from "../../UI/SamplePoints/Function";
+import { removeTableCheckeds } from "../../store/filter/isChecked.slice";
+import CountInfoBlock from "../../UI/CountInfoBlock/CountInfoBlock";
 
 
 
 function FunctionTableTop(props) {
   const defaultValue = "Заявки";
   const { context } = React.useContext(DataContext);
-  const DataList = [
-    {
-      id: 1,
-      name: "Заявки",
-    },
-    {
-      id: 2,
-      name: "Пользователи",
-    },
-  ];
 
   //!удаление заявки
   const deleteRequestFunc = () =>{
@@ -56,35 +50,47 @@ const editAppoint = ()=>{
     }
   }
 
+  const dispatch = useDispatch();
+ //!функция сброса фильтров
+ const refreshFilters = () => {
+  context.setIsChecked([]);
+  context.setAllChecked([]);
+  dispatch(removeTableCheckeds());
+  const fdfix = FilteredSample(funFixEducator(context.tableData));
+  context.setFilteredTableData(fdfix, []);
+  context.setSortState("");
+  context.setSortStateParam("");
+  context.UpdateTableReguest(1, "");
+};
+
   return (
     <>
       <div className={styles.FunctionTableTop}>
         <div className={styles.container}>
         <div className={styles.topList}>
-            {context.selectPage === "Main" ?
-            <div className={styles.ListMainPage}>
-              <List
-                data={props.DataList}
-                defaultValue={defaultValue}
-                dataList={DataList}
-              />
-            </div> :
+            {/* {context.selectedTable === "Пользователи" && 
             <button className={styles.buttonBack} onClick={()=>{
                 context.setDataitinerary([]);
                 context.setSelectedTr(null);
                 context.setSelectContractor("");
             }}> Назад</button>
-            }
+            } */}
             <div className={styles.searchForTable}>
-              { context.selectedTable === "Заявки" && <Input
+              { context.selectedTable === "Заявки" && <>
+              <Input
                 placeholder={"Поиск..."}
                 settextSearchTableData={context.setextSearchTableData}
-              />}
+              />
               <img src="./img/Search_light.png" />
+              { (context.selectedTable === "Заявки" && context.selectPage === "Main") && <div className={styles.dropFilter} onClick={refreshFilters} title="нажмите для сброса фильтров"><img src="./img/ClearFilter.svg"/></div>}
+
+              </>
+              }
+              
             </div>
           </div>
           {context.selectedTable === "Заявки" && context.selectPage === "Main" ? (
-            <div className={styles.HeadMenu}>
+            <div className={styles.HeadMenuMain}>
              <button onClick={(()=>editAppoint())}>
                 <img src="./img/Edit.svg" alt="View" />
                 Редактировать заявку
@@ -110,6 +116,11 @@ const editAppoint = ()=>{
           )}
       
         </div>
+        { context.selectedTable === "Заявки" && context.selectPage === "Main" &&
+          <div>
+            <CountInfoBlock/>
+          </div>
+        }
       </div>
     </>
   );

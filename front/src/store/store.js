@@ -13,16 +13,18 @@ import {
   REGISTER,
 } from "redux-persist";
 import storage from "redux-persist/lib/storage";
+import tableDataSlice from "./tableData/tableData.slice.js";
 
 const rootReducer = combineReducers({
   isCheckedSlice: isCheckedSlice,
   editInputChecked: editInputChecked,
+  tableDataSlice: tableDataSlice,
 });
 
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["isCheckedSlice", "editInputChecked"],
+  whitelist: ["isCheckedSlice", "editInputChecked", "tableDataSlice"],
   // blacklist: ["isCheckedSlice"],
 };
 const persistedReducer = persistReducer(persistConfig, rootReducer);
