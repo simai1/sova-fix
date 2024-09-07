@@ -263,7 +263,7 @@ function Table() {
  //! открытие модального окна фильтрации столбца
  const clickTh = (key,index, el) => {
   // console.log("el", el.target.tagName)
-  if(el?.target?.tagName !== "IMG"){
+  if(el.target.tagName !== "IMG"){
   const status = {
     1: "Новая заявка",
     2: "В работе",
