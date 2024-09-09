@@ -87,6 +87,9 @@ import './Menu.css'; // Импортируем стили
 import { useNavigate } from "react-router-dom";
 import DataContext from "../../context";
 import { LogOut } from "../../API/API";
+import { addTableHeader } from "../../store/editColumTable/editColumTable.slice";
+import { tableHeadAppoint, tableUser } from "../Table/Data";
+import { useDispatch } from "react-redux";
 
 function Header() {
     const { context } = useContext(DataContext);
@@ -137,6 +140,8 @@ function Header() {
     })
   }
 
+  const dispatch = useDispatch();
+
   const LinkPage = (Link) => {
     if(Link !== undefined && Link !==  "Card" && Link !==  "Polzovateli"){
       setIsOpen(false)
@@ -144,6 +149,7 @@ function Header() {
     }else if(Link ===  "Card"){
       setIsOpen(false)
       navigate("/")
+      dispatch(addTableHeader(tableHeadAppoint))
       context.setSelectPage("Card");
       context.setSelectContractor("");
       context.setextSearchTableData("");
@@ -151,6 +157,7 @@ function Header() {
     }else if(Link ===  "Polzovateli"){
       setIsOpen(false)
       navigate("/")
+      dispatch(addTableHeader(tableUser))
       context.setSelectPage("Main");
       context.UpdateTableReguest(2)
       context.setSelectedTr(null);
@@ -160,6 +167,7 @@ function Header() {
     else{
       setIsOpen(false)
       navigate("/")
+      dispatch(addTableHeader(tableHeadAppoint))
       context.setSelectPage("Main")
       context.UpdateTableReguest(1)
       context.setDataitinerary([])
@@ -219,13 +227,14 @@ return (
           </ul>
         <div className={styles.ButonFunc}>
           <div className={styles.ButonFuncInner}>
-            <button>Задать вопрос</button>
+            <button>Тех поддержка</button>
             <button onClick={()=>Exit()}>Выход</button>
           </div>
         </div>
       </div>
       <div className={styles.TitleSitte}>
         <div className={styles.TitleSitteInner}>
+        {/* <img src="./img/logo.png"/> */}
           <h1>Система комплексного управления техническим обслуживанием и оборудованием</h1>
         </div>
       </div>

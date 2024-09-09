@@ -8,6 +8,7 @@ import { useDispatch } from "react-redux";
 import { FilteredSample, funFixEducator } from "../../UI/SamplePoints/Function";
 import { removeTableCheckeds } from "../../store/filter/isChecked.slice";
 import CountInfoBlock from "../../UI/CountInfoBlock/CountInfoBlock";
+import EditColum from "../../UI/EditColum/EditColum";
 
 
 
@@ -91,6 +92,7 @@ const editAppoint = ()=>{
           </div>
           {context.selectedTable === "Заявки" && context.selectPage === "Main" ? (
             <div className={styles.HeadMenuMain}>
+            <EditColum/>
              <button onClick={(()=>editAppoint())}>
                 <img src="./img/Edit.svg" alt="View" />
                 Редактировать заявку

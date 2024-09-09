@@ -6,7 +6,7 @@ import App from "../../App";
 import { tableUser } from "./Data";
 import { SamplePoints } from "../../UI/SamplePoints/SamplePoints";
 import { removeTableCheckeds } from "../../store/filter/isChecked.slice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { FilteredSample, funFixEducator } from "../../UI/SamplePoints/Function";
 import СonfirmDelete from "../СonfirmDelete/СonfirmDelete";
 function Table() {
@@ -15,7 +15,7 @@ function Table() {
   const trClick = (row) => {
     context.setSelectedTr(row.id);
   };
-
+console.log("context.filteredTableData", context.filteredTableData)
   const status = {
     1: "Новая заявка",
     2: "В работе",
@@ -288,9 +288,11 @@ function Table() {
 
 
 
-const getRole = (value) =>{
+const getRole = (value) =>
+ {
+  console.log(value)
   if(value !== null){
-    if(value === "ADMIN"){
+    if(value === 2){
       return "Администратор"
     }else{
       return "Пользователь"
@@ -332,8 +334,8 @@ const funSortByColumn = (key) => {
   context.UpdateTableReguest(1, par);
 };
 
-
-
+const storeTableHeader = useSelector(state => state.editColumTableSlice.ActiveColumTable);
+console.log("storeTableHeader", storeTableHeader)
 return (
     <>
       
@@ -342,7 +344,7 @@ return (
           {(context.selectedTable === "Заявки" && context.selectPage === "Main") ?(
             <thead>
               <tr>
-              {context.tableHeader.map((item, index) => (
+              {storeTableHeader.filter((el)=>(el.isActive === true)).map((item, index) => (
                                 <th onClick={(el) => { clickTh(item.key, index, el) }} name={item.key} key={item.key}>
                                     <div className={styles.thTable}>
                                         {item.value}
@@ -404,7 +406,11 @@ return (
             {context.filteredTableData.length > 0 ? (
             
            <>
+           
+
+          
               {context.filteredTableData.map((row, index) => (
+               
                 <tr
                   key={index}
                   onClick={() => trClick(row)}
@@ -412,7 +418,7 @@ return (
                     context.selectedTr === row.id && styles.setectedTr
                   }
                 >
-                  {context.tableHeader.map((headerItem) => (
+                  {storeTableHeader.filter((el)=>(el.isActive === true)).map((headerItem) => (
                     <td key={headerItem.key}>
                       {headerItem.key === "id" ? (
                         index + 1
