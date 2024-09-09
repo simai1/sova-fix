@@ -1,14 +1,18 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
 import Contractor from './contractor';
 import roles from '../config/roles';
+import User from './user';
 
 export default class TgUser extends Model {
     id!: string;
     name!: string;
     role!: number;
     tgId!: string;
+    isConfirmed!: boolean;
     contractorId?: string;
     Contractor?: Contractor;
+    userId?: string;
+    User?: User;
 
     static initialize(sequelize: Sequelize) {
         TgUser.init(
@@ -35,6 +39,11 @@ export default class TgUser extends Model {
                     type: DataTypes.STRING,
                     allowNull: false,
                     unique: 'tgId',
+                },
+                isConfirmed: {
+                    type: DataTypes.BOOLEAN,
+                    allowNull: false,
+                    defaultValue: false,
                 },
             },
             {
