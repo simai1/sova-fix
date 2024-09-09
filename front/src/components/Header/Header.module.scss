@@ -6,9 +6,9 @@
   display: flex;
   justify-content: start;
 
-  .button {
+  .buttonMenu {
     @include button(var(--turquoise-color));
-    margin: 0px 5px;
+    margin: 0px;
     width: 180px;
     height: 40px;
     padding: 12.5px 0px;
@@ -32,10 +32,12 @@
     margin-left: 20px;
   }
   ul {
+   
       .menuLi {
+        font-size: 22px;
           padding: 8px 15px;
           margin: 3px 0px;
-          @include font(14px, 700);
+          @include font(16px, 600);
           cursor: pointer; // Move cursor style here for better clarity
           border-radius: 5px;
           &:hover {
@@ -55,13 +57,13 @@
     button {
       @include button(var(--turquoise-color));
       margin: 0px 5px;
-      width: 200px;
-      height: 40px;
+      width: 250px;
+      height: 45px;
       padding: 12.5px 0px;
       text-align: center;
       display: flex;
       justify-content: center;
-      @include font(14px, 700);
+      @include font(16px, 700);
       margin-bottom: 15px;
   }
   }
@@ -88,5 +90,16 @@ h1{
   font-weight: 500;
   font-size: 30px;
 }
+  }
+}
+.close{
+  display: flex;
+  justify-content: end;
+  img{
+    cursor: pointer;
+    transition: 0.1s linear all;
+    &:hover{
+     transform: rotate(90deg);
+    }
   }
 }

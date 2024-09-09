@@ -6,41 +6,27 @@ import DataContext from '../../context';
 
 function CountInfoBlock(props) {
     const [contNew, setContNew] = useState(0);
-    const [contWorked, setContWorked] = useState(0);
-    const [contComplete, setContComplete] = useState(0);
     const { context } = useContext(DataContext);
 
       useEffect(() => {
-        let newCount = 0;
-        let workedCount = 0;
-        let completeCount = 0;
+        if(props?.keys !== "count"){
+            let newCount = 0;
+            props?.dataCount.forEach((el) => {
+                if (el.status === props?.value) {
+                    newCount++;
+                }
+            });
+        
+            setContNew(newCount);
+        }else if(props?.keys === "count"){
+            setContNew(props?.dataCount?.length);
+        }
+    }, [ props?.dataCount]);
     
-        context?.filteredTableData.forEach((el) => {
-            if (el.status === "Новая заявка") {
-                newCount++;
-            }
-            if (el.status === "В работе") {
-                workedCount++;
-            }
-            if (el.status === "Выполнена") {
-                completeCount++;
-            }
-        });
-    
-        setContNew(newCount);
-        setContWorked(workedCount);
-        setContComplete(completeCount);
-    }, [context?.filteredTableData]);
-    
-
-
-   
     return ( 
         <div>
-            <div className={styles.CountInfoBlock}>
-                <div className={styles.contNew}><p>Новых: {contNew}</p></div>
-                <div className={styles.contWork}><p>В работе: {contWorked}</p></div>
-                <div className={styles.contComplete}><p>Выполнено: {contComplete}</p></div>
+            <div className={styles.CountInfoBlock} style={{backgroundColor: props?.color}}>
+                <div className={styles.contNew}><p>{props?.name}: {contNew}</p></div>
             </div>    
         </div> 
     );

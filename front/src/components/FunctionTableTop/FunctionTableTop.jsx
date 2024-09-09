@@ -9,6 +9,7 @@ import { FilteredSample, funFixEducator } from "../../UI/SamplePoints/Function";
 import { removeTableCheckeds } from "../../store/filter/isChecked.slice";
 import CountInfoBlock from "../../UI/CountInfoBlock/CountInfoBlock";
 import EditColum from "../../UI/EditColum/EditColum";
+import { generateAndDownloadExcel } from "../../function/function";
 
 
 
@@ -69,16 +70,11 @@ const editAppoint = ()=>{
       <div className={styles.FunctionTableTop}>
         <div className={styles.container}>
         <div className={styles.topList}>
-            {/* {context.selectedTable === "Пользователи" && 
-            <button className={styles.buttonBack} onClick={()=>{
-                context.setDataitinerary([]);
-                context.setSelectedTr(null);
-                context.setSelectContractor("");
-            }}> Назад</button>
-            } */}
             <div className={styles.searchForTable}>
-              { context.selectedTable === "Заявки" && <>
+              { context.selectedTable === "Заявки" && 
+              <>
               <Input
+            
                 placeholder={"Поиск..."}
                 settextSearchTableData={context.setextSearchTableData}
               />
@@ -101,6 +97,8 @@ const editAppoint = ()=>{
                 <img src="./img/Trash.svg" alt="View" />
                 Удалить заявку
               </button>
+              <button onClick={() => generateAndDownloadExcel(context?.filteredTableData, "Заявки")}>Экспорт</button>
+
             </div>
           ) : context.selectedTable === "Пользователи" && context.selectPage === "Main" &&  JSON.parse(sessionStorage.getItem("userData")).user.role === "ADMIN" ? (
             <div className={styles.HeadMenu}>
@@ -119,8 +117,10 @@ const editAppoint = ()=>{
       
         </div>
         { context.selectedTable === "Заявки" && context.selectPage === "Main" &&
-          <div>
-            <CountInfoBlock/>
+          <div className={styles.countInfo}>
+            <CountInfoBlock dataCount={context?.filteredTableData} value="Новая заявка" color="#d69a81" name="Новых"/>
+            <CountInfoBlock dataCount={context?.filteredTableData} value="В работе" color="#ffe78f" name="В работе"/>
+            <CountInfoBlock dataCount={context?.filteredTableData} value="Выполнена" color="#C5E384" name="Выполнены"/>
           </div>
         }
       </div>

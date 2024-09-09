@@ -576,7 +576,7 @@ return (
               ))}
               </>
             ):(
-              <tr style={{ pointerEvents: "none"}}><td style={{background: "#fff"}}><div className={styles.noteData}>Нет данных</div></td></tr>
+              <tr className={styles.tdNotData} style={{ pointerEvents: "none"}}><td style={{background: "#e3dfda"}}><div className={styles.noteData}>Нет данных</div></td></tr>
             )}
             </tbody>
           </table>

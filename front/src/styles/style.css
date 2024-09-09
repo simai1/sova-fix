@@ -4,7 +4,7 @@ body a {
 }
 body {
   background-color: #e3dfda;
-  padding: 16px 64px;
+  /* padding: 16px 64px; */
 }
 * {
   font-family: "Inter", sans-serif;

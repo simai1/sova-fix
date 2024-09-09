@@ -9,6 +9,7 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.6.8",
     "cross-env": "^7.0.3",
+    "file-saver": "^2.0.5",
     "i": "^0.3.7",
     "leaflet": "^1.9.4",
     "leaflet-routing-machine": "^3.2.12",
@@ -23,7 +24,8 @@
     "redux-persist": "^6.0.0",
     "redux-thunk": "^3.1.0",
     "sass": "^1.77.1",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "xlsx": "^0.18.5"
   },
   "scripts": {
     "start": "cross-env PORT=3002 react-scripts start",

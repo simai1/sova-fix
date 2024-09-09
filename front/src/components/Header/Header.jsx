@@ -1,86 +1,3 @@
-// import React, { useContext, useEffect, useState } from "react";
-// import styles from "./Header.module.scss";
-// import DataContext from "../../context";
-// import { LogOut } from "../../API/API";
-// import { useNavigate } from "react-router-dom";
-
-// function Header() {
-//   const { context } = useContext(DataContext);
-//   const [shortName, setShortName] = useState("")
-//   const navigate = useNavigate();
-
-// useEffect(()=>{
-//   if(!sessionStorage.getItem("userData")){navigate("/Authorization")}else{
-//     const userData = JSON.parse(sessionStorage.getItem("userData"))?.user?.name;
-//     const parts = userData?.split(' '); // Разбиваем полное имя на части по пробелу
-//     if(parts){
-//       if(parts[1] === undefined){
-//         setShortName(parts[0])
-//       }else{
-//         setShortName(parts[0] + ' ' + parts[1])
-//       }
-//     }
-//     else{
-//       setShortName("")
-//     }
-//   }
-// },[])
-
-
-//   const Exit =()=>{
-//     LogOut().then((resp)=>{
-//       if(resp?.status === 200){
-//       navigate("/Authorization");
-//       }
-//     })
-//   }
-
-//   const homeButton = () =>{
-//     context.setSelectPage("Main")
-//     context.UpdateTableReguest(1)
-//     context.setDataitinerary([])
-//     context.setSelectedTr(null);
-//     context.setnameClient("Заявки");
-//     context.setSelectedTable("Заявки");
-//     context.setextSearchTableData("")
-//   }
-
-//   const [activeList, setactiveList] = useState(false);
-
-//   return (
-//     // <div className={styles.Header}>
-//     //   <div>
-//     //     <h3>{shortName}</h3>
-//     //   </div>
-//     //   <div className={styles.buttonBlock}> 
-//     //     <button onClick={()=>{homeButton()}} style={ context.selectPage === "Main" ? {backgroundColor: "#FFE20D" } : {backgroundColor: "#B7AB9E"}}>Главная</button>
-//     //     <button onClick={()=>{context.setSelectPage("Card"); context.setSelectContractor("");  context.setextSearchTableData("");  context.setSelectedTr(null)}} style={ context.selectPage !== "Main" ? {backgroundColor: "#FFE20D"} : {backgroundColor: "#B7AB9E"}}>Маршрутный лист</button>
-//     //   </div>
-//     //   <div>
-//     //     <button onClick={Exit}>Выйти</button>
-//     //   </div>
-//     // </div>
-//     <header>
-//       <div className={styles.Header}>
-//         <button onClick={()=>setactiveList(!activeList)}>Меню</button>
-//       </div>
-//     {activeList && 
-//     <div className={activeList ? styles.boorgerMenuActive : styles.boorgerMenu } id="containerHeader"  >
-//       <div className={styles.boorgerMenu}>  
-//         <ul>
-//           <li>Главная</li>
-//           <li>Маршрутный лист</li>
-//         </ul>
-//       </div>
-//     </div>
-//     }
-//     </header>
-    
-//   );
-// }
-
-// export default Header;
-
 import styles from "./Header.module.scss";
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import './Menu.css'; // Импортируем стили
@@ -117,8 +34,14 @@ function Header() {
 
     const handleClickOutside = (event) => {
         if (menuRef.current && !menuRef.current.contains(event.target)) {
-            setIsOpen(false);
+          closeMenu();
         }
+    };
+
+    const closeMenu = () => {
+        setIsOpen(false);
+        setIsOpenSprav(false);
+        setIsOpenFinans(false);
     };
 
     useEffect(() => {
@@ -181,9 +104,12 @@ function Header() {
 
 return (
   <div className={styles.Header}>
-      <button className={styles.button} onClick={toggleMenu}>Меню</button>
+      <button className={styles.buttonMenu} onClick={toggleMenu}>Меню</button>
       <div className={`menu ${isOpen ? 'open' : ''}`} ref={menuRef}>
-          <h3>{shortName}</h3>
+          {/* <h3>{shortName}</h3> */}
+          <div className={styles.close}>
+            <img onClick={() =>  closeMenu()} src="./img/x.svg"/>
+          </div>
           <ul className={styles.menuUl}>
               <li onClick={() => LinkPage()} className={styles.menuLi}>Главная</li>
               <li onClick={() => LinkPage("Card")} className={styles.menuLi}>Маршрутный лист</li>
@@ -220,8 +146,8 @@ return (
                       transition: 'max-height 0.3s ease'
                   }}
               >
-                  <li className={styles.menuLi}>Показатели</li>
-                  <li className={styles.menuLi}>Финансы</li>
+                  <li className={styles.menuLi} onClick={() => LinkPage("RepotYour")}>Показатели</li>
+                  <li className={styles.menuLi} onClick={() => LinkPage("ReportFinansing")}>Финансы</li>
               </ul>
               <li className={styles.menuLi}>SOVA-tech – системы управления</li>
           </ul>

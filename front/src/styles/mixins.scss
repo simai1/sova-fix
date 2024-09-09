@@ -79,7 +79,7 @@
   background-color: $background-color;
   outline: none;
   color: #000;
-  border-radius: 40px;
+  border-radius: 8px;
   padding: 10px 15px;
   font-weight: 700;
   font-size: 14px;
@@ -87,11 +87,12 @@
   img {
     padding-right: 4px;
   }
-
+  transition: all 0.1s linear;
   &:hover {
-    opacity: 60%;
+    
+    border: 0.5px solid #000000;
     cursor: pointer;
-    transition: all 0.15s;
+   
   }
 }
 @mixin buttonSave($background-color) {

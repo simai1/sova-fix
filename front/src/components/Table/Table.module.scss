@@ -4,11 +4,11 @@
   width: 100%;
   display: flex;
   overflow: auto;
-  max-height: 75vh;
-  height: 75vh;
+  max-height: 68vh;
+  // height: 68vh;
   margin-bottom: 0;
   border-radius: 8px;
-  margin-top: -5px;
+  margin-top:-5px;
   .headerNotMain{
     cursor: auto!important;
     opacity: 1;
@@ -29,7 +29,7 @@
   }
   .noteData{
     position: absolute;
-    width: 98vw;
+    width: 100vw;
     pointer-events: none;
     transform: translateX(-88px);
     font-size: 24px;
@@ -191,9 +191,13 @@
   width: 100%;
   justify-content: center;
   background-color: #fff;
-  border-radius: 17px;
+  border-radius: 8px;
   height: 90px;
   align-items: center;
   font-size: 20px;
   font-weight: 500;
+}
+
+.tdNotData{
+  height: 200px;
 }

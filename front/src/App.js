@@ -10,6 +10,8 @@ import Activate from "./pages/Login/Activate/Activate";
 import { useDispatch, useSelector } from "react-redux";
 import store from "./store/store";
 import { FilteredSample, funFixEducator } from "./UI/SamplePoints/Function";
+import ReportFinansing from "./pages/AdminPages/Report/ReportFinansing/ReportFinansing";
+import RepotYour from "./pages/AdminPages/Report/RepotYour/RepotIndicators";
 
 function App() {
   const [selectContructor, setSelectContractor] = useState("")
@@ -204,6 +206,8 @@ function App() {
             <Route path="/" element={<HomePageAdmin />}></Route>
             <Route path="/Activate" element={<Activate />}></Route>
             <Route path="/Authorization" element={<Authorization />}></Route>
+            <Route path="/ReportFinansing" element={<ReportFinansing />}></Route>
+            <Route path="/RepotYour" element={<RepotYour />}></Route>
           </Routes>
         </main>
       </BrowserRouter>

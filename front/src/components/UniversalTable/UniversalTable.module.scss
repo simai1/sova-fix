@@ -1,0 +1,28 @@
+@import "../../styles/mixins.scss";
+@import "../../styles/color.scss";
+
+.UniversalTable{
+    margin-top: 18px;
+    height: 65vh;
+    overflow-y: scroll;
+    table{
+        width: 100%;
+        thead{
+            background-color: var(--tableTh);
+            th{
+                align-items: center;
+                padding: 10px;
+                text-align: center;
+            }
+          
+        }
+        tbody{
+            td{
+                padding: 10px;
+                align-items: center;
+                text-align: center;
+                background-color:#fff;
+            }
+        }
+    }
+}
