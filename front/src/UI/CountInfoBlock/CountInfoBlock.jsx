@@ -20,6 +20,14 @@ function CountInfoBlock(props) {
             setContNew(newCount);
         }else if(props?.keys === "count"){
             setContNew(props?.dataCount?.length);
+        }else if(props?.keys === "checkPhoto"){
+            let newCount = 0;
+            props?.dataCount.forEach((el) => {
+                if (el.checkPhoto !== null) {
+                    newCount++;
+                }
+            });
+            setContNew(newCount);
         }
     }, [ props?.dataCount]);
     

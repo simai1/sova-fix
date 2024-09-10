@@ -15,6 +15,7 @@ export const tableHeadAppoint = [
   { key: "comment", value: "Комментарий", isActive: true  },
   { key: "legalEntity", value: "Юр. Лицо", isActive: true  },
   { key: "itineraryOrder", value: "Порядок маршрута", isActive: true  },
+  { key: "checkPhoto", value: "Фото чека", isActive: true  },
 ]; 
 
 export const tableUser = [

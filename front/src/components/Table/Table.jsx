@@ -277,7 +277,7 @@ console.log("context.filteredTableData", context.filteredTableData)
     5: "Принята",
   };
   let modalData = [];
-  if(key !== "photo"){
+  if(key !== "photo" && key !== "checkPhoto"){
     if(key === "status"){
       modalData = context?.tableData.map(
         (item) => status[item[key]]);
@@ -354,7 +354,7 @@ return (
                                     <div className={styles.thTable}>
                                         {item.value}
                                         
-                                        { item.key !== "number" && item.key !== "photo" &&
+                                        { item.key !== "number" && item.key !== "photo" && item.key !== "checkPhoto" &&
                                           <img
                                             onClick={() => funSortByColumn(item.key)}
                                             className={styles.thSort}
@@ -464,7 +464,7 @@ return (
                         </div>
                       ) : headerItem.key === "isActivated" ? (
                         <>{row[headerItem.key] === true ? "Активириван" : "Не активирован"}</>
-                      ): headerItem.key === "photo" ? (
+                      ): headerItem.key === "photo"  ? (
                         <div>
                           <img
                             src={`${process.env.REACT_APP_API_URL}/uploads/${row.fileName}`}
@@ -477,6 +477,26 @@ return (
                             style={{ cursor: "pointer" }}
                             className={styles.imgTable}
                           />
+                        </div>
+                      )
+                        : headerItem.key === "checkPhoto"  ? (
+                        <div>
+                        {
+                          row.checkPhoto === null
+                            ? "___"
+                            : <img
+                            src={`${process.env.REACT_APP_API_URL}/uploads/${row.checkPhoto}`}
+                            alt="checkPhoto file"
+                            onClick={() =>
+                              openModal(
+                                `${process.env.REACT_APP_API_URL}/uploads/${row.checkPhoto}`
+                              )
+                            }
+                            style={{ cursor: "pointer" }}
+                            className={styles.imgTable}
+                          />
+                        }
+                         
                         </div>
                       ) : headerItem.key === "contractor" ? (
                         <div

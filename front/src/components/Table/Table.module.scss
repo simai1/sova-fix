@@ -71,7 +71,13 @@
       cursor: auto;
       }
     }
-   
+    th[name="checkPhoto"] {
+      &:hover {
+      background-color: var(--tableTh);
+      cursor: auto;
+      }
+    }
+    
     th{
       &:hover {
       cursor: pointer;
