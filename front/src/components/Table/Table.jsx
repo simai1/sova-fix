@@ -202,12 +202,17 @@ console.log("context.filteredTableData", context.filteredTableData)
     }
   }
 
-  const getItem = (item) =>{
+  const getItem = (item, key) =>{
+    if(key === "repairPrice") {
+      return    item?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") 
+    }else{
     if(item === null || item === undefined || item === "null" || item === "undefined" || item === "" || item === " "){
       return "___"
     }else{
       return item
     }
+  }
+    
   };
 
   const getCountList = () => {
@@ -568,7 +573,7 @@ return (
                           )}
                         </div>
                       ) : (
-                        <p style={{whiteSpace: (headerItem.key === "createdAt" ||  headerItem.key === "completeDate") ? 'nowrap' : 'wrap'}}>{getItem(row[headerItem.key])}</p>
+                        <p style={{whiteSpace: (headerItem.key === "createdAt" ||  headerItem.key === "completeDate") ? 'nowrap' : 'wrap'}}>{getItem(row[headerItem.key],headerItem.key)}</p>
                       )}
                     </td>
                   ))}

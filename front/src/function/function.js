@@ -4,6 +4,8 @@ import * as XLSX from "xlsx";
 //! Функция генерации файла для скачивания
 export const generateAndDownloadExcel = (data, nameTable, expenseSum) => {
   let transformedData = {};
+  const server = process.env.REACT_APP_API_URL;
+
   if (nameTable === 'Финансы') {
     transformedData = data.map(({ ...item }) => ({
       Номер_заявки: item?.number,
@@ -20,6 +22,7 @@ export const generateAndDownloadExcel = (data, nameTable, expenseSum) => {
       Подрядчик: item?.builder,
       Статус_заявки: item?.status,
       Подразделение: item?.unit,
+      Фото: `${server}/uploads/${item?.fileName}`,
       Объект: item?.object,
       Описание_проблемы: item?.problemDescription,
       Срочность: item?.urgency,

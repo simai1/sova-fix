@@ -341,3 +341,21 @@ export const SetRole = async (data) => {
     }
   }
 };
+
+export const GetPhotoServer = async (id) => {
+  
+  try {
+    const response = await http.get(`${server}/uploads/${id}`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      alert("Ошибка при получении карты пользователя!");
+    }
+  }
+};

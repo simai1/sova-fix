@@ -32,7 +32,7 @@ function FunctionReportTop(props) {
                         <CountInfoBlock dataCount={context?.filteredTableData} keys="check" value="Новая заявка" color="#C5E384" name="С чеком"/>
                     </div>
                     <div className={styles.ReportFinansingButton}>
-                        <p className={styles.ReportFinansingButton__text}>Сумма расхода:  {summ} руб.</p>
+                        <p className={styles.ReportFinansingButton__text}>Сумма расхода:  {summ?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") } руб.</p>
                         <button onClick={() => generateAndDownloadExcel(props?.dataTable, "Финансы", summ)}>Экспорт</button>
                     </div>
                 </div> :

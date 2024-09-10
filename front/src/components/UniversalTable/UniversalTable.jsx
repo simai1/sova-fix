@@ -13,11 +13,15 @@ function UniversalTable(props) {
         setTableHeaderData(props?.tableHeader);
         setTableBodyData(props?.tableBody);
     }, [props?.tableHeader, props?.tableBody]);
-    const getValue = (value) => {
-        if(value) {
-            return value
+    const getValue = (value, key) => {
+        if(key === "repairPrice") {
+            return    value?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") 
         }else{
-            return "___"
+            if(value) {
+                return value
+            }else{
+                return "___"
+            }
         }
     }
     return ( 
@@ -33,7 +37,7 @@ function UniversalTable(props) {
                         <tr key={rowIndex}>
                             {tableHeaderData.map((header) => (
                                 <td key={header.key}>
-                                {getValue(row[header.key])}
+                                {getValue(row[header.key], header.key)}
                                
                                 
                                 </td>
