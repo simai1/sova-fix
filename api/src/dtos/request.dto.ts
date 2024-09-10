@@ -12,6 +12,7 @@ export default class RequestDto {
     problemDescription?: string;
     urgency!: string;
     fileName!: string;
+    checkPhoto?: string;
     itineraryOrder?: number;
     completeDate?: string;
     repairPrice?: number;
@@ -37,6 +38,7 @@ export default class RequestDto {
         this.legalEntity = model.legalEntity;
         this.daysAtWork = model.daysAtWork;
         this.fileName = model.fileName;
+        this.checkPhoto = model.checkPhoto;
         this.createdAt = model.createdAt ? strftime('%d.%m.%y', model.createdAt) : '';
         this.contractor = model.Contractor ? new ContractorDto(model.Contractor) : null;
     }
