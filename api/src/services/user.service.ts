@@ -11,9 +11,9 @@ type userDir = {
     isConfirmed: boolean;
     login: string | null | undefined;
     tgId: string | null | undefined;
+    tgUserId: string | null | undefined;
     name: string;
     role: number;
-    isTgUser: boolean;
 };
 
 const getUserById = async (userId: string): Promise<User | null> => {
@@ -43,7 +43,7 @@ const getAllUsers = async (): Promise<UserDto[]> => {
 };
 
 const getUsersDir = async (): Promise<userDir[]> => {
-    const users = await User.findAll();
+    const users = await User.findAll({ include: [{ model: TgUser }] });
     const tgUsers = await TgUser.findAll();
     const userDirs: userDir[] = [];
     users.forEach(user => {
@@ -51,23 +51,24 @@ const getUsersDir = async (): Promise<userDir[]> => {
             id: user.id,
             isConfirmed: user.isActivated,
             login: user.login,
-            tgId: null,
+            tgId: user.TgUser?.tgId,
+            tgUserId: user.tgManagerId,
             name: user.name,
             role: user.role,
-            isTgUser: false,
         });
     });
-    tgUsers.forEach(user => {
-        userDirs.push({
-            id: user.id,
-            isConfirmed: user.isConfirmed,
-            login: null,
-            tgId: user.tgId,
-            name: user.name,
-            role: user.role,
-            isTgUser: true,
-        });
-    });
+    for (const user of tgUsers) {
+        if (!userDirs.some(ud => ud.tgUserId === user.id))
+            userDirs.push({
+                id: user.id,
+                isConfirmed: user.isConfirmed,
+                login: null,
+                tgUserId: undefined,
+                tgId: user.tgId,
+                name: user.name,
+                role: user.role,
+            });
+    }
     return userDirs;
 };
 
