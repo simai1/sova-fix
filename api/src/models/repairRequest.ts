@@ -18,6 +18,7 @@ export default class RepairRequest extends Model {
     legalEntity?: string;
     daysAtWork!: number;
     fileName!: string;
+    checkPhoto?: string;
     createdAt!: Date;
     contractorId?: string;
     Contractor?: Contractor;
@@ -94,6 +95,10 @@ export default class RepairRequest extends Model {
                 fileName: {
                     type: DataTypes.STRING,
                     allowNull: false,
+                },
+                checkPhoto: {
+                    type: DataTypes.STRING,
+                    allowNull: true,
                 },
             },
             {

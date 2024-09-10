@@ -275,6 +275,11 @@ const getCustomersRequests = async (tgUserId: string): Promise<RequestDto[]> => 
     return requests.map(r => new RequestDto(r));
 };
 
+const addCheck = async (requestId: string, file: string): Promise<void> => {
+    await RepairRequest.update({ checkPhoto: file }, { where: { id: requestId } });
+    await setStatus(requestId, 3);
+};
+
 export default {
     getAllRequests,
     getRequestById,
@@ -286,4 +291,5 @@ export default {
     deleteRequest,
     update,
     getCustomersRequests,
+    addCheck,
 };
