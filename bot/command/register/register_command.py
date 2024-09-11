@@ -47,7 +47,7 @@ async def register_handler(message_or_query: Message | CallbackQuery, state: FSM
 async def ask_name(message: Message, state: FSMContext) -> None:
     await state.set_state(RegistrationStates.await_name)
 
-    await message.answer('Регистрация\nВведите своё ФИО')
+    await message.answer('<b>Регистрация</b>\nВведите своё ФИО')
 
 
 @router.message(RegistrationStates.await_name)
@@ -72,7 +72,10 @@ async def finish_registration(query: CallbackQuery, state: FSMContext) -> None:
     if user is None:
         await send_already_registered(query.message, state)
     else:
-        await query.message.answer('Регистриция окончена', reply_markup=to_start_kb())
+        text = """
+Заявка на регистрацию успешно подана. ✅ 
+Ожидайте, когда её одобрит менеджер"""
+        await query.message.answer(text, reply_markup=to_start_kb())
 
     await query.message.edit_reply_markup(reply_markup=None)
     await query.answer()

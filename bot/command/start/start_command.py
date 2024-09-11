@@ -40,6 +40,10 @@ async def start_handler(user_id: int, message: Message, state: FSMContext) -> No
         await send_registration_menu(message)
         return
 
+    if not user["isConfirmed"]:
+        await message.answer("Ваша заявка на регистрацию ещё рассматривается. Ожидайте одобрения менеджера")
+        return
+
     role: str = user['role']
 
     if role == roles.get_str(roles.CONTRACTOR):
