@@ -29,7 +29,7 @@ function FunctionReportTop(props) {
                     <div className={styles.ReportFinansingList}>
                         <CountInfoBlock dataCount={context?.filteredTableData} keys="count" value="Новая заявка" color="#d69a81" name="Всего"/>
                         <CountInfoBlock dataCount={context?.filteredTableData} keys="status" value="Выполнена" color="#ffe78f" name="Выполненых"/>
-                        <CountInfoBlock dataCount={context?.filteredTableData} keys="check" value="Новая заявка" color="#C5E384" name="С чеком"/>
+                        <CountInfoBlock dataCount={context?.filteredTableData} keys="checkPhoto" value="Новая заявка" color="#C5E384" name="С чеком"/>
                     </div>
                     <div className={styles.ReportFinansingButton}>
                         <p className={styles.ReportFinansingButton__text}>Сумма расхода:  {summ?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") } руб.</p>
