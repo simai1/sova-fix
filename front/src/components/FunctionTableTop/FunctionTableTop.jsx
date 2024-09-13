@@ -3,7 +3,7 @@ import styles from "./FunctionTableTop.module.scss";
 import List from "../../UI/List/List";
 import Input from "../../UI/Input/Input";
 import DataContext from "../../context";
-import { DeleteRequest, DeleteUserFunc } from "../../API/API";
+import { DeleteRequest, DeleteUserFunc, RejectActiveAccount } from "../../API/API";
 import { useDispatch } from "react-redux";
 import { FilteredSample, funFixEducator } from "../../UI/SamplePoints/Function";
 import { removeTableCheckeds } from "../../store/filter/isChecked.slice";
@@ -65,6 +65,23 @@ const editAppoint = ()=>{
   context.UpdateTableReguest(1, "");
 };
 
+const activePeople = ()=>{
+ console.log("context.selectedTr", context.selectedTr)
+ if(context.selectedTr != null){
+  RejectActiveAccount(context.selectedTr).then((resp)=>{
+    if(resp?.status === 200){
+      context.UpdateTableReguest(2);
+    }else{
+      context.setPopupErrorText("Нельзя активировать этого пользователя!");
+      context.setPopUp("PopUpError")
+    }
+  })
+ }else{
+  context.setPopupErrorText("Сначала выберите заявку!");
+  context.setPopUp("PopUpError")
+ }
+}
+
   return (
     <>
       <div className={styles.FunctionTableTop}>
@@ -102,6 +119,10 @@ const editAppoint = ()=>{
             </div>
           ) : context.selectedTable === "Пользователи" && context.selectPage === "Main" &&  JSON.parse(sessionStorage.getItem("userData")).user.role === "ADMIN" ? (
             <div className={styles.HeadMenu}>
+            <button onClick={()=>activePeople()}>
+                  <img src="./img/ok.png" alt="View" style={{width:"16px", height:"16px"}}/>
+                    Активировать пользователя
+              </button>
               <button onClick={()=>{context.setPopUp("PopUpCreateUser")}}>
                   <img src="./img/plus.svg" alt="View" />
                     Добавить пользователя
