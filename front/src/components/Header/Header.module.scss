@@ -11,16 +11,17 @@
     margin: 0px;
     width: 180px;
     height: 40px;
-    padding: 12.5px 0px;
+    // padding: 12.5px 0px;
     text-align: center;
     display: flex;
     justify-content: center;
-    @include font(14px, 700);
+    align-items: center;
     margin-bottom: 15px;
+    font-size: 18px;
 }
 
   .menuUl{
-    margin-top: 100px;
+    margin-top: 25px;
     position: relative;
     img{
       position: absolute;

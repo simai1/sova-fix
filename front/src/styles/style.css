@@ -1,11 +1,50 @@
+@font-face {
+	font-family: 'FactWebRegular';
+	src: 
+		url('./../assents/fonts/fact_regular.woff') format('woff2'),
+		url('./../assents/fonts/fact_regular.woff2') format('woff');
+	font-weight: normal;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'FactWebMedium';
+	src: 
+		url('./../assents/fonts/fact_medium.woff2') format('woff2'),
+		url('./../assents/fonts/fact_medium.woff') format('woff');
+	font-weight: normal;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'FactWebBold';
+	src: 
+		url('./../assents/fonts/fact_bold.woff2') format('woff2'),
+		url('./../assents/fonts/fact_bold.woff') format('woff');
+	font-weight: normal;
+	font-style: normal;
+}
 
 body a {
   text-decoration: none;
 }
+
+
 body {
+  font-family: Helvetica, Arial, sans-serif;
+  /* font-family: 'FactWebRegular'; */
   background-color: #e3dfda;
   /* padding: 16px 64px; */
 }
 * {
-  font-family: "Inter", sans-serif;
+  font-family: 'FactWebRegular';
+}
+h1, h2, h3{
+  font-family: 'FactWebMedium';
+}
+h5, h4, h6{
+  font-family: 'FactWebMedium';
+}
+p{
+  font-family: 'FactWebRegular';
 }
