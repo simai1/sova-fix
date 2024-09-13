@@ -20,7 +20,12 @@ function FunctionReportTop(props) {
     useEffect(() => {
         CountSumm()
     }, [props?.dataTable])
-
+    const TimeComplite = () => {
+        let time = 0;
+        props?.dataTable.map((el) => time += el.daysAtWork)
+        return time/props?.dataTable.length
+    }
+    
     return ( 
         <div className={styles.FunctionReportTop}>
             {
@@ -36,9 +41,20 @@ function FunctionReportTop(props) {
                         <button onClick={() => generateAndDownloadExcel(props?.dataTable, "Финансы", summ)}>Экспорт</button>
                     </div>
                 </div> :
-                <div>
-                    <button onClick={() => navigate("/ReportFinansing")}>Пользователи</button>
+            
+                <div className={styles.ReportFinansingMenu}>
+                    <div className={styles.ReportFinansingList}>
+                    <CountInfoBlock dataCount={context?.filteredTableData} value="Новая заявка" color="#d69a81" name="Новых"/>
+                    <CountInfoBlock dataCount={context?.filteredTableData} value="В работе" color="#ffe78f" name="В работе"/>
+                    <CountInfoBlock dataCount={context?.filteredTableData} value="Выполнена" color="#C5E384" name="Выполнены"/>
+                    </div>
+                    <div className={styles.ReportFinansingButton}>
+                        <p className={styles.ReportFinansingButton__text}>Средняя скорость выполнения:  {TimeComplite()} (дней)</p>
+                        <p className={styles.ReportFinansingButton__text}>Количество заявок:  {props?.dataTable.length }</p>
+                        <button onClick={() => generateAndDownloadExcel(props?.dataTable, "Финансы", summ)}>Экспорт</button>
+                    </div>
                 </div>
+
             }
         </div>
     );

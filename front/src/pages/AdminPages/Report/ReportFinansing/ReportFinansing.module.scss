@@ -11,4 +11,21 @@
    
 
   }
+  .dropFilter{
+    position: relative;
+    background-color: var( --turquoise-color);
+    width: 40px;
+    height: 44px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+    margin-left: 12px;
+    top: 3px;
+    transition: 0.1s linear all;
+    &:hover{
+      opacity: 0.6;
+      cursor: pointer;
+    }
+  }
 }

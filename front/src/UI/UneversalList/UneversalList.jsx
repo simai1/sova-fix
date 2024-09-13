@@ -4,11 +4,10 @@ import DataContext from "../../context";
 
 function UneversalList(props) {
   const { context } = React.useContext(DataContext);
-  const [valueName, setValueName] = useState(props?.value);
   const [isActive, setIsActive] = useState(false);
   const addItem = (el) => {
     // handleListData(props?.name, el.id);
-    setValueName(el.name);
+    props.setValueName(el.name);
     setIsActive(!isActive);
   };
 
@@ -24,7 +23,7 @@ function UneversalList(props) {
           <input
             readOnly
             onClick={() => setIsActive(!isActive)} // Toggle dropdown on click
-            value={valueName}
+            value={props?.valueName}
             placeholder={props?.placeholder}
             style={{borderBottom: !isActive ? "1px solid #ADADAD" : "none", borderRadius: isActive ? "8px 8px 0 0" : "8px"}}
           />

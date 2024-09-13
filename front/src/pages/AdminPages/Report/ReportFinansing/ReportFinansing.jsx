@@ -12,11 +12,15 @@ import { funFixEducator } from "../../../../UI/SamplePoints/Function";
 function ReportFinansing() {
     const { context } = useContext(DataContext);
     const [tableDataFinansing, setTableDataFinansing] = useState([]);
+    const [valueName, setValueName] = useState("");
 
     useEffect(() => {
-        console.log("context.dataApointment", funFixEducator(context.dataApointment));
         setTableDataFinansing(funFixEducator(context.dataApointment));
     }, [context.dataApointment]);
+
+    const refreshFilters = () => {
+        setValueName("")
+    };
 
     return ( 
         <div className={styles.ReportFinansing}>
@@ -25,7 +29,8 @@ function ReportFinansing() {
                 <div>
                     <h2>Финансы</h2>
                     <div className={styles.ReportFinansingList}>
-                        <UneversalList dataList={DataList} placeholder="Период..." value=""/>
+                        <UneversalList dataList={DataList} placeholder="Период..." value="" setValueName={setValueName} valueName={valueName}/>
+                        <div className={styles.dropFilter} onClick={refreshFilters} title="нажмите для сброса фильтров"><img src="./img/ClearFilter.svg"/></div>
                     </div>
                 </div>
                 <div>
