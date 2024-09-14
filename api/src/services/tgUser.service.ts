@@ -6,6 +6,7 @@ import Contractor from '../models/contractor';
 import userService from './user.service';
 import { isMatch } from '../utils/encryption';
 import User from '../models/user';
+import { sendMsg, WsMsgData } from '../utils/ws';
 import { Op } from 'sequelize';
 
 const create = async (name: string, role: number, tgId: string): Promise<TgUserDto> => {
@@ -17,6 +18,13 @@ const create = async (name: string, role: number, tgId: string): Promise<TgUserD
         user.Contractor = await Contractor.create({ name, tgUserId: user.id });
     }
     await user.save();
+    sendMsg({
+        msg: {
+            userId: user.id,
+            tgId: tgId,
+        },
+        event: 'TGUSER_CREATE',
+    } as WsMsgData);
     return new TgUserDto(user);
 };
 
@@ -46,10 +54,17 @@ const getAllManagers = async (): Promise<TgUserDto[]> => {
     return users.map(user => new TgUserDto(user.TgUser as TgUser));
 };
 
+const getOneUser = async (tgUserId: string): Promise<TgUserDto> => {
+    const user = await TgUser.findByPk(tgUserId, { include: [{ model: Contractor }, { model: User }] });
+    if (!user) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found tgUser with id ' + tgUserId);
+    return new TgUserDto(user);
+};
+
 export default {
     create,
     syncManagerToTgUser,
     findUserByTgId,
     getAll,
     getAllManagers,
+    getOneUser,
 };

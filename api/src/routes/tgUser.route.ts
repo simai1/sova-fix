@@ -6,6 +6,7 @@ const router = Router();
 router.route('/').post(tgUserController.create).get(tgUserController.getAll);
 router.route('/managers').get(tgUserController.getAllManagers);
 router.route('/:tgId').get(tgUserController.findOneByTgId);
+router.route('/get/:tgUserId').get(tgUserController.getOne);
 router.route('/syncManager').post(tgUserController.syncManager);
 
 export default router;
