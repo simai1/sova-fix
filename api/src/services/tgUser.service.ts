@@ -6,6 +6,7 @@ import Contractor from '../models/contractor';
 import userService from './user.service';
 import { isMatch } from '../utils/encryption';
 import User from '../models/user';
+import { Op } from 'sequelize';
 
 const create = async (name: string, role: number, tgId: string): Promise<TgUserDto> => {
     role = parseInt(String(role));
@@ -40,9 +41,15 @@ const getAll = async (): Promise<TgUserDto[]> => {
     return users.map(user => new TgUserDto(user));
 };
 
+const getAllManagers = async (): Promise<TgUserDto[]> => {
+    const users = await User.findAll({ where: { tgManagerId: { [Op.ne]: null } }, include: [{ model: TgUser }] });
+    return users.map(user => new TgUserDto(user.TgUser as TgUser));
+};
+
 export default {
     create,
     syncManagerToTgUser,
     findUserByTgId,
     getAll,
+    getAllManagers,
 };
