@@ -9,7 +9,9 @@ import styles from "./RepotIndicators.module.scss";
 import DataContext from "../../../../context";
 import { funFixEducator } from "../../../../UI/SamplePoints/Function";
 import { tableHeadIndicators } from "./RepotIndicatorsDaat";
-import UniversalDashbord from "../../../../components/UniversalDashbord/UniversalDashbord";
+import UniversalDashbordSrochn from "../../../../components/UniversalDashbord/UniversalDashbordSrochn";
+import UniversalDashbordStatus from "../../../../components/UniversalDashbord/UniversalDashbordStatus";
+import UniversalDashboardStatus from "../../../../components/UniversalDashbord/UniversalDashbordStatus";
 function RepotIndicators() {
     
     const { context } = useContext(DataContext);
@@ -39,7 +41,7 @@ function RepotIndicators() {
                             <div className={styles.dropFilter} onClick={refreshFilters} title="нажмите для сброса фильтров"><img src="./img/ClearFilter.svg"/></div>
                         </div>
                         <div className={styles.ReportFinansingvidView}>
-                            <p>Вид представления отчета:</p>
+                            <p>Визуализация отчета:</p>
                             <div>
                                 <input placeholder="" value={vidView} onClick={()=>setVidViewChange(!vidViewChange)} className={styles.ReportFinansingvidViewInput} readOnly/>
                                     <span
@@ -71,7 +73,14 @@ function RepotIndicators() {
                     {vidView === "Таблица" ?
                     <UniversalTable tableHeader={tableHeadIndicators} tableBody={tableDataIndicators}/>
                     :
-                    <UniversalDashbord/>
+                     <div className={styles.ReportIndicatorsDashbord}>
+                        <div>
+                            <UniversalDashboardStatus dataDashbord={tableDataIndicators}/>
+                        </div>
+                        <div >
+                            <UniversalDashbordSrochn dataDashbord={tableDataIndicators}/>
+                        </div>
+                    </div>
                     }
                 </div>
         </Layout>
