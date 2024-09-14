@@ -26,6 +26,7 @@ const register = async (login: string): Promise<UserDto> => {
     const encryptedPassword = await encrypt(password);
     const user = await User.create({
         login,
+        name: '',
         password: encryptedPassword,
     });
 

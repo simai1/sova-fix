@@ -23,7 +23,8 @@ const syncManagerToTgUser = async (email: string, password: string, name: string
     const user = await userService.getUserByEmail(email);
     if (!user || !(await isMatch(password, user.password)))
         throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid login data');
-    const tgUser = await TgUser.create({ name, role: 2, tgId });
+    const tgUser = await TgUser.create({ name, role: 2, isConfirmed: true, tgId });
+    await user.update({ isTgUser: true, tgManagerId: tgUser.id });
     tgUser.User = user;
     await tgUser.save();
     return new TgUserDto(tgUser);

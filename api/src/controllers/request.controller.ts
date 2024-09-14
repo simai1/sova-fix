@@ -158,6 +158,15 @@ const getCustomersRequests = catchAsync(async (req, res) => {
     res.json(requestsDtos);
 });
 
+const addCheck = catchAsync(async (req, res) => {
+    const { requestId } = req.params;
+    const fileName = req.file?.filename;
+    if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
+    if (!fileName) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing file');
+    await requestService.addCheck(requestId, fileName);
+    res.json({ status: 'OK' });
+});
+
 export default {
     getAll,
     getOne,
@@ -169,4 +178,5 @@ export default {
     deleteRequest,
     update,
     getCustomersRequests,
+    addCheck,
 };

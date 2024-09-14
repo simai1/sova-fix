@@ -8,9 +8,9 @@ import ApiKey from './apiKey';
 
 const { DB_USER, DB_PWD, DB_HOST, DB_PORT, DB_NAME } = process.env;
 export const models = {
+    TgUser,
     User,
     TokenModel,
-    TgUser,
     Contractor,
     RepairRequest,
     ApiKey,
