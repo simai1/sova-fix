@@ -33,7 +33,7 @@
         input{
             width: 250px!important;
             padding-right: 35px;
-            height: 10px;
+            height: 12px;
         }
     }
     .HeadMenuMain{
@@ -98,10 +98,10 @@
       .dropFilter{
         position: relative;
         left: 315px;
-        top: -59px;
+        top: -62px;
         border-radius: 8px;
         background-color: var(--turquoise-color);
-        height: 42px;
+        height: 44px;
         width: 40px;
         transition: 0.1s linear all;
         &:hover{
