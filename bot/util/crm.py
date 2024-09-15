@@ -1,3 +1,4 @@
+import types
 from typing import BinaryIO
 
 import requests
@@ -7,8 +8,8 @@ from util import logger
 
 
 class roles:
-    USER = 1,
-    ADMIN = 2,
+    USER = 1
+    ADMIN = 2
     CUSTOMER = 3
     CONTRACTOR = 4
 
@@ -22,6 +23,10 @@ class roles:
     @staticmethod
     def get_num(string: str) -> int:
         return roles.m_roles_list_en_locale.index(string) + 1
+
+    @staticmethod
+    def get_rus(string: str) -> int:
+        return roles.m_roles_list_ru_locale[roles.get_num(string) - 1]
 
 
 async def register_user(user_id: int, name: str, role: int) -> dict | None:
@@ -270,3 +275,65 @@ async def get_repair_request_number(request_id: str) -> int | None:
 
     return rr['number']
 
+
+async def sync_manager(email: str, password: str, name: str, tg_id: int) -> dict | None:
+    url = f'{cf.API_URL}/tgUsers/syncManager'
+
+    data = {
+        "email": email,
+        "password": password,
+        "name": name,
+        "tgId": str(tg_id),
+    }
+
+    request = requests.post(url, data)
+
+    if request.status_code == 200:
+        logger.info('successfully synced manager')
+        return request.json()
+    else:
+        logger.error('could not sync manager', f'{request.status_code}')
+        return None
+
+
+async def get_all_managers() -> list | None:
+    url = f"{cf.API_URL}/tgUsers/managers"
+
+    request = requests.get(url)
+
+    if request.status_code == 200:
+        return request.json()
+    else:
+        logger.error('could not get all managers', f'{request.status_code}')
+        return None
+
+
+async def get_all_manager_tg_ids() -> list | None:
+    managers = await get_all_managers()
+
+    if managers is None:
+        return
+
+    manager_ids = []
+
+    for manager in managers:
+        manager_ids.append(int(manager['tgId']))
+
+    return manager_ids
+
+
+async def get_user_by_id(_id: str) -> dict | None:
+    url = f"{cf.API_URL}/tgUsers/get/{_id}"
+
+    request = requests.get(url)
+
+    if request.status_code == 200:
+        return request.json()
+    else:
+        logger.error('could not get user by id', f'{request.status_code}')
+        return None
+
+
+async def get_tg_id_by_id(_id: str) -> int | None:
+    user = await get_user_by_id(_id)
+    return user['tgId']

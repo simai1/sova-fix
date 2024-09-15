@@ -48,6 +48,9 @@ def msg(msg_type: str, message: str) -> None:
 
     if log:
         with open(Defaults.LATEST_PATH, 'a') as log_file:
-            log_file.write(text+'\n')
+            try:
+                log_file.write(text+'\n')
+            except UnicodeEncodeError:
+                warn('could not encode character for log')
 
     print(text)

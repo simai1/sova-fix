@@ -9,6 +9,8 @@ from util import crm
 from util.crm import roles
 from command.customer.customer_menu import send_customer_menu
 
+from command.admin.admin_menu import send_admin_menu
+
 router = Router(name=__name__)
 
 
@@ -48,8 +50,12 @@ async def start_handler(user_id: int, message: Message, state: FSMContext) -> No
 
     if role == roles.get_str(roles.CONTRACTOR):
         await send_contractor_menu(message)
+
     elif role == roles.get_str(roles.CUSTOMER):
         await send_customer_menu(message)
+
+    elif role == roles.get_str(roles.ADMIN):
+        await send_admin_menu(message)
 
 
 async def send_registration_menu(message: Message) -> None:
