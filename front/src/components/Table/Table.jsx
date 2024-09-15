@@ -3,7 +3,7 @@ import styles from "./Table.module.scss";
 import DataContext from "../../context";
 import { GetAllRequests, GetAllUsers, RemoveContractor, ReseachDataRequest, SetRole, SetStatusRequest, SetcontractorRequest } from "../../API/API";
 import App from "../../App";
-import { tableUser } from "./Data";
+import { tableList, tableUser } from "./Data";
 import { SamplePoints } from "../../UI/SamplePoints/SamplePoints";
 import { removeTableCheckeds } from "../../store/filter/isChecked.slice";
 import { useDispatch, useSelector } from "react-redux";
@@ -341,6 +341,11 @@ const funSortByColumn = (key) => {
 
 const storeTableHeader = useSelector(state => state.editColumTableSlice.ActiveColumTable);
 console.log("storeTableHeader", storeTableHeader)
+
+useEffect(() => {
+  console.log("context.tableHeader", context.tableHeader)
+},[context.tableHeader])
+
 return (
     <>
       
@@ -411,11 +416,7 @@ return (
             {context.filteredTableData.length > 0 ? (
             
            <>
-           
-
-          
-              {context.filteredTableData.map((row, index) => (
-               
+              {context.filteredTableData.map((row, index) => (  
                 <tr
                   key={index}
                   onClick={() => trClick(row)}
@@ -423,7 +424,8 @@ return (
                     context.selectedTr === row.id && styles.setectedTr
                   }
                 >
-                  {storeTableHeader.filter((el)=>(el.isActive === true)).map((headerItem) => (
+                
+                  { (context.selectedTable === "Заявки" ? storeTableHeader.filter((el)=>(el.isActive === true)) :  context.tableHeader ).map((headerItem) => (
                     <td key={headerItem.key}>
                       {headerItem.key === "id" ? (
                         index + 1

@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import DataContext from "./context";
 import "./styles/style.css";
-import { tableHeadAppoint, tableUser } from "./components/Table/Data";
+import { tableHeadAppoint, tableList, tableUser } from "./components/Table/Data";
 import HomePageAdmin from "./pages/AdminPages/HomePageAdmin/HomePageAdmin";
 import { GetAllRequests, GetAllUsers, GetAllСontractors, GetContractorsItenerarity } from "./API/API";
 import Activate from "./pages/Login/Activate/Activate";
@@ -164,7 +164,7 @@ function App() {
           if(resp?.status == 200){
             setTableData(resp?.data);
             setFilteredTableData(funFixEducator(resp?.data))
-            settableHeader(tableHeadAppoint);
+            settableHeader(tableList);
           }
         })
       }else{
@@ -173,7 +173,7 @@ function App() {
           if(resp?.status == 200){
             setTableData(resp?.data);
             setFilteredTableData(funFixEducator(resp?.data))
-            settableHeader(tableHeadAppoint);
+            settableHeader(tableList);
           }
         })
       }

@@ -17,6 +17,7 @@ const editColumTable = createSlice({
     AllColumTable: tableHeadAppoint, // Original data without flags
     ActiveColumTable: initializeColumns(), // Initialize with flags set to true
     AllCheckbox: true, // Initially set to true since all columns are active
+    HistoryTableData: [],
   },
 
   reducers: {
@@ -26,8 +27,10 @@ const editColumTable = createSlice({
     },
 
     onCheckState: (state, action) => {
+      const {key, isActive} = action.payload;
+      console.log(key, isActive)
       state.ActiveColumTable = state.ActiveColumTable.map((el) => {
-        if (el.key === action.payload) {
+        if (el.key === key) {
           return { ...el, isActive: !el.isActive }; // Toggle isActive
         }
         return el; // Return unchanged element

@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import DataContext from "../../context";
 import { LogOut } from "../../API/API";
 import { addTableHeader } from "../../store/editColumTable/editColumTable.slice";
-import { tableHeadAppoint, tableUser } from "../Table/Data";
+import { tableHeadAppoint, tableList, tableUser } from "../Table/Data";
 import { useDispatch } from "react-redux";
 
 function Header() {
@@ -72,16 +72,18 @@ function Header() {
     }else if(Link ===  "Card"){
       setIsOpen(false)
       navigate("/")
-      dispatch(addTableHeader(tableHeadAppoint))
       context.setSelectPage("Card");
       context.setSelectContractor("");
       context.setextSearchTableData("");
       context.setSelectedTr(null)
+      console.log('tableUser', tableList)
+      context.settableHeader(tableList);
+      context.setSelectedTable("Card");
     }else if(Link ===  "Polzovateli"){
       setIsOpen(false)
       navigate("/")
-      dispatch(addTableHeader(tableUser))
       context.setSelectPage("Main");
+      context.settableHeader(tableUser);
       context.UpdateTableReguest(2)
       context.setSelectedTr(null);
       context.setnameClient("Пользователи");
@@ -90,7 +92,6 @@ function Header() {
     else{
       setIsOpen(false)
       navigate("/")
-      dispatch(addTableHeader(tableHeadAppoint))
       context.setSelectPage("Main")
       context.UpdateTableReguest(1)
       context.setDataitinerary([])
