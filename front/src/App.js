@@ -12,6 +12,11 @@ import store from "./store/store";
 import { FilteredSample, funFixEducator } from "./UI/SamplePoints/Function";
 import ReportFinansing from "./pages/AdminPages/Report/ReportFinansing/ReportFinansing";
 import RepotYour from "./pages/AdminPages/Report/RepotYour/RepotIndicators";
+import BusinessUnitReference from "./pages/AdminPages/Directory/BusinessUnitReference/BusinessUnitReference";
+import DirectoryLegalEntities from "./pages/AdminPages/Directory/DirectoryLegalEntities/DirectoryLegalEntities";
+import ExternalContractors from "./pages/AdminPages/Directory/ExternalContractors/ExternalContractors";
+import ReferenceObjects from "./pages/AdminPages/Directory/ReferenceObjects/ReferenceObjects";
+import ThePerformersDirectory from "./pages/AdminPages/Directory/ThePerformersDirectory/ThePerformersDirectory";
 
 function App() {
   const [selectContructor, setSelectContractor] = useState("")
@@ -208,6 +213,13 @@ function App() {
             <Route path="/Authorization" element={<Authorization />}></Route>
             <Route path="/ReportFinansing" element={<ReportFinansing />}></Route>
             <Route path="/RepotYour" element={<RepotYour />}></Route>
+
+            <Route path="/BusinessUnitReference" element={<BusinessUnitReference />}></Route>
+            <Route path="/DirectoryLegalEntities" element={<DirectoryLegalEntities />}></Route>
+            <Route path="/ExternalContractors" element={<ExternalContractors />}></Route>
+            <Route path="/ReferenceObjects" element={<ReferenceObjects />}></Route>
+            <Route path="/ThePerformersDirectory" element={<ThePerformersDirectory />}></Route>
+            
           </Routes>
         </main>
       </BrowserRouter>
