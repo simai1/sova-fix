@@ -37,9 +37,22 @@ const getAll = catchAsync(async (req, res) => {
     res.json(users);
 });
 
+const getAllManagers = catchAsync(async (req, res) => {
+    const users = await tgUserService.getAllManagers();
+    res.json(users);
+});
+
+const getOne = catchAsync(async (req, res) => {
+    const { tgUserId } = req.params;
+    const user = await tgUserService.getOneUser(tgUserId);
+    res.json(user);
+});
+
 export default {
     create,
     syncManager,
     findOneByTgId,
     getAll,
+    getAllManagers,
+    getOne,
 };

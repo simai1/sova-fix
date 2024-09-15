@@ -122,6 +122,13 @@ const createRequest = async (
         createdBy: tgUserId,
         number: 0,
     });
+    sendMsg({
+        msg: {
+            requestId: request.id,
+            customer: request.createdBy,
+        },
+        event: 'REQUEST_CREATE',
+    } as WsMsgData);
     return new RequestDto(request);
 };
 
