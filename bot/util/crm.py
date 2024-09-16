@@ -1,4 +1,5 @@
 import types
+from pprint import pprint
 from typing import BinaryIO
 
 import requests
@@ -337,3 +338,14 @@ async def get_user_by_id(_id: str) -> dict | None:
 async def get_tg_id_by_id(_id: str) -> int | None:
     user = await get_user_by_id(_id)
     return user['tgId']
+
+
+async def get_all_requests_with_params(params: str = "") -> list | None:
+    url = f"{cf.API_URL}/requests?{params}"
+
+    req = requests.get(url)
+
+    if req.status_code == 200:
+        return req.json()['requestsDtos']
+
+    return None

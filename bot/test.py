@@ -1,13 +1,15 @@
-import os
+import asyncio
+from pprint import pprint
 
-from dotenv import load_dotenv
+import requests
+import websocket
+import config as cf
+from bot.util import crm
 
 
-def test() -> None:
-    load_dotenv(dotenv_path='.env')
-
-    print(os.getenv('BOT_TOKEN'))
+async def test() -> None:
+    await crm.get_all_requests_with_params("number=19,20")
 
 
 if __name__ == '__main__':
-    test()
+    asyncio.run(test())

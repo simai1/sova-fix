@@ -1,14 +1,10 @@
 import json
-from typing import Coroutine
 
 from aiogram import Bot
 from aiogram.types import InlineKeyboardButton as IKB, InlineKeyboardMarkup as IKM
-
-from util import logger, crm
-
 from common.keyboard import to_start_btn
-
 from data import const
+from util import logger, crm
 
 notification_texts = \
 {
@@ -71,7 +67,6 @@ async def get_simple_notification_text(event: str, msg: dict):
             rr_number = await crm.get_repair_request_number(msg["requestId"])
             return f"<b>❗НОВАЯ ЗАЯВКА❗️</b>\nЗаказчиком была добавлена новая заявка №{rr_number}"
         case "TGUSER_CREATE":
-            print(f"event: {event}\nmsg: {msg}")
             user = await crm.get_user_by_id(msg['userId'])
             return f"<b>❗ЗАЯВКА НА РЕГИСТРАЦИЮ❗️</b>\nНовая заявка на регистрацию!\n<i>Имя: <b>{user['name']}</b>\nРоль: <b>{crm.roles.get_rus(user['role'])}</b></i>"
         case _:
@@ -94,8 +89,6 @@ async def from_websocket_message(bot: Bot, message_string: str) -> None:
     msg = message_dict["msg"]
     event = message_dict["event"]
 
-    print("\n", msg)
-
     if "customer" in msg.keys() and msg['customer'] is not None:
         if msg['customer'].isdigit():
             customer_id = int(msg["customer"])
@@ -114,28 +107,23 @@ async def from_websocket_message(bot: Bot, message_string: str) -> None:
 
     admin_ids = await crm.get_all_manager_tg_ids()
 
-    print(f"cus: {customer_id}", f"con: {contractor_id}", f"adm: {admin_ids}")
+    text = await get_simple_notification_text(event, msg)
 
-    try:
-        text = await get_simple_notification_text(event, msg)
+    if customer_id is not None:
+        kb = get_simple_notification_kb(event, msg, crm.roles.CUSTOMER)
+        await bot.send_message(customer_id, text, reply_markup=kb)
+        logger.info("sent notification to customer", f"\'{event}\'")
 
-        if customer_id is not None:
-            kb = get_simple_notification_kb(event, msg, crm.roles.CUSTOMER)
-            await bot.send_message(customer_id, text, reply_markup=kb)
-            logger.info("sent notification to customer")
+    if contractor_id is not None:
+        kb = get_simple_notification_kb(event, msg, crm.roles.CONTRACTOR)
+        await bot.send_message(contractor_id, text, reply_markup=kb)
+        logger.info("sent notification to contractor", f"\'{event}\'")
 
-        if contractor_id is not None:
-            kb = get_simple_notification_kb(event, msg, crm.roles.CONTRACTOR)
-            await bot.send_message(contractor_id, text, reply_markup=kb)
-            logger.info("sent notification to contractor")
-
-        if admin_ids:
-            kb = get_simple_notification_kb(event, msg, crm.roles.ADMIN)
-            for admin_id in admin_ids:
-                await bot.send_message(admin_id, text, reply_markup=kb)
-            logger.info("sent notification to admins")
-    except Exception as e:
-        print(e)
+    if admin_ids:
+        kb = get_simple_notification_kb(event, msg, crm.roles.ADMIN)
+        for admin_id in admin_ids:
+            await bot.send_message(admin_id, text, reply_markup=kb)
+        logger.info("sent notification to admins", f"\'{event}\'")
 
 
 def get_send_one_rr_kb(request_id: str, role: int) -> IKM:

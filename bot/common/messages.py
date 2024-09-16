@@ -98,10 +98,14 @@ async def send_rr_for_customer(message: Message, repair_reqest: dict) -> None:
     await send_repair_request(message, repair_reqest, kb)
 
 
+async def send_many_rr_for_customer(repair_requests: list, message: Message, state: FSMContext) -> None:
+    await send_several_requests(repair_requests, message, state, send_rr_for_customer)
+
+
 async def send_rr_for_admin(message: Message, repair_reqest: dict) -> None:
     kb = IKM(inline_keyboard=[[IKB(text='Добавить комментарий 📝', callback_data=f"add_comment:{repair_reqest['id']}")]])
     await send_repair_request(message, repair_reqest, kb)
 
 
-async def send_many_rr_for_customer(repair_requests: list, message: Message, state: FSMContext) -> None:
-    await send_several_requests(repair_requests, message, state, send_rr_for_customer)
+async def send_many_rr_for_admin(repair_requests: list, message: Message, state: FSMContext) -> None:
+    await send_several_requests(repair_requests, message, state, send_rr_for_admin)
