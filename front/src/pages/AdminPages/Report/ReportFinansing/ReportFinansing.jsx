@@ -8,19 +8,28 @@ import DataContext from "../../../../context";
 import FunctionReportTop from "../../../../components/FunctionReportTop/FunctionReportTop";
 import UniversalTable from "../../../../components/UniversalTable/UniversalTable";
 import { funFixEducator } from "../../../../UI/SamplePoints/Function";
+import { sortDataTable } from "../functionSort/functionSort";
+import BasicDateRangePicker from "../../../../UI/BasicDateRangePicker/BasicDateRangePicker";
 
 function ReportFinansing() {
     const { context } = useContext(DataContext);
     const [tableDataFinansing, setTableDataFinansing] = useState([]);
-    const [valueName, setValueName] = useState("");
+    const [tableDataFinansingSort, setTableDataFinansingSort] = useState([]);
+    const [valueName, setValueName] = useState("Все время");
 
     useEffect(() => {
-        setTableDataFinansing(funFixEducator(context.dataApointment));
-    }, [context.dataApointment]);
+        const fixedData = funFixEducator(context.dataApointment);
+        setTableDataFinansing(fixedData);
+        setTableDataFinansingSort(sortDataTable(valueName, fixedData)); // Ensure initial sort
+    }, [context.dataApointment, valueName]); // Add valueName to dependencies
 
     const refreshFilters = () => {
-        setValueName("")
+        setValueName("Все время");
     };
+
+    useEffect(() => {
+        setTableDataFinansingSort(sortDataTable(valueName, tableDataFinansing));
+    }, [valueName, tableDataFinansing]); // Ensure sorting happens when data changes
 
     return ( 
         <div className={styles.ReportFinansing}>
@@ -30,12 +39,12 @@ function ReportFinansing() {
                     <h2>Финансы</h2>
                     <div className={styles.ReportFinansingList}>
                         <UneversalList dataList={DataList} placeholder="Период..." value="" setValueName={setValueName} valueName={valueName}/>
-                        <div className={styles.dropFilter} onClick={refreshFilters} title="нажмите для сброса фильтров"><img src="./img/ClearFilter.svg"/></div>
+                        <div className={styles.dropFilter} onClick={refreshFilters} title="нажмите для сброса фильтров"><img src="./img/ClearFilter.svg" alt="Clear Filter"/></div>
                     </div>
                 </div>
                 <div>
-                    <FunctionReportTop dataTable={tableDataFinansing}/>
-                    <UniversalTable tableHeader={TableHeader} tableBody={tableDataFinansing}/>
+                    <FunctionReportTop dataTable={tableDataFinansingSort}/>
+                    <UniversalTable tableHeader={TableHeader} tableBody={tableDataFinansingSort}/>
                 </div>
             </Layout>
         </div>

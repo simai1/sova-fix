@@ -4,9 +4,11 @@ export const DataList = [
     {id:3, name:"Текущий месяц"},
     {id:4, name:"Текущий год"},
     {id:5, name:"Вчера"},
-    {id:5, name:" Прошлая неделя"},
-    {id:6, name:"  Прошлый месяц"},
-    {id:7, name:"  Прошлый год"}
+    // {id:5, name:"Прошлая неделя"},
+    // {id:6, name:"Прошлый месяц"},
+    // {id:7, name:"Прошлый год"},
+    {id:8, name:"Все время"}
+
   ];
   
 
@@ -27,6 +29,6 @@ export const DataList = [
     { key: "comment", value: "Комментарий", isActive: true  },
     { key: "legalEntity", value: "Юр. Лицо", isActive: true  },
     { key: "itineraryOrder", value: "Порядок маршрута", isActive: true  },
-    { key: "checkPhoto", value: "Фото чека", isActive: true  },
+    // { key: "checkPhoto", value: "Фото чека", isActive: true  },
   ]; 
   

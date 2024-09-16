@@ -27,9 +27,6 @@ function UniversalTable(props) {
         if(key === "repairPrice" && key !== "fileName" && key !== "checkPhoto") {
             return    value?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") 
         }else if(key === "fileName" || key === "checkPhoto") {
-            console.log("value", value)
-            console.log("key", key)
-            console.log(`${process.env.REACT_APP_API_URL}/uploads/${value}`)
             if(value) {
                 return (
                 <div>
@@ -74,6 +71,9 @@ function UniversalTable(props) {
                             ))}
                         </tr>
                     ))}
+                    {
+                        tableBodyData.length === 0 && <tr><td colSpan={tableHeaderData.length} className={styles.tableNotData}>Нет данных</td></tr>
+                    }
                 </tbody>
             </table>
             {modalImage && (

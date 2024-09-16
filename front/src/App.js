@@ -110,8 +110,6 @@ function App() {
 
 
   const isCheckedStore = useSelector((state) => state.isCheckedSlice.isChecked);
-  const tableDataStore = useSelector((state) => state.tableDataSlice);
-  console.log("tableDataSlice", tableDataStore)
   useEffect(() => {
     if(selectedTable === "Заявки" && selectPage === "Main"){
       UpdateTableReguest(1)
@@ -128,8 +126,6 @@ function App() {
   function UpdateTableReguest(param, par = sortStateParam) {
     if(param === 1){
       let url = '';
-      console.log("sort", par);
-      console.log("textSearchTableData", par);
       if (par || textSearchTableData) {
         if(par != "" && !textSearchTableData){
           url = `?${par}`;
@@ -141,7 +137,6 @@ function App() {
     else {
         url = '';
     } 
-    console.log("url", url);
           GetAllRequests(url).then((resp) => {
             if(resp) {
               const checks = isCheckedStore || [];

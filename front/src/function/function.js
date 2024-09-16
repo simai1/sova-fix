@@ -15,7 +15,7 @@ export const generateAndDownloadExcel = (data, nameTable, expenseSum) => {
       Бюджет_ремонта: item?.repairPrice,
       Статус_заявки: item?.status,
     }));
-  }else if(nameTable === 'Заявки'){
+  }else if(nameTable === 'Заявки' || nameTable === 'Показатели'){
     transformedData = data.map(({ ...item }) => ({
       Номер_заявки: item?.number,
       Исполнитель: item?.contractor,
