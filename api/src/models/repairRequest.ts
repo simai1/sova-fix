@@ -1,6 +1,7 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
 import statuses from '../config/statuses';
 import Contractor from './contractor';
+import ObjectDir from './object';
 
 export default class RepairRequest extends Model {
     id!: string;
@@ -8,7 +9,6 @@ export default class RepairRequest extends Model {
     status!: number;
     unit!: string;
     builder!: string;
-    object!: string;
     problemDescription?: string;
     urgency!: string;
     itineraryOrder?: number;
@@ -20,9 +20,11 @@ export default class RepairRequest extends Model {
     fileName!: string;
     checkPhoto?: string;
     createdAt!: Date;
-    contractorId?: string;
-    Contractor?: Contractor;
     createdBy!: string;
+    objectId!: string;
+    Object!: ObjectDir; // object rel
+    contractorId?: string;
+    Contractor?: Contractor; // contractor rel
 
     static initialize(sequelize: Sequelize) {
         RepairRequest.init(
@@ -54,10 +56,6 @@ export default class RepairRequest extends Model {
                     type: DataTypes.STRING,
                     allowNull: false,
                     defaultValue: 'Укажите подрядчика',
-                },
-                object: {
-                    type: DataTypes.STRING,
-                    allowNull: false,
                 },
                 problemDescription: {
                     type: DataTypes.STRING,

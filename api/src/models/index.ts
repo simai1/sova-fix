@@ -5,6 +5,7 @@ import RepairRequest from './repairRequest';
 import Contractor from './contractor';
 import TgUser from './tgUser';
 import ApiKey from './apiKey';
+import ObjectDir from './object';
 
 const { DB_USER, DB_PWD, DB_HOST, DB_PORT, DB_NAME } = process.env;
 export const models = {
@@ -12,6 +13,7 @@ export const models = {
     User,
     TokenModel,
     Contractor,
+    ObjectDir,
     RepairRequest,
     ApiKey,
 };

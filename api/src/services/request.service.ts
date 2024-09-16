@@ -9,6 +9,8 @@ import { statusesRuLocale } from '../config/statuses';
 import sequelize from 'sequelize';
 import { sendMsg, WsMsgData } from '../utils/ws';
 import TgUser from '../models/tgUser';
+import ObjectDir from '../models/object';
+import objectService from './object.service';
 
 const getAllRequests = async (filter: any, order: any): Promise<RequestDto[]> => {
     let requests;
@@ -69,6 +71,9 @@ const getAllRequests = async (filter: any, order: any): Promise<RequestDto[]> =>
                 {
                     model: Contractor,
                 },
+                {
+                    model: ObjectDir,
+                },
             ],
             order:
                 order.col && order.type
@@ -80,7 +85,7 @@ const getAllRequests = async (filter: any, order: any): Promise<RequestDto[]> =>
     } else {
         requests = await RepairRequest.findAll({
             where: whereParams,
-            include: [{ model: Contractor }],
+            include: [{ model: Contractor }, { model: ObjectDir }],
             order:
                 order.col && order.type
                     ? order.col === 'contractor'
@@ -94,14 +99,14 @@ const getAllRequests = async (filter: any, order: any): Promise<RequestDto[]> =>
 };
 
 const getRequestById = async (requestId: string): Promise<RequestDto> => {
-    const request = await RepairRequest.findByPk(requestId, { include: [{ model: Contractor }] });
+    const request = await RepairRequest.findByPk(requestId, { include: [{ model: Contractor }, { model: ObjectDir }] });
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
     return new RequestDto(request);
 };
 
 const createRequest = async (
     unit: string,
-    object: string,
+    objectId: string,
     problemDescription: string | undefined,
     urgency: string,
     repairPrice: number | undefined,
@@ -110,9 +115,11 @@ const createRequest = async (
     fileName: string,
     tgUserId: string
 ): Promise<RequestDto> => {
+    const objectDir = await objectService.getObjectById(objectId);
+    if (!objectDir) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found object with id ' + objectId);
     const request = await RepairRequest.create({
         unit,
-        object,
+        objectId,
         problemDescription,
         urgency,
         repairPrice,
@@ -122,6 +129,7 @@ const createRequest = async (
         createdBy: tgUserId,
         number: 0,
     });
+    request.Object = objectDir;
     sendMsg({
         msg: {
             requestId: request.id,
@@ -207,7 +215,7 @@ const deleteRequest = async (requestId: string): Promise<void> => {
 const update = async (
     requestId: string,
     unit: string | undefined,
-    object: string | undefined,
+    objectId: string | undefined,
     problemDescription: string | undefined,
     urgency: string | undefined,
     repairPrice: number | undefined,
@@ -260,7 +268,7 @@ const update = async (
     await RepairRequest.update(
         {
             unit,
-            object,
+            objectId,
             problemDescription,
             urgency,
             repairPrice,
@@ -278,7 +286,10 @@ const update = async (
 };
 
 const getCustomersRequests = async (tgUserId: string): Promise<RequestDto[]> => {
-    const requests = await RepairRequest.findAll({ where: { createdBy: tgUserId }, include: [{ model: Contractor }] });
+    const requests = await RepairRequest.findAll({
+        where: { createdBy: tgUserId },
+        include: [{ model: Contractor }, { model: ObjectDir }],
+    });
     return requests.map(r => new RequestDto(r));
 };
 

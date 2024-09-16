@@ -1,6 +1,7 @@
 import RepairRequest from '../models/repairRequest';
 import ContractorDto from './contractor.dto';
 import strftime from 'strftime';
+import ObjectDto from './object.dto';
 
 export default class RequestDto {
     id!: string;
@@ -8,7 +9,7 @@ export default class RequestDto {
     status!: number;
     unit!: string;
     builder!: string;
-    object!: string;
+    object!: ObjectDto;
     problemDescription?: string;
     urgency!: string;
     fileName!: string;
@@ -30,7 +31,7 @@ export default class RequestDto {
         this.status = model.status;
         this.unit = model.unit;
         this.builder = model.builder;
-        this.object = model.object;
+        this.object = new ObjectDto(model.Object);
         this.problemDescription = model.problemDescription;
         this.urgency = model.urgency;
         this.itineraryOrder = model.itineraryOrder;
