@@ -299,8 +299,12 @@ const getRole = (value) =>
   if(value !== null){
     if(value === 2){
       return "Администратор"
-    }else{
+    }else if(value === 1){
       return "Пользователь"
+    }else if(value === 3){
+      return "Заказчик"
+    }else{
+      return "Исполнитель"
     }
   }else{
     return "___"
@@ -568,8 +572,8 @@ return (
                       ):
                        headerItem.key === "role" ? (
                         <div
-                          onClick={() =>ClickRole(row.id, row[headerItem.key])}
-                          className={styles.statusClick}
+                          onClick={() =>(row[headerItem.key] === 1 || row[headerItem.key] === 2 && ClickRole(row.id, row[headerItem.key]))}
+                          className={styles[row[headerItem.key] === 1 || row[headerItem.key] === 2 ? "statusClick" : ""]}
                         >
                           {getRole(row[headerItem.key])}
                         </div>
