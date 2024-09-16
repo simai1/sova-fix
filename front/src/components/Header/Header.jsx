@@ -7,6 +7,8 @@ import { LogOut } from "../../API/API";
 import { addTableHeader } from "../../store/editColumTable/editColumTable.slice";
 import { tableHeadAppoint, tableList, tableUser } from "../Table/Data";
 import { useDispatch } from "react-redux";
+import imgClose from "./../../assets/images/x.svg";
+import arrowBottom from "./../../assets/images/arrow_bottom.svg";
 
 function Header() {
     const { context } = useContext(DataContext);
@@ -109,14 +111,14 @@ return (
       <div className={`menu ${isOpen ? 'open' : ''}`} ref={menuRef}>
           {/* <h3>{shortName}</h3> */}
           <div className={styles.close}>
-            <img onClick={() =>  closeMenu()} src="./img/x.svg"/>
+            <img onClick={() =>  closeMenu()} src={imgClose}/>
           </div>
           <ul className={styles.menuUl}>
               <li onClick={() => LinkPage()} className={styles.menuLi}>Главная</li>
               <li onClick={() => LinkPage("Card")} className={styles.menuLi}>Маршрутный лист</li>
               <li onClick={() => setIsOpenSprav(!isOpenSprav)} className={styles.menuLi} style={isOpenSprav ? { backgroundColor: "#FFE20D" } : { backgroundColor: "#fff" }}>
                   Справочники
-                  <img style={isOpenSprav ? { transform: "rotate(0deg)" } : { transform: "rotate(-90deg)" }} src="./img/arrow_bottom.svg" />
+                  <img style={isOpenSprav ? { transform: "rotate(0deg)" } : { transform: "rotate(-90deg)" }} src={arrowBottom} />
               </li>
               <ul
                   ref={spravRef}
@@ -127,16 +129,16 @@ return (
                       transition: 'max-height 0.3s ease'
                   }}
               >
-                  <li className={styles.menuLi}>Юридические лица</li>
-                  <li className={styles.menuLi}>Подразделения</li>
-                  <li className={styles.menuLi}>Объекты</li>
-                  <li className={styles.menuLi}>Внешние подрядчики</li>
-                  <li className={styles.menuLi}>Исполнители</li>
+                  <li className={styles.menuLi} onClick={() => LinkPage("Directory/DirectoryLegalEntities")}>Юридические лица</li>
+                  <li className={styles.menuLi} onClick={() => LinkPage("Directory/BusinessUnitReference")}>Подразделения</li>
+                  <li className={styles.menuLi} onClick={() => LinkPage("Directory/ReferenceObjects")}>Объекты</li>
+                  <li className={styles.menuLi} onClick={() => LinkPage("Directory/ThePerformersDirectory")}>Внешние подрядчики</li>
+                  <li className={styles.menuLi} onClick={() => LinkPage("Directory/ExternalContractors")}>Исполнители</li>
                   <li className={styles.menuLi} onClick={() => LinkPage("Polzovateli")}>Пользователи</li>
               </ul>
               <li onClick={() => setIsOpenFinans(!isOpenFinans)} className={styles.menuLi} style={isOpenFinans ? { backgroundColor: "#FFE20D" } : { backgroundColor: "#fff" }}>
                   Отчеты
-                  <img style={isOpenFinans ? { transform: "rotate(0deg)" } : { transform: "rotate(-90deg)" }} src="./img/arrow_bottom.svg" />
+                  <img style={isOpenFinans ? { transform: "rotate(0deg)" } : { transform: "rotate(-90deg)" }} src={arrowBottom} />
               </li>
               <ul
                   ref={finansRef}
@@ -150,11 +152,11 @@ return (
                   <li className={styles.menuLi} onClick={() => LinkPage("RepotYour")}>Показатели</li>
                   <li className={styles.menuLi} onClick={() => LinkPage("ReportFinansing")}>Финансы</li>
               </ul>
-              <li className={styles.menuLi}>SOVA-tech – системы управления</li>
+              <a href="https://sova-tech.com/" target="_blank"><li className={styles.menuLi}>SOVA-tech – системы управления</li></a>
           </ul>
         <div className={styles.ButonFunc}>
           <div className={styles.ButonFuncInner}>
-            <button>Тех поддержка</button>
+            <a href="https://t.me/SOVA_tech_notification_bot" target="_blank"><button>Тех поддержка</button></a>
             <button onClick={()=>Exit()}>Выход</button>
           </div>
         </div>

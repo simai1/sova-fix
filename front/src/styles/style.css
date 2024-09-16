@@ -1,8 +1,8 @@
 @font-face {
 	font-family: 'FactWebRegular';
 	src: 
-		url('./../assents/fonts/fact_regular.woff') format('woff2'),
-		url('./../assents/fonts/fact_regular.woff2') format('woff');
+		url('./../assets/fonts/fact_regular.woff') format('woff2'),
+		url('./../assets/fonts/fact_regular.woff2') format('woff');
 	font-weight: normal;
 	font-style: normal;
 }
@@ -10,8 +10,8 @@
 @font-face {
 	font-family: 'FactWebMedium';
 	src: 
-		url('./../assents/fonts/fact_medium.woff2') format('woff2'),
-		url('./../assents/fonts/fact_medium.woff') format('woff');
+		url('./../assets/fonts/fact_medium.woff2') format('woff2'),
+		url('./../assets/fonts/fact_medium.woff') format('woff');
 	font-weight: normal;
 	font-style: normal;
 }
@@ -19,8 +19,8 @@
 @font-face {
 	font-family: 'FactWebBold';
 	src: 
-		url('./../assents/fonts/fact_bold.woff2') format('woff2'),
-		url('./../assents/fonts/fact_bold.woff') format('woff');
+		url('./../assets/fonts/fact_bold.woff2') format('woff2'),
+		url('./../assets/fonts/fact_bold.woff') format('woff');
 	font-weight: normal;
 	font-style: normal;
 }
