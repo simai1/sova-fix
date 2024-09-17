@@ -5,8 +5,10 @@ export default {
         console.log('[CRON] Start setDays');
 
         const requests = await RepairRequest.findAll({ where: { status: 2 } });
+        const today = new Date();
         for (const request of requests) {
-            await request.increment('daysAtWork');
+            const dayDiff = Math.round((today.getTime() - Number(request.createdAt)) / (1000 * 3600 * 24));
+            await request.update({ daysAtWork: dayDiff });
         }
 
         console.log('[CRON] End setDays');

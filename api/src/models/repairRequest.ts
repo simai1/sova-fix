@@ -1,6 +1,9 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
 import statuses from '../config/statuses';
 import Contractor from './contractor';
+import ObjectDir from './object';
+import Unit from './unit';
+import LegalEntity from './legalEntity';
 
 export default class RepairRequest extends Model {
     id!: string;
@@ -8,21 +11,25 @@ export default class RepairRequest extends Model {
     status!: number;
     unit!: string;
     builder!: string;
-    object!: string;
     problemDescription?: string;
     urgency!: string;
     itineraryOrder?: number;
     completeDate?: Date;
     repairPrice?: number;
     comment?: string;
-    legalEntity?: string;
     daysAtWork!: number;
     fileName!: string;
     checkPhoto?: string;
     createdAt!: Date;
-    contractorId?: string;
-    Contractor?: Contractor;
     createdBy!: string;
+    objectId!: string;
+    Unit!: Unit; // unit rel
+    unitId!: string;
+    Object!: ObjectDir; // object rel
+    contractorId?: string;
+    LegalEntity!: LegalEntity; // legal entity rel
+    legalEntityId!: string;
+    Contractor?: Contractor; // contractor rel
 
     static initialize(sequelize: Sequelize) {
         RepairRequest.init(
@@ -46,18 +53,10 @@ export default class RepairRequest extends Model {
                     },
                     defaultValue: 1,
                 },
-                unit: {
-                    type: DataTypes.STRING,
-                    allowNull: false,
-                },
                 builder: {
                     type: DataTypes.STRING,
                     allowNull: false,
                     defaultValue: 'Укажите подрядчика',
-                },
-                object: {
-                    type: DataTypes.STRING,
-                    allowNull: false,
                 },
                 problemDescription: {
                     type: DataTypes.STRING,
@@ -80,10 +79,6 @@ export default class RepairRequest extends Model {
                     allowNull: true,
                 },
                 comment: {
-                    type: DataTypes.STRING,
-                    allowNull: true,
-                },
-                legalEntity: {
                     type: DataTypes.STRING,
                     allowNull: true,
                 },
