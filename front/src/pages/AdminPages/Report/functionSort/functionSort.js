@@ -50,9 +50,9 @@ export const sortDataTable = (valueName, tableDataIndicators) => {
             break;
         case "Прошлая неделя":
             const startOfLastWeek = new Date();
-            startOfLastWeek.setDate(today.getDate() - today.getDay() - 7);
+            startOfLastWeek.setDate(today.getDate() - today.getDay() - 6);
             const endOfLastWeek = new Date();
-            endOfLastWeek.setDate(today.getDate() - today.getDay() - 1);
+            endOfLastWeek.setDate(today.getDate() - today.getDay());
             filteredData = tableDataIndicators.filter(el => {
                 const createdAt = new Date(el.createdAtRaw);
                 return createdAt >= startOfLastWeek && createdAt <= endOfLastWeek;
