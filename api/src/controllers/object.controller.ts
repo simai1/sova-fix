@@ -9,9 +9,10 @@ const getAll = catchAsync(async (req, res) => {
 });
 
 const create = catchAsync(async (req, res) => {
-    const { name } = req.body;
+    const { name, unitId } = req.body;
     if (!name) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing name');
-    const object = await objectService.createObject(name);
+    if (!unitId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing unitId');
+    const object = await objectService.createObject(name, unitId);
     res.json(object);
 });
 
@@ -31,11 +32,10 @@ const destroy = catchAsync(async (req, res) => {
 
 const update = catchAsync(async (req, res) => {
     const { objectId } = req.params;
-    const { name } = req.body;
+    const { name, unitId } = req.body;
     if (!objectId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing id');
-    if (!name) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing name');
-    const object = await objectService.updateObject(objectId, name);
-    res.json(object);
+    await objectService.updateObject(objectId, name, unitId);
+    res.json({ status: 'OK' });
 });
 
 export default {

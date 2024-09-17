@@ -1,8 +1,11 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
+import Unit from './unit';
 
 export default class ObjectDir extends Model {
     id!: string;
     name!: string;
+    Unit!: Unit; // unit rel
+    unitId!: string;
 
     static initialize(sequelize: Sequelize) {
         ObjectDir.init(

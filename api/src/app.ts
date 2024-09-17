@@ -12,6 +12,7 @@ import contractorRoute from './routes/contractor.route';
 import tgUserRoute from './routes/tgUser.route';
 import apiKeyRoute from './routes/apiKey.route';
 import objectRoute from './routes/object.route';
+import unitRoute from './routes/unit.route';
 
 const { app, getWss } = expressWs(express());
 
@@ -43,6 +44,7 @@ app.use('/contractors', contractorRoute);
 app.use('/tgUsers', tgUserRoute);
 app.use('/apiKey', apiKeyRoute);
 app.use('/objects', objectRoute);
+app.use('/units', unitRoute);
 
 // websocket section
 app.ws('/', () => {

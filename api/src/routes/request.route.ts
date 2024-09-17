@@ -3,7 +3,6 @@ import requestController from '../controllers/request.controller';
 import { v4 } from 'uuid';
 import multer from 'multer';
 import path from 'path';
-import verifyToken from '../middlewares/verify-token';
 
 const router = Router();
 
@@ -33,10 +32,10 @@ router.route('/').get(requestController.getAll).post(upload.single('file'), requ
 router.route('/add/check/:requestId').patch(upload.single('file'), requestController.addCheck);
 router.route('/:requestId').get(requestController.getOne);
 router.route('/remove/contractor').patch(requestController.removeContractor);
-router.route('/set/contractor').patch(verifyToken.auth, requestController.setContractor);
+router.route('/set/contractor').patch(requestController.setContractor);
 router.route('/set/status').patch(requestController.setStatus);
 router.route('/set/comment').patch(requestController.setComment);
-router.route('/:requestId/delete').delete(verifyToken.auth, requestController.deleteRequest);
-router.route('/:requestId/update').put(verifyToken.auth, requestController.update);
+router.route('/:requestId/delete').delete(requestController.deleteRequest);
+router.route('/:requestId/update').put(requestController.update);
 router.route('/customer/:tgUserId').get(requestController.getCustomersRequests);
 export default router;

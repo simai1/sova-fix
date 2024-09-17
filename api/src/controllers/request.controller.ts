@@ -41,18 +41,16 @@ const getOne = catchAsync(async (req, res) => {
 });
 
 const create = catchAsync(async (req, res) => {
-    const { unit, objectId, problemDescription, urgency, repairPrice, comment, legalEntity, tgUserId } = req.body;
+    const { objectId, problemDescription, urgency, repairPrice, comment, legalEntity, tgUserId } = req.body;
     const fileName = req.file?.filename;
     if (!fileName) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing file');
     if (!tgUserId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing tgUserId');
-    if (!unit) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing unit');
     if (!objectId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing object');
     if (!urgency) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing urgency');
     const tgUser = await TgUser.findByPk(tgUserId);
     // @ts-expect-error 'tgUser' is possibly 'null'
     if (!tgUser && tgUser.role !== 3) throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid tgUser');
     const requestDto = await requestService.createRequest(
-        unit,
         objectId,
         problemDescription,
         urgency,
@@ -106,7 +104,6 @@ const deleteRequest = catchAsync(async (req, res) => {
 
 const update = catchAsync(async (req, res) => {
     const {
-        unit,
         objectId,
         problemDescription,
         urgency,
@@ -121,7 +118,6 @@ const update = catchAsync(async (req, res) => {
     const { requestId } = req.params;
     if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
     if (
-        !unit &&
         !objectId &&
         !problemDescription &&
         !urgency &&
@@ -136,7 +132,6 @@ const update = catchAsync(async (req, res) => {
         throw new ApiError(httpStatus.BAD_REQUEST, 'Missing body');
     await requestService.update(
         requestId,
-        unit,
         objectId,
         problemDescription,
         urgency,

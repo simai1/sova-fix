@@ -1,6 +1,6 @@
 import { models } from './index';
 
-const { User, TokenModel, Contractor, RepairRequest, TgUser, ObjectDir } = models;
+const { User, TokenModel, Contractor, RepairRequest, TgUser, ObjectDir, Unit } = models;
 
 export default function () {
     User.hasOne(TokenModel, { foreignKey: 'userId' });
@@ -9,8 +9,14 @@ export default function () {
     Contractor.hasMany(RepairRequest, { foreignKey: 'contractorId' });
     RepairRequest.belongsTo(Contractor, { foreignKey: 'contractorId' });
 
-    ObjectDir.hasMany(RepairRequest, { foreignKey: 'objectId' });
-    RepairRequest.belongsTo(ObjectDir, { foreignKey: 'objectId' });
+    ObjectDir.hasMany(RepairRequest, { foreignKey: 'objectId', hooks: true });
+    RepairRequest.belongsTo(ObjectDir, { foreignKey: 'objectId', hooks: true });
+
+    Unit.hasMany(RepairRequest, { foreignKey: 'unitId', hooks: true });
+    RepairRequest.belongsTo(Unit, { foreignKey: 'unitId', hooks: true });
+
+    Unit.hasMany(ObjectDir, { foreignKey: 'unitId' });
+    ObjectDir.belongsTo(Unit, { foreignKey: 'unitId' });
 
     TgUser.hasOne(Contractor, { foreignKey: 'tgUserId' });
     Contractor.belongsTo(TgUser, { foreignKey: 'tgUserId' });

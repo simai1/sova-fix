@@ -2,6 +2,7 @@ import { DataTypes, Model, Sequelize } from 'sequelize';
 import statuses from '../config/statuses';
 import Contractor from './contractor';
 import ObjectDir from './object';
+import Unit from './unit';
 
 export default class RepairRequest extends Model {
     id!: string;
@@ -22,6 +23,8 @@ export default class RepairRequest extends Model {
     createdAt!: Date;
     createdBy!: string;
     objectId!: string;
+    Unit!: Unit; // unit rel
+    unitId!: string;
     Object!: ObjectDir; // object rel
     contractorId?: string;
     Contractor?: Contractor; // contractor rel
@@ -47,10 +50,6 @@ export default class RepairRequest extends Model {
                         isIn: [Object.values(statuses)],
                     },
                     defaultValue: 1,
-                },
-                unit: {
-                    type: DataTypes.STRING,
-                    allowNull: false,
                 },
                 builder: {
                     type: DataTypes.STRING,
