@@ -18,7 +18,7 @@ const createObject = async (name: string, unitId: string): Promise<ObjectDto> =>
     if (checkObject) throw new ApiError(httpStatus.BAD_REQUEST, 'Already exists object');
     const unit = await Unit.findByPk(unitId);
     if (!unit) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found unit with id ' + unitId);
-    const objectDir = await ObjectDir.create({ name, unitId });
+    const objectDir = await ObjectDir.create({ name, unitId, number: 1 });
     objectDir.Unit = unit;
     return new ObjectDto(objectDir);
 };
