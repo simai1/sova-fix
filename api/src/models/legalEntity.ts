@@ -1,19 +1,15 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
-import Unit from './unit';
-import LegalEntity from './legalEntity';
 
-export default class ObjectDir extends Model {
+export default class LegalEntity extends Model {
     id!: string;
-    name!: string;
     number!: number;
-    city!: string;
-    Unit!: Unit; // unit rel
-    unitId!: string;
-    LegalEntity!: LegalEntity; // legal entity rel
-    legalEntityId!: string;
+    name!: string;
+    legalForm!: string;
+    count!: number;
+    startCoop!: Date;
 
     static initialize(sequelize: Sequelize) {
-        ObjectDir.init(
+        LegalEntity.init(
             {
                 id: {
                     type: DataTypes.UUID,
@@ -30,22 +26,31 @@ export default class ObjectDir extends Model {
                     type: DataTypes.STRING,
                     allowNull: false,
                 },
-                city: {
+                legalForm: {
                     type: DataTypes.STRING,
+                    allowNull: false,
+                },
+                count: {
+                    type: DataTypes.INTEGER,
+                    allowNull: false,
+                    defaultValue: 1,
+                },
+                startCoop: {
+                    type: DataTypes.DATE,
                     allowNull: false,
                 },
             },
             {
                 sequelize,
                 schema: 'public',
-                modelName: 'Object',
-                tableName: 'objects',
+                modelName: 'LegalEntity',
+                tableName: 'legal-entities',
                 paranoid: true,
             }
         );
 
-        ObjectDir.beforeCreate(async (model: ObjectDir) => {
-            const maxNumber = await ObjectDir.max('number');
+        LegalEntity.beforeCreate(async (model: LegalEntity) => {
+            const maxNumber = await LegalEntity.max('number');
             if (!maxNumber || maxNumber === 0) model.set('number', 1);
             else {
                 // @ts-expect-error maxNumber is always number after checks

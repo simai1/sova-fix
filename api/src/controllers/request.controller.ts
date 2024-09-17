@@ -41,7 +41,7 @@ const getOne = catchAsync(async (req, res) => {
 });
 
 const create = catchAsync(async (req, res) => {
-    const { objectId, problemDescription, urgency, repairPrice, comment, legalEntity, tgUserId } = req.body;
+    const { objectId, problemDescription, urgency, repairPrice, comment, tgUserId } = req.body;
     const fileName = req.file?.filename;
     if (!fileName) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing file');
     if (!tgUserId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing tgUserId');
@@ -56,7 +56,6 @@ const create = catchAsync(async (req, res) => {
         urgency,
         repairPrice,
         comment,
-        legalEntity,
         fileName,
         tgUserId
     );
@@ -109,7 +108,6 @@ const update = catchAsync(async (req, res) => {
         urgency,
         repairPrice,
         comment,
-        legalEntity,
         itineraryOrder,
         contractorId,
         status,
@@ -123,7 +121,6 @@ const update = catchAsync(async (req, res) => {
         !urgency &&
         !repairPrice &&
         !comment &&
-        !legalEntity &&
         !itineraryOrder &&
         !contractorId &&
         !status &&
@@ -137,7 +134,6 @@ const update = catchAsync(async (req, res) => {
         urgency,
         repairPrice,
         comment,
-        legalEntity,
         itineraryOrder,
         contractorId,
         status,

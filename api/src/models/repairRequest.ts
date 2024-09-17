@@ -3,6 +3,7 @@ import statuses from '../config/statuses';
 import Contractor from './contractor';
 import ObjectDir from './object';
 import Unit from './unit';
+import LegalEntity from './legalEntity';
 
 export default class RepairRequest extends Model {
     id!: string;
@@ -16,7 +17,6 @@ export default class RepairRequest extends Model {
     completeDate?: Date;
     repairPrice?: number;
     comment?: string;
-    legalEntity?: string;
     daysAtWork!: number;
     fileName!: string;
     checkPhoto?: string;
@@ -27,6 +27,8 @@ export default class RepairRequest extends Model {
     unitId!: string;
     Object!: ObjectDir; // object rel
     contractorId?: string;
+    LegalEntity!: LegalEntity; // legal entity rel
+    legalEntityId!: string;
     Contractor?: Contractor; // contractor rel
 
     static initialize(sequelize: Sequelize) {
@@ -77,10 +79,6 @@ export default class RepairRequest extends Model {
                     allowNull: true,
                 },
                 comment: {
-                    type: DataTypes.STRING,
-                    allowNull: true,
-                },
-                legalEntity: {
                     type: DataTypes.STRING,
                     allowNull: true,
                 },

@@ -12,6 +12,7 @@ import TgUser from '../models/tgUser';
 import ObjectDir from '../models/object';
 import objectService from './object.service';
 import Unit from '../models/unit';
+import LegalEntity from '../models/legalEntity';
 
 const getAllRequests = async (filter: any, order: any): Promise<RequestDto[]> => {
     let requests;
@@ -78,6 +79,9 @@ const getAllRequests = async (filter: any, order: any): Promise<RequestDto[]> =>
                 {
                     model: Unit,
                 },
+                {
+                    model: LegalEntity,
+                },
             ],
             order:
                 order.col && order.type
@@ -89,7 +93,7 @@ const getAllRequests = async (filter: any, order: any): Promise<RequestDto[]> =>
     } else {
         requests = await RepairRequest.findAll({
             where: whereParams,
-            include: [{ model: Contractor }, { model: ObjectDir }, { model: Unit }],
+            include: [{ model: Contractor }, { model: ObjectDir }, { model: Unit }, { model: LegalEntity }],
             order:
                 order.col && order.type
                     ? order.col === 'contractor'
@@ -104,7 +108,7 @@ const getAllRequests = async (filter: any, order: any): Promise<RequestDto[]> =>
 
 const getRequestById = async (requestId: string): Promise<RequestDto> => {
     const request = await RepairRequest.findByPk(requestId, {
-        include: [{ model: Contractor }, { model: ObjectDir }, { model: Unit }],
+        include: [{ model: Contractor }, { model: ObjectDir }, { model: Unit }, { model: LegalEntity }],
     });
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
     return new RequestDto(request);
@@ -116,7 +120,6 @@ const createRequest = async (
     urgency: string,
     repairPrice: number | undefined,
     comment: string | undefined,
-    legalEntity: string | undefined,
     fileName: string,
     tgUserId: string
 ): Promise<RequestDto> => {
@@ -129,13 +132,14 @@ const createRequest = async (
         urgency,
         repairPrice,
         comment,
-        legalEntity,
+        legalEntityId: objectDir.LegalEntity.id,
         fileName,
         createdBy: tgUserId,
         number: 0,
     });
     request.Object = objectDir;
     request.Unit = objectDir.Unit;
+    request.LegalEntity = objectDir.LegalEntity;
     sendMsg({
         msg: {
             requestId: request.id,
@@ -225,7 +229,6 @@ const update = async (
     urgency: string | undefined,
     repairPrice: number | undefined,
     comment: string | undefined,
-    legalEntity: string | undefined,
     itineraryOrder: number | undefined,
     contractorId: string | undefined,
     status: number | undefined,
@@ -277,7 +280,6 @@ const update = async (
             urgency,
             repairPrice,
             comment,
-            legalEntity,
             contractorId,
             status,
             builder: typeof contractorId !== 'undefined' && contractorId ? 'Внутренний сотрудник' : builder,
@@ -292,7 +294,7 @@ const update = async (
 const getCustomersRequests = async (tgUserId: string): Promise<RequestDto[]> => {
     const requests = await RepairRequest.findAll({
         where: { createdBy: tgUserId },
-        include: [{ model: Contractor }, { model: ObjectDir }, { model: Unit }],
+        include: [{ model: Contractor }, { model: ObjectDir }, { model: Unit }, { model: LegalEntity }],
     });
     return requests.map(r => new RequestDto(r));
 };
