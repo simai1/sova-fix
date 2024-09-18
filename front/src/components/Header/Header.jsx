@@ -163,7 +163,7 @@ return (
       </div>
       <div className={styles.TitleSitte}>
         <div className={styles.TitleSitteInner}>
-        <img src={Logo}/>
+        {/* <img src={Logo}/> */}
           <h1>Система комплексного управления техническим обслуживанием и оборудованием</h1>
         </div>
       </div>
