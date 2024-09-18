@@ -9,7 +9,7 @@ import { tableHeadAppoint, tableList, tableUser } from "../Table/Data";
 import { useDispatch } from "react-redux";
 import imgClose from "./../../assets/images/x.svg";
 import arrowBottom from "./../../assets/images/arrow_bottom.svg";
-
+import Logo from "./../../assets/images/SovaFixLogo.svg"
 function Header() {
     const { context } = useContext(DataContext);
     const [isOpen, setIsOpen] = useState(false);
@@ -163,7 +163,7 @@ return (
       </div>
       <div className={styles.TitleSitte}>
         <div className={styles.TitleSitteInner}>
-        {/* <img src="./img/logo.png"/> */}
+        <img src={Logo}/>
           <h1>Система комплексного управления техническим обслуживанием и оборудованием</h1>
         </div>
       </div>

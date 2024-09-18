@@ -378,3 +378,22 @@ export const RejectActiveAccount = async (id) => {
   }
 };
 
+// legalEntities -------------------------------------------------------------------------------
+
+export const GetlegalEntitiesAll = async () => {
+  
+  try {
+    const response = await http.get(`${server}/legalEntities`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      console.log("Ошибка при получении карты пользователя!");
+    }
+  }
+};
