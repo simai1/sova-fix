@@ -1,0 +1,23 @@
+@import "./../../styles/mixins.scss";
+@import "./../../styles/color.scss";
+
+.ReferenceObjects{
+    .ReferenceObjectsTop{
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        margin-top: 50px;
+       h2{
+        margin: 0;
+       }
+        .ReferenceObjectsTopButton{
+            display: flex;
+            button{
+                @include button(var(--turquoise-color));
+                &:first-child{
+                    margin-right: 15px;
+                }
+            }
+        }
+    }
+}

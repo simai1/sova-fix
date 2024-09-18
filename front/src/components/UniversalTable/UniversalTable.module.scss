@@ -3,7 +3,7 @@
 
 .UniversalTable{
     margin-top: 18px;
-    max-height: 65vh;
+    max-height: 62vh;
     overflow-y: scroll;
     border-radius: 8px;
     table{
@@ -25,9 +25,15 @@
                 &:last-child{
                   border-radius: 0 8px 0 0;
                 }
-            }          
+            }       
         }
         tbody{
+          tr{
+            &:hover td {
+              background-color: var(--tableTrHover);
+              cursor: pointer;
+            }
+          }   
             td{
                 padding: 10px;
                 align-items: center;

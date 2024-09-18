@@ -1,9 +1,6 @@
-export const tableLagealEntries = [
+export const tableUnitHeader = [
     { key: "number", value: "№"},
     { key: "name", value: "Название"},
     { key: "count", value: "Количество объектов"},
-    { key: "descriptionLagealEntries", value: "Описание подразделения"},
-   
+    { key: "description", value: "Описание подразделения"},
 ];
-
-

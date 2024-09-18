@@ -133,7 +133,6 @@ return (
                   <li className={styles.menuLi} onClick={() => LinkPage("Directory/BusinessUnitReference")}>Подразделения</li>
                   <li className={styles.menuLi} onClick={() => LinkPage("Directory/ReferenceObjects")}>Объекты</li>
                   <li className={styles.menuLi} onClick={() => LinkPage("Directory/ThePerformersDirectory")}>Внешние подрядчики</li>
-                  <li className={styles.menuLi} onClick={() => LinkPage("Directory/ExternalContractors")}>Исполнители</li>
                   <li className={styles.menuLi} onClick={() => LinkPage("Polzovateli")}>Пользователи</li>
               </ul>
               <li onClick={() => setIsOpenFinans(!isOpenFinans)} className={styles.menuLi} style={isOpenFinans ? { backgroundColor: "#FFE20D" } : { backgroundColor: "#fff" }}>
@@ -163,7 +162,7 @@ return (
       </div>
       <div className={styles.TitleSitte}>
         <div className={styles.TitleSitteInner}>
-        {/* <img src={Logo}/> */}
+        <img src={Logo}/>
           <h1>Система комплексного управления техническим обслуживанием и оборудованием</h1>
         </div>
       </div>
