@@ -20,4 +20,35 @@
             }
         }
     }
+    .PupUpCreate{
+      
+        .PupUpCreateInputInner{
+            display: flex;
+            justify-content: center;
+        }
+        input{
+            @include input-text(90%, 8px);
+                font-size: 18px;
+                margin: 10px 0px;
+        }
+        .PupUpCreateButtonInner{
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            .PupUpCreateButton{
+                background-color: #B7AB9E!important;
+                width: 70%;
+                height: 42px;
+                border-radius: 8px;
+                margin-top: 20px;
+                &:hover{
+                    background-color: #9f8b7b!important;
+                    color: #fff;
+                }
+            }
+        }
+        .ErrorMessage{
+            color: #d69a81;
+        }
+    }
 }
