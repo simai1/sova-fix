@@ -350,6 +350,23 @@ useEffect(() => {
   console.log("context.tableHeader", context.tableHeader)
 },[context.tableHeader])
 
+
+
+useEffect(() => {
+  const handleClickOutside = (event) => {
+      if (!event.target.closest('tr') && !event.target.closest('button')) {
+          context.setSelectedTr(null);
+      }
+  };
+
+  document.addEventListener('click', handleClickOutside);
+  return () => {
+      document.removeEventListener('click', handleClickOutside);
+  };
+}, [context]);
+
+
+
 return (
     <>
       

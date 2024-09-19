@@ -5,9 +5,10 @@ import DataContext from "../../context";
 function PopUpContainer(props) {
   const { context } = React.useContext(DataContext);
   const closePopUp = () => {
+    if(props?.closePopUpFunc){
       props?.closePopUpFunc();
-      context.setPopUp("");
-    
+    }
+      context.setPopUp("");   
   }
   return (
     <div style={{ paddingTop: `${props?.mT}px` }} className={styles.PopUpContainer}>

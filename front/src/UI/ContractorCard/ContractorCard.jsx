@@ -6,6 +6,7 @@ const ContractorCard = (props) => {
   const [count, setCount] = useState(0)
   const clickCard = () =>{
     const idInteger = context?.dataContractors.find(el => el.name === props?.name)?.id;
+    console.log("idInteger", idInteger)
     context.setSelectContractor(idInteger)
     // context.UpdateTableReguest(3)
   }

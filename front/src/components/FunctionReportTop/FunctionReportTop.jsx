@@ -60,6 +60,7 @@ function FunctionReportTop(props) {
                 </div>
 
             }
+           
         </div>
     );
 }

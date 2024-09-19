@@ -139,4 +139,21 @@
         align-items: center;
         margin-top: -18px;
       }
+      .ButtonBack{
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        margin-top: 50px;
+        button{
+          @include button(var(--turquoise-color));
+          margin-right: 10px;
+          height: 42px;
+          display: flex;
+          align-items: center;
+          width: 163px;
+          justify-content: center;
+          position: relative;
+        }
+      }
+
 }
