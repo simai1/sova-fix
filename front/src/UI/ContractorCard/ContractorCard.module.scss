@@ -2,16 +2,41 @@
 @import "./../../styles/mixins.scss";
 
 .ContractorCard{
-    margin: 10px 25px;
-    box-shadow: 0 0 10px var(--light-gray-color);
+    margin:  15px 25px;
+    // box-shadow: 0 0 10px var(--light-gray-color);
+    transition: transform 0.25s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     border-radius: 8px;
     padding: 10px;
     position: relative;
     transition: 0.2s linear all;
     cursor: pointer;
-    &:hover{
-        top: -3px;
-        right: -5px;
-        background-color: var(--dark-grey-color);
+    width: 250px;
+    height: 250px;
+  
+    
+    &:hover {
+        transform: translateY(-5px); /* Поднимаем карточку вверх */
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); /* Увеличиваем тень */
+    }
+    
+    .name{
+        @include font(24px, 600);
+        margin: 0;
+    }
+    .buttonInner{
+        display: flex;
+        justify-content: center;
+        button{
+            position: absolute;
+            bottom: 10px;
+            width: 80%;
+            @include button(var(--turquoise-color));
+            display: flex;
+            justify-content: center;
+            &:hover{
+                border: none;
+            }
+        }
     }
 }

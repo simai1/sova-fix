@@ -20,10 +20,31 @@ const ContractorCard = (props) => {
     return count
   }
 
+  const getColor = (count) => {
+    let SqrCounut = 0;
+    context?.dataApointment.forEach((el) => {
+      if (el.status === 2 && el.urgency === "Маршрут") {
+        SqrCounut++;
+      }
+    })
+    const znach = SqrCounut/context.dataContractors.length
+    if (count < znach * 0.7) {
+      return "#C5E384";
+    } else if (count >= znach * 0.7 && count <= znach) {
+      return "#ffe78f";
+    } else{
+      return "#d69a81";
+    }
+  };
+
   return (
     <div className={styles.ContractorCard} onClick={clickCard}  >
-        <p>Исполнитель: {props?.name}</p>
-        <p>Кол-во заказов в маршруте: {count}</p>
+        <p className={styles.name}>{props?.name.split(" ")[0]}</p>
+        <p className={styles.name}>{props?.name.split(" ")[1]}</p>
+        <p className={styles.name}>{props?.name.split(" ")[2]}</p>
+        <div className={styles.buttonInner}>
+          <button className={styles.button} style={{backgroundColor: getColor(count)}}>{count}</button>
+        </div>
     </div>
   );
 };
