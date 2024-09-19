@@ -27,11 +27,23 @@ function EditColum() {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, [store]);
-
+    console.log("store", store.AllCheckbox);
+    // const
+    // const checkFilterImg = () => {
+    //     if(store.ActiveColumTable.map(el => el.isActive !== false)) {
+    //         return true
+    //     }else{
+    //         return false
+    //     }
+    // }
+    // useEffect(() => {
+    //     checkFilterImg();
+    // },[store.ActiveColumTable]);
     return ( 
         <div className={styles.EditColum} ref={ref}> {/* Attach ref to the main div */}
             <div>
                 <button onClick={() => setOpenList(!openList)} style={{ borderRadius: !openList ? "8px" : "8px 8px 0 0" }}>
+                    {!store.AllCheckbox && <img src='./img/filter.svg' alt=''/>}
                     Редактор полей
                     <img 
                         className={styles.EditColumImg}
@@ -39,6 +51,7 @@ function EditColum() {
                         src='./img/arrow_bottom.svg' 
                         alt="Arrow Icon"
                     />
+                   
                 </button>
                 {
                     openList && 

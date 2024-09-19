@@ -69,12 +69,12 @@ function BusinessUnitReference() {
             description: unitDescription,
         };
         console.log('newUnit', newUnit);
-        // CreateUnit(newUnit).then((response) => {
-        //     if (response?.status === 201) {
-        //         getData();
-        //         closePopUp();
-        //     }
-        // });
+        CreateUnit(newUnit).then((response) => {
+            if (response?.status === 200) {
+                getData();
+                closePopUp();
+            }
+        });
     };
 
     return (

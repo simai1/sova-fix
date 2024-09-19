@@ -39,16 +39,30 @@ function ReferenceObjects() {
         }));
     }
     const formatDataObjectAndLegal = (data) => {
-        let ObjectData = []
-        let ObjectLegal = []
-       data.map(item => {
-           ObjectData.push(item.unit)
-           ObjectLegal.push(item.legalEntity)
-       })
-       setLegalData(ObjectLegal);
-       setUnitData(ObjectData);
-       console.log(ObjectData, ObjectLegal)
+        let uniqueUnits = new Set();
+        let uniqueLegalEntities = new Set();
+    
+        data.forEach(item => {
+            if (item.unit) {
+              
+                uniqueUnits.add(item.unit);
+            }
+            if (item.legalEntity) {
+                uniqueLegalEntities.add(item.legalEntity);
+            }
+        });
+    
+        // Convert the sets back to arrays
+        const uniqueUnitArray = Array.from(uniqueUnits);
+        const uniqueLegalEntityArray = Array.from(uniqueLegalEntities);
+    
+        // Assuming setLegalData and setUnitData are functions to update your state
+        setLegalData(uniqueLegalEntityArray);
+        setUnitData(uniqueUnitArray);
+    
+        console.log(uniqueUnitArray, uniqueLegalEntityArray);
     }
+    
 
     
     const getData = () => {
@@ -98,7 +112,7 @@ function ReferenceObjects() {
 
         console.log(newUnit);
         CreateObjects(newUnit).then((response) => {
-            if (response?.status === 201) {
+            if (response?.status === 200) {
                 getData();
                 closePopUp();
             }

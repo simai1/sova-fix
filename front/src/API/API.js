@@ -416,6 +416,25 @@ export const DeletelegalEntities = async (id) => {
   }
 };
 
+export const CreateLegalEntities = async (data) => {
+  
+  try {
+    const response = await http.post(`${server}/legalEntities`, data, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      console.log("Ошибка при получении карты пользователя!");
+    }
+  }
+};
+
+
 // UNITS -------------------------------------------------------------------------------
 
 export const GetUnitsAll = async () => {
@@ -453,6 +472,26 @@ export const DeleteUnit = async (id) => {
     }
   }
 };
+
+
+export const CreateUnit = async (data) => {
+  
+  try {
+    const response = await http.post(`${server}/units`, data, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      console.log("Ошибка при получении карты пользователя!");
+    }
+  }
+};
+
 
 // objects -------------------------------------------------------------------------------
 

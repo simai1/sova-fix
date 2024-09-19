@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { DeletelegalEntities, GetlegalEntitiesAll, CreateLegalEntity } from "../../API/API"; // Ensure CreateLegalEntity is imported
+import { DeletelegalEntities, GetlegalEntitiesAll, CreateLegalEntity, CreateLegalEntities } from "../../API/API"; // Ensure CreateLegalEntity is imported
 import { tableLagealEntries } from "./DirectoryLegalEntitiesData";
 import UniversalTable from "../../components/UniversalTable/UniversalTable";
 import styles from "./DirectoryLegalEntities.module.scss";
@@ -72,12 +72,12 @@ function DirectoryLegalEntities() {
         };
 
         console.log(newUnit);
-        // CreateLegalEntity(newUnit).then((response) => {
-        //     if (response?.status === 201) {
-        //         getData();
-        //         closePopUp();
-        //     }
-        // });
+        CreateLegalEntities(newUnit).then((response) => {
+            if (response?.status === 200) {
+                getData();
+                closePopUp();
+            }
+        });
     };
 
     return (
