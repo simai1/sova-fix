@@ -28,7 +28,7 @@ export default class Unit extends Model {
                 count: {
                     type: DataTypes.INTEGER,
                     allowNull: false,
-                    defaultValue: 1,
+                    defaultValue: 0,
                 },
                 description: {
                     type: DataTypes.STRING,

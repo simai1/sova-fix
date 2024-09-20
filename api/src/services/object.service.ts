@@ -36,7 +36,7 @@ const getOneObject = async (objectId: string): Promise<ObjectDto> => {
 const destroyObject = async (objectId: string): Promise<void> => {
     const objectDir = await getObjectById(objectId);
     if (!objectDir) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found object with id ' + objectId);
-    await objectDir.destroy();
+    await objectDir.destroy({ force: true });
 };
 
 const updateObject = async (

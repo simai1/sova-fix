@@ -33,7 +33,7 @@ export default class LegalEntity extends Model {
                 count: {
                     type: DataTypes.INTEGER,
                     allowNull: false,
-                    defaultValue: 1,
+                    defaultValue: 0,
                 },
                 startCoop: {
                     type: DataTypes.DATE,
