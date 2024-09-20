@@ -5,6 +5,7 @@ import cookieSession from 'cookie-session';
 import * as fs from 'fs';
 import cronService from './services/cron.service';
 import expressWs from 'express-ws';
+
 import authRoute from './routes/auth.route';
 import userRoute from './routes/user.route';
 import requestRoute from './routes/request.route';
@@ -14,6 +15,7 @@ import apiKeyRoute from './routes/apiKey.route';
 import objectRoute from './routes/object.route';
 import unitRoute from './routes/unit.route';
 import legalEntityRoute from './routes/legalEntity.route';
+import extContractorRoute from './routes/extContractor.route';
 
 const { app, getWss } = expressWs(express());
 
@@ -47,6 +49,7 @@ app.use('/apiKey', apiKeyRoute);
 app.use('/objects', objectRoute);
 app.use('/units', unitRoute);
 app.use('/legalEntities', legalEntityRoute);
+app.use('/extContractors', extContractorRoute);
 
 // websocket section
 app.ws('/', () => {

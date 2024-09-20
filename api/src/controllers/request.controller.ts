@@ -70,6 +70,14 @@ const setContractor = catchAsync(async (req, res) => {
     res.json({ status: 'OK' });
 });
 
+const setExtContractor = catchAsync(async (req, res) => {
+    const { requestId, extContractorId } = req.body;
+    if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
+    if (!extContractorId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing extContractorId');
+    await requestService.setExtContractor(requestId, extContractorId);
+    res.json({ status: 'OK' });
+});
+
 const setComment = catchAsync(async (req, res) => {
     const { requestId, comment } = req.body;
     if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
@@ -82,6 +90,13 @@ const removeContractor = catchAsync(async (req, res) => {
     const { requestId } = req.body;
     if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
     await requestService.removeContractor(requestId);
+    res.json({ status: 'OK' });
+});
+
+const removeExtContractor = catchAsync(async (req, res) => {
+    const { requestId } = req.body;
+    if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
+    await requestService.removeExtContractor(requestId);
     res.json({ status: 'OK' });
 });
 
@@ -163,6 +178,8 @@ export default {
     getOne,
     create,
     setContractor,
+    setExtContractor,
+    removeExtContractor,
     setComment,
     removeContractor,
     setStatus,

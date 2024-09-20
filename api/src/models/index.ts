@@ -8,6 +8,7 @@ import ApiKey from './apiKey';
 import ObjectDir from './object';
 import Unit from './unit';
 import LegalEntity from './legalEntity';
+import ExtContractor from './externalContractor';
 
 const { DB_USER, DB_PWD, DB_HOST, DB_PORT, DB_NAME } = process.env;
 export const models = {
@@ -17,6 +18,7 @@ export const models = {
     Contractor,
     Unit,
     LegalEntity,
+    ExtContractor,
     ObjectDir,
     RepairRequest,
     ApiKey,

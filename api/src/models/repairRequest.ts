@@ -4,6 +4,7 @@ import Contractor from './contractor';
 import ObjectDir from './object';
 import Unit from './unit';
 import LegalEntity from './legalEntity';
+import ExtContractor from './externalContractor';
 
 export default class RepairRequest extends Model {
     id!: string;
@@ -30,6 +31,8 @@ export default class RepairRequest extends Model {
     LegalEntity!: LegalEntity; // legal entity rel
     legalEntityId!: string;
     Contractor?: Contractor; // contractor rel
+    ExtContractor?: ExtContractor; // external contractor rel
+    extContractorId?: string;
 
     static initialize(sequelize: Sequelize) {
         RepairRequest.init(

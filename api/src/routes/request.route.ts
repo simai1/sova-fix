@@ -31,8 +31,10 @@ const upload = multer({
 router.route('/').get(requestController.getAll).post(upload.single('file'), requestController.create);
 router.route('/add/check/:requestId').patch(upload.single('file'), requestController.addCheck);
 router.route('/:requestId').get(requestController.getOne);
-router.route('/remove/contractor').patch(requestController.removeContractor);
 router.route('/set/contractor').patch(requestController.setContractor);
+router.route('/remove/contractor').patch(requestController.removeContractor);
+router.route('/set/extContractor').patch(requestController.setExtContractor);
+router.route('/remove/extContractor').patch(requestController.removeExtContractor);
 router.route('/set/status').patch(requestController.setStatus);
 router.route('/set/comment').patch(requestController.setComment);
 router.route('/:requestId/delete').delete(requestController.deleteRequest);

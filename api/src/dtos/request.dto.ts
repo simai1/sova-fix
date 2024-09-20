@@ -1,6 +1,7 @@
 import RepairRequest from '../models/repairRequest';
 import ContractorDto from './contractor.dto';
 import strftime from 'strftime';
+import ExtContractorDto from './extContractor.dto';
 
 export default class RequestDto {
     id!: string;
@@ -23,6 +24,7 @@ export default class RequestDto {
     createdAt!: string;
     createdAtRaw?: Date;
     contractor?: ContractorDto | null;
+    extContractor?: ExtContractorDto | null;
 
     constructor(model: RepairRequest) {
         this.id = model.id;
@@ -45,5 +47,6 @@ export default class RequestDto {
         this.createdAt = model.createdAt ? strftime('%d.%m.%y', model.createdAt) : '';
         this.createdAtRaw = model.createdAt;
         this.contractor = model.Contractor ? new ContractorDto(model.Contractor) : null;
+        this.extContractor = model.ExtContractor ? new ExtContractorDto(model.ExtContractor) : null;
     }
 }
