@@ -9,10 +9,9 @@ const getAll = catchAsync(async (req, res) => {
 });
 
 const create = catchAsync(async (req, res) => {
-    const { name, count, description } = req.body;
+    const { name, description } = req.body;
     if (!name) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing name');
-    if (!count) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing count');
-    const unit = await unitService.createUnit(name, count, description);
+    const unit = await unitService.createUnit(name, description);
     res.json(unit);
 });
 
@@ -32,9 +31,9 @@ const destroy = catchAsync(async (req, res) => {
 
 const update = catchAsync(async (req, res) => {
     const { unitId } = req.params;
-    const { name, count, description } = req.body;
+    const { name, description } = req.body;
     if (!unitId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing id');
-    const unit = await unitService.updateUnit(unitId, name, count, description);
+    const unit = await unitService.updateUnit(unitId, name, description);
     res.json(unit);
 });
 

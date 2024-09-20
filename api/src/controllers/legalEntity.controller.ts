@@ -9,12 +9,11 @@ const getAll = catchAsync(async (req, res) => {
 });
 
 const create = catchAsync(async (req, res) => {
-    const { name, legalForm, count, startCoop } = req.body;
+    const { name, legalForm, startCoop } = req.body;
     if (!name) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing name');
     if (!legalForm) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing legalForm');
-    if (!count) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing count');
     if (!startCoop) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing startCoop');
-    const legalEntity = await legalEntityService.createLegalEntity(name, legalForm, count, startCoop);
+    const legalEntity = await legalEntityService.createLegalEntity(name, legalForm, startCoop);
     res.json(legalEntity);
 });
 
@@ -34,9 +33,9 @@ const destroy = catchAsync(async (req, res) => {
 
 const update = catchAsync(async (req, res) => {
     const { legalEntityId } = req.params;
-    const { name, legalForm, count, startCoop } = req.body;
+    const { name, legalForm, startCoop } = req.body;
     if (!legalEntityId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing id');
-    const legalEntity = await legalEntityService.updateLegalEntity(legalEntityId, name, legalForm, count, startCoop);
+    const legalEntity = await legalEntityService.updateLegalEntity(legalEntityId, name, legalForm, startCoop);
     res.json(legalEntity);
 });
 
