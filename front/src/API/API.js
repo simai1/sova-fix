@@ -363,7 +363,7 @@ export const GetPhotoServer = async (id) => {
 
 export const RejectActiveAccount = async (id) => {
   try {
-    const response = await http.patch(`${server}/user/confirm/${id}`, {
+    const response = await http.patch(`${server}/users/confirm/${id}`, {
       headers: {
         Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
       },
