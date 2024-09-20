@@ -10,6 +10,7 @@ import { removeTableCheckeds } from "../../store/filter/isChecked.slice";
 import CountInfoBlock from "../../UI/CountInfoBlock/CountInfoBlock";
 import EditColum from "../../UI/EditColum/EditColum";
 import { generateAndDownloadExcel } from "../../function/function";
+import { tableList } from "../Table/Data";
 
 
 
@@ -81,7 +82,14 @@ const activePeople = ()=>{
   context.setPopUp("PopUpError")
  }
 }
-
+const goBackCurd = () =>{
+  context.setSelectPage("Card");
+  context.setSelectContractor("");
+  context.setextSearchTableData("");
+  context.setSelectedTr(null)
+  context.settableHeader(tableList);
+  context.setSelectedTable("Card");
+}
   return (
     <>
       <div className={styles.FunctionTableTop}>
@@ -133,7 +141,19 @@ const activePeople = ()=>{
               </button>
             </div>
           ) : (
-            <></>
+            <>
+             
+                <div className={styles.ButtonBack}>
+                  <div>
+                    <button onClick={()=>goBackCurd()}>Назад</button>
+                  </div>
+                  <div>
+                    <button onClick={() => generateAndDownloadExcel(context?.filteredTableData, "Маршрутный_лист")}>Экспорт</button>
+                  </div>
+
+                </div>
+              
+            </>
           )}
       
         </div>

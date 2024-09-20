@@ -28,4 +28,23 @@
       cursor: pointer;
     }
   }
+  .ReportFinansingListInnerDate{
+    display: flex;
+    input{
+      height: 40px;
+      width: 194px;
+      margin: 0 12px;
+      border-radius: 8px;
+      border: 1px solid #ADADAD;
+      padding: 0px 10px;
+      position: relative;
+      top: 3px;
+      &:first-child{
+        margin: 0px 6px 0px 12px
+      }
+      &:last-child{
+        margin: 0px 0px 0px 6px
+      }
+    }
+  }
 }

@@ -10,6 +10,7 @@ import PopUpEditAppoint from "../../../components/PopUp/PopUpEditAppoint/PopUpEd
 import { PopUpError } from "../../../UI/PopUpError/PopUpError";
 import Header from "../../../components/Header/Header";
 import Layout from "../../../UI/Layout/Layout";
+import FunctionReportTop from "../../../components/FunctionReportTop/FunctionReportTop";
 function HomePageAdmin() {
   const { context } = React.useContext(DataContext);
   return (

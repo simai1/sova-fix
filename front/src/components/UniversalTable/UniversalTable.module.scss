@@ -3,28 +3,43 @@
 
 .UniversalTable{
     margin-top: 18px;
-    max-height: 65vh;
+    max-height: 62vh;
     overflow-y: scroll;
     border-radius: 8px;
     table{
         width: 100%;
         min-height: auto;
-        thead{
-            background-color: var(--tableTh);
-         
+        border-radius: 8px;
+        thead {
+          position: sticky;
+          top: 0;
+          z-index: 1;
+          background-color: var(--tableTh); // Ensure this background color is set, otherwise it will be transparent.
             th{
                 align-items: center;
                 padding: 10px;
                 text-align: center;
-            }
-          
+                &:nth-child(1) {
+                  border-radius: 8px 0 0 0;
+                }
+                &:last-child{
+                  border-radius: 0 8px 0 0;
+                }
+            }       
         }
         tbody{
+          tr{
+            &:hover td {
+              background-color: var(--tableTrHover);
+              cursor: pointer;
+            }
+          }   
             td{
                 padding: 10px;
                 align-items: center;
                 text-align: center;
                 background-color:#fff;
+                
             }
         }
         .imgTable{

@@ -2,21 +2,24 @@ import React from "react";
 import styles from "./PopUpContainer.module.scss";
 import DataContext from "../../context";
 
-function PopUpContainer({ children, title, mT, width }) {
+function PopUpContainer(props) {
   const { context } = React.useContext(DataContext);
   const closePopUp = () => {
-    context.setPopUp("");
+    if(props?.closePopUpFunc){
+      props?.closePopUpFunc();
+    }
+      context.setPopUp("");   
   }
   return (
-    <div style={{ paddingTop: `${mT}px` }} className={styles.PopUpContainer}>
+    <div style={{ paddingTop: `${props?.mT}px` }} className={styles.PopUpContainer}>
       <div className={styles.PopUpContainerflex}>
         <div
-          style={width ? { width: "auto" } : null}
+          style={props?.width ? { width: "auto" } : null}
           className={styles.PopUpContainerInner}
         >
           <div className={styles.HeaderPopUp}>
             <div className={styles.HeaderPopUpTitle}>
-              <h2>{title}</h2>
+              <h2>{props?.title}</h2>
             </div>
             <div>
               <button
@@ -29,7 +32,7 @@ function PopUpContainer({ children, title, mT, width }) {
             </div>
           </div>
 
-          <div>{children}</div>
+          <div>{props?.children}</div>
         </div>
       </div>
     </div>

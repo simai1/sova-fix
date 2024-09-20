@@ -21,7 +21,6 @@ console.log("context.filteredTableData", context.filteredTableData)
     2: "В работе",
     3: "Выполнена",
     4: "Неактуальна",
-    5: "Принята",
   };
 
   const DataUrgency = [
@@ -349,6 +348,23 @@ console.log("storeTableHeader", storeTableHeader)
 useEffect(() => {
   console.log("context.tableHeader", context.tableHeader)
 },[context.tableHeader])
+
+
+
+useEffect(() => {
+  const handleClickOutside = (event) => {
+      if (!event.target.closest('tr') && !event.target.closest('button')) {
+          context.setSelectedTr(null);
+      }
+  };
+
+  document.addEventListener('click', handleClickOutside);
+  return () => {
+      document.removeEventListener('click', handleClickOutside);
+  };
+}, [context]);
+
+
 
 return (
     <>

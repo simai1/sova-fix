@@ -8,13 +8,11 @@ import HomePageAdmin from "./pages/AdminPages/HomePageAdmin/HomePageAdmin";
 import { GetAllRequests, GetAllUsers, GetAllСontractors, GetContractorsItenerarity } from "./API/API";
 import Activate from "./pages/Login/Activate/Activate";
 import { useDispatch, useSelector } from "react-redux";
-import store from "./store/store";
 import { FilteredSample, funFixEducator } from "./UI/SamplePoints/Function";
 import ReportFinansing from "./pages/AdminPages/Report/ReportFinansing/ReportFinansing";
 import RepotYour from "./pages/AdminPages/Report/RepotYour/RepotIndicators";
 import BusinessUnitReference from "./modules/BusinessUnitReference/BusinessUnitReference";
 import DirectoryLegalEntities from "./modules/DirectoryLegalEntities/DirectoryLegalEntities";
-import ExternalContractors from "./modules/ExternalContractors/ExternalContractors";
 import ReferenceObjects from "./modules/ReferenceObjects/ReferenceObjects";
 import ThePerformersDirectory from "./modules/ThePerformersDirectory/ThePerformersDirectory";
 import Directory from "./pages/AdminPages/Directory/Directory";
@@ -46,7 +44,7 @@ function App() {
   const [editListOpen, setEditListOpen] = useState(false);
   const [sortState, setSortState] = useState("");
   const [sortStateParam, setSortStateParam] = useState("");
-
+  const [selectRowDirectory, setSelectRowDirectory] = useState(null);
   const context = {
     editListOpen,
     setSortStateParam,
@@ -97,7 +95,9 @@ function App() {
     setDataitinerary,
     setActivateId,
     activateId,
-    selectContructor
+    selectContructor,
+    setSelectRowDirectory,
+    selectRowDirectory
   };
 
   const dispatch = useDispatch();
@@ -214,7 +214,6 @@ function App() {
             <Route path="/Directory/*" element={<Directory />}>
               <Route path="BusinessUnitReference" element={<BusinessUnitReference />}></Route>
               <Route path="DirectoryLegalEntities" element={<DirectoryLegalEntities />}></Route>
-              <Route path="ExternalContractors" element={<ExternalContractors />}></Route>
               <Route path="ReferenceObjects" element={<ReferenceObjects />}></Route>
               <Route path="ThePerformersDirectory" element={<ThePerformersDirectory />}></Route>
             </Route>

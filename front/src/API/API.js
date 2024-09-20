@@ -4,7 +4,7 @@ const http = axios.create({
 });
 const server = process.env.REACT_APP_API_URL;
 
-const REFRESH_INTERVAL = 1500000; // 25 минут 1500000
+const REFRESH_INTERVAL = 900000; // 15 минут 900000
 let refreshTokensTimeout;
 
 //!Рефреш токенов
@@ -377,4 +377,177 @@ export const RejectActiveAccount = async (id) => {
     }
   }
 };
+
+// legalEntities -------------------------------------------------------------------------------
+
+export const GetlegalEntitiesAll = async () => {
+  
+  try {
+    const response = await http.get(`${server}/legalEntities`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      console.log("Ошибка при получении карты пользователя!");
+    }
+  }
+};
+
+export const DeletelegalEntities = async (id) => {
+  
+  try {
+    const response = await http.delete(`${server}/legalEntities/${id}`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      console.log("Ошибка при получении карты пользователя!");
+    }
+  }
+};
+
+export const CreateLegalEntities = async (data) => {
+  
+  try {
+    const response = await http.post(`${server}/legalEntities`, data, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      console.log("Ошибка при получении карты пользователя!");
+    }
+  }
+};
+
+
+// UNITS -------------------------------------------------------------------------------
+
+export const GetUnitsAll = async () => {
+  
+  try {
+    const response = await http.get(`${server}/units`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      console.log("Ошибка при получении карты пользователя!");
+    }
+  }
+};
+
+export const DeleteUnit = async (id) => {
+  
+  try {
+    const response = await http.delete(`${server}/units/${id}`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      console.log("Ошибка при получении карты пользователя!");
+    }
+  }
+};
+
+
+export const CreateUnit = async (data) => {
+  
+  try {
+    const response = await http.post(`${server}/units`, data, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      console.log("Ошибка при получении карты пользователя!");
+    }
+  }
+};
+
+
+// objects -------------------------------------------------------------------------------
+
+export const GetObjectsAll = async () => {
+  
+  try {
+    const response = await http.get(`${server}/objects`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      console.log("Ошибка при получении карты пользователя!");
+    }
+  }
+};
+
+export const DeleteObjects = async (id) => {
+  
+  try {
+    const response = await http.delete(`${server}/objects/${id}`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      console.log("Ошибка при получении карты пользователя!");
+    }
+  }
+};
+
+export const CreateObjects = async (data) => {
+  
+  try {
+    const response = await http.post(`${server}/objects`, data, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      console.log("Ошибка при получении карты пользователя!");
+    }
+  }
+};
+
+
 
