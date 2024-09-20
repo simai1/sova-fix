@@ -1,6 +1,6 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import styles from "./ReferenceObjects.module.scss";
-import { CreateObjects, DeleteObjects, GetObjectsAll } from "../../API/API";
+import { CreateObjects, DeleteObjects, GetObjectsAll, GetUnitsAll, GetlegalEntitiesAll } from "../../API/API";
 import { tableHeaderObject } from "./DirectoryObjectData";
 import UniversalTable from "../../components/UniversalTable/UniversalTable";
 import DataContext from "../../context";
@@ -26,6 +26,7 @@ function ReferenceObjects() {
 
     useEffect(() => {
         getData()
+        formatDataObjectAndLegal()
     },[])
 
     function formatData(data) {
@@ -38,29 +39,14 @@ function ReferenceObjects() {
             city: item.city
         }));
     }
-    const formatDataObjectAndLegal = (data) => {
-        let uniqueUnits = new Set();
-        let uniqueLegalEntities = new Set();
-    
-        data.forEach(item => {
-            if (item.unit) {
-              
-                uniqueUnits.add(item.unit);
-            }
-            if (item.legalEntity) {
-                uniqueLegalEntities.add(item.legalEntity);
-            }
-        });
-    
-        // Convert the sets back to arrays
-        const uniqueUnitArray = Array.from(uniqueUnits);
-        const uniqueLegalEntityArray = Array.from(uniqueLegalEntities);
-    
-        // Assuming setLegalData and setUnitData are functions to update your state
-        setLegalData(uniqueLegalEntityArray);
-        setUnitData(uniqueUnitArray);
-    
-        console.log(uniqueUnitArray, uniqueLegalEntityArray);
+    const formatDataObjectAndLegal = () => {
+        GetlegalEntitiesAll().then((response) => {
+            setLegalData(response.data);
+        })
+        GetUnitsAll().then((response) => {
+            setUnitData(response.data);
+        })
+       
     }
     
 
@@ -68,7 +54,6 @@ function ReferenceObjects() {
     const getData = () => {
         GetObjectsAll().then((response) => {
             setTableDataObject(formatData(response.data));
-            formatDataObjectAndLegal(response.data)
         })
     }
 
@@ -130,6 +115,22 @@ function ReferenceObjects() {
         setValueCreateLegal('');
     };
 
+    const handleClickOutside = (event) => {
+        if (containerRef.current && !containerRef.current.contains(event.target)) {
+            setOpenvalueCreateUnit(false);
+            setOpenvalueCreateLegal(false);
+        }
+    };
+
+    useEffect(() => {
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+    
+    const containerRef = useRef(null);
+
     return ( 
         <div className={styles.ReferenceObjects}>
             <div className={styles.ReferenceObjectsTop}>
@@ -174,7 +175,7 @@ function ReferenceObjects() {
                                         src={arrow}
                                         />
                                     </span>
-                                        {openvalueCreateUnit && <ul className={styles.ListCreateData}>
+                                        {openvalueCreateUnit && <ul ref={containerRef} className={styles.ListCreateData}>
                                             {unitData.map((item, index) => <li onClick={() => {setValueCreateUnit(item.name); setOpenvalueCreateUnit(false); setValueCreateUnitId(item.id)}} key={index}>{item.name}</li>)}
                                         </ul>}
                                     </div>
@@ -190,7 +191,7 @@ function ReferenceObjects() {
                                         src={arrow}
                                         />
                                     </span>
-                                        {openvalueCreateLegal && <ul className={styles.ListCreateData}>
+                                        {openvalueCreateLegal && <ul ref={containerRef} className={styles.ListCreateData}>
                                             {legalData.map((item, index) => <li onClick={() => {setValueCreateLegal(item.name); setOpenvalueCreateLegal(false); setValueCreateLegalId(item.id)}} key={index}>{item.name}</li>)}
                                         </ul>}
                                     </div>

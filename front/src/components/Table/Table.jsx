@@ -21,7 +21,6 @@ console.log("context.filteredTableData", context.filteredTableData)
     2: "В работе",
     3: "Выполнена",
     4: "Неактуальна",
-    5: "Принята",
   };
 
   const DataUrgency = [

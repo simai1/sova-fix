@@ -4,7 +4,7 @@ const http = axios.create({
 });
 const server = process.env.REACT_APP_API_URL;
 
-const REFRESH_INTERVAL = 1500000; // 25 минут 1500000
+const REFRESH_INTERVAL = 900000; // 15 минут 900000
 let refreshTokensTimeout;
 
 //!Рефреш токенов

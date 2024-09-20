@@ -22,20 +22,26 @@ function RepotIndicators() {
     const [vidView, setVidView] = useState("Таблица");
     const [vidViewChange, setVidViewChange] = useState(false);
     const dropdownRef = useRef(null); // Create a ref for the dropdown
+    const [dateFrom, setDateFrom] = useState(new Date().toISOString().slice(0, 10));
+    const [dateTo, setDateTo] = useState(new Date().toISOString().slice(0, 10));
 
     useEffect(() => {
         setTableDataIndicators(funFixEducator(context.dataApointment));
         setTableDataIndicatorsSort(funFixEducator(context.dataApointment));
-    }, [context.dataApointment, valueName]);
+    }, [context.dataApointment]);
+
 
 
     useEffect(() => {
-        setTableDataIndicatorsSort(sortDataTable(valueName, tableDataIndicators))
-    },[valueName, tableDataIndicators])
+        setTableDataIndicatorsSort(sortDataTable(valueName, tableDataIndicators, dateFrom, dateTo));
+    }, [valueName, tableDataIndicators, dateFrom, dateTo]);
 
     const refreshFilters = () => {
         setValueName("Все время");
+        setDateFrom(new Date().toISOString().slice(0, 10));
+        setDateTo(new Date().toISOString().slice(0, 10));
     };
+
 
     // Close dropdown when clicking outside of it
     useEffect(() => {
@@ -60,6 +66,21 @@ function RepotIndicators() {
                     <div className={styles.ReportFinansingList}>
                         <div className={styles.ReportFinansingListInner}>
                             <UneversalList dataList={DataList} placeholder="Период..." value="" setValueName={setValueName} valueName={valueName}/>
+                          
+                            <div className={styles.ReportFinansingListInnerDate}>
+                                <input 
+                                    style={valueName !== "Все время" ? {cursor: "not-allowed", backgroundColor: "#f0f0f0"} : {}} 
+                                    disabled={valueName !== "Все время"}
+                                    type="date"
+                                    value={dateFrom}
+                                    onChange={(e) => setDateFrom(e.target.value)}/>
+                                <input 
+                                    style={valueName !== "Все время" ? {cursor: "not-allowed", backgroundColor: "#f0f0f0"} : {}} 
+                                    disabled={valueName !== "Все время"}
+                                    type="date" 
+                                    value={dateTo} 
+                                    onChange={(e) => setDateTo(e.target.value)}/>
+                            </div>
                             <div className={styles.dropFilter} onClick={refreshFilters} title="нажмите для сброса фильтров">
                                 <img src="./img/ClearFilter.svg"/>
                             </div>

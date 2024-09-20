@@ -28,6 +28,7 @@
     align-items: center;
     border-radius: 8px;
     margin-left: 12px;
+    margin-right: 12px;
     top: 3px;
     transition: 0.1s linear all;
     &:hover{
@@ -86,5 +87,24 @@
     width: 100%;
     margin-top: 50px;
     font-size: 28px;
+  }
+  .ReportFinansingListInnerDate{
+    display: flex;
+    input{
+      height: 40px;
+      width: 194px;
+      margin: 0 12px;
+      border-radius: 8px;
+      border: 1px solid #ADADAD;
+      padding: 0px 10px;
+      position: relative;
+      top: 3px;
+      &:first-child{
+        margin: 0px 6px 0px 12px
+      }
+      &:last-child{
+        margin: 0px 0px 0px 6px
+      }
+    }
   }
 }
