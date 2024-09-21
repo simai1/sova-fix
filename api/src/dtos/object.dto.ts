@@ -7,15 +7,15 @@ export default class ObjectDto {
     number!: number;
     name!: string;
     city!: string;
-    unit!: UnitDto;
-    legalEntity!: LegalEntityDto;
+    unit?: UnitDto;
+    legalEntity?: LegalEntityDto;
 
     constructor(model: ObjectDir) {
         this.id = model.id;
         this.number = model.number;
         this.name = model.name;
         this.city = model.city;
-        this.unit = new UnitDto(model.Unit);
-        this.legalEntity = new LegalEntityDto(model.LegalEntity);
+        this.unit = model.Unit ? new UnitDto(model.Unit) : undefined;
+        this.legalEntity = model.LegalEntity ? new LegalEntityDto(model.LegalEntity) : undefined;
     }
 }

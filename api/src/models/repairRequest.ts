@@ -23,14 +23,14 @@ export default class RepairRequest extends Model {
     checkPhoto?: string;
     createdAt!: Date;
     createdBy!: string;
-    objectId!: string;
-    Unit!: Unit; // unit rel
-    unitId!: string;
-    Object!: ObjectDir; // object rel
-    contractorId?: string;
-    LegalEntity!: LegalEntity; // legal entity rel
-    legalEntityId!: string;
+    Unit?: Unit; // unit rel
+    unitId?: string;
+    Object?: ObjectDir; // object rel
+    objectId?: string;
+    LegalEntity?: LegalEntity; // legal entity rel
+    legalEntityId?: string;
     Contractor?: Contractor; // contractor rel
+    contractorId?: string;
     ExtContractor?: ExtContractor; // external contractor rel
     extContractorId?: string;
 

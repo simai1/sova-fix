@@ -7,10 +7,10 @@ export default class ObjectDir extends Model {
     name!: string;
     number!: number;
     city!: string;
-    Unit!: Unit; // unit rel
-    unitId!: string;
-    LegalEntity!: LegalEntity; // legal entity rel
-    legalEntityId!: string;
+    Unit?: Unit; // unit rel
+    unitId?: string;
+    LegalEntity?: LegalEntity; // legal entity rel
+    legalEntityId?: string;
 
     static initialize(sequelize: Sequelize) {
         ObjectDir.init(

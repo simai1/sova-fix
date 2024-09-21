@@ -141,6 +141,8 @@ const createRequest = async (
 ): Promise<RequestDto> => {
     const objectDir = await objectService.getObjectById(objectId);
     if (!objectDir) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found object with id ' + objectId);
+    if (!objectDir.Unit) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found unit');
+    if (!objectDir.LegalEntity) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found LegalEntity');
     const request = await RepairRequest.create({
         unitId: objectDir.Unit.id,
         objectId,
