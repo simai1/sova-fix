@@ -4,7 +4,7 @@ const http = axios.create({
 });
 const server = process.env.REACT_APP_API_URL;
 
-const REFRESH_INTERVAL = 1500000; // 25 минут 1500000
+const REFRESH_INTERVAL = 900000; // 15 минут 900000
 let refreshTokensTimeout;
 
 //!Рефреш токенов
@@ -92,7 +92,7 @@ export const Register = async (UserData) => {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
     }else{
-      alert("Такой пользователь уже существует!")
+      console.log("Такой пользователь уже существует!")
       return false   
     }
   }
@@ -136,7 +136,7 @@ export const LogOut = async () => {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
     }else{
-      alert("Возникла ошибка при выходе!");
+      console.log("Возникла ошибка при выходе!");
     }
   }
 };
@@ -156,7 +156,7 @@ export const GetAllRequests = async (param) => {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
     }else{
-      alert("Ошибка при получении списка заявок!");
+      console.log("Ошибка при получении списка заявок!");
     }
   }
 };
@@ -174,7 +174,7 @@ export const GetAllUsers = async () => {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
     }else{
-      alert("Ошибка при получении списка пользователей!");
+      console.log("Ошибка при получении списка пользователей!");
     }
   }
 };
@@ -190,7 +190,7 @@ export const GetAllСontractors = async () => {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
     }else{
-      alert("Ошибка при получении списка исполнителей!");
+      console.log("Ошибка при получении списка исполнителей!");
     }
   }
 };
@@ -208,7 +208,7 @@ export const SetStatusRequest = async (data) => {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
     }else{
-      alert("Ошибка при изменении статуса заявки!");
+      console.log("Ошибка при изменении статуса заявки!");
     }
   }
 };
@@ -226,7 +226,7 @@ export const SetcontractorRequest = async (data) => {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
     }else{
-      alert("Ошибка при изменении исполнителя заявки!");
+      console.log("Ошибка при изменении исполнителя заявки!");
     }
   }
 };
@@ -244,7 +244,7 @@ export const DeleteRequest = async (id) => {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
     }else{
-      alert("Ошибка при удалении заявки!");
+      console.log("Ошибка при удалении заявки!");
     }
   }
 };
@@ -263,7 +263,7 @@ export const GetContractorsItenerarity = async (id, search) => {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
     }else{
-      alert("Ошибка при получении карты пользователя!");
+      console.log("Ошибка при получении карты пользователя!");
     }
   }
 };
@@ -282,7 +282,7 @@ export const ReseachDataRequest = async (id,data) => {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
     }else{
-      alert("Ошибка при изменении заявки!");
+      console.log("Ошибка при изменении заявки!");
     }
   }
 };
@@ -301,7 +301,7 @@ export const DeleteUserFunc = async (id) => {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
     }else{
-      alert("Ошибка при удалении пользователя!");
+      console.log("Ошибка при удалении пользователя!");
     }
   }
 };
@@ -318,7 +318,7 @@ export const RemoveContractor = async (data) => {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
     }else{
-      alert("Ошибка при удалении исполнителя!");
+      console.log("Ошибка при удалении исполнителя!");
     }
   }
 };
@@ -337,7 +337,217 @@ export const SetRole = async (data) => {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
     }else{
-      alert("Ошибка при смены роли!");
+      console.log("Ошибка при смены роли!");
     }
   }
 };
+
+export const GetPhotoServer = async (id) => {
+  
+  try {
+    const response = await http.get(`${server}/uploads/${id}`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      console.log("Ошибка при получении карты пользователя!");
+    }
+  }
+};
+
+
+export const RejectActiveAccount = async (id) => {
+  try {
+    const response = await http.patch(`${server}/users/confirm/${id}`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      console.log("Ошибка при получении карты пользователя!");
+    }
+  }
+};
+
+// legalEntities -------------------------------------------------------------------------------
+
+export const GetlegalEntitiesAll = async () => {
+  
+  try {
+    const response = await http.get(`${server}/legalEntities`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      console.log("Ошибка при получении карты пользователя!");
+    }
+  }
+};
+
+export const DeletelegalEntities = async (id) => {
+  
+  try {
+    const response = await http.delete(`${server}/legalEntities/${id}`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      console.log("Ошибка при получении карты пользователя!");
+    }
+  }
+};
+
+export const CreateLegalEntities = async (data) => {
+  
+  try {
+    const response = await http.post(`${server}/legalEntities`, data, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      console.log("Ошибка при получении карты пользователя!");
+    }
+  }
+};
+
+
+// UNITS -------------------------------------------------------------------------------
+
+export const GetUnitsAll = async () => {
+  
+  try {
+    const response = await http.get(`${server}/units`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      console.log("Ошибка при получении карты пользователя!");
+    }
+  }
+};
+
+export const DeleteUnit = async (id) => {
+  
+  try {
+    const response = await http.delete(`${server}/units/${id}`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      console.log("Ошибка при получении карты пользователя!");
+    }
+  }
+};
+
+
+export const CreateUnit = async (data) => {
+  
+  try {
+    const response = await http.post(`${server}/units`, data, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      console.log("Ошибка при получении карты пользователя!");
+    }
+  }
+};
+
+
+// objects -------------------------------------------------------------------------------
+
+export const GetObjectsAll = async () => {
+  
+  try {
+    const response = await http.get(`${server}/objects`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      console.log("Ошибка при получении карты пользователя!");
+    }
+  }
+};
+
+export const DeleteObjects = async (id) => {
+  
+  try {
+    const response = await http.delete(`${server}/objects/${id}`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      console.log("Ошибка при получении карты пользователя!");
+    }
+  }
+};
+
+export const CreateObjects = async (data) => {
+  
+  try {
+    const response = await http.post(`${server}/objects`, data, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      console.log("Ошибка при получении карты пользователя!");
+    }
+  }
+};
+
+
+

@@ -1,0 +1,37 @@
+
+@import "./../../styles/mixins.scss";
+@import "./../../styles/color.scss";
+
+.FunctionReportTop{
+    .ReportFinansingMenu{
+        display: flex;
+        justify-content: space-between;
+        .ReportFinansingList{
+            display: flex;
+        }
+        .ReportFinansingButton{
+            display: flex;
+            .ReportFinansingButton__text{
+                @include button(var(--turquoise-color));
+                margin: 0px 10px 0px 0px;
+                padding: 0px 25px;
+                height: 44px;
+                display: flex;
+                align-items: center;
+              cursor: auto!important;
+              &:hover{
+                border: none!important;
+              }
+            }
+            button{
+                @include button(var(--turquoise-color));
+              
+                padding: 0px 25px!important;
+                height: 44px;
+                display: flex;
+                align-items: center;
+            }
+        }
+    }
+    
+}

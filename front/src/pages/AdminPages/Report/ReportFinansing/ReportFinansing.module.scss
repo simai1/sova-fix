@@ -1,0 +1,50 @@
+.ReportFinansing{
+    h2{
+        margin-bottom: 5px;
+    }
+  .ReportFinansingList{
+    display: flex;
+    justify-content: start;
+    input{
+        width: 200px;
+    }
+   
+
+  }
+  .dropFilter{
+    position: relative;
+    background-color: var( --turquoise-color);
+    width: 40px;
+    height: 44px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+    margin-left: 12px;
+    top: 3px;
+    transition: 0.1s linear all;
+    &:hover{
+      opacity: 0.6;
+      cursor: pointer;
+    }
+  }
+  .ReportFinansingListInnerDate{
+    display: flex;
+    input{
+      height: 40px;
+      width: 194px;
+      margin: 0 12px;
+      border-radius: 8px;
+      border: 1px solid #ADADAD;
+      padding: 0px 10px;
+      position: relative;
+      top: 3px;
+      &:first-child{
+        margin: 0px 6px 0px 12px
+      }
+      &:last-child{
+        margin: 0px 0px 0px 6px
+      }
+    }
+  }
+}

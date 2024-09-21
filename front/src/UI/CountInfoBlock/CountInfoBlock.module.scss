@@ -1,0 +1,19 @@
+@import "./../../styles/color.scss";
+@import "./../../styles/mixins.scss";
+
+
+.CountInfoBlock{
+    display: flex;
+    border-radius: 8px;
+    margin: 0px 10px 0px 0px;
+    div{
+        p{
+            margin: 0;
+            padding: 11px 12px;
+        }
+    }
+    .contNew{
+        margin: 0px 10px 0px 0px;
+     
+    }
+}

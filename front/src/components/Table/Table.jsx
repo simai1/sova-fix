@@ -3,10 +3,10 @@ import styles from "./Table.module.scss";
 import DataContext from "../../context";
 import { GetAllRequests, GetAllUsers, RemoveContractor, ReseachDataRequest, SetRole, SetStatusRequest, SetcontractorRequest } from "../../API/API";
 import App from "../../App";
-import { tableUser } from "./Data";
+import { tableList, tableUser } from "./Data";
 import { SamplePoints } from "../../UI/SamplePoints/SamplePoints";
 import { removeTableCheckeds } from "../../store/filter/isChecked.slice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { FilteredSample, funFixEducator } from "../../UI/SamplePoints/Function";
 import СonfirmDelete from "../СonfirmDelete/СonfirmDelete";
 function Table() {
@@ -15,13 +15,12 @@ function Table() {
   const trClick = (row) => {
     context.setSelectedTr(row.id);
   };
-
+console.log("context.filteredTableData", context.filteredTableData)
   const status = {
     1: "Новая заявка",
     2: "В работе",
     3: "Выполнена",
     4: "Неактуальна",
-    5: "Принята",
   };
 
   const DataUrgency = [
@@ -202,12 +201,17 @@ function Table() {
     }
   }
 
-  const getItem = (item) =>{
+  const getItem = (item, key) =>{
+    if(key === "repairPrice") {
+      return    item?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") 
+    }else{
     if(item === null || item === undefined || item === "null" || item === "undefined" || item === "" || item === " "){
       return "___"
     }else{
       return item
     }
+  }
+    
   };
 
   const getCountList = () => {
@@ -272,7 +276,7 @@ function Table() {
     5: "Принята",
   };
   let modalData = [];
-  if(key !== "photo"){
+  if(key !== "photo" && key !== "checkPhoto"){
     if(key === "status"){
       modalData = context?.tableData.map(
         (item) => status[item[key]]);
@@ -286,25 +290,20 @@ function Table() {
   }}
 };
 
-const dispatch = useDispatch();
- //!функция сброса фильтров
- const refreshFilters = () => {
-  context.setIsChecked([]);
-  context.setAllChecked([]);
-  dispatch(removeTableCheckeds());
-  const fdfix = FilteredSample(funFixEducator(context.tableData));
-  context.setFilteredTableData(fdfix, []);
-  context.setSortState("");
-  context.setSortStateParam("");
-  context.UpdateTableReguest(1, "");
-};
 
-const getRole = (value) =>{
+
+const getRole = (value) =>
+ {
+  console.log(value)
   if(value !== null){
-    if(value === "ADMIN"){
+    if(value === 2){
       return "Администратор"
-    }else{
+    }else if(value === 1){
       return "Пользователь"
+    }else if(value === 3){
+      return "Заказчик"
+    }else{
+      return "Исполнитель"
     }
   }else{
     return "___"
@@ -343,6 +342,28 @@ const funSortByColumn = (key) => {
   context.UpdateTableReguest(1, par);
 };
 
+const storeTableHeader = useSelector(state => state.editColumTableSlice.ActiveColumTable);
+console.log("storeTableHeader", storeTableHeader)
+
+useEffect(() => {
+  console.log("context.tableHeader", context.tableHeader)
+},[context.tableHeader])
+
+
+
+useEffect(() => {
+  const handleClickOutside = (event) => {
+      if (!event.target.closest('tr') && !event.target.closest('button')) {
+          context.setSelectedTr(null);
+      }
+  };
+
+  document.addEventListener('click', handleClickOutside);
+  return () => {
+      document.removeEventListener('click', handleClickOutside);
+  };
+}, [context]);
+
 
 
 return (
@@ -352,14 +373,13 @@ return (
           <table className={styles.TableInner} >
           {(context.selectedTable === "Заявки" && context.selectPage === "Main") ?(
             <thead>
-            { (context.selectedTable === "Заявки" && context.selectPage === "Main") && <div className={styles.dropFilter} onClick={refreshFilters} title="нажмите для сброса фильтров"><img src="./img/ClearFilter.svg"/></div>}
               <tr>
-              {context.tableHeader.map((item, index) => (
+              {storeTableHeader.filter((el)=>(el.isActive === true)).map((item, index) => (
                                 <th onClick={(el) => { clickTh(item.key, index, el) }} name={item.key} key={item.key}>
                                     <div className={styles.thTable}>
                                         {item.value}
                                         
-                                        { item.key !== "number" && item.key !== "photo" &&
+                                        { item.key !== "number" && item.key !== "photo" && item.key !== "checkPhoto" &&
                                           <img
                                             onClick={() => funSortByColumn(item.key)}
                                             className={styles.thSort}
@@ -416,7 +436,7 @@ return (
             {context.filteredTableData.length > 0 ? (
             
            <>
-              {context.filteredTableData.map((row, index) => (
+              {context.filteredTableData.map((row, index) => (  
                 <tr
                   key={index}
                   onClick={() => trClick(row)}
@@ -424,7 +444,8 @@ return (
                     context.selectedTr === row.id && styles.setectedTr
                   }
                 >
-                  {context.tableHeader.map((headerItem) => (
+                
+                  { (context.selectedTable === "Заявки" ? storeTableHeader.filter((el)=>(el.isActive === true)) :  context.tableHeader ).map((headerItem) => (
                     <td key={headerItem.key}>
                       {headerItem.key === "id" ? (
                         index + 1
@@ -465,7 +486,7 @@ return (
                         </div>
                       ) : headerItem.key === "isActivated" ? (
                         <>{row[headerItem.key] === true ? "Активириван" : "Не активирован"}</>
-                      ): headerItem.key === "photo" ? (
+                      ): headerItem.key === "photo"  ? (
                         <div>
                           <img
                             src={`${process.env.REACT_APP_API_URL}/uploads/${row.fileName}`}
@@ -478,6 +499,26 @@ return (
                             style={{ cursor: "pointer" }}
                             className={styles.imgTable}
                           />
+                        </div>
+                      )
+                        : headerItem.key === "checkPhoto"  ? (
+                        <div>
+                        {
+                          row.checkPhoto === null
+                            ? "___"
+                            : <img
+                            src={`${process.env.REACT_APP_API_URL}/uploads/${row.checkPhoto}`}
+                            alt="checkPhoto file"
+                            onClick={() =>
+                              openModal(
+                                `${process.env.REACT_APP_API_URL}/uploads/${row.checkPhoto}`
+                              )
+                            }
+                            style={{ cursor: "pointer" }}
+                            className={styles.imgTable}
+                          />
+                        }
+                         
                         </div>
                       ) : headerItem.key === "contractor" ? (
                         <div
@@ -547,8 +588,8 @@ return (
                       ):
                        headerItem.key === "role" ? (
                         <div
-                          onClick={() =>ClickRole(row.id, row[headerItem.key])}
-                          className={styles.statusClick}
+                          onClick={() =>(row[headerItem.key] === 1 || row[headerItem.key] === 2 && ClickRole(row.id, row[headerItem.key]))}
+                          className={styles[row[headerItem.key] === 1 || row[headerItem.key] === 2 ? "statusClick" : ""]}
                         >
                           {getRole(row[headerItem.key])}
                         </div>
@@ -574,7 +615,7 @@ return (
                           )}
                         </div>
                       ) : (
-                        <p style={{whiteSpace: (headerItem.key === "createdAt" ||  headerItem.key === "completeDate") ? 'nowrap' : 'wrap'}}>{getItem(row[headerItem.key])}</p>
+                        <p style={{whiteSpace: (headerItem.key === "createdAt" ||  headerItem.key === "completeDate") ? 'nowrap' : 'wrap'}}>{getItem(row[headerItem.key],headerItem.key)}</p>
                       )}
                     </td>
                   ))}
@@ -582,7 +623,7 @@ return (
               ))}
               </>
             ):(
-              <tr style={{ pointerEvents: "none"}}><td style={{background: "#fff"}}><div className={styles.noteData}>Нет данных</div></td></tr>
+              <tr className={styles.tdNotData} style={{ pointerEvents: "none"}}><td style={{background: "#e3dfda"}}><div className={styles.noteData}>Нет данных</div></td></tr>
             )}
             </tbody>
           </table>

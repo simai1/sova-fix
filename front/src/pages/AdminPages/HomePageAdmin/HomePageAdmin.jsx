@@ -9,22 +9,26 @@ import PageCardContractors from "../PageCardContractors/PageCardContractors";
 import PopUpEditAppoint from "../../../components/PopUp/PopUpEditAppoint/PopUpEditAppoint";
 import { PopUpError } from "../../../UI/PopUpError/PopUpError";
 import Header from "../../../components/Header/Header";
+import Layout from "../../../UI/Layout/Layout";
+import FunctionReportTop from "../../../components/FunctionReportTop/FunctionReportTop";
 function HomePageAdmin() {
   const { context } = React.useContext(DataContext);
   return (
     <div className={styles.HomePage}>
-    <Header />
-    {context.selectPage === "Main" ? 
-      <>
-        <FunctionTableTop />
-        <div className={styles.Table} >
-          <Table />
-        </div>
-      </>:
-      <>
-        <PageCardContractors/>
-      </>
-    }
+     <Layout>
+      <Header />
+      {context.selectPage === "Main" ? 
+        <>
+          <FunctionTableTop />
+          <div className={styles.Table} >
+            <Table />
+          </div>
+        </>:
+        <>
+          <PageCardContractors/>
+        </>
+      }
+    </Layout>
     
       {context.popUp === "PopUpError" && <PopUpError />}
       {context.popUp === "PopUpEditAppoint" && <PopUpEditAppoint />}

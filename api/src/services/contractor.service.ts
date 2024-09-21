@@ -6,6 +6,9 @@ import httpStatus from 'http-status';
 import RepairRequest from '../models/repairRequest';
 import sequelize, { Op } from 'sequelize';
 import { statusesRuLocale } from '../config/statuses';
+import ObjectDir from '../models/object';
+import Unit from '../models/unit';
+import LegalEntity from '../models/legalEntity';
 
 const getAllContractors = async (): Promise<ContractorDto[]> => {
     const contractors = await Contractor.findAll({ order: [['name', 'asc']] });
@@ -26,7 +29,7 @@ const getContractorsRequests = async (id: string): Promise<RequestDto[]> => {
     if (!contractor) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found contractor');
     const requests = await RepairRequest.findAll({
         where: { contractorId: contractor.id },
-        include: [{ model: Contractor }],
+        include: [{ model: Contractor }, { model: ObjectDir }, { model: Unit }, { model: LegalEntity }],
     });
     return requests.map(request => new RequestDto(request));
 };
@@ -89,13 +92,13 @@ const getContractorsItinerary = async (id: string, filter: any): Promise<Request
                     whereParams,
                 ],
             },
-            include: [{ model: Contractor }],
+            include: [{ model: Contractor }, { model: ObjectDir }, { model: Unit }, { model: LegalEntity }],
             order: [['itineraryOrder', 'ASC']],
         });
     } else {
         requests = await RepairRequest.findAll({
             where: { [Op.and]: [{ contractorId: contractor.id, urgency: 'Маршрут' }, whereParams] },
-            include: [{ model: Contractor }],
+            include: [{ model: Contractor }, { model: ObjectDir }, { model: Unit }, { model: LegalEntity }],
             order: [['itineraryOrder', 'ASC']],
         });
     }

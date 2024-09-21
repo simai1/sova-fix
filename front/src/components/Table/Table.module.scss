@@ -4,31 +4,11 @@
   width: 100%;
   display: flex;
   overflow: auto;
-  max-height: 75vh;
-  height: 75vh;
+  max-height: 64vh;
+  // height: 68vh;
   margin-bottom: 0;
   border-radius: 8px;
-  .dropFilter{
-    position: absolute;
-    left: 20px;
-    height: 51px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--turquoise-color);
-    border-radius: 8px;
-    padding: 10px;
-    z-index: 100;
-    img{
-      width: 25px;
-      height: 25px;
-    }
-    transition: 0.1s linear all;
-    &:hover{
-      opacity: 0.6;
-      cursor: pointer;
-    }
-  }
+  margin-top:-5px;
   .headerNotMain{
     cursor: auto!important;
     opacity: 1;
@@ -49,7 +29,7 @@
   }
   .noteData{
     position: absolute;
-    width: 98vw;
+    width: 100vw;
     pointer-events: none;
     transform: translateX(-88px);
     font-size: 24px;
@@ -91,7 +71,13 @@
       cursor: auto;
       }
     }
-   
+    th[name="checkPhoto"] {
+      &:hover {
+      background-color: var(--tableTh);
+      cursor: auto;
+      }
+    }
+    
     th{
       &:hover {
       cursor: pointer;
@@ -211,9 +197,13 @@
   width: 100%;
   justify-content: center;
   background-color: #fff;
-  border-radius: 17px;
+  border-radius: 8px;
   height: 90px;
   align-items: center;
   font-size: 20px;
   font-weight: 500;
+}
+
+.tdNotData{
+  height: 200px;
 }

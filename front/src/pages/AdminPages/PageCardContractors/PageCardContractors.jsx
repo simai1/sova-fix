@@ -27,9 +27,11 @@ function PageCardContractors() {
       {contId === "" || contId === undefined ? (
         <div className={styles.PageCardContractors}>
           <div className={styles.container}>
+            { namePodr.length === 0 &&
             <div className={styles.ConstructorTitle}>
-              <h3>Выберите исполнителя</h3>
+              <h3>Маршруты отсутствуют</h3>
             </div>
+            }
             <div className={styles.Constructor}>
               {namePodr.map((el, index) => {
                 return (

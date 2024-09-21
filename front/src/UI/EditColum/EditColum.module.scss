@@ -1,0 +1,76 @@
+.EditColum{
+    margin-right: 10px;
+    position: relative;
+    width: 265px;
+    align-items: center;
+    button{
+        width: 265px;
+    }
+    .EditColumImg{
+        position: absolute;
+        margin: 0;
+        right: 10px;
+        width: 18px;
+        height: auto;
+        top: 17px;
+    }
+    .Overlay{
+        position: absolute;
+        top: 44px;
+        padding-bottom: 20px;
+        border-radius: 0px 0px 8px 8px;
+        left: 0;
+        padding-right: 15px;
+        background-color: #fff;
+        z-index: 1000;
+        ul{
+            list-style: none;
+            position: relative;
+            left: -90px;
+            li{
+                display: flex;
+                width: 200px;
+                position: relative;
+                margin: 15px 0px 15px 10px;
+                input {
+                    position: absolute;
+                    display: flex;
+                    left: 56px;
+                    align-items: center;
+                    margin-bottom: 10px;
+                    margin-left: 0px;
+                    // opacity: 0;
+                    width: 20px!important;
+                    height: 20px!important;
+                    cursor: pointer;
+                    border: none;
+                    transition: 0.1s linear all;
+                    &:hover{
+                        opacity: 0.6;
+                    }
+                  }
+                  input[type="checkbox"]:before {
+                    content: "";
+                    display: block;
+                    position: absolute;
+                    top: -1.5px;
+                    left: -1px;
+                    width: 16px;
+                    height: 17px;
+                    border: 3px solid var(--turquoise-color);
+                    border-radius: 4px;
+                  }
+                  
+                  input[type="checkbox"]:checked:before {
+                    background-color:var(--turquoise-color);
+                    border-color: var(--turquoise-color);
+                  }
+                span{
+                    position: relative;
+                    right: -100px;
+                    top: 5px;
+                }
+            }
+        }
+    }
+}

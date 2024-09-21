@@ -3,13 +3,19 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import DataContext from "./context";
 import "./styles/style.css";
-import { tableHeadAppoint, tableUser } from "./components/Table/Data";
+import { tableHeadAppoint, tableList, tableUser } from "./components/Table/Data";
 import HomePageAdmin from "./pages/AdminPages/HomePageAdmin/HomePageAdmin";
 import { GetAllRequests, GetAllUsers, GetAllСontractors, GetContractorsItenerarity } from "./API/API";
 import Activate from "./pages/Login/Activate/Activate";
-import { useSelector } from "react-redux";
-import store from "./store/store";
+import { useDispatch, useSelector } from "react-redux";
 import { FilteredSample, funFixEducator } from "./UI/SamplePoints/Function";
+import ReportFinansing from "./pages/AdminPages/Report/ReportFinansing/ReportFinansing";
+import RepotYour from "./pages/AdminPages/Report/RepotYour/RepotIndicators";
+import BusinessUnitReference from "./modules/BusinessUnitReference/BusinessUnitReference";
+import DirectoryLegalEntities from "./modules/DirectoryLegalEntities/DirectoryLegalEntities";
+import ReferenceObjects from "./modules/ReferenceObjects/ReferenceObjects";
+import ThePerformersDirectory from "./modules/ThePerformersDirectory/ThePerformersDirectory";
+import Directory from "./pages/AdminPages/Directory/Directory";
 
 function App() {
   const [selectContructor, setSelectContractor] = useState("")
@@ -38,7 +44,7 @@ function App() {
   const [editListOpen, setEditListOpen] = useState(false);
   const [sortState, setSortState] = useState("");
   const [sortStateParam, setSortStateParam] = useState("");
-
+  const [selectRowDirectory, setSelectRowDirectory] = useState(null);
   const context = {
     editListOpen,
     setSortStateParam,
@@ -89,12 +95,21 @@ function App() {
     setDataitinerary,
     setActivateId,
     activateId,
-    selectContructor
+    selectContructor,
+    setSelectRowDirectory,
+    selectRowDirectory
   };
+
+  const dispatch = useDispatch();
+
+  // useEffect(() => {
+  //   if(filteredTableData != null){
+  //   dispatch(setTableData({tableData: 234}))
+  //   }
+  // }, [filteredTableData])
 
 
   const isCheckedStore = useSelector((state) => state.isCheckedSlice.isChecked);
-
   useEffect(() => {
     if(selectedTable === "Заявки" && selectPage === "Main"){
       UpdateTableReguest(1)
@@ -111,8 +126,6 @@ function App() {
   function UpdateTableReguest(param, par = sortStateParam) {
     if(param === 1){
       let url = '';
-      console.log("sort", par);
-      console.log("textSearchTableData", par);
       if (par || textSearchTableData) {
         if(par != "" && !textSearchTableData){
           url = `?${par}`;
@@ -124,9 +137,6 @@ function App() {
     else {
         url = '';
     } 
-    console.log("url", url);
-
-
           GetAllRequests(url).then((resp) => {
             if(resp) {
               const checks = isCheckedStore || [];
@@ -155,7 +165,7 @@ function App() {
           if(resp?.status == 200){
             setTableData(resp?.data);
             setFilteredTableData(funFixEducator(resp?.data))
-            settableHeader(tableHeadAppoint);
+            settableHeader(tableList);
           }
         })
       }else{
@@ -164,7 +174,7 @@ function App() {
           if(resp?.status == 200){
             setTableData(resp?.data);
             setFilteredTableData(funFixEducator(resp?.data))
-            settableHeader(tableHeadAppoint);
+            settableHeader(tableList);
           }
         })
       }
@@ -197,6 +207,20 @@ function App() {
             <Route path="/" element={<HomePageAdmin />}></Route>
             <Route path="/Activate" element={<Activate />}></Route>
             <Route path="/Authorization" element={<Authorization />}></Route>
+            <Route path="/ReportFinansing" element={<ReportFinansing />}></Route>
+            <Route path="/RepotYour" element={<RepotYour />}></Route>
+
+
+            <Route path="/Directory/*" element={<Directory />}>
+              <Route path="BusinessUnitReference" element={<BusinessUnitReference />}></Route>
+              <Route path="DirectoryLegalEntities" element={<DirectoryLegalEntities />}></Route>
+              <Route path="ReferenceObjects" element={<ReferenceObjects />}></Route>
+              <Route path="ThePerformersDirectory" element={<ThePerformersDirectory />}></Route>
+            </Route>
+            
+            
+
+
           </Routes>
         </main>
       </BrowserRouter>
