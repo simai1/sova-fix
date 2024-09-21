@@ -5,19 +5,20 @@ import { useContext, useEffect, useState } from "react";
 import UniversalTable from "../../components/UniversalTable/UniversalTable";
 import styles from "./ThePerformersDirectory.module.scss";
 import { DeleteUnit, GetUnitsAll, CreateUnit } from "../../API/API"; // Ensure CreateUnit is imported
-import { tableUnitHeader } from "./DirectoryUnitData";
 import DataContext from "../../context";
 import UneversalDelete from "../../components/UneversalDelete/UneversalDelete";
 import { PopUpError } from "../../UI/PopUpError/PopUpError";
 import PopUpContainer from "../../UI/PopUpContainer/PopUpContainer";
 import Input from "../../UI/Input/Input";
+import { tablePerformanseHeader } from "./PerformersData";
 
 function ThePerformersDirectory() {
     const { context } = useContext(DataContext);
     const [tableDataUnit, setTableDataUnit] = useState([]);
     const [popUpCreate, setPopUpCreate] = useState(false);
-    const [unitName, setUnitName] = useState('');
-    const [unitDescription, setUnitDescription] = useState('');
+    const [performedName, setPerformedName] = useState('');
+    const [performedspec, setPerformedspec] = useState('');
+    const [performedLegalForm, setPerformedLegalForm] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 
     useEffect(() => {
@@ -26,7 +27,7 @@ function ThePerformersDirectory() {
     }, []);
 
     const getData = () => {
-        GetUnitsAll().then((response) => {
+        GetextContractorsAll().then((response) => {
             setTableDataUnit(response.data);
         });
     };
@@ -56,60 +57,67 @@ function ThePerformersDirectory() {
 
     const closePopUp = () => {
         setPopUpCreate(false);
-        setUnitName('');
-        setUnitDescription('');
+        setPerformedName('');
+        setPerformedspec('');
+        setPerformedLegalForm('');
         setErrorMessage('');
     };
 
     const handleCreateUnit = () => {
-        if (!unitName || !unitDescription) {
+        if (!performedLegalForm || !performedName || !performedspec) {
             setErrorMessage("Пожалуйста, заполните все поля!");
             return;
         }
 
         const newUnit = {
-            name: unitName,
-            description: unitDescription,
+            name: performedName,
+            spec: performedspec,
+            legalForm: performedLegalForm,
         };
-        console.log('newUnit', newUnit);
-        CreateUnit(newUnit).then((response) => {
-            if (response?.status === 200) {
-                getData();
-                closePopUp();
-            }
-        });
+
+        // CreateUnit(newUnit).then((response) => {
+        //     if (response?.status === 200) {
+        //         getData();
+        //         closePopUp();
+        //     }
+        // });
     };
 
     return (
         <div className={styles.ThePerformersDirectory}>
             <div className={styles.ThePerformersDirectoryTop}>
                 <div>
-                    <h2>Подразделения</h2>
+                    <h2>Внешние подрядчики</h2>
                 </div>
                 <div className={styles.ThePerformersDirectoryTopButton}>
-                    <button onClick={() => setPopUpCreate(true)}>Добавить подразделение</button>
-                    <button onClick={() => deleteUnit()}>Удалить подразделение</button>
+                    <button onClick={() => setPopUpCreate(true)}>Добавить внешнего подрядчика</button>
+                    <button onClick={() => deleteUnit()}>Удалить внешнего подрядчика</button>
                 </div>
             </div>
-            <UniversalTable tableHeader={tableUnitHeader} tableBody={tableDataUnit} selectFlag={true} />
+            <UniversalTable tableHeader={tablePerformanseHeader} tableBody={tableDataUnit} selectFlag={true} />
             {deleteUnitFlag && <UneversalDelete text="Подразделение" ClosePopUp={ClosePopUp} FunctionDelete={FunctionDelete} />}
             {context.popUp === "PopUpError" && <PopUpError />}
             {popUpCreate && (
                 <div className={styles.PupUpCreate}>
-                    <PopUpContainer mT={300} title="Новое подразделение" closePopUpFunc={closePopUp}>
+                    <PopUpContainer mT={300} title="Новый внешний подрядчик" closePopUpFunc={closePopUp}>
                         <div className={styles.PupUpCreateInputInner}>
                             <div>
 
                                 <div>
                                     <input 
                                         placeholder="Название..." 
-                                        value={unitName} 
-                                        onChange={(e) => setUnitName(e.target.value)} 
+                                        value={performedName} 
+                                        onChange={(e) => setPerformedName(e.target.value)} 
                                     />
                                     <input 
-                                        placeholder="Описание..." 
-                                        value={unitDescription} 
-                                        onChange={(e) => setUnitDescription(e.target.value)} 
+                                        placeholder="Специализация..." 
+                                        value={performedspec} 
+                                        onChange={(e) => setPerformedspec(e.target.value)} 
+                                    />
+                                      <input 
+                                        placeholder="Правовая форма..." 
+                                        value={performedLegalForm} 
+                                        onChange={(e) => setPerformedLegalForm(e.target.value)} 
                                     />
                                 </div>
                                 <div>
