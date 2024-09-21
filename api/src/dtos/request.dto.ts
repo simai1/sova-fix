@@ -10,6 +10,7 @@ export default class RequestDto {
     unit?: string;
     builder!: string;
     object?: string;
+    objectId?: string;
     problemDescription?: string;
     urgency!: string;
     fileName!: string;
@@ -33,6 +34,7 @@ export default class RequestDto {
         this.unit = model.Unit ? model.Unit.name : undefined;
         this.builder = model.builder;
         this.object = model.Object ? model.Object.name : undefined;
+        this.objectId = model.objectId;
         this.problemDescription = model.problemDescription;
         this.urgency = model.urgency;
         this.itineraryOrder = model.itineraryOrder;
