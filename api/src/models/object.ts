@@ -7,10 +7,10 @@ export default class ObjectDir extends Model {
     name!: string;
     number!: number;
     city!: string;
-    Unit!: Unit; // unit rel
-    unitId!: string;
-    LegalEntity!: LegalEntity; // legal entity rel
-    legalEntityId!: string;
+    Unit?: Unit; // unit rel
+    unitId?: string;
+    LegalEntity?: LegalEntity; // legal entity rel
+    legalEntityId?: string;
 
     static initialize(sequelize: Sequelize) {
         ObjectDir.init(
@@ -51,23 +51,6 @@ export default class ObjectDir extends Model {
                 // @ts-expect-error maxNumber is always number after checks
                 model.set('number', maxNumber + 1);
             }
-            const unit = (await Unit.findByPk(model.unitId)) as Unit;
-            unit.set('count', unit.count + 1);
-            await unit.save();
-
-            const legalEntity = (await LegalEntity.findByPk(model.legalEntityId)) as LegalEntity;
-            legalEntity.set('count', legalEntity.count + 1);
-            await legalEntity.save();
-        });
-
-        ObjectDir.beforeDestroy(async (model: ObjectDir) => {
-            const unit = (await Unit.findByPk(model.unitId)) as Unit;
-            unit.set('count', unit.count - 1);
-            await unit.save();
-
-            const legalEntity = (await LegalEntity.findByPk(model.legalEntityId)) as LegalEntity;
-            legalEntity.set('count', legalEntity.count - 1);
-            await legalEntity.save();
         });
     }
 }

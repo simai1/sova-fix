@@ -38,6 +38,6 @@ router.route('/remove/extContractor').patch(requestController.removeExtContracto
 router.route('/set/status').patch(requestController.setStatus);
 router.route('/set/comment').patch(requestController.setComment);
 router.route('/:requestId/delete').delete(requestController.deleteRequest);
-router.route('/:requestId/update').put(requestController.update);
+router.route('/:requestId/update').patch(requestController.update);
 router.route('/customer/:tgUserId').get(requestController.getCustomersRequests);
 export default router;
