@@ -4,7 +4,7 @@
 import { useContext, useEffect, useState } from "react";
 import UniversalTable from "../../components/UniversalTable/UniversalTable";
 import styles from "./ThePerformersDirectory.module.scss";
-import { DeleteUnit, GetUnitsAll, CreateUnit } from "../../API/API"; // Ensure CreateUnit is imported
+import { DeleteUnit, GetUnitsAll, CreateUnit, GetextContractorsAll, CreateextContractors, DeleteextContractors } from "../../API/API"; // Ensure CreateUnit is imported
 import DataContext from "../../context";
 import UneversalDelete from "../../components/UneversalDelete/UneversalDelete";
 import { PopUpError } from "../../UI/PopUpError/PopUpError";
@@ -47,7 +47,7 @@ function ThePerformersDirectory() {
     };
 
     const FunctionDelete = () => {
-        DeleteUnit(context.selectRowDirectory).then((response) => {
+        DeleteextContractors(context.selectRowDirectory).then((response) => {
             if (response?.status === 200) {
                 setDeleteUnitFlag(false);
                 getData();
@@ -75,12 +75,12 @@ function ThePerformersDirectory() {
             legalForm: performedLegalForm,
         };
 
-        // CreateUnit(newUnit).then((response) => {
-        //     if (response?.status === 200) {
-        //         getData();
-        //         closePopUp();
-        //     }
-        // });
+        CreateextContractors(newUnit).then((response) => {
+            if (response?.status === 200) {
+                getData();
+                closePopUp();
+            }
+        });
     };
 
     return (
