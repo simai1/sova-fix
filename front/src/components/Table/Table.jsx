@@ -202,8 +202,16 @@ console.log("context.filteredTableData", context.filteredTableData)
   }
 
   const getItem = (item, key) =>{
-    if(key === "repairPrice") {
+    console.log("key", key)
+    if(key === "repairPrice" && key !== "isConfirmed"){
       return    item?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") 
+    }if(key === "isConfirmed") {
+      console.log(item)
+      if(item === true){
+        return "Активирован"
+      }else{
+        return "Не активирован"
+      }
     }else{
     if(item === null || item === undefined || item === "null" || item === "undefined" || item === "" || item === " "){
       return "___"
