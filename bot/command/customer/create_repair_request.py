@@ -158,7 +158,7 @@ async def create_request(query: CallbackQuery, state: FSMContext) -> None:
     )
 
     if rr is None:
-        await query.message.answer('Что-то пошло не так. Попробуйте снова позже')
+        await query.message.answer('Что-то пошло не так 😢. Попробуйте снова позже')
     else:
         file = FSInputFile(path=f"./{cf.IMG_PATH}/photo_2024-08-21_17-47-11.jpg", filename="фото.jpg")
         await query.message.answer_photo(

@@ -360,3 +360,30 @@ async def objects_get_all() -> list | None:
     else:
         logger.error("API: could not get all objects", f"{req.status_code}")
     return None
+
+
+async def add_check(rr_id: str, file: BinaryIO) -> bool:
+    url = f"{cf.API_URL}/requests/add/check/{rr_id}"
+    photo_file = {'file': ('img.jpg', file, 'image/jpeg')}
+
+    req = requests.patch(url, files=photo_file)
+
+    if req.status_code == 200:
+        logger.info("successfully added check", f"requestId: {rr_id}")
+        return True
+    else:
+        logger.error("could not add check", f"{req.status_code}  requestId: {rr_id}")
+        return False
+
+
+async def update_repair_request(request_id: str, data: dict) -> bool:
+    url = f"{cf.API_URL}/requests/{request_id}/update"
+
+    req = requests.patch(url, data)
+
+    if req.status_code == 200:
+        logger.info("successfully updated repair request", f"requestId: {request_id}, data: {data}")
+        return True
+    else:
+        logger.error("could not add check", f"{req.status_code}  requestId: {request_id}, data: {data}")
+        return False

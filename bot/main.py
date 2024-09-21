@@ -20,6 +20,7 @@ from command.start.start_command import router as start_command_router
 from command.admin.show_active_requests import router as show_all_requests_admin_router
 from handler.pagination import router as pagination_router
 from command.common.send_one_request import router as send_one_request_router
+from command.contractor.add_check import router as add_check_router
 from util import logger
 
 routers = [
@@ -34,7 +35,8 @@ routers = [
     add_comment_router,
     show_all_requests_admin_router,
     pagination_router,
-    send_one_request_router
+    send_one_request_router,
+    add_check_router
 ]
 
 dp = Dispatcher()
