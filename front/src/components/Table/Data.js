@@ -23,7 +23,7 @@ export const tableUser = [
   { key: "name", value: "ФИО", isActive: true },
   {key: "login", value:"Логин", isActive: true},
   {key: "tgId", value:"Телеграм", isActive: true},
-  {key: "isActivated", value:"Активация", isActive: true},
+  {key: "isConfirmed", value:"Активация", isActive: true},
   {key: "role", value:"Роль", isActive: true},
 ]
 

@@ -196,7 +196,7 @@ function ReferenceObjects() {
                                         </ul>}
                                     </div>
                                     <input 
-                                        placeholder="Правовая форма..." 
+                                        placeholder="Город..." 
                                         value={city} 
                                         onChange={(e) => setCity(e.target.value)} 
                                     />

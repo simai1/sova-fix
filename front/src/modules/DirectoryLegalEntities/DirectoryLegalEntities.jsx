@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { DeletelegalEntities, GetlegalEntitiesAll, CreateLegalEntity, CreateLegalEntities } from "../../API/API"; // Ensure CreateLegalEntity is imported
+import { DeletelegalEntities, GetlegalEntitiesAll, CreateLegalEntity, CreateLegalEntities, GetlegalEntitiesOne, EditLegalEntities } from "../../API/API"; // Ensure CreateLegalEntity is imported
 import { tableLagealEntries } from "./DirectoryLegalEntitiesData";
 import UniversalTable from "../../components/UniversalTable/UniversalTable";
 import styles from "./DirectoryLegalEntities.module.scss";
@@ -13,9 +13,10 @@ function DirectoryLegalEntities() {
     const [popUpCreate, setPopUpCreate] = useState(false);
     const [unitName, setUnitName] = useState('');
     const [legalForm, setLegalForm] = useState('');
-    const [startCoop, setstartCoop] = useState('');
+    const [startCoop, setstartCoop] = useState(new Date());
     const [errorMessage, setErrorMessage] = useState('');
-    
+    const [popUpEdit, setPopUpEdit] = useState(false);
+    const [selectId, setSelectId] = useState('');
     const { context } = useContext(DataContext);
     const [deleteUnitFlag, setDeleteUnitFlag] = useState(false);
 
@@ -53,6 +54,7 @@ function DirectoryLegalEntities() {
 
     const closePopUp = () => {
         setPopUpCreate(false);
+        setPopUpEdit(false);
         setUnitName('');
         setLegalForm('');
         setstartCoop('');
@@ -72,6 +74,13 @@ function DirectoryLegalEntities() {
         };
 
         console.log(newUnit);
+
+        popUpEdit ? EditLegalEntities(newUnit, selectId).then((response) => {
+            if (response?.status === 200) {
+                getData();
+                closePopUp();
+            }
+        }) :
         CreateLegalEntities(newUnit).then((response) => {
             if (response?.status === 200) {
                 getData();
@@ -79,6 +88,26 @@ function DirectoryLegalEntities() {
             }
         });
     };
+
+    const EditLegalEntitiesFinc = () => {
+        if (context.selectRowDirectory) {
+            setSelectId(context.selectRowDirectory);
+            setPopUpEdit(true);
+            setPopUpCreate(true);
+            GetlegalEntitiesOne(context.selectRowDirectory).then((response) => {
+                setUnitName(response.data.name);
+                setLegalForm(response.data.legalForm);
+                setstartCoop(response.data.startCoop.split('T')[0]); // Format the date to 'YYYY-MM-DD'
+                console.log("startCoop", response.data.startCoop.split('T')[0])
+            });
+        } else {
+            context.setPopupErrorText("Сначала выберите Юр. лицо!");
+            context.setPopUp("PopUpError");
+        }
+    }
+    
+
+
 
     return (
         <div className={styles.DirectoryLegalEntities}>
@@ -88,6 +117,7 @@ function DirectoryLegalEntities() {
                 </div>
                 <div className={styles.DirectoryLegalEntitiesTopButton}>
                     <button onClick={() => setPopUpCreate(true)}>Добавить юридическое лицо</button>
+                    <button onClick={() => EditLegalEntitiesFinc()}>Редактировать юридическое лицо</button>
                     <button onClick={() => deleteUnit()}>Удалить юридическое лицо</button>
                 </div>
             </div>
@@ -96,7 +126,7 @@ function DirectoryLegalEntities() {
             {context.popUp === "PopUpError" && <PopUpError />}
             {popUpCreate && (
                 <div className={styles.PupUpCreate}>
-                    <PopUpContainer mT={300} title="Новое юридическое лицо" closePopUpFunc={closePopUp}>
+                    <PopUpContainer mT={300} title={ popUpEdit ? "Редактирование юридического лица" : "Новое юридическое лицо"} closePopUpFunc={closePopUp}>
                         <div className={styles.PupUpCreateInputInner}>
                             <div>
                                 <div>
@@ -110,12 +140,13 @@ function DirectoryLegalEntities() {
                                         value={legalForm} 
                                         onChange={(e) => setLegalForm(e.target.value)} 
                                     />
-                                    <input 
+                                   <input 
                                         type="date" 
                                         placeholder="Дата начала сотрудничества..." 
-                                        value={startCoop} 
+                                        value={startCoop}
                                         onChange={(e) => setstartCoop(e.target.value)} 
                                     />
+
                                 </div>
                                 <div>
                                     {errorMessage && <div className={styles.ErrorMessage}>{errorMessage}</div>}
@@ -128,6 +159,7 @@ function DirectoryLegalEntities() {
                     </PopUpContainer>
                 </div>
             )}
+            
         </div>
     );
 }

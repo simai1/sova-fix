@@ -140,10 +140,8 @@ const goBackCurd = () =>{
                     Удалить пользователя
               </button>
             </div>
-          ) : (
-            <>
-             
-                <div className={styles.ButtonBack}>
+          ) : sessionStorage.getItem("userData").user?.id === 1 ? 
+          <div className={styles.ButtonBack}>
                   <div>
                     <button onClick={()=>goBackCurd()}>Назад</button>
                   </div>
@@ -152,7 +150,10 @@ const goBackCurd = () =>{
                   </div>
 
                 </div>
-              
+                :
+          
+          (
+            <>              
             </>
           )}
       
