@@ -63,10 +63,10 @@ class WebSocketWorker:
         asyncio.run_coroutine_threadsafe(coro, self.loop)
 
     def on_error(self, ws, error) -> None:
-        logger.info(f"websocket: An error occured: {error}")
+        logger.error(f"websocket: An error occured: {error}")
 
     def on_close(self, ws, close_status_code, close_msg):
-        logger.info(f"websocket: Connection closed")
+        logger.warn(f"websocket: Connection closed")
         self.connection_opened = False
 
         while not self.connection_opened and self.should_run:

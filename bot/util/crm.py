@@ -26,7 +26,7 @@ class roles:
         return roles.m_roles_list_en_locale.index(string) + 1
 
     @staticmethod
-    def get_rus(string: str) -> int:
+    def get_rus(string: str) -> str:
         return roles.m_roles_list_ru_locale[roles.get_num(string) - 1]
 
 
@@ -40,10 +40,10 @@ async def register_user(user_id: int, name: str, role: int) -> dict | None:
     request = requests.post(url, data)
 
     if request.status_code == 200:
-        logger.info(f'successfully registered user', f'tg_id={user_id}')
+        logger.info('API: successfully registered user', f'tg_id={user_id}')
         return data
     else:
-        logger.error(f'could not register user {user_id}', f'{request.status_code}')
+        logger.error(f'API: could not register user {user_id}', f'{request.status_code}')
         return None
 
 
@@ -63,7 +63,7 @@ async def get_user(user_id: int) -> dict | None:
     data = request.json()
 
     if data is None:
-        logger.warn(f'no user with tg_id={user_id}')
+        logger.warn(f'API: no user with tg_id={user_id}')
         return None
 
     return data
@@ -92,7 +92,7 @@ async def get_repair_request(request_id: str) -> dict | None:
     if request.status_code == 200:
         return data
     else:
-        logger.error('could not get repair request', f'{request.status_code}\nrequest_id={request_id}')
+        logger.error('API: could not get repair request', f'{request.status_code}\nrequest_id={request_id}')
         return None
 
 
@@ -109,8 +109,7 @@ async def get_tg_user_id(user_id: int) -> str | None:
 async def create_repair_request(
         tg_user_id: str,
         photo: BinaryIO,
-        unit: str,
-        _object: str,
+        object_id: str,
         problem_description: str,
         urgency: str,
         repair_price: str | None = None,
@@ -121,8 +120,7 @@ async def create_repair_request(
     url = f'{cf.API_URL}/requests/'
 
     values = {
-        'unit': unit,
-        'object': _object,
+        'objectId': object_id,
         'problemDescription': problem_description,
         'urgency': urgency,
         'tgUserId': tg_user_id
@@ -143,20 +141,8 @@ async def create_repair_request(
         logger.info('new repair request!', f'{values}')
         return request.json()['requestDto']
     else:
-        logger.error('could not create repair request', f'{request.status_code} \n{values}')
+        logger.error('API: could not create repair request', f'{request.status_code}  {values}')
         return None
-
-
-async def create_contractor(name: str) -> dict | None:
-    url = f'{cf.API_URL}/contractors/'
-    
-    data = {'name': name}
-    request = requests.post(url, data)
-    
-    if request.status_code == 200:
-        return data
-    
-    return None
 
 
 async def get_all_contractors() -> dict:
@@ -189,7 +175,7 @@ async def get_contractor_requests(user_id: int) -> list | None:
     if request.status_code == 200:
         return data
     else:
-        logger.error(f'could not get contractor requests', f'contractor_id: {contractor_id}')
+        logger.error('API: could not get contractor requests', f'contractor_id: {contractor_id}')
         return None
 
 
@@ -204,7 +190,7 @@ async def get_itinerary(user_id) -> list | None:
     if request.status_code == 200:
         return data
     else:
-        logger.error(f'could not get contractor requests', f'contractor_id: {contractor_id}')
+        logger.error('API: could not get contractor requests', f'contractor_id: {contractor_id}')
         return None
 
 
@@ -220,7 +206,7 @@ async def get_customer_requests(user_id: int) -> list | None:
     if request.status_code == 200:
         return data
     else:
-        logger.error(f'could not get customer requests (tg_user_id={tg_user_id})')
+        logger.error(f'API: could not get customer requests (tg_user_id={tg_user_id})')
         return None
 
 
@@ -237,7 +223,7 @@ async def change_repair_request_status(request_id: str, status: int) -> bool:
     if request.status_code == 200:
         return True
     else:
-        logger.error('could not change request status', f'{request.status_code}\nrequest_id={request_id}, status={status}')
+        logger.error('API: could not change request status', f'{request.status_code}\nrequest_id={request_id}, status={status}')
         return False
 
 
@@ -261,10 +247,10 @@ async def change_repair_request_comment(request_id: str, new_comment: str) -> bo
     request = requests.patch(url, json=data)
 
     if request.status_code == 200:
-        logger.info('successfully changed comment', f'request_id={request_id}')
+        logger.info('API: successfully changed comment', f'request_id={request_id}')
         return True
     else:
-        logger.error('could not change request comment', f'{request.status_code}request_id={request_id}')
+        logger.error('API: could not change request comment', f'{request.status_code}request_id={request_id}')
         return False
 
 
@@ -293,7 +279,7 @@ async def sync_manager(email: str, password: str, name: str, tg_id: int) -> dict
         logger.info('successfully synced manager')
         return request.json()
     else:
-        logger.error('could not sync manager', f'{request.status_code}')
+        logger.error('API: could not sync manager', f'{request.status_code}')
         return None
 
 
@@ -305,7 +291,7 @@ async def get_all_managers() -> list | None:
     if request.status_code == 200:
         return request.json()
     else:
-        logger.error('could not get all managers', f'{request.status_code}')
+        logger.error('API: could not get all managers', f'{request.status_code}')
         return None
 
 
@@ -331,7 +317,7 @@ async def get_user_by_id(_id: str) -> dict | None:
     if request.status_code == 200:
         return request.json()
     else:
-        logger.error('could not get user by id', f'{request.status_code}')
+        logger.error('API: could not get user by id', f'{request.status_code}')
         return None
 
 
@@ -347,5 +333,30 @@ async def get_all_requests_with_params(params: str = "") -> list | None:
 
     if req.status_code == 200:
         return req.json()['requestsDtos']
+    else:
+        logger.error("API: could not get all requests with params", f"{req.status_code}")
+    return None
 
+
+async def units_get_all() -> list | None:
+    url = f"{cf.API_URL}/units"
+
+    req = requests.get(url)
+
+    if req.status_code == 200:
+        return req.json()
+    else:
+        logger.error("API: could not get all units", f"{req.status_code}")
+    return None
+
+
+async def objects_get_all() -> list | None:
+    url = f"{cf.API_URL}/objects"
+
+    req = requests.get(url)
+
+    if req.status_code == 200:
+        return req.json()
+    else:
+        logger.error("API: could not get all objects", f"{req.status_code}")
     return None

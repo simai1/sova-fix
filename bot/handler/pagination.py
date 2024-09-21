@@ -1,4 +1,5 @@
 from math import ceil
+from typing import Any
 
 from aiogram import Router, F
 from aiogram.exceptions import TelegramBadRequest
@@ -32,13 +33,13 @@ class PageCallback:
 
 def make_kb(
         page: int,
-        data: list,
+        names: list[str],
         prefix: str,
         additional_buttons: list[list[IKB]] | None = None,
         buttons_per_page: int = 8,
         make_pages: bool = True
 ) -> IKM:
-    max_page = ceil(len(data) / buttons_per_page)
+    max_page = ceil(len(names) / buttons_per_page)
 
     page = max(0, min(page, max_page - 1))
 
@@ -48,7 +49,7 @@ def make_kb(
 
     bound = page * buttons_per_page
 
-    texts = data[bound:bound+buttons_per_page]
+    texts = names[bound:bound+buttons_per_page]
 
     buttons = [[IKB(text=texts[i], callback_data=f'{prefix}_{i+bound}')] for i in range(len(texts))]
 
@@ -97,16 +98,16 @@ async def remove_page_list(state: FSMContext) -> None:
     await state.update_data(page=None)
 
 
-async def get_selected(query: CallbackQuery, state: FSMContext) -> str:
+async def get_selected_value(query: CallbackQuery, state: FSMContext) -> str:
     data = await state.get_data()
     index = int(query.data.split('_')[-1])
-    return data['page'][index]
+    return list(data['page'].values())[index]
 
 
-async def set_pages_data(data: list[str], state: FSMContext) -> list[str]:
+async def set_pages_data(data: dict[str, Any], state: FSMContext) -> list[str]:
     await state.update_data(page=data)
     _data = await state.get_data()
-    return _data['page']
+    return list(_data['page'].keys())
 
 
 async def get_page_in_state(state: FSMContext) -> int:

@@ -4,15 +4,14 @@ from aiogram.filters.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery, FSInputFile
 
+import config as cf
 from common.keyboard import to_start_kb
 from data import data_loader
-from data.const import urgencies_ru_locale
+from data.const import urgencies_ru_locale_dict
 from handler import pagination
 from util import crm
 from util.crm import roles
 from util.verification import verify_user, VerificationError
-
-import config as cf
 
 router = Router(name=__name__)
 
@@ -58,20 +57,23 @@ async def ask_unit(message: Message, state: FSMContext) -> None:
     await state.clear()
     await state.set_state(FSMRepairRequest.unit_input)
 
-    data = await pagination.set_pages_data(data_loader.get_units(), state)
-    kb = pagination.make_kb(0, data, prefix='unit')
+    units_data = await data_loader.get_units_data()
+    names = await pagination.set_pages_data(units_data, state)
+    kb = pagination.make_kb(0, names, prefix='unit')
 
-    await message.answer('Выберите подразделение', reply_markup=kb)
+    await message.answer("Выберите подразделение", reply_markup=kb)
 
 
 @router.callback_query(FSMRepairRequest.unit_input, F.data.startswith('unit'))
 async def ask_object(query: CallbackQuery, state: FSMContext) -> None:
-    await state.update_data(unit=await pagination.get_selected(query, state))
+    unit_id = await pagination.get_selected_value(query, state)
+    await state.update_data(unit=unit_id)
 
-    data = await pagination.set_pages_data(data_loader.get_objects(), state)
-    kb = pagination.make_kb(0, data, prefix='object')
+    objects_data = await data_loader.get_objects_data(unit_id)
+    names = await pagination.set_pages_data(objects_data, state)
+    kb = pagination.make_kb(0, names, prefix='object')
     await state.set_state(FSMRepairRequest.object_input)
-    await query.message.answer('Выберите объект', reply_markup=kb)
+    await query.message.answer("Выберите объект", reply_markup=kb)
 
     await query.answer()
     await query.message.edit_reply_markup(reply_markup=None)
@@ -79,7 +81,7 @@ async def ask_object(query: CallbackQuery, state: FSMContext) -> None:
 
 @router.callback_query(FSMRepairRequest.object_input, F.data.startswith('object'))
 async def ask_problem_description(query: CallbackQuery, state: FSMContext) -> None:
-    await state.update_data(object=await pagination.get_selected(query, state))
+    await state.update_data(object=await pagination.get_selected_value(query, state))
 
     await state.set_state(FSMRepairRequest.problemn_description_input)
     await query.message.answer('Введите описание проблемы')
@@ -117,7 +119,7 @@ async def check_photo(message: Message, state: FSMContext) -> None:
 
 
 async def ask_urgency(message: Message, state: FSMContext) -> None:
-    data = await pagination.set_pages_data(urgencies_ru_locale, state)
+    data = await pagination.set_pages_data(urgencies_ru_locale_dict, state)
     kb = pagination.make_kb(0, data, prefix='urgency', make_pages=False)
     await state.set_state(FSMRepairRequest.unregncy_input)
     await message.answer('Выберите срочность', reply_markup=kb)
@@ -125,7 +127,7 @@ async def ask_urgency(message: Message, state: FSMContext) -> None:
 
 @router.callback_query(FSMRepairRequest.unregncy_input, F.data.startswith('urgency'))
 async def create_request(query: CallbackQuery, state: FSMContext) -> None:
-    await state.update_data(urgency=await pagination.get_selected(query, state))
+    await state.update_data(urgency=await pagination.get_selected_value(query, state))
 
     await pagination.remove_page_list(state)
 
@@ -150,10 +152,9 @@ async def create_request(query: CallbackQuery, state: FSMContext) -> None:
     rr = await crm.create_repair_request(
         tg_user_id,
         photo,
-        data['unit'],
         data['object'],
         data['problem_description'],
-        data['urgency'],
+        data['urgency']
     )
 
     if rr is None:

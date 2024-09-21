@@ -5,10 +5,13 @@ import requests
 import websocket
 import config as cf
 from bot.util import crm
+from util import logger
 
 
 async def test() -> None:
-    await crm.get_all_requests_with_params("number=19,20")
+    logger.info("some info")
+    logger.warn("warning!")
+    logger.error("error rrrrrrrrrrrrrrrrrr")
 
 
 if __name__ == '__main__':
