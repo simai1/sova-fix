@@ -4,6 +4,8 @@ import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
 import Unit from '../models/unit';
 import LegalEntity from '../models/legalEntity';
+import legalEntityService from './legalEntity.service';
+import unitService from './unit.service';
 
 const getObjectById = async (id: string): Promise<ObjectDir | null> => {
     return await ObjectDir.findByPk(id, { include: [{ model: Unit }, { model: LegalEntity }] });
@@ -22,6 +24,8 @@ const createObject = async (name: string, unitId: string, city: string, legalEnt
     const unit = await Unit.findByPk(unitId);
     if (!unit) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found unit with id ' + unitId);
     const objectDir = await ObjectDir.create({ name, unitId, city, number: 1, legalEntityId });
+    await legalEntityService.setCountLegalEntity(legalEntityId);
+    await unitService.setCountUnit(unitId);
     objectDir.LegalEntity = legalEntity;
     objectDir.Unit = unit;
     return new ObjectDto(objectDir);
@@ -37,6 +41,8 @@ const destroyObject = async (objectId: string): Promise<void> => {
     const objectDir = await getObjectById(objectId);
     if (!objectDir) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found object with id ' + objectId);
     await objectDir.destroy({ force: true });
+    if (objectDir.legalEntityId) await legalEntityService.setCountLegalEntity(objectDir.legalEntityId);
+    if (objectDir.unitId) await unitService.setCountUnit(objectDir.unitId);
 };
 
 const updateObject = async (
@@ -57,6 +63,8 @@ const updateObject = async (
         if (!legalEntity) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found legalEntity with id ' + legalEntity);
     }
     await checkObject.update({ name, unitId, city, legalEntityId });
+    if (legalEntityId) await legalEntityService.setCountLegalEntity(legalEntityId);
+    if (unitId) await unitService.setCountUnit(unitId);
 };
 
 export default {

@@ -2,6 +2,16 @@ import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
 import Unit from '../models/unit';
 import UnitDto from '../dtos/unit.dto';
+import objectService from './object.service';
+
+const setCountUnit = async (unitId: string): Promise<void> => {
+    const objects = await objectService.getAllObjects();
+    let count = 0;
+    objects.forEach(obj => {
+        if (obj.unit?.id === unitId) count++;
+    });
+    await Unit.update({ count }, { where: { id: unitId } });
+};
 
 const getUnitById = async (id: string): Promise<Unit | null> => {
     return await Unit.findByPk(id);
@@ -43,6 +53,7 @@ const updateUnit = async (
 };
 
 export default {
+    setCountUnit,
     getUnitById,
     getAllUnits,
     createUnit,
