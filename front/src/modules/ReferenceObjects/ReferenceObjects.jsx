@@ -33,12 +33,12 @@ function ReferenceObjects() {
 
     function formatData(data) {
         return data.map(item => ({
-            id: item.id, // Include the id if needed for further operations
-            number: item.number,
-            name: item.name,
-            legalForm: `${item.legalEntity.legalForm} ${item.legalEntity.name}`,
-            unitName: item.unit.name,
-            city: item.city
+            id: item?.id, // Include the id if needed for further operations
+            number: item?.number,
+            name: item?.name,
+            legalForm: `${item?.legalEntity?.legalForm} ${item?.legalEntity?.name}`,
+            unitName: item?.unit?.name,
+            city: item?.city
         }));
     }
     const formatDataObjectAndLegal = () => {
@@ -150,12 +150,12 @@ function ReferenceObjects() {
             setPupUpEdit(true)
             setSelectId(context.selectRowDirectory)
             GetObjectsOne(context.selectRowDirectory).then((response) => {
-                setUnitName(response.data.name);
-                setCity(response.data.city);
-                setValueCreateUnitId(response.data.unit.id);
-                setValueCreateLegalId(response.data.legalEntity.id);
-                setValueCreateUnit(response.data.unit.name);
-                setValueCreateLegal(response.data.legalEntity.name);
+                setUnitName(response.data?.name);
+                setCity(response.data?.city);
+                setValueCreateUnitId(response.data?.unit?.id);
+                setValueCreateLegalId(response.data?.legalEntity?.id);
+                setValueCreateUnit(response.data?.unit?.name);
+                setValueCreateLegal(response.data?.legalEntity?.name);
             })
         }else{
             context.setPopupErrorText("Сначала выберите объект!");

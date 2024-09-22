@@ -638,9 +638,9 @@ return (
                           {shovExtPop === row.id && (
                             <div className={styles.shovStatusPop} style={checkHeights(context.filteredTableData,index) ? {top:"-70%", width: "200%"} : {width: "200%"}}  >
                               <ul>
+                              { row[headerItem.key] !== null && <li onClick={() => deleteExp(row.id)}>Удалить подрядчика</li>}
                                 {dataBuilder?.map((value, index) => (
                                   <>
-                                  { row[headerItem.key] !== null && <li onClick={() => deleteExp(row.id)}>Удалить подрядчика</li>}
                                     <li
                                       onClick={() => SetExp(row.id, value.id)}
                                       key={index}
