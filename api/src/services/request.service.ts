@@ -247,7 +247,7 @@ const setComment = async (requestId: string, comment: string): Promise<void> => 
 const removeContractor = async (requestId: string): Promise<void> => {
     const request = await RepairRequest.findByPk(requestId);
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
-    await request.update({ contractorId: null, builder: 'Укажите подрядчика' });
+    await request.update({ contractorId: null, builder: 'Укажите подрядчика', isExternal: false });
 };
 
 const removeExtContractor = async (requestId: string): Promise<void> => {
