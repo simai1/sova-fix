@@ -786,5 +786,25 @@ export const SetExtContractorsRequest = async (data) => {
   }
 };
 
+export const DeleteExtContractorsRequest = async (data) => {
+  
+  try {
+    const response = await http.patch(`${server}/requests/remove/extContractor/`, data, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      console.log("Ошибка при получении карты пользователя!");
+    }
+  }
+};
+
+
+
 
 

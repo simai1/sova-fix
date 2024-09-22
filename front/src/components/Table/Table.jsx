@@ -1,7 +1,7 @@
 import React, { useState, useContext, useRef, useEffect } from "react";
 import styles from "./Table.module.scss";
 import DataContext from "../../context";
-import { GetAllRequests, GetAllUsers, GetextContractorsAll, RemoveContractor, ReseachDataRequest, SetExtContractorsRequest, SetRole, SetStatusRequest, SetcontractorRequest } from "../../API/API";
+import { DeleteExtContractorsRequest, GetAllRequests, GetAllUsers, GetextContractorsAll, RemoveContractor, ReseachDataRequest, SetExtContractorsRequest, SetRole, SetStatusRequest, SetcontractorRequest } from "../../API/API";
 import App from "../../App";
 import { tableList, tableUser } from "./Data";
 import { SamplePoints } from "../../UI/SamplePoints/SamplePoints";
@@ -438,6 +438,17 @@ console.log( "row", row)
 
 }
 
+const deleteExp = (id) => {
+  const data = {
+    requestId : id
+  }
+  DeleteExtContractorsRequest(data).then((resp) => {
+    if (resp?.status === 200) {
+      context.UpdateTableReguest(1);
+    }
+  });
+};
+
 return (
     <>
       
@@ -628,12 +639,15 @@ return (
                             <div className={styles.shovStatusPop} style={checkHeights(context.filteredTableData,index) ? {top:"-70%", width: "200%"} : {width: "200%"}}  >
                               <ul>
                                 {dataBuilder?.map((value, index) => (
-                                  <li
-                                    onClick={() => SetExp(row.id, value.id)}
-                                    key={index}
-                                  >
-                                    {value.name}
-                                  </li>
+                                  <>
+                                  { row[headerItem.key] !== null && <li onClick={() => deleteExp(row.id)}>Удалить подрядчика</li>}
+                                    <li
+                                      onClick={() => SetExp(row.id, value.id)}
+                                      key={index}
+                                    >
+                                      {value.name}
+                                    </li>
+                                  </>
                                 ))}
                               </ul>
                             </div>
