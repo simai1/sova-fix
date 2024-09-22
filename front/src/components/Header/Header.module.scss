@@ -6,6 +6,7 @@
   display: flex;
   justify-content: start;
 height: 150px;
+margin-bottom: 25px;
   .buttonMenu {
     @include button(var(--turquoise-color));
     margin: 0px;

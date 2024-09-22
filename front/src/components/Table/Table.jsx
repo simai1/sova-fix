@@ -193,7 +193,7 @@ function Table() {
   // },[context.tableData, context.selectedTable])
 
   const checkHeights = (arr,index) =>{
-    if(arr?.length-1 === index && index === arr?.length-1){
+    if(arr?.length-1 === index && index === arr?.length-1  && arr?.length !== 1){
       return true
     }else{
       return false
@@ -364,7 +364,9 @@ useEffect(() => {
   };
 }, [context]);
 
-
+const setPerformersDirectory = (el) => {
+  console.log("el", el)
+};
 
 return (
     <>
@@ -532,7 +534,6 @@ return (
                               <ul>
                               { row[headerItem.key] !== null && <li onClick={() => deleteBilder(row.id)}>Удалить исполнителя</li>}
                                 {context.dataContractors?.map((value, index) => (
-
                                   <li
                                     onClick={() => SetBilder(value.id, row.id)}
                                     key={index}
@@ -541,6 +542,7 @@ return (
                                     {value.name}
                                   </li>
                                 ))}
+                                {/* <li onClick={() => setPerformersDirectory(row.id)}>Внешний исполнитель</li> */}
                               </ul>
                             </div>
                           )}

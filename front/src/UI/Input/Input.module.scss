@@ -68,10 +68,15 @@
   }
 }
 .textarea{
-  margin-bottom: 17px;
+  // margin-bottom: 5px;
+
+  margin-bottom: 0px;
+  .labeltextarea{
+    margin-top: 0;
+  }
   textarea{
-    width: 422px!important;
-    min-height: 100px;
+    width: 420px!important;
+    min-height: 105px;
     max-height: 150px;
     border-radius: 8px;
     background-color: #fff;

@@ -60,12 +60,13 @@ function Input({
           type={type}
           style={isValid ? {} : {border: '1px solid red'}}
           maxLength={75}
+
         />
       </div>
       :
       <div className={styles.textarea}>
         {Textlabel && (
-          <div>
+          <div className={styles.labeltextarea}>
             <label>{Textlabel}</label>
             {errors['required'] && <div className={styles.error}>{errors['required']}</div>}
           </div>
