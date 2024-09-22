@@ -161,6 +161,23 @@ export const GetAllRequests = async (param) => {
   }
 };
 
+export const GetOneRequests = async (id) => {
+  try {
+    const response = await http.get(`${server}/requests/${id}`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      console.log("Ошибка при получении списка заявок!");
+    }
+  }
+};
+
 //!полуение всех Пользователей
 export const GetAllUsers = async () => {
   try {

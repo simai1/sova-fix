@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import styles from "./ReferenceObjects.module.scss";
-import { CreateObjects, DeleteObjects, GetObjectsAll, GetUnitsAll, GetlegalEntitiesAll } from "../../API/API";
+import { CreateObjects, DeleteObjects, EditObjects, GetObjectsAll, GetObjectsOne, GetUnitsAll, GetlegalEntitiesAll } from "../../API/API";
 import { tableHeaderObject } from "./DirectoryObjectData";
 import UniversalTable from "../../components/UniversalTable/UniversalTable";
 import DataContext from "../../context";
@@ -23,6 +23,8 @@ function ReferenceObjects() {
     const [openvalueCreateLegal, setOpenvalueCreateLegal] = useState(false);
     const [valueCreateUnitId, setValueCreateUnitId] = useState('');
     const [valueCreateLegalId, setValueCreateLegalId] = useState('');
+    const [pupUpEdit, setPupUpEdit] = useState(false);
+    const [selectId, setSelectId] = useState('');
 
     useEffect(() => {
         getData()
@@ -95,7 +97,16 @@ function ReferenceObjects() {
             legalEntityId: valueCreateLegalId
         };
 
-        console.log(newUnit);
+
+        pupUpEdit ? 
+        EditObjects(newUnit, selectId).then((response) => {
+            if (response?.status === 200) {
+                getData();
+                closePopUp();
+            }
+        })
+        :
+
         CreateObjects(newUnit).then((response) => {
             if (response?.status === 200) {
                 getData();
@@ -106,6 +117,7 @@ function ReferenceObjects() {
 
     const closePopUp = () => {
         setPopUpCreate(false);
+        setPupUpEdit(false);
         setUnitName('');
         setCity('');
         setErrorMessage('');
@@ -131,6 +143,28 @@ function ReferenceObjects() {
     
     const containerRef = useRef(null);
 
+
+    const EditObjectsFunc = () => {
+        if(context.selectRowDirectory){
+            setPopUpCreate(true)
+            setPupUpEdit(true)
+            setSelectId(context.selectRowDirectory)
+            GetObjectsOne(context.selectRowDirectory).then((response) => {
+                setUnitName(response.data.name);
+                setCity(response.data.city);
+                setValueCreateUnitId(response.data.unit.id);
+                setValueCreateLegalId(response.data.legalEntity.id);
+                setValueCreateUnit(response.data.unit.name);
+                setValueCreateLegal(response.data.legalEntity.name);
+            })
+        }else{
+            context.setPopupErrorText("Сначала выберите объект!");
+            context.setPopUp("PopUpError")
+        }
+    }
+
+
+
     return ( 
         <div className={styles.ReferenceObjects}>
             <div className={styles.ReferenceObjectsTop}>
@@ -139,6 +173,7 @@ function ReferenceObjects() {
                 </div>
                 <div className={styles.ReferenceObjectsTopButton}>
                     <button onClick={() => setPopUpCreate(true)}>Добавить объект</button>
+                    <button onClick={() => EditObjectsFunc()}>Редактировать объект</button>
                     <button onClick={()=>deleteObjcect()}>Удалить объект</button>
                 </div>
             </div>
@@ -147,7 +182,7 @@ function ReferenceObjects() {
         {context.popUp === "PopUpError" && <PopUpError />}
         {popUpCreate && (
                 <div className={styles.PupUpCreate}>
-                    <PopUpContainer mT={300} title="Новый объект" closePopUpFunc={closePopUp}>
+                    <PopUpContainer mT={300} title={ pupUpEdit ? "Редактирование объекта" : "Новый объект"} closePopUpFunc={closePopUp}>
                         <div className={styles.PupUpCreateInputInner}>
                             <div>
                                 <div>
@@ -207,7 +242,7 @@ function ReferenceObjects() {
                             </div>
                         </div>
                         <div className={styles.PupUpCreateButtonInner}>
-                            <button className={styles.PupUpCreateButton} onClick={handleCreateUnit}>Создать</button>
+                            <button className={styles.PupUpCreateButton} onClick={handleCreateUnit}>{ pupUpEdit ? "Сохранить" : "Добавить"  }</button>
                         </div>
                     </PopUpContainer>
                 </div>

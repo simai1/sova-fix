@@ -144,7 +144,7 @@ function BusinessUnitReference() {
 
                         </div>
                         <div className={styles.PupUpCreateButtonInner}>
-                            <button className={styles.PupUpCreateButton} onClick={handleCreateUnit}>Создать</button>
+                            <button className={styles.PupUpCreateButton} onClick={handleCreateUnit}>{ popUpEdit ? "Сохранить" : "Создать"}</button>
                         </div>
                     </PopUpContainer>
                 </div>

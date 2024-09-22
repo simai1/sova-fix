@@ -15,7 +15,6 @@ function Table() {
   const trClick = (row) => {
     context.setSelectedTr(row.id);
   };
-console.log("context.filteredTableData", context.filteredTableData)
   const status = {
     1: "Новая заявка",
     2: "В работе",
@@ -202,11 +201,11 @@ console.log("context.filteredTableData", context.filteredTableData)
   }
 
   const getItem = (item, key) =>{
-    console.log("key", key)
+   
     if(key === "repairPrice" && key !== "isConfirmed"){
       return    item?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") 
     }if(key === "isConfirmed") {
-      console.log(item)
+   
       if(item === true){
         return "Активирован"
       }else{
@@ -302,7 +301,6 @@ console.log("context.filteredTableData", context.filteredTableData)
 
 const getRole = (value) =>
  {
-  console.log(value)
   if(value !== null){
     if(value === 2){
       return "Администратор"
@@ -351,12 +349,6 @@ const funSortByColumn = (key) => {
 };
 
 const storeTableHeader = useSelector(state => state.editColumTableSlice.ActiveColumTable);
-console.log("storeTableHeader", storeTableHeader)
-
-useEffect(() => {
-  console.log("context.tableHeader", context.tableHeader)
-},[context.tableHeader])
-
 
 
 useEffect(() => {
