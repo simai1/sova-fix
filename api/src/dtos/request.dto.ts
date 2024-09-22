@@ -26,6 +26,7 @@ export default class RequestDto {
     createdAtRaw?: Date;
     contractor?: ContractorDto | null;
     extContractor?: ExtContractorDto | null;
+    isExternal!: boolean;
 
     constructor(model: RepairRequest) {
         this.id = model.id;
@@ -50,5 +51,6 @@ export default class RequestDto {
         this.createdAtRaw = model.createdAt;
         this.contractor = model.Contractor ? new ContractorDto(model.Contractor) : null;
         this.extContractor = model.ExtContractor ? new ExtContractorDto(model.ExtContractor) : null;
+        this.isExternal = model.isExternal;
     }
 }

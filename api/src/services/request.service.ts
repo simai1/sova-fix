@@ -172,7 +172,9 @@ const setContractor = async (requestId: string, contractorId: string): Promise<v
     const request = await RepairRequest.findByPk(requestId);
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
     const oldStatus = request.status;
-    await request.update({ contractorId, builder: 'Внутренний сотрудник', status: 2 });
+    if (contractorId.toLowerCase() === 'внешний подрядчик')
+        await request.update({ contractorId: null, builder: 'Внешний подрядчик', isExternal: true });
+    else await request.update({ contractorId, builder: 'Внутренний сотрудник', status: 2, isExternal: false });
 
     const customer = await TgUser.findByPk(request.createdBy);
     const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
