@@ -258,7 +258,7 @@ const removeContractor = async (requestId: string): Promise<void> => {
 const removeExtContractor = async (requestId: string): Promise<void> => {
     const request = await RepairRequest.findByPk(requestId);
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
-    await request.update({ ExtContractorId: null, isExternal: false });
+    await request.update({ ExtContractorId: null, isExternal: false, builder: 'Укажите подрядчика' });
 };
 
 const setStatus = async (requestId: string, status: number): Promise<void> => {
