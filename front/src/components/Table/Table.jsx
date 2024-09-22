@@ -242,8 +242,21 @@ function Table() {
       return item
     }
   }
-    
   };
+
+
+  const getContractorItem = (row, ) =>{
+  console.log("row", row)
+  if(row?.isExternal){
+    return "Внешний подрядчик"
+  }else{
+    if(row?.contractor){
+      return row?.contractor
+    }else{
+      return "___"
+    }
+  }
+  }
 
   const getCountList = () => {
     let count = context.tableData?.length;
@@ -577,7 +590,7 @@ return (
                           className={context.selectPage === "Main" && styles.statusClick}
                           ref={builderPopRef}
                         >
-                          {getItem(row[headerItem.key])}
+                          {getContractorItem(row)}
                           {shovBulderPop === row.id && (
                             <div className={styles.shovStatusPop} style={checkHeights(context.filteredTableData,index) ? {top:"-70%", width: "200%"} : {width: "200%"}}  >
                               <ul>
@@ -602,7 +615,7 @@ return (
                           className={context.selectPage === "Main" && styles.statusClick}
                           ref={extPopRef}
                         >
-                          {getItem(row[headerItem.key])}
+                          {getItem(row[headerItem.key])} 
                           {shovExtPop === row.id && (
                             <div className={styles.shovStatusPop} style={checkHeights(context.filteredTableData,index) ? {top:"-70%", width: "200%"} : {width: "200%"}}  >
                               <ul>
