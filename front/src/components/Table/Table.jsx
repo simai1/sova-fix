@@ -428,7 +428,15 @@ const SetExp = (requestId, ExpId) =>{
  })
 }
 
+const getItemBuilder = (row) => {
+console.log( "row", row)
+  if(row?.extContractor && row?.isExternal){
+    return row?.extContractor?.name
+  }else{
+    return "___"
+  }
 
+}
 
 return (
     <>
@@ -615,7 +623,7 @@ return (
                           className={context.selectPage === "Main" && styles.statusClick}
                           ref={extPopRef}
                         >
-                          {getItem(row[headerItem.key])} 
+                          {getItemBuilder(row)} 
                           {shovExtPop === row.id && (
                             <div className={styles.shovStatusPop} style={checkHeights(context.filteredTableData,index) ? {top:"-70%", width: "200%"} : {width: "200%"}}  >
                               <ul>
