@@ -367,7 +367,6 @@ useEffect(() => {
 const setPerformersDirectory = (el) => {
   console.log("el", el)
 };
-
 return (
     <>
       
@@ -591,7 +590,7 @@ return (
                        headerItem.key === "role" ? (
                         <div
                           onClick={() =>(row[headerItem.key] === 1 || row[headerItem.key] === 2 && ClickRole(row.id, row[headerItem.key]))}
-                          className={styles[row[headerItem.key] === 1 || row[headerItem.key] === 2 ? "statusClick" : ""]}
+                          className={styles[(row[headerItem.key] === 1 || row[headerItem.key] === 2) && JSON.parse(localStorage.getItem("userData")).user.role === "ADMIN" ? "statusClick" : ""]}
                         >
                           {getRole(row[headerItem.key])}
                         </div>

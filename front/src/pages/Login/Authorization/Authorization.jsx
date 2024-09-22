@@ -58,6 +58,7 @@ function Authorization() {
             navigate("/Activate");
           } else {
             context.setDataUsers(resp);
+            localStorage.setItem("userData", JSON.stringify(resp.data));
             navigate("/");
           }
         } else {
