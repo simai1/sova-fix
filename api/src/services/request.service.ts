@@ -282,6 +282,8 @@ const update = async (
 ): Promise<void> => {
     const request = await RepairRequest.findByPk(requestId);
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
+    let objectDir;
+    if (objectId) objectDir = await objectService.getObjectById(objectId);
 
     if (itineraryOrder) {
         const itinerary = await contractorService.getContractorsItinerary(request.contractorId as string, {});
@@ -323,6 +325,8 @@ const update = async (
         {
             objectId,
             problemDescription,
+            unitId: objectDir?.Unit?.id,
+            legalEntityId: objectDir?.LegalEntity?.id,
             urgency,
             repairPrice,
             comment,
