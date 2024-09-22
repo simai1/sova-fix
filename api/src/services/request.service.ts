@@ -192,9 +192,16 @@ const setContractor = async (requestId: string, contractorId: string): Promise<v
 
 const setExtContractor = async (requestId: string, extContractorId: string): Promise<void> => {
     const request = await RepairRequest.findByPk(requestId);
+    const extContractor = await ExtContractor.findByPk(extContractorId);
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
+    if (!extContractor) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found external contractor');
     const oldStatus = request.status;
-    await request.update({ ExtContractorId: extContractorId, contractorId: null, status: 2 });
+    await request.update({
+        ExtContractorId: extContractorId,
+        contractorId: null,
+        status: 2,
+        builder: extContractor.name,
+    });
 
     const customer = await TgUser.findByPk(request.createdBy);
     const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
@@ -237,7 +244,7 @@ const removeContractor = async (requestId: string): Promise<void> => {
 const removeExtContractor = async (requestId: string): Promise<void> => {
     const request = await RepairRequest.findByPk(requestId);
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
-    await request.update({ ExtContractorId: null });
+    await request.update({ ExtContractorId: null, isExternal: false });
 };
 
 const setStatus = async (requestId: string, status: number): Promise<void> => {
