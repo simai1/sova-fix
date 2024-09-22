@@ -18,7 +18,7 @@ const getUnitById = async (id: string): Promise<Unit | null> => {
 };
 
 const getAllUnits = async (): Promise<UnitDto[]> => {
-    const units = await Unit.findAll();
+    const units = await Unit.findAll({ order: [['number', 'ASC']] });
     return units.map(o => new UnitDto(o));
 };
 

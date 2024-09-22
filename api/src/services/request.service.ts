@@ -41,16 +41,16 @@ const getAllRequests = async (filter: any, order: any): Promise<RequestDto[]> =>
                         .map(s => s);
                 })(),
             },
-            { unit: { [Op.iLike]: `%${filter.search}%` } },
+            { '$Unit.name$': { [Op.iLike]: `%${filter.search}%` } },
             { builder: { [Op.iLike]: `%${filter.search}%` } },
-            { object: { [Op.iLike]: `%${filter.search}%` } },
+            { '$Object.name$': { [Op.iLike]: `%${filter.search}%` } },
             { problemDescription: { [Op.iLike]: `%${filter.search}%` } },
             { urgency: { [Op.iLike]: `%${filter.search}%` } },
             sequelize.where(sequelize.cast(sequelize.col('repair_price'), 'varchar'), {
                 [Op.iLike]: `%${filter.search}%`,
             }),
             { comment: { [Op.iLike]: `%${filter.search}%` } },
-            { legalEntity: { [Op.iLike]: `%${filter.search}%` } },
+            { '$LegalEntity.name$': { [Op.iLike]: `%${filter.search}%` } },
             { '$Contractor.name$': { [Op.iLike]: `%${filter.search}%` } },
         ];
         if (Number.isInteger(filter.search)) {
@@ -179,6 +179,7 @@ const setContractor = async (requestId: string, contractorId: string): Promise<v
             contractorId,
             builder: 'Внутренний сотрудник',
             status: 2,
+            daysAtWork: 1,
             ExtContractorId: null,
             isExternal: false,
         });
@@ -207,6 +208,7 @@ const setExtContractor = async (requestId: string, extContractorId: string): Pro
         ExtContractorId: extContractorId,
         contractorId: null,
         status: 2,
+        daysAtWork: 1,
         builder: extContractor.name,
     });
 

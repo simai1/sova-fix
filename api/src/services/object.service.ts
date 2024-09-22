@@ -12,7 +12,10 @@ const getObjectById = async (id: string): Promise<ObjectDir | null> => {
 };
 
 const getAllObjects = async (): Promise<ObjectDto[]> => {
-    const objects = await ObjectDir.findAll({ include: [{ model: Unit }, { model: LegalEntity }] });
+    const objects = await ObjectDir.findAll({
+        include: [{ model: Unit }, { model: LegalEntity }],
+        order: [['number', 'ASC']],
+    });
     return objects.map(o => new ObjectDto(o));
 };
 
