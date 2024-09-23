@@ -78,7 +78,7 @@ const activePeople = ()=>{
     }
   })
  }else{
-  context.setPopupErrorText("Сначала выберите заявку!");
+  context.setPopupErrorText("Сначала выберите пользователя!");
   context.setPopUp("PopUpError")
  }
 }
@@ -160,9 +160,9 @@ const goBackCurd = () =>{
         </div>
         { context.selectedTable === "Заявки" && context.selectPage === "Main" &&
           <div className={styles.countInfo}>
-            <CountInfoBlock dataCount={context?.filteredTableData} value="Новая заявка" color="#d69a81" name="Новых"/>
-            <CountInfoBlock dataCount={context?.filteredTableData} value="В работе" color="#ffe78f" name="В работе"/>
-            <CountInfoBlock dataCount={context?.filteredTableData} value="Выполнена" color="#C5E384" name="Выполнены"/>
+            <CountInfoBlock dataCount={context?.filteredTableData} keys="status" value="Новая заявка" color="#d69a81" name="Новых"/>
+            <CountInfoBlock dataCount={context?.filteredTableData} keys="status" value="В работе" color="#ffe78f" name="В работе"/>
+            <CountInfoBlock dataCount={context?.filteredTableData} keys="status" value="Выполнена" color="#C5E384" name="Выполнены"/>
           </div>
         }
       </div>

@@ -23,11 +23,13 @@ function FunctionReportTop(props) {
     const TimeComplite = () => {
         let time = 0;
         props?.dataTable.map((el) => time += el.daysAtWork)
+        console.log("time", time)
         if(time === 0){
             return 0
         }else{
-            return Math.round(time/props?.dataTable.length)
+            return Math.floor(time / props?.dataTable.length)+1
         }
+
     }
     
     return ( 
@@ -36,7 +38,7 @@ function FunctionReportTop(props) {
                 location.pathname === "/ReportFinansing" ?
                 <div className={styles.ReportFinansingMenu}>
                     <div className={styles.ReportFinansingList}>
-                        <CountInfoBlock dataCount={props?.dataTable} keys="count" value="Новая заявка" color="#d69a81" name="Всего"/>
+                        <CountInfoBlock dataCount={props?.dataTable} keys="count"  value="Новая заявка" color="#d69a81" name="Всего"/>
                         <CountInfoBlock dataCount={props?.dataTable} keys="status" value="Выполнена" color="#ffe78f" name="Выполненых"/>
                         <CountInfoBlock dataCount={props?.dataTable} keys="checkPhoto" value="Новая заявка" color="#C5E384" name="С чеком"/>
                     </div>
@@ -48,9 +50,9 @@ function FunctionReportTop(props) {
             
                 <div className={styles.ReportFinansingMenu}>
                     <div className={styles.ReportFinansingList}>
-                    <CountInfoBlock dataCount={props?.dataTable} value="Новая заявка" color="#d69a81" name="Новых"/>
-                    <CountInfoBlock dataCount={props?.dataTable} value="В работе" color="#ffe78f" name="В работе"/>
-                    <CountInfoBlock dataCount={props?.dataTable} value="Выполнена" color="#C5E384" name="Выполнены"/>
+                    <CountInfoBlock dataCount={props?.dataTable} keys="status" value="Новая заявка" color="#d69a81" name="Новых"/>
+                    <CountInfoBlock dataCount={props?.dataTable} keys="status" value="В работе" color="#ffe78f" name="В работе"/>
+                    <CountInfoBlock dataCount={props?.dataTable} keys="status" value="Выполнена" color="#C5E384" name="Выполнены"/>
                     </div>
                     <div className={styles.ReportFinansingButton}>
                         <p className={styles.ReportFinansingButton__text}>Средняя скорость выполнения:  {TimeComplite()} (дней)</p>
