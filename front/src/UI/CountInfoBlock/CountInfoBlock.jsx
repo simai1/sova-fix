@@ -7,28 +7,36 @@ import DataContext from '../../context';
 function CountInfoBlock(props) {
     const [contNew, setContNew] = useState(0);
     const { context } = useContext(DataContext);
-
+    console.log("props", props)
       useEffect(() => {
-        if(props?.keys !== "count"){
-            let newCount = 0;
-            props?.dataCount.forEach((el) => {
-                if (el.status === props?.value) {
-                    newCount++;
-                }
-            });
-        
-            setContNew(newCount);
-        }else if(props?.keys === "count"){
-            setContNew(props?.dataCount?.length);
-        }else if(props?.keys === "checkPhoto"){
-            let newCount = 0;
-            props?.dataCount.forEach((el) => {
-                if (el.checkPhoto !== null) {
-                    newCount++;
-                }
-            });
-            setContNew(newCount);
-        }
+        let newCount = 0;
+        console.log("props.dataCount", props?.dataCount)
+       switch (props?.keys) {
+           case "count":
+               setContNew(props?.dataCount?.length);
+               break;
+           case "status":
+               props?.dataCount.forEach((el) => {
+                   if (el.status === props?.value) {
+                    console.log("el", el.status)
+                       newCount++;
+                   }
+
+               })
+               setContNew(newCount);
+               break;
+           case "checkPhoto":
+               props?.dataCount.forEach((el) => {
+                   if (el.checkPhoto && el.repairPrice) {
+                       newCount++;
+                   }
+               });
+               setContNew(newCount);
+               break;
+           default:
+               break;
+       }
+       newCount = 0
     }, [ props?.dataCount]);
     
     return ( 

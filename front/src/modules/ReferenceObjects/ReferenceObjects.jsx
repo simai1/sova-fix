@@ -32,13 +32,13 @@ function ReferenceObjects() {
     },[])
 
     function formatData(data) {
-        return data.map(item => ({
-            id: item.id, // Include the id if needed for further operations
-            number: item.number,
-            name: item.name,
-            legalForm: `${item.legalEntity.legalForm} ${item.legalEntity.name}`,
-            unitName: item.unit.name,
-            city: item.city
+        return data?.map(item => ({
+            id: item?.id, // Include the id if needed for further operations
+            number: item?.number,
+            name: item?.name,
+            legalForm: `${item?.legalEntity?.legalForm} ${item?.legalEntity?.name}`,
+            unitName: item?.unit?.name,
+            city: item?.city
         }));
     }
     const formatDataObjectAndLegal = () => {
@@ -46,7 +46,7 @@ function ReferenceObjects() {
             setLegalData(response.data);
         })
         GetUnitsAll().then((response) => {
-            setUnitData(response.data);
+            setUnitData(response?.data);
         })
        
     }
@@ -150,12 +150,12 @@ function ReferenceObjects() {
             setPupUpEdit(true)
             setSelectId(context.selectRowDirectory)
             GetObjectsOne(context.selectRowDirectory).then((response) => {
-                setUnitName(response.data.name);
-                setCity(response.data.city);
-                setValueCreateUnitId(response.data.unit.id);
-                setValueCreateLegalId(response.data.legalEntity.id);
-                setValueCreateUnit(response.data.unit.name);
-                setValueCreateLegal(response.data.legalEntity.name);
+                setUnitName(response.data?.name);
+                setCity(response.data?.city);
+                setValueCreateUnitId(response.data?.unit?.id);
+                setValueCreateLegalId(response.data?.legalEntity?.id);
+                setValueCreateUnit(response.data?.unit?.name);
+                setValueCreateLegal(response.data?.legalEntity?.name);
             })
         }else{
             context.setPopupErrorText("Сначала выберите объект!");
@@ -211,7 +211,7 @@ function ReferenceObjects() {
                                         />
                                     </span>
                                         {openvalueCreateUnit && <ul ref={containerRef} className={styles.ListCreateData}>
-                                            {unitData.map((item, index) => <li onClick={() => {setValueCreateUnit(item.name); setOpenvalueCreateUnit(false); setValueCreateUnitId(item.id)}} key={index}>{item.name}</li>)}
+                                            {unitData?.map((item, index) => <li onClick={() => {setValueCreateUnit(item.name); setOpenvalueCreateUnit(false); setValueCreateUnitId(item.id)}} key={index}>{item.name}</li>)}
                                         </ul>}
                                     </div>
                                     <div className={styles.ListCreateDataCont}>
@@ -227,7 +227,7 @@ function ReferenceObjects() {
                                         />
                                     </span>
                                         {openvalueCreateLegal && <ul ref={containerRef} className={styles.ListCreateData}>
-                                            {legalData.map((item, index) => <li onClick={() => {setValueCreateLegal(item.name); setOpenvalueCreateLegal(false); setValueCreateLegalId(item.id)}} key={index}>{item.name}</li>)}
+                                            {legalData?.map((item, index) => <li onClick={() => {setValueCreateLegal(item.name); setOpenvalueCreateLegal(false); setValueCreateLegalId(item.id)}} key={index}>{item.name}</li>)}
                                         </ul>}
                                     </div>
                                     <input 

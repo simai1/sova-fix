@@ -41,16 +41,16 @@ const getAllRequests = async (filter: any, order: any): Promise<RequestDto[]> =>
                         .map(s => s);
                 })(),
             },
-            { unit: { [Op.iLike]: `%${filter.search}%` } },
+            { '$Unit.name$': { [Op.iLike]: `%${filter.search}%` } },
             { builder: { [Op.iLike]: `%${filter.search}%` } },
-            { object: { [Op.iLike]: `%${filter.search}%` } },
+            { '$Object.name$': { [Op.iLike]: `%${filter.search}%` } },
             { problemDescription: { [Op.iLike]: `%${filter.search}%` } },
             { urgency: { [Op.iLike]: `%${filter.search}%` } },
             sequelize.where(sequelize.cast(sequelize.col('repair_price'), 'varchar'), {
                 [Op.iLike]: `%${filter.search}%`,
             }),
             { comment: { [Op.iLike]: `%${filter.search}%` } },
-            { legalEntity: { [Op.iLike]: `%${filter.search}%` } },
+            { '$LegalEntity.name$': { [Op.iLike]: `%${filter.search}%` } },
             { '$Contractor.name$': { [Op.iLike]: `%${filter.search}%` } },
         ];
         if (Number.isInteger(filter.search)) {
@@ -174,7 +174,15 @@ const setContractor = async (requestId: string, contractorId: string): Promise<v
     const oldStatus = request.status;
     if (contractorId.toLowerCase() === 'внешний подрядчик')
         await request.update({ contractorId: null, builder: 'Внешний подрядчик', isExternal: true });
-    else await request.update({ contractorId, builder: 'Внутренний сотрудник', status: 2, isExternal: false });
+    else
+        await request.update({
+            contractorId,
+            builder: 'Внутренний сотрудник',
+            status: 2,
+            daysAtWork: 1,
+            ExtContractorId: null,
+            isExternal: false,
+        });
 
     const customer = await TgUser.findByPk(request.createdBy);
     const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
@@ -192,9 +200,17 @@ const setContractor = async (requestId: string, contractorId: string): Promise<v
 
 const setExtContractor = async (requestId: string, extContractorId: string): Promise<void> => {
     const request = await RepairRequest.findByPk(requestId);
+    const extContractor = await ExtContractor.findByPk(extContractorId);
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
+    if (!extContractor) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found external contractor');
     const oldStatus = request.status;
-    await request.update({ ExtContractorId: extContractorId, contractorId: null, status: 2 });
+    await request.update({
+        ExtContractorId: extContractorId,
+        contractorId: null,
+        status: 2,
+        daysAtWork: 1,
+        builder: extContractor.name,
+    });
 
     const customer = await TgUser.findByPk(request.createdBy);
     const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
@@ -231,13 +247,18 @@ const setComment = async (requestId: string, comment: string): Promise<void> => 
 const removeContractor = async (requestId: string): Promise<void> => {
     const request = await RepairRequest.findByPk(requestId);
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
-    await request.update({ contractorId: null, builder: 'Укажите подрядчика' });
+    await request.update({
+        contractorId: null,
+        builder: 'Укажите подрядчика',
+        isExternal: false,
+        ExtContractorId: null,
+    });
 };
 
 const removeExtContractor = async (requestId: string): Promise<void> => {
     const request = await RepairRequest.findByPk(requestId);
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
-    await request.update({ ExtContractorId: null });
+    await request.update({ ExtContractorId: null, isExternal: false, builder: 'Укажите подрядчика' });
 };
 
 const setStatus = async (requestId: string, status: number): Promise<void> => {

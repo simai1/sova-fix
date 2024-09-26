@@ -118,7 +118,7 @@ const [selectId, setSelectId] = useState(null);
         setActiveDropdown(activeDropdown === name ? null : name);
       };
   return (
-    <PopUpContainer width={true} title={"Редактирование заказа"} mT={75}>
+    <PopUpContainer width={true} title={"Редактирование заявки"} mT={75}>
       <div className={styles.popBox}>
         <div className={styles.popLeft}>   
         <div className={styles.FirstBlock}>

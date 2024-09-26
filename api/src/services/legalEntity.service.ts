@@ -18,7 +18,7 @@ const getLegalEntityById = async (id: string): Promise<LegalEntity | null> => {
 };
 
 const getAllLegalEntities = async (): Promise<LegalEntityDto[]> => {
-    const legalEntities = await LegalEntity.findAll();
+    const legalEntities = await LegalEntity.findAll({ order: [['number', 'ASC']] });
     return legalEntities.map(le => new LegalEntityDto(le));
 };
 

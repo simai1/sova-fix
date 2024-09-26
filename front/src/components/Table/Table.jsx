@@ -1,7 +1,7 @@
 import React, { useState, useContext, useRef, useEffect } from "react";
 import styles from "./Table.module.scss";
 import DataContext from "../../context";
-import { GetAllRequests, GetAllUsers, RemoveContractor, ReseachDataRequest, SetRole, SetStatusRequest, SetcontractorRequest } from "../../API/API";
+import { DeleteExtContractorsRequest, GetAllRequests, GetAllUsers, GetextContractorsAll, RemoveContractor, ReseachDataRequest, SetExtContractorsRequest, SetRole, SetStatusRequest, SetcontractorRequest } from "../../API/API";
 import App from "../../App";
 import { tableList, tableUser } from "./Data";
 import { SamplePoints } from "../../UI/SamplePoints/SamplePoints";
@@ -40,13 +40,16 @@ function Table() {
   const [shovStatusPop, setshovStatusPop] = useState("");
   const [shovBulderPop, setshovBulderPop] = useState("");
   const [shovUrgencyPop, setshovUrgencyPop] = useState("");
+  const [shovExtPop, setshovExtPop] = useState("");
   const [itineraryOrderPop,setItineraryOrderPop] = useState("");
   const [modalImage, setModalImage] = useState(null);
   const statusPopRef = useRef(null);
   const builderPopRef = useRef(null);
   const urgencyPopRef = useRef(null);
+  const extPopRef = useRef(null);
   const ItineraryOrderPopRef = useRef(null)
   const [arrCount, setArrCount] = useState([])
+  const [dataBuilder, setDataBuilder] = useState({});
 
   const editStatus = (status, id) => {
     const data = {
@@ -116,6 +119,21 @@ function Table() {
     }
   }
 
+  const funSetExp = (data) => {
+    if (shovExtPop === "") {
+      setshovExtPop(data);
+      setshovUrgencyPop("");
+      setshovStatusPop("");
+      setshovBulderPop("");
+      setItineraryOrderPop("")
+    } else {
+      setshovUrgencyPop("");
+      setshovStatusPop("");
+      setshovBulderPop("");
+      setItineraryOrderPop("")
+    }
+  };
+
   const openModal = (src) => {
     setModalImage(src);
   };
@@ -178,10 +196,16 @@ function Table() {
       ItineraryOrderPopRef.current && !ItineraryOrderPopRef.current.contains(event.target) && event.target.tagName !== "LI" && event.target.className !== "Table_shovStatusPop__LcpzL"
     ) {
       setItineraryOrderPop("");
-    }
+    }if(
+      extPopRef.current && !extPopRef.current.contains(event.target) && event.target.tagName !== "LI" && event.target.className !== "Table_shovStatusPop__LcpzL"){
+        setshovExtPop("");
+      }
   };
 
   useEffect(() => {
+    GetextContractorsAll().then((response) => {
+      setDataBuilder(response.data);
+     });
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -218,8 +242,21 @@ function Table() {
       return item
     }
   }
-    
   };
+
+
+  const getContractorItem = (row, ) =>{
+  console.log("row", row)
+  if(row?.isExternal){
+    return "Внешний подрядчик"
+  }else{
+    if(row?.contractor){
+      return row?.contractor
+    }else{
+      return "___"
+    }
+  }
+  }
 
   const getCountList = () => {
     let count = context.tableData?.length;
@@ -366,7 +403,52 @@ useEffect(() => {
 
 const setPerformersDirectory = (el) => {
   console.log("el", el)
+  const data = {
+    requestId : el,
+    contractorId: "Внешний подрядчик"
+  }
+
+  SetcontractorRequest(data).then((resp) => {
+    if (resp?.status === 200) {
+      context.UpdateTableReguest(1);
+    }
+  });
 };
+
+const SetExp = (requestId, ExpId) =>{
+ const data = {
+  requestId : requestId,
+  extContractorId: ExpId
+ }
+ SetExtContractorsRequest(data).then((resp) => {
+  if (resp?.status === 200) {
+    context.UpdateTableReguest(1);
+    setshovExtPop("");
+  }
+ })
+}
+
+const getItemBuilder = (row) => {
+console.log( "row", row)
+  if(row?.extContractor && row?.isExternal){
+    return row?.extContractor?.name
+  }else{
+    return "___"
+  }
+
+}
+
+const deleteExp = (id) => {
+  const data = {
+    requestId : id
+  }
+  DeleteExtContractorsRequest(data).then((resp) => {
+    if (resp?.status === 200) {
+      context.UpdateTableReguest(1);
+    }
+  });
+};
+
 return (
     <>
       
@@ -527,7 +609,7 @@ return (
                           className={context.selectPage === "Main" && styles.statusClick}
                           ref={builderPopRef}
                         >
-                          {getItem(row[headerItem.key])}
+                          {getContractorItem(row)}
                           {shovBulderPop === row.id && (
                             <div className={styles.shovStatusPop} style={checkHeights(context.filteredTableData,index) ? {top:"-70%", width: "200%"} : {width: "200%"}}  >
                               <ul>
@@ -541,12 +623,37 @@ return (
                                     {value.name}
                                   </li>
                                 ))}
-                                {/* <li onClick={() => setPerformersDirectory(row.id)}>Внешний исполнитель</li> */}
+                                <li onClick={() => setPerformersDirectory(row.id)}>Внешний подрядчик</li>
                               </ul>
                             </div>
                           )}
                         </div>
-                      ) : headerItem.key === "urgency" ? (
+                      ) : headerItem.key === "builder" && context.filteredTableData[index].isExternal?  (
+                        <div
+                          onClick={() => context.selectPage === "Main" && funSetExp(row.id)}
+                          className={context.selectPage === "Main" && styles.statusClick}
+                          ref={extPopRef}
+                        >
+                          {getItemBuilder(row)} 
+                          {shovExtPop === row.id && (
+                            <div className={styles.shovStatusPop} style={checkHeights(context.filteredTableData,index) ? {top:"-70%", width: "200%"} : {width: "200%"}}  >
+                              <ul>
+                              { row[headerItem.key] !== null && <li onClick={() => deleteExp(row.id)}>Удалить подрядчика</li>}
+                                {dataBuilder?.map((value, index) => (
+                                  <>
+                                    <li
+                                      onClick={() => SetExp(row.id, value.id)}
+                                      key={index}
+                                    >
+                                      {value.name}
+                                    </li>
+                                  </>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      ): headerItem.key === "urgency" ? (
                         <div
                         
                           onClick={() => context.selectPage === "Main" && funSetUrgency(row.id)}
