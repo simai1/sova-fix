@@ -23,7 +23,7 @@ function PopUpCreateUser() {
    Register(dataApointment).then((resp)=>{
     if(resp?.status === 200){
       context.setPopUp("PopUpGoodMessage")
-      context.setPopupGoodText("Заявка успешно принята!")
+      context.setPopupGoodText("Пользователь успешно создан!")
       context.UpdateTableReguest(2);
     }
    })

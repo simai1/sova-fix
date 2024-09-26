@@ -1,20 +1,18 @@
-import { DeleteRequest } from '../../API/API';
+import { DeleteRequest, DeleteUserFunc } from '../../API/API';
 import DataContext from '../../context';
-import styles from './СonfirmDelete.module.scss';
+import styles from './СonfirmDeleteUser.module.scss';
 import React from 'react';
 function СonfirmDeleteUser() {
     const { context } = React.useContext(DataContext);
 
 
     const DeletedRequest = () => {
-         DeleteRequest(context.selectedTr).then((resp)=>{
+         DeleteUserFunc(context.selectedTr).then((resp)=>{
         if(resp?.status === 200){
-          context.UpdateTableReguest(1);
-          context.setSelectedTr(null)
-          context.setPopUp("PopUpGoodMessage")
-          context.setPopupGoodText("Заявка успешно удалена!")
-        }
-      })
+          context.UpdateTableReguest(2);
+          ClosePopUp();
+            }
+        })
     }
      const ClosePopUp = () => {
         context.setPopUp("");

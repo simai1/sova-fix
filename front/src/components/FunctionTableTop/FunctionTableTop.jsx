@@ -39,11 +39,7 @@ const editAppoint = ()=>{
 
   const deletedUser = ()=>{
     if(context.selectedTr != null &&  context.selectedTr !== JSON.parse(sessionStorage.getItem("userData")).user?.id){
-      DeleteUserFunc(context.selectedTr).then((resp)=>{
-        if(resp?.status === 200){
-          context.UpdateTableReguest(2);
-        }
-      })
+      context.setPopUp("СonfirmDeleteUser")
     }else if(context.selectedTr === null){
       context.setPopupErrorText("Сначала выберите пользователя!");
       context.setPopUp("PopUpError")
@@ -72,6 +68,8 @@ const activePeople = ()=>{
   RejectActiveAccount(context.selectedTr).then((resp)=>{
     if(resp?.status === 200){
       context.UpdateTableReguest(2);
+      context.setPopUp("PopUpGoodMessage")
+      context.setPopupGoodText("Пользователь успешно активирован!")
     }else{
       context.setPopupErrorText("Нельзя активировать этого пользователя!");
       context.setPopUp("PopUpError")

@@ -8,6 +8,9 @@ import { SamplePoints } from "../../UI/SamplePoints/SamplePoints";
 import { removeTableCheckeds } from "../../store/filter/isChecked.slice";
 import { useDispatch, useSelector } from "react-redux";
 import { FilteredSample, funFixEducator } from "../../UI/SamplePoints/Function";
+import СonfirmDelete from "./../СonfirmDelete/СonfirmDelete";
+import СonfirmDeleteUser from "./../СonfirmDeleteUser/СonfirmDeleteUser";
+import { use } from "echarts";
 function Table() {
   const { context } = useContext(DataContext);
   const [actiwFilter, setActiwFilter] = useState(null);
@@ -245,7 +248,6 @@ function Table() {
 
 
   const getContractorItem = (row, ) =>{
-  console.log("row", row)
   if(row?.isExternal){
     return "Внешний подрядчик"
   }else{
@@ -283,8 +285,7 @@ function Table() {
   }
  const ClickRole = (id, role) =>{
   let data = {};
-  const idInteger = roleUser.find(el => el.name === role)?.id;
-  if(idInteger === 1){
+  if(role === 1){
     data = {
       role: 2,
       userId: id
@@ -309,7 +310,6 @@ function Table() {
  }
  //! открытие модального окна фильтрации столбца
  const clickTh = (key,index, el) => {
-  // console.log("el", el.target.tagName)
   if(el?.target?.tagName !== "IMG"){
   const status = {
     1: "Новая заявка",
@@ -393,15 +393,15 @@ useEffect(() => {
           context.setSelectedTr(null);
       }
   };
-
+  WhatNanItem()
   document.addEventListener('click', handleClickOutside);
   return () => {
       document.removeEventListener('click', handleClickOutside);
   };
+
 }, [context]);
 
 const setPerformersDirectory = (el) => {
-  console.log("el", el)
   const data = {
     requestId : el,
     contractorId: "Внешний подрядчик"
@@ -428,7 +428,6 @@ const SetExp = (requestId, ExpId) =>{
 }
 
 const getItemBuilder = (row) => {
-console.log( "row", row)
   if(row?.extContractor && row?.isExternal){
     return row?.extContractor?.name
   }else{
@@ -453,12 +452,19 @@ const textAlign = (keys,item) => {
     return "center"
   }
   else if(item === null){
-    console.log("keys", keys)
     return "center"
   }
   else{
     return "left"
   }
+}
+const WhatNanItem = () => {
+  const tds = document.querySelectorAll("td[name='name']")
+  tds?.forEach((el)=>{
+    if(el.innerText === "___"){
+      el.style.textAlign = "center"
+    }
+  })
 }
 
 return (
@@ -708,7 +714,7 @@ return (
                       ):
                        headerItem.key === "role" ? (
                         <div
-                          onClick={() =>(row[headerItem.key] === 1 || row[headerItem.key] === 2 && ClickRole(row.id, row[headerItem.key]))}
+                          onClick={() =>((row[headerItem.key] === 1 || row[headerItem.key] === 2) && JSON.parse(localStorage.getItem("userData")).user.role === "ADMIN" &&ClickRole(row.id, row[headerItem.key]))}
                           className={styles[(row[headerItem.key] === 1 || row[headerItem.key] === 2) && JSON.parse(localStorage.getItem("userData")).user.role === "ADMIN" ? "statusClick" : ""]}
                         >
                           {getRole(row[headerItem.key])}
