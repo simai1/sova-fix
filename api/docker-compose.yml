@@ -36,6 +36,32 @@ services:
     networks:
       - sova-fix-network
 
+  client:
+    depends_on:
+      - server
+    container_name: sova-fix-master-client
+    build:
+      context: ../front
+      dockerfile: Dockerfile
+    ports:
+      - '82:82'
+    restart: always
+    networks:
+      - sova-fix-network
+
+  bot:
+    depends_on:
+      - server
+    env_file:
+      - .env
+    container_name: sova-fix-bot
+    build:
+      context: ../bot
+      dockerfile: Dockerfile
+    restart: always
+    networks:
+      - sova-fix-network
+
 networks:
   sova-fix-network:
 
