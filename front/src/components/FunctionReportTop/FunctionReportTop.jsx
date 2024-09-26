@@ -32,6 +32,15 @@ function FunctionReportTop(props) {
 
     }
     
+    const editAppoint = ()=>{
+        if(context.selectedTr != null){
+        context.setPopUp("PopUpEditAppoint")
+        }else{
+          context.setPopupErrorText("Сначала выберите заявку!");
+            context.setPopUp("PopUpError")
+        }
+      }
+
     return ( 
         <div className={styles.FunctionReportTop}>
             {
@@ -57,6 +66,10 @@ function FunctionReportTop(props) {
                     <div className={styles.ReportFinansingButton}>
                         <p className={styles.ReportFinansingButton__text}>Средняя скорость выполнения:  {TimeComplite()} (дней)</p>
                         <p className={styles.ReportFinansingButton__text}>Количество заявок:  {props?.dataTable.length }</p>
+                        <button style={{margin: "0px 10px 0px 0px"}} onClick={()=>editAppoint()}>
+                            <img src="./img/Edit.svg" alt="View" />
+                            Редактировать заявку
+                        </button>
                         <button onClick={() => generateAndDownloadExcel(props?.dataTable, "Показатели")}>Экспорт</button>
                     </div>
                 </div>
