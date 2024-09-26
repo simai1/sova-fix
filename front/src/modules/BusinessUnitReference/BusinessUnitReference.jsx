@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import UniversalTable from "../../components/UniversalTable/UniversalTable";
 import styles from "./BusinessUnitReference.module.scss";
-import { DeleteUnit, GetUnitsAll, CreateUnit } from "../../API/API"; // Ensure CreateUnit is imported
+import { DeleteUnit, GetUnitsAll, CreateUnit, GetUnitsOne, EditUnit } from "../../API/API"; // Ensure CreateUnit is imported
 import { tableUnitHeader } from "./DirectoryUnitData";
 import DataContext from "../../context";
 import UneversalDelete from "../../components/UneversalDelete/UneversalDelete";
@@ -16,6 +16,8 @@ function BusinessUnitReference() {
     const [unitName, setUnitName] = useState('');
     const [unitDescription, setUnitDescription] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
+    const [popUpEdit, setPopUpEdit] = useState(false);
+    const [selectId, setSelectId] = useState('');
 
     useEffect(() => {
         getData();
@@ -53,6 +55,7 @@ function BusinessUnitReference() {
 
     const closePopUp = () => {
         setPopUpCreate(false);
+        setPopUpEdit(false);
         setUnitName('');
         setUnitDescription('');
         setErrorMessage('');
@@ -69,12 +72,36 @@ function BusinessUnitReference() {
             description: unitDescription,
         };
         console.log('newUnit', newUnit);
+
+        popUpEdit ? 
+        EditUnit(newUnit, selectId).then((response) => {
+            if (response?.status === 200) {
+                getData();
+                closePopUp();
+            }
+        })
+        :
         CreateUnit(newUnit).then((response) => {
             if (response?.status === 200) {
                 getData();
                 closePopUp();
             }
         });
+    };
+
+    const EditUnitFinc = () => {
+        if (context.selectRowDirectory) {
+            setPopUpCreate(true);
+            setPopUpEdit(true);
+            setSelectId(context.selectRowDirectory);
+            GetUnitsOne(context.selectRowDirectory).then((response) => {
+                setUnitName(response.data.name);
+                setUnitDescription(response.data.description);
+            })
+        } else {
+            context.setPopupErrorText("Сначала выберите подразделение!");
+            context.setPopUp("PopUpError");
+        }
     };
 
     return (
@@ -85,6 +112,7 @@ function BusinessUnitReference() {
                 </div>
                 <div className={styles.BusinessUnitReferenceTopButton}>
                     <button onClick={() => setPopUpCreate(true)}>Добавить подразделение</button>
+                    <button onClick={() => EditUnitFinc()}>Редактировать подразделение</button>
                     <button onClick={() => deleteUnit()}>Удалить подразделение</button>
                 </div>
             </div>
@@ -93,7 +121,7 @@ function BusinessUnitReference() {
             {context.popUp === "PopUpError" && <PopUpError />}
             {popUpCreate && (
                 <div className={styles.PupUpCreate}>
-                    <PopUpContainer mT={300} title="Новое подразделение" closePopUpFunc={closePopUp}>
+                    <PopUpContainer mT={300} title={popUpEdit ? "Редактирование подразделения" : "Новое подразделение"} closePopUpFunc={closePopUp}>
                         <div className={styles.PupUpCreateInputInner}>
                             <div>
 
@@ -116,7 +144,7 @@ function BusinessUnitReference() {
 
                         </div>
                         <div className={styles.PupUpCreateButtonInner}>
-                            <button className={styles.PupUpCreateButton} onClick={handleCreateUnit}>Создать</button>
+                            <button className={styles.PupUpCreateButton} onClick={handleCreateUnit}>{ popUpEdit ? "Сохранить" : "Создать"}</button>
                         </div>
                     </PopUpContainer>
                 </div>

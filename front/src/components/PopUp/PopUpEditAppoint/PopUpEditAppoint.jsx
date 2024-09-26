@@ -4,26 +4,28 @@ import styles from "./PopUpEditAppoint.module.scss";
 import PopUpContainer from "../../../UI/PopUpContainer/PopUpContainer";
 import Input from "../../../UI/Input/Input";
 import DataContext from "../../../context";
-import { Register, ReseachDataRequest, SetcontractorRequest } from "../../../API/API";
+import { GetObjectsAll, GetOneRequests, Register, ReseachDataRequest, SetcontractorRequest } from "../../../API/API";
 import List from "../../../UI/List/List";
 import ListInput from "../../../UI/ListInput/ListInput";
 
 function PopUpEditAppoint(props) {
   const { context } = React.useContext(DataContext);
   const [dataApStart, setDataApStart] = useState(null)
+  const [dataObject, setDataObject] = useState([]);
   const [dataApointment, setdataApointment] = useState({
     contractorId:"",
     builder:"",
     status:"",
-    unit:"",
-    object:"",
+    // unit:"",
+    objectId:"",
+    objectName:"",
     problemDescription:"",
     urgency:"",
     repairPrice:"",
     comment:"",
-    legalEntity:"",
+    // legalEntity:"",
   });
-
+const [selectId, setSelectId] = useState(null);
   const DataStatus = [
     {id:1, name:"Новая заявка"},
     {id:2, name:"В работе"},
@@ -42,10 +44,14 @@ function PopUpEditAppoint(props) {
   ];
 
   useEffect(()=>{
-    context.dataApointment.map((el)=>{
-        if(  el?.id === context?.selectedTr){
-            setDataApStart(el)
-        }
+    setSelectId(context?.selectedTr)
+    GetOneRequests(context?.selectedTr).then((response) => {
+      if(response?.status === 200) {
+        setDataApStart(response.data)
+      }
+    })
+    GetObjectsAll().then((response) => {
+      setDataObject(response.data);
     })
   },[])
 
@@ -56,7 +62,8 @@ function PopUpEditAppoint(props) {
         builder: dataApStart?.builder,
         status: dataApStart?.status,
         unit: dataApStart?.unit,
-        object: dataApStart?.object,
+        objectId: dataApStart?.objectId,
+        objectName: dataApStart?.object,
         problemDescription: dataApStart?.problemDescription,
         urgency: dataApStart?.urgency,
         repairPrice: dataApStart?.repairPrice,
@@ -64,15 +71,29 @@ function PopUpEditAppoint(props) {
         legalEntity: dataApStart?.legalEntity,
       });
     }
+    console.log("dataApStart", dataApStart)
   }, [dataApStart]);
-
+//   const {
+//     objectId,
+//     problemDescription,
+//     urgency,
+//     repairPrice,
+//     comment,
+//     itineraryOrder,
+//     contractorId,
+//     status,
+//     builder,
+// } = req.body;
   const handleInputChange = (name, value) => {
     setdataApointment((prevState) => ({ ...prevState, [name]: value }));
   };
    const handleListData = (name, value) => { 
         setdataApointment((prevState) => ({ ...prevState, [name]: value }));
     };
-
+    const getObjectNameById = (id) => {
+        const objectItem = dataObject.find((item) => item.id === id);
+        return objectItem ? objectItem.name : id;
+    }
     const getUrgencyNameById = (id) => {
         const urgencyItem = DataUrgency.find((item) => item.id === id);
         return urgencyItem ? urgencyItem.name : id;
@@ -82,7 +103,7 @@ function PopUpEditAppoint(props) {
         const urgencyName = getUrgencyNameById(dataApointment.urgency);
         const updatedDataApointment = { ...dataApointment, urgency: urgencyName, };
       
-        ReseachDataRequest(context.selectedTr, updatedDataApointment).then((resp) => {
+        ReseachDataRequest(selectId, updatedDataApointment).then((resp) => {
           if (resp?.status === 200) {
             context.UpdateTableReguest(1);
             context.setPopUp(null)
@@ -131,36 +152,40 @@ function PopUpEditAppoint(props) {
         isActive={activeDropdown === "status"}
         toggleDropdown={() => toggleDropdown("status")}
       />
-           <Input
-            Textlabel={"Подразделение"}
+       <ListInput
+              Textlabel={"Объект"}
+              handleListData={handleListData}
+              name="objectId"
+              dataList={dataObject}
+              value={getObjectNameById(dataApointment.objectId)}
+              placeholder="Выберите объект"
+              isActive={activeDropdown === "objectId"}
+              toggleDropdown={() => toggleDropdown("objectId")}
+            />
+          <Input
+            Textlabel={"Подрядчик"}
             handleInputChange={handleInputChange}
-            name="unit"
-            placeholder="КЕКС"
-            value={dataApointment.unit}
+            name="builder"
+            placeholder="Укажите подрядчика"
+            value={dataApointment.builder}
           />
+        </div>     
+          <div className={styles.SecondBlock}>
             <Input
+            Textlabel={"Комментарий"}
+            handleInputChange={handleInputChange}
+            name="comment"
+            type = "textArea"
+            placeholder="Комментарий"
+            value={dataApointment.comment}
+          />
+           <Input
             Textlabel={"Описание проблемы"}
             handleInputChange={handleInputChange}
             name="problemDescription"
             placeholder="Не работает лампа от мухоловки"
             type = "textArea"
             value={dataApointment.problemDescription}
-          />
-        </div>     
-          <div className={styles.SecondBlock}>
-          <Input
-            Textlabel={"Объект"}
-            handleInputChange={handleInputChange}
-            name="object"
-            placeholder="Ворошиловский 53"
-            value={dataApointment.object}
-          />
-             <Input
-            Textlabel={"Подрядчик"}
-            handleInputChange={handleInputChange}
-            name="builder"
-            placeholder="Укажите подрядчика"
-            value={dataApointment.builder}
           />
             <Input
             Textlabel={"Бюджет ремонта (Рублей)"}
@@ -170,21 +195,7 @@ function PopUpEditAppoint(props) {
             placeholder="3000"
             value={dataApointment.repairPrice}
           />
-            <Input
-            Textlabel={"Комментарий"}
-            handleInputChange={handleInputChange}
-            name="comment"
-            type = "textArea"
-            placeholder="Комментарий"
-            value={dataApointment.comment}
-          />
-            <Input
-            Textlabel={"Юр. Лицо"}
-            handleInputChange={handleInputChange}
-            name="legalEntity"
-            placeholder="Пекарь ООО"
-            value={dataApointment.legalEntity}
-          />
+            
           </div>
         </div>
       </div>

@@ -1,6 +1,15 @@
 @import "./../../styles/color.scss";
 @import "./../../styles/mixins.scss";
-
+.mainPopBg{
+    position: fixed;
+    height: 100vh;
+    width: 100%;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    z-index: 10000;
+    background-color: rgba(0, 0, 0, 0.518);
 .mainPop{
     position: fixed;
     height: 100vh;
@@ -41,4 +50,5 @@
               }
         }
     }
+}
 }

@@ -15,7 +15,6 @@ function Table() {
   const trClick = (row) => {
     context.setSelectedTr(row.id);
   };
-console.log("context.filteredTableData", context.filteredTableData)
   const status = {
     1: "Новая заявка",
     2: "В работе",
@@ -194,7 +193,7 @@ console.log("context.filteredTableData", context.filteredTableData)
   // },[context.tableData, context.selectedTable])
 
   const checkHeights = (arr,index) =>{
-    if(arr?.length-1 === index && index === arr?.length-1){
+    if(arr?.length-1 === index && index === arr?.length-1  && arr?.length !== 1){
       return true
     }else{
       return false
@@ -202,8 +201,16 @@ console.log("context.filteredTableData", context.filteredTableData)
   }
 
   const getItem = (item, key) =>{
-    if(key === "repairPrice") {
+   
+    if(key === "repairPrice" && key !== "isConfirmed"){
       return    item?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") 
+    }if(key === "isConfirmed") {
+   
+      if(item === true){
+        return "Активирован"
+      }else{
+        return "Не активирован"
+      }
     }else{
     if(item === null || item === undefined || item === "null" || item === "undefined" || item === "" || item === " "){
       return "___"
@@ -294,7 +301,6 @@ console.log("context.filteredTableData", context.filteredTableData)
 
 const getRole = (value) =>
  {
-  console.log(value)
   if(value !== null){
     if(value === 2){
       return "Администратор"
@@ -343,12 +349,6 @@ const funSortByColumn = (key) => {
 };
 
 const storeTableHeader = useSelector(state => state.editColumTableSlice.ActiveColumTable);
-console.log("storeTableHeader", storeTableHeader)
-
-useEffect(() => {
-  console.log("context.tableHeader", context.tableHeader)
-},[context.tableHeader])
-
 
 
 useEffect(() => {
@@ -364,8 +364,9 @@ useEffect(() => {
   };
 }, [context]);
 
-
-
+const setPerformersDirectory = (el) => {
+  console.log("el", el)
+};
 return (
     <>
       
@@ -532,7 +533,6 @@ return (
                               <ul>
                               { row[headerItem.key] !== null && <li onClick={() => deleteBilder(row.id)}>Удалить исполнителя</li>}
                                 {context.dataContractors?.map((value, index) => (
-
                                   <li
                                     onClick={() => SetBilder(value.id, row.id)}
                                     key={index}
@@ -541,6 +541,7 @@ return (
                                     {value.name}
                                   </li>
                                 ))}
+                                {/* <li onClick={() => setPerformersDirectory(row.id)}>Внешний исполнитель</li> */}
                               </ul>
                             </div>
                           )}
@@ -589,7 +590,7 @@ return (
                        headerItem.key === "role" ? (
                         <div
                           onClick={() =>(row[headerItem.key] === 1 || row[headerItem.key] === 2 && ClickRole(row.id, row[headerItem.key]))}
-                          className={styles[row[headerItem.key] === 1 || row[headerItem.key] === 2 ? "statusClick" : ""]}
+                          className={styles[(row[headerItem.key] === 1 || row[headerItem.key] === 2) && JSON.parse(localStorage.getItem("userData")).user.role === "ADMIN" ? "statusClick" : ""]}
                         >
                           {getRole(row[headerItem.key])}
                         </div>

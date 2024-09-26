@@ -50,6 +50,7 @@ function ReportFinansing() {
                     <div className={styles.ReportFinansingList}>
                         <UneversalList dataList={DataList} placeholder="Период..." value="" setValueName={setValueName} valueName={valueName}/>
                         <div className={styles.ReportFinansingListInnerDate}>
+                        <span>От:</span>
                         <input 
                             type="date" 
                             value={dateFrom} 
@@ -57,6 +58,7 @@ function ReportFinansing() {
                             style={valueName !== "Все время" ? {cursor: "not-allowed", backgroundColor: "#f0f0f0"} : {}} 
                             disabled={valueName !== "Все время"} 
                             />
+                            <span>До:</span>
                             <input 
                                 type="date" 
                                 value={dateTo} 

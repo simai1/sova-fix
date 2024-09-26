@@ -26,6 +26,7 @@ function ListInput(props) {
             onClick={props.toggleDropdown} // Toggle dropdown on click
             value={props.dataList.find((el) => el.id === props.value)?.name || props.value}
             placeholder={props?.placeholder}
+            style={props.isActive ? {borderRadius: "5px 5px 0 0"} : null}
           />
           <span
             onClick={props.toggleDropdown}

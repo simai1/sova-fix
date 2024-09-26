@@ -90,6 +90,10 @@
   }
   .ReportFinansingListInnerDate{
     display: flex;
+    align-items: center;
+    position: relative;
+    top: -10px;
+    margin-left: 12px;
     input{
       height: 40px;
       width: 194px;

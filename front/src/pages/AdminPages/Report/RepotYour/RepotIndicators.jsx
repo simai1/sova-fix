@@ -68,12 +68,14 @@ function RepotIndicators() {
                             <UneversalList dataList={DataList} placeholder="Период..." value="" setValueName={setValueName} valueName={valueName}/>
                           
                             <div className={styles.ReportFinansingListInnerDate}>
+                            <span>От:</span>
                                 <input 
                                     style={valueName !== "Все время" ? {cursor: "not-allowed", backgroundColor: "#f0f0f0"} : {}} 
                                     disabled={valueName !== "Все время"}
                                     type="date"
                                     value={dateFrom}
                                     onChange={(e) => setDateFrom(e.target.value)}/>
+                                    <span>До:</span>
                                 <input 
                                     style={valueName !== "Все время" ? {cursor: "not-allowed", backgroundColor: "#f0f0f0"} : {}} 
                                     disabled={valueName !== "Все время"}

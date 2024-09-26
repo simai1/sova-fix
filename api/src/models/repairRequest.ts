@@ -33,6 +33,7 @@ export default class RepairRequest extends Model {
     contractorId?: string;
     ExtContractor?: ExtContractor; // external contractor rel
     extContractorId?: string;
+    isExternal!: boolean;
 
     static initialize(sequelize: Sequelize) {
         RepairRequest.init(
@@ -97,6 +98,11 @@ export default class RepairRequest extends Model {
                 checkPhoto: {
                     type: DataTypes.STRING,
                     allowNull: true,
+                },
+                isExternal: {
+                    type: DataTypes.BOOLEAN,
+                    allowNull: true,
+                    defaultValue: false,
                 },
             },
             {
