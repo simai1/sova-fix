@@ -5,7 +5,11 @@ import config as cf
 
 async def send_customer_menu(message: Message) -> None:
 
-    menu_text = 'меню ЗАКАЗЧИК'
+    menu_text = """
+<b>меню ЗАКАЗЧИК</b>
+
+Здесь вы можете подать заявку на ремонт вашего оборудования.
+"""
 
     kb = IKM(inline_keyboard=[
         [IKB(text='Мои заявки 📋', callback_data='customer_requests')],

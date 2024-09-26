@@ -1,13 +1,18 @@
-import os
+import asyncio
+from pprint import pprint
 
-from dotenv import load_dotenv
+import requests
+import websocket
+import config as cf
+from bot.util import crm
+from util import logger
 
 
-def test() -> None:
-    load_dotenv(dotenv_path='.env')
-
-    print(os.getenv('BOT_TOKEN'))
+async def test() -> None:
+    logger.info("some info")
+    logger.warn("warning!")
+    logger.error("error rrrrrrrrrrrrrrrrrr")
 
 
 if __name__ == '__main__':
-    test()
+    asyncio.run(test())
