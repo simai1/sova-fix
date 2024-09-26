@@ -58,7 +58,7 @@ class WebSocketWorker:
         self.connection_opened = True
 
     def on_message(self, ws, message) -> None:
-        logger.info(f"websocket: Got new message, event: \"{json.loads(message)["event"]}\"")
+        logger.info(f"websocket: Got new message, event: \"{json.loads(message)['event']}\"")
         coro = send_notification.from_websocket_message(self.bot, message)
         asyncio.run_coroutine_threadsafe(coro, self.loop)
 
@@ -70,7 +70,7 @@ class WebSocketWorker:
         self.connection_opened = False
 
         while not self.connection_opened and self.should_run:
-            logger.info("websocket: Try reopening connection in 5 seconds")
+            logger.info(f"websocket: Try reopening connection in 5 seconds ({cf.WEBSOKET_URL})")
 
             time.sleep(5)
 
