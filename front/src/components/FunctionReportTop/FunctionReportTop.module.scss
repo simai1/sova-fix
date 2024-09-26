@@ -25,7 +25,6 @@
             }
             button{
                 @include button(var(--turquoise-color));
-              
                 padding: 0px 25px!important;
                 height: 44px;
                 display: flex;

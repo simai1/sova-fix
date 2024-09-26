@@ -187,7 +187,7 @@ function ReferenceObjects() {
                             <div>
                                 <div>
                                     <input 
-                                        placeholder="Название..." 
+                                        placeholder="Адрес..." 
                                         value={unitName} 
                                         onChange={(e) => setUnitName(e.target.value)} 
                                     />

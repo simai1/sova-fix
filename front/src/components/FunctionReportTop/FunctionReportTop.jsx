@@ -57,6 +57,10 @@ function FunctionReportTop(props) {
                     <div className={styles.ReportFinansingButton}>
                         <p className={styles.ReportFinansingButton__text}>Средняя скорость выполнения:  {TimeComplite()} (дней)</p>
                         <p className={styles.ReportFinansingButton__text}>Количество заявок:  {props?.dataTable.length }</p>
+                        <button style={{margin: "0px 10px 0px 0px"}}>
+                            <img src="./img/Edit.svg" alt="View" />
+                            Редактировать заявку
+                        </button>
                         <button onClick={() => generateAndDownloadExcel(props?.dataTable, "Показатели")}>Экспорт</button>
                     </div>
                 </div>

@@ -73,19 +73,31 @@ function UniversalTable(props) {
         };
     }, [context]);
 
+    const textAlign = (keys, item) => {
+        console.log("keys", keys)
+        if(keys === "number" || keys === "count" || keys === "itineraryOrder" || keys === "startCoop" || keys === "daysAtWork" || keys === "completeDate" || keys === "createdAt" || keys === "repairPrice" || keys === "startCoop" || keys === "tgId" || keys === "id"){
+          return "center"
+        }if(item === null){
+          return "center"
+        }
+        else{
+          return "left"
+        }
+      }
+
     return (
         <div className={styles.UniversalTable}>
             <table>
                 <thead>
                     {tableHeaderData?.map((el, index) => (
-                        <th key={index}>{el.value}</th>
+                        <th key={index} name={el.key}>{el.value}</th>
                     ))}
                 </thead>
                 <tbody>
                     {tableBodyData?.map((row, rowIndex) => (
                         <tr key={rowIndex} onClick={() => props?.selectFlag && clickTr(row)}>
                             {tableHeaderData.map((header) => (
-                                <td key={header.key} className={header.key} style={context.selectRowDirectory === row.id ? { backgroundColor: "#ababab24" } : {}}>
+                                <td key={header.key} name={header.key} className={header.key} style={context.selectRowDirectory === row.id ? { backgroundColor: "#D8CDC1FF", textAlign: textAlign(header.key, row[header.key])} : {textAlign: textAlign(header.key, row[header.key])}}>
                                     {getValue(row[header.key], header.key)}
                                 </td>
                             ))}
