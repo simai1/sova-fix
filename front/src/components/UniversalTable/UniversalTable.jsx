@@ -57,6 +57,7 @@ function UniversalTable(props) {
     const clickTr = (value) => {
         console.log(value);
         context.setSelectRowDirectory(value.id);
+        context.setSelectedTr(value.id);
     };
 
     useEffect(() => {

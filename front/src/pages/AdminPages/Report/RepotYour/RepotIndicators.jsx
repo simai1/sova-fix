@@ -13,6 +13,8 @@ import UniversalDashbordSrochn from "../../../../components/UniversalDashbord/Un
 import UniversalDashbordStatus from "../../../../components/UniversalDashbord/UniversalDashbordStatus";
 import UniversalDashboardStatus from "../../../../components/UniversalDashbord/UniversalDashbordStatus";
 import { sortDataTable } from "../functionSort/functionSort";
+import { PopUpError } from "../../../../UI/PopUpError/PopUpError";
+import PopUpEditAppoint from "../../../../components/PopUp/PopUpEditAppoint/PopUpEditAppoint";
 
 function RepotIndicators() {
     const { context } = useContext(DataContext);
@@ -199,7 +201,7 @@ function RepotIndicators() {
                 <div>
                     <FunctionReportTop dataTable={tableDataIndicatorsSort}/>
                     {vidView === "Таблица" ?
-                        <UniversalTable tableHeader={tableHeadIndicators} tableBody={tableDataIndicatorsSort}/>
+                        <UniversalTable selectFlag={true} tableHeader={tableHeadIndicators} tableBody={tableDataIndicatorsSort}/>
                         :
                         <div className={styles.ReportIndicatorsDashbord}>
                             <div>
@@ -212,6 +214,8 @@ function RepotIndicators() {
                     }
                 </div>
             </Layout>
+            {context.popUp === "PopUpError" && <PopUpError />}
+            {context.popUp === "PopUpEditAppoint" && <PopUpEditAppoint />}
         </div>
     );
 }
