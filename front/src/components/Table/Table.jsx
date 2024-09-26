@@ -8,7 +8,6 @@ import { SamplePoints } from "../../UI/SamplePoints/SamplePoints";
 import { removeTableCheckeds } from "../../store/filter/isChecked.slice";
 import { useDispatch, useSelector } from "react-redux";
 import { FilteredSample, funFixEducator } from "../../UI/SamplePoints/Function";
-import СonfirmDelete from "../СonfirmDelete/СonfirmDelete";
 function Table() {
   const { context } = useContext(DataContext);
   const [actiwFilter, setActiwFilter] = useState(null);
@@ -758,7 +757,10 @@ return (
         </div>
       )}
       {
-        context.popUp === "СonfirmDelete" &&  <СonfirmDelete />
+        context.popUp === "СonfirmDelete" &&  <СonfirmDelete />    
+      }
+      {
+        context.popUp === "СonfirmDeleteUser" &&  <СonfirmDeleteUser/>
       }
      
     </>
