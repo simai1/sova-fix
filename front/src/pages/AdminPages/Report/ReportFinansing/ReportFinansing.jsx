@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import Layout from "../../../../UI/Layout/Layout";
 import UneversalList from "../../../../UI/UneversalList/UneversalList";
 import Header from "../../../../components/Header/Header";
@@ -18,7 +18,22 @@ function ReportFinansing() {
     const [valueName, setValueName] = useState("Все время");
     const [dateFrom, setDateFrom] = useState(new Date().toISOString().slice(0, 10));
     const [dateTo, setDateTo] = useState(new Date().toISOString().slice(0, 10));
+    const [vidView, setVidView] = useState("Таблица");
+    const [vidViewChange, setVidViewChange] = useState(false);
+    const dropdownRef = useRef(null); // Create a ref for the dropdown
 
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setVidViewChange(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
 
     useEffect(() => {
         const fixedData = funFixEducator(context.dataApointment);
@@ -129,31 +144,56 @@ function ReportFinansing() {
                 <div>
                     <h2>Финансы</h2>
                     <div className={styles.ReportFinansingList}>
-                        <UneversalList dataList={DataList} placeholder="Период..." value="" setValueName={setValueName} valueName={valueName}/>
-                        <div className={styles.ReportFinansingListInnerDate}>
-                        <span>От:</span>
-                        <input 
-                            type="date" 
-                            value={dateFrom} 
-                            onChange={(e) => setDateFrom(e.target.value)} 
-                            style={valueName !== "Все время" ? {cursor: "not-allowed", backgroundColor: "#f0f0f0"} : {}} 
-                            disabled={valueName !== "Все время"} 
-                            />
-                            <span>До:</span>
+                        <div className={styles.ReportFinansingListFirst}>
+                            <UneversalList dataList={DataList} placeholder="Период..." value="" setValueName={setValueName} valueName={valueName}/>
+                            <div className={styles.ReportFinansingListInnerDate}>
+                            <span>От:</span>
                             <input 
                                 type="date" 
-                                value={dateTo} 
-                                onChange={(e) => setDateTo(e.target.value)}
+                                value={dateFrom} 
+                                onChange={(e) => setDateFrom(e.target.value)} 
                                 style={valueName !== "Все время" ? {cursor: "not-allowed", backgroundColor: "#f0f0f0"} : {}} 
                                 disabled={valueName !== "Все время"} 
-                            />
+                                />
+                                <span>До:</span>
+                                <input 
+                                    type="date" 
+                                    value={dateTo} 
+                                    onChange={(e) => setDateTo(e.target.value)}
+                                    style={valueName !== "Все время" ? {cursor: "not-allowed", backgroundColor: "#f0f0f0"} : {}} 
+                                    disabled={valueName !== "Все время"} 
+                                />
+                            </div>
+                            <div className={styles.dropFilter} onClick={refreshFilters} title="нажмите для сброса фильтров"><img src="./img/ClearFilter.svg" alt="Clear Filter"/></div>
                         </div>
-                        <div className={styles.dropFilter} onClick={refreshFilters} title="нажмите для сброса фильтров"><img src="./img/ClearFilter.svg" alt="Clear Filter"/></div>
+                        <div>
+
+                      
+                        <div className={styles.ReportFinansingvidView} ref={dropdownRef}>
+                            <p>Визуализация отчета:</p>
+                            <div>
+                                <input placeholder="" value={vidView} onClick={() => setVidViewChange(!vidViewChange)} className={styles.ReportFinansingvidViewInput} readOnly style={{borderBottom: !vidViewChange ? "1px solid #ADADAD" : "none", borderRadius: vidViewChange ? "8px 8px 0 0" : "8px"}}/>
+                                <span onClick={() => setVidViewChange(!vidViewChange)} className={styles.arrowBot}>
+                                    <img style={{ transform: !vidViewChange ? "rotate(-90deg)" : "rotate(0deg)" }} src="./img/arrow_bottom.svg"/>
+                                </span>
+                                {vidViewChange && 
+                                    <div className={styles.ReportFinansingvidViewList}>
+                                        <ul>
+                                            <li onClick={() => { setVidView("Таблица"); setVidViewChange(false); }}>Таблица</li>
+                                            <li onClick={() => { setVidView("Графики"); setVidViewChange(false); }}>Графики</li>
+                                        </ul>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        </div>
                     </div>
                 </div>
                 <div>
                     <FunctionReportTop dataTable={tableDataFinansingSort}/>
-                    <UniversalTable tableHeader={TableHeader} tableBody={tableDataFinansingSort}/>
+                    {
+                        vidView === "Таблица" ? <UniversalTable tableHeader={TableHeader} tableBody={tableDataFinansingSort}/> : <FinansingDiagrams/>
+                    }
                 </div>
             </Layout>
         </div>
