@@ -16,6 +16,7 @@ function Table() {
   const { context } = useContext(DataContext);
   const [actiwFilter, setActiwFilter] = useState(null);
   const [coordinatesX, setCoordinatesX] = useState(0);
+  const [openConextMenu, setOpenConextMenu] = useState(false);
   const [coordinatesY, setCoordinatesY] = useState(0);
   const trClick = (row, target) => {
     console.log("target",target.tagName)
@@ -34,6 +35,7 @@ function Table() {
     if(target.className !== "Table_statusClick__QSptV" && target.tagName !== "LI" && !context.moreSelect.includes(row.id)){
         context.setMoreSelect([...context.moreSelect, row.id])
     }
+    setOpenConextMenu(true)
   
   };
 
@@ -213,8 +215,7 @@ function Table() {
 
   const handleClickOutside = (event) => {
     if (contextmenuRef.current && !contextmenuRef.current.contains(event.target)) {
-      setCoordinatesX(0);
-      setCoordinatesY(0);
+      setOpenConextMenu(false)
     }
     if (
       statusPopRef.current && !statusPopRef.current.contains(event.target) && event.target.tagName !== "LI" && event.target.className !== "Table_shovStatusPop__LcpzL"
@@ -850,9 +851,9 @@ return (
       {
         context.popUp === "СonfirmDeleteUser" &&  <СonfirmDeleteUser/>
       }
-      { coordinatesX !== 0 && coordinatesY !== 0 &&
-        <div ref={contextmenuRef}>
-          <Contextmenu X={coordinatesX} Y={coordinatesY} setCoordinatesX={setCoordinatesX} setCoordinatesY={setCoordinatesY}/>
+      {openConextMenu &&
+        <div ref={contextmenuRef} style={{display:openConextMenu ? "block" : "none"}}>
+          <Contextmenu X={coordinatesX} Y={coordinatesY} setOpenConextMenu={setOpenConextMenu}/>
         </div>
       }
     </div>
