@@ -17,7 +17,7 @@ function Contextmenu(props) {
     }, [props.X, props.Y]); // Update coordinates when props change
 
     const convertCoord = (X, Y) => {
-        const menuWidth = 280;
+        const menuWidth = 320;
         const menuHeight = 160;
         const SizeX = window.innerWidth;
         const SizeY = window.innerHeight;
