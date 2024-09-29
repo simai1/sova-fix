@@ -1,6 +1,8 @@
-FROM node:18.18.0
+FROM node:20.10.0
 WORKDIR /app
 COPY ./package*.json ./
 RUN npm install
-COPY ./dist ./dist
+COPY . .
+CMD ["npm","run","build"]
 CMD ["npm","run","start"]
+

@@ -449,15 +449,28 @@ const deleteExp = (id) => {
   });
 };
 
+const textAlign = (keys,item) => {
+  if(keys === "number" || keys === "itineraryOrder" || keys === "id" || keys === "createdAt" || keys === "daysAtWork" || keys === "completeDate" || keys === "createdAt" || keys === "repairPrice" ){
+    return "center"
+  }
+  else if(item === null){
+    console.log("keys", keys)
+    return "center"
+  }
+  else{
+    return "left"
+  }
+}
+
 return (
     <>
       
-        <div className={styles.Table} style={{overflow: context.filteredTableData.length === 0 ? 'hidden' : 'auto'}}>
+        <div className={styles.Table} style={{overflow: context?.filteredTableData.length === 0 ? 'hidden' : 'auto'}}>
           <table className={styles.TableInner} >
           {(context.selectedTable === "Заявки" && context.selectPage === "Main") ?(
             <thead>
               <tr>
-              {storeTableHeader.filter((el)=>(el.isActive === true)).map((item, index) => (
+              {storeTableHeader?.filter((el)=>(el.isActive === true)).map((item, index) => (
                                 <th onClick={(el) => { clickTh(item.key, index, el) }} name={item.key} key={item.key}>
                                     <div className={styles.thTable}>
                                         {item.value}
@@ -506,7 +519,7 @@ return (
             :(
               <thead>
                 <tr>
-                {context.tableHeader.map((item,index) => (
+                {context?.tableHeader.map((item,index) => (
                   <th onClick={() => {clickTh(item.key, index)}} name={item.key} key={item.key} className={styles.headerNotMain}>
                       {item.value} 
                   </th>
@@ -516,10 +529,10 @@ return (
             )
           }
             <tbody >
-            {context.filteredTableData.length > 0 ? (
+            {context?.filteredTableData.length > 0 ? (
             
            <>
-              {context.filteredTableData.map((row, index) => (  
+              {context?.filteredTableData.map((row, index) => (  
                 <tr
                   key={index}
                   onClick={() => trClick(row)}
@@ -528,8 +541,8 @@ return (
                   }
                 >
                 
-                  { (context.selectedTable === "Заявки" ? storeTableHeader.filter((el)=>(el.isActive === true)) :  context.tableHeader ).map((headerItem) => (
-                    <td key={headerItem.key}>
+                  { (context.selectedTable === "Заявки" ? storeTableHeader?.filter((el)=>(el.isActive === true)) :  context.tableHeader ).map((headerItem) => (
+                    <td key={headerItem.key} name={headerItem.key}  style={{textAlign: textAlign(headerItem.key, row[headerItem.key]), backgroundColor:  context.selectedTr === row.id && "#D8CDC1FF"}}>
                       {headerItem.key === "id" ? (
                         index + 1
                       ) : headerItem.key === "status" ? (
@@ -553,7 +566,7 @@ return (
                         >
                           {row[headerItem.key]}
                           {shovStatusPop === row.id && (
-                            <div className={styles.shovStatusPop} style={checkHeights(context.filteredTableData,index) ? {top:"-70%", width: "150px"} : {width: "150px"}}>
+                            <div className={styles.shovStatusPop} style={checkHeights(context?.filteredTableData,index) ? {top:"-70%", width: "150px"} : {width: "150px"}}>
                               <ul>
                                 {Object.values(status).map((value, index) => (
                                   <li
@@ -611,7 +624,7 @@ return (
                         >
                           {getContractorItem(row)}
                           {shovBulderPop === row.id && (
-                            <div className={styles.shovStatusPop} style={checkHeights(context.filteredTableData,index) ? {top:"-70%", width: "200%"} : {width: "200%"}}  >
+                            <div className={styles.shovStatusPop} style={checkHeights(context?.filteredTableData,index) ? {top:"-70%", width: "200%"} : {width: "200%"}}  >
                               <ul>
                               { row[headerItem.key] !== null && <li onClick={() => deleteBilder(row.id)}>Удалить исполнителя</li>}
                                 {context.dataContractors?.map((value, index) => (
@@ -628,7 +641,7 @@ return (
                             </div>
                           )}
                         </div>
-                      ) : headerItem.key === "builder" && context.filteredTableData[index].isExternal?  (
+                      ) : headerItem.key === "builder" && context?.filteredTableData[index].isExternal?  (
                         <div
                           onClick={() => context.selectPage === "Main" && funSetExp(row.id)}
                           className={context.selectPage === "Main" && styles.statusClick}
@@ -636,7 +649,7 @@ return (
                         >
                           {getItemBuilder(row)} 
                           {shovExtPop === row.id && (
-                            <div className={styles.shovStatusPop} style={checkHeights(context.filteredTableData,index) ? {top:"-70%", width: "200%"} : {width: "200%"}}  >
+                            <div className={styles.shovStatusPop} style={checkHeights(context?.filteredTableData,index) ? {top:"-70%", width: "200%"} : {width: "200%"}}  >
                               <ul>
                               { row[headerItem.key] !== null && <li onClick={() => deleteExp(row.id)}>Удалить подрядчика</li>}
                                 {dataBuilder?.map((value, index) => (
@@ -678,7 +691,7 @@ return (
                         >
                           {row[headerItem.key] !== null ? row[headerItem.key] : "___"}
                           {shovUrgencyPop === row.id && (
-                            <div className={styles.shovStatusPop} style={checkHeights(context.filteredTableData,index) ? {top:"-70%", width: "200%"} : {width: "200%"}}
+                            <div className={styles.shovStatusPop} style={checkHeights(context?.filteredTableData,index) ? {top:"-70%", width: "200%"} : {width: "200%"}}
                             >
                               <ul>
                                 {DataUrgency?.map((value, index) => (
@@ -710,7 +723,7 @@ return (
                         >
                          {row[headerItem.key] !== null ? row[headerItem.key] : "___"}
                           {itineraryOrderPop === row.id && (
-                            <div className={styles.shovStatusPop} style={checkHeights(context.filteredTableData, index) ? {top:"-10%", right:"100px", width: "auto"} : {width: "auto"}}>
+                            <div className={styles.shovStatusPop} style={checkHeights(context?.filteredTableData, index) ? {top:"-10%", right:"100px", width: "auto"} : {width: "auto"}}>
                               <ul>
                               {
                                 arrCount.map((el)=>{
@@ -731,13 +744,13 @@ return (
               ))}
               </>
             ):(
-              <tr className={styles.tdNotData} style={{ pointerEvents: "none"}}><td style={{background: "#e3dfda"}}><div className={styles.noteData}>Нет данных</div></td></tr>
+              <tr className={styles.tdNotData}><td style={{background: "#e3dfda"}}><div className={styles.noteData}>Нет данных</div></td></tr>
             )}
             </tbody>
           </table>
         </div>
       
-
+        {/* style={{ pointerEvents: "none", textAlign: textAlign(headerItem.key) }} */}
       {modalImage && (
         <div className={styles.modal} onClick={closeModal}>
           <span className={styles.close}>&times;</span>

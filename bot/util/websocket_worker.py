@@ -70,7 +70,7 @@ class WebSocketWorker:
         self.connection_opened = False
 
         while not self.connection_opened and self.should_run:
-            logger.info("websocket: Try reopening connection in 5 seconds")
+            logger.info(f"websocket: Try reopening connection in 5 seconds ({cf.WEBSOKET_URL})")
 
             time.sleep(5)
 

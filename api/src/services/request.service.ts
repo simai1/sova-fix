@@ -362,23 +362,157 @@ const update = async (
     );
 };
 
-const getCustomersRequests = async (tgUserId: string): Promise<RequestDto[]> => {
-    const requests = await RepairRequest.findAll({
-        where: { createdBy: tgUserId },
-        include: [
-            { model: Contractor },
-            { model: ObjectDir },
-            { model: Unit },
-            { model: LegalEntity },
-            { model: ExtContractor },
-        ],
-    });
+const getCustomersRequests = async (tgUserId: string, filter: any): Promise<RequestDto[]> => {
+    let requests;
+    const whereParams = {};
+    Object.keys(filter).forEach((k: any) =>
+        k === 'search'
+            ? null
+            : k !== 'contractor'
+              ? // @ts-expect-error skip
+                (whereParams[k] = filter[k])
+              : // @ts-expect-error skip
+                (whereParams['$Contractor.name$'] = filter[k])
+    );
+    // @ts-expect-error skip
+    whereParams['createdBy'] = tgUserId;
+    if (Object.keys(filter).length !== 0 && typeof filter.search !== 'undefined') {
+        const searchParams = [
+            {
+                status: (() => {
+                    return Object.keys(statusesRuLocale)
+                        .filter(s =>
+                            // @ts-expect-error skip
+                            statusesRuLocale[s].includes(
+                                Number.isInteger(filter.search) ? filter.search : filter.search.toLowerCase()
+                            )
+                        )
+                        .map(s => s);
+                })(),
+            },
+            { '$Unit.name$': { [Op.iLike]: `%${filter.search}%` } },
+            { builder: { [Op.iLike]: `%${filter.search}%` } },
+            { '$Object.name$': { [Op.iLike]: `%${filter.search}%` } },
+            { problemDescription: { [Op.iLike]: `%${filter.search}%` } },
+            { urgency: { [Op.iLike]: `%${filter.search}%` } },
+            sequelize.where(sequelize.cast(sequelize.col('repair_price'), 'varchar'), {
+                [Op.iLike]: `%${filter.search}%`,
+            }),
+            { comment: { [Op.iLike]: `%${filter.search}%` } },
+            { '$LegalEntity.name$': { [Op.iLike]: `%${filter.search}%` } },
+            { '$Contractor.name$': { [Op.iLike]: `%${filter.search}%` } },
+        ];
+        if (Number.isInteger(filter.search)) {
+            // @ts-expect-error skip
+            searchParams.push({ number: filter.search });
+            // @ts-expect-error skip
+            searchParams.push({ itineraryOrder: filter.search });
+            // @ts-expect-error skip
+            searchParams.push({ daysAtWork: filter.search });
+        }
+        requests = await RepairRequest.findAll({
+            where: {
+                [Op.and]: [
+                    {
+                        [Op.or]: searchParams,
+                    },
+                    whereParams,
+                ],
+            },
+            include: [
+                {
+                    model: Contractor,
+                },
+                {
+                    model: ObjectDir,
+                },
+                {
+                    model: Unit,
+                },
+                {
+                    model: LegalEntity,
+                },
+                {
+                    model: ExtContractor,
+                },
+            ],
+            order: [['number', 'desc']],
+        });
+    } else {
+        requests = await RepairRequest.findAll({
+            where: whereParams,
+            include: [
+                { model: Contractor },
+                { model: ObjectDir },
+                { model: Unit },
+                { model: LegalEntity },
+                { model: ExtContractor },
+            ],
+            order: [['number', 'desc']],
+        });
+    }
     return requests.map(r => new RequestDto(r));
 };
 
 const addCheck = async (requestId: string, file: string): Promise<void> => {
     await RepairRequest.update({ checkPhoto: file }, { where: { id: requestId } });
     await setStatus(requestId, 3);
+};
+
+const bulkDeleteRequests = async (ids: object): Promise<void> => {
+    const repairRequests = await RepairRequest.findAll({ where: { id: ids } });
+    if (repairRequests.length === 0) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found any requests');
+    await repairRequests.reduce(
+        (chain, request) => chain.then(() => request.destroy({ force: true })),
+        Promise.resolve()
+    );
+};
+
+const bulkSetStatus = async (ids: object, status: number): Promise<void> => {
+    const repairRequests = await RepairRequest.findAll({ where: { id: ids } });
+    if (repairRequests.length === 0) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found any requests');
+    repairRequests.forEach(request => request.update({ status }));
+};
+
+const bulkSetUrgency = async (ids: object, urgency: string): Promise<void> => {
+    const repairRequests = await RepairRequest.findAll({ where: { id: ids } });
+    if (repairRequests.length === 0) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found any requests');
+    repairRequests.forEach(request => request.update({ urgency }));
+};
+
+const bulkSetContractor = async (ids: object, contractorId: string): Promise<void> => {
+    const repairRequests = await RepairRequest.findAll({ where: { id: ids } });
+    if (repairRequests.length === 0) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found any requests');
+    let contractor;
+    if (contractorId.toLowerCase() !== 'внешний подрядчик') contractor = await Contractor.findByPk(contractorId);
+    if (!contractor && contractorId.toLowerCase() !== 'внешний подрядчик')
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Not found contractor with id ' + contractorId);
+    for (const request of repairRequests) {
+        const oldStatus = request.status;
+        if (contractorId.toLowerCase() === 'внешний подрядчик')
+            await request.update({ contractorId: null, builder: 'Внешний подрядчик', isExternal: true });
+        else
+            await request.update({
+                contractorId,
+                builder: 'Внутренний сотрудник',
+                status: 2,
+                daysAtWork: 1,
+                ExtContractorId: null,
+                isExternal: false,
+            });
+        const customer = await TgUser.findByPk(request.createdBy);
+        const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
+        sendMsg({
+            msg: {
+                newStatus: 2,
+                oldStatus: oldStatus,
+                requestId: request.id,
+                contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
+                customer: customer ? customer.tgId : null,
+            },
+            event: 'STATUS_UPDATE',
+        } as WsMsgData);
+    }
 };
 
 export default {
@@ -395,4 +529,8 @@ export default {
     update,
     getCustomersRequests,
     addCheck,
+    bulkDeleteRequests,
+    bulkSetStatus,
+    bulkSetUrgency,
+    bulkSetContractor,
 };
