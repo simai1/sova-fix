@@ -7,7 +7,7 @@ function СonfirmDelete() {
 
 
     const DeletedRequest = () => {
-         DeleteRequest(context.selectedTr).then((resp)=>{
+         DeleteRequest(context.moreSelect[0]).then((resp)=>{
         if(resp?.status === 200){
           context.UpdateTableReguest(1);
           context.setSelectedTr(null)

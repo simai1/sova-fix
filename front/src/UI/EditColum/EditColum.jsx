@@ -61,7 +61,7 @@ function EditColum() {
                                 <input type='checkbox' checked={store.AllCheckbox} readOnly onClick={() => dispatch(resetAllColumns())}/>
                                 <span>Все</span>
                             </li>
-                            {store.ActiveColumTable.map((el, index) => (
+                            {store.ActiveColumTable.slice(3).map((el, index) => (
                                 <li key={index}>
                                     <input type='checkbox' checked={el.isActive} readOnly onClick={() => dispatch(onCheckState({key: el.key, isActive: el.isActive}))}/>
                                     <span>{el.value}</span>

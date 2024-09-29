@@ -193,7 +193,7 @@ function ReportFinansing() {
                 <div>
                     <FunctionReportTop dataTable={tableDataFinansingSort}/>
                     {
-                        vidView === "Таблица" ? <UniversalTable tableHeader={TableHeader} tableBody={tableDataFinansingSort}/> : <FinansingDiagrams/>
+                        vidView === "Таблица" ? <UniversalTable tableHeader={TableHeader} tableBody={tableDataFinansingSort}/> : <div className={styles.ReportFinansingDiagram}><FinansingDiagrams DataFinansing={tableDataFinansingSort}/></div>
                     }
                 </div>
             </Layout>

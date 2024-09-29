@@ -14,9 +14,20 @@ import { use } from "echarts";
 function Table() {
   const { context } = useContext(DataContext);
   const [actiwFilter, setActiwFilter] = useState(null);
-  const trClick = (row) => {
+  const moreCheckedInput = [];
+  const trClick = (row, target) => {
+    console.log("target",target.tagName)
     context.setSelectedTr(row.id);
+    if(target.className !== "Table_statusClick__QSptV" && target.tagName !== "LI"){
+      if(context.moreSelect.includes(row.id)){
+        context.setMoreSelect(context.moreSelect.filter(item => item !== row.id))
+      }else{
+        context.setMoreSelect([...context.moreSelect, row.id])
+      }    
+    }
+  
   };
+
   const status = {
     1: "Новая заявка",
     2: "В работе",
@@ -467,6 +478,34 @@ const WhatNanItem = () => {
   })
 }
 
+const whatPageBgTd = (row) => {
+  if(context?.selectedTable === "Заявки"){
+    if(context.moreSelect.some((el) => el === row)){
+      return "#D8CDC1FF"
+    }
+  }else{
+    if(context.selectedTr === row){
+      return "#D8CDC1FF"
+    }
+  }
+}
+
+const checkedAllFunc = () => {
+  if(context.moreSelect.length > 0){
+    return true
+  }else{
+    return false
+  }
+}
+
+const clickAllTh = () => {
+  if(context?.moreSelect?.length > 0){
+    context.setMoreSelect([])
+  }else{
+    context.filteredTableData.map((el) => context.setMoreSelect((prevState) => [...prevState, el.id]))
+  }
+}
+
 return (
     <>
       
@@ -475,6 +514,9 @@ return (
           {(context.selectedTable === "Заявки" && context.selectPage === "Main") ?(
             <thead>
               <tr>
+              <th name="checkAll">
+                <input type="checkbox" name="checkAll" className={styles.checkbox} checked={checkedAllFunc()} onClick={clickAllTh}></input>
+              </th>
               {storeTableHeader?.filter((el)=>(el.isActive === true)).map((item, index) => (
                                 <th onClick={(el) => { clickTh(item.key, index, el) }} name={item.key} key={item.key}>
                                     <div className={styles.thTable}>
@@ -534,20 +576,27 @@ return (
             )
           }
             <tbody >
-            {context?.filteredTableData.length > 0 ? (
-            
+              {context?.filteredTableData.length > 0 ? (
            <>
               {context?.filteredTableData.map((row, index) => (  
                 <tr
                   key={index}
-                  onClick={() => trClick(row)}
+                  onClick={(e) => {
+                    const target = e.target; // Получаем элемент, на который кликнули
+                    trClick(row, target ); // Вызов вашей функции
+                  }}
                   className={
-                    context.selectedTr === row.id && styles.setectedTr
+                    context.selectedTable === "Заявки" ? context.moreSelect.some((el) => el === row.id) && styles.setectedTr : context.selectedTr === row.id && styles.setectedTr
                   }
+                 
                 >
-                
+                {context.selectedTable === "Заявки" &&
+                  <td name="checkAll" style={{textAlign: "center", backgroundColor: whatPageBgTd(row.id)}}>
+                    <input type="checkbox" checked={context.moreSelect.some((el) => el === row.id) } key={index} name="checkAll" className={styles.checkbox}></input>
+                  </td>
+                }
                   { (context.selectedTable === "Заявки" ? storeTableHeader?.filter((el)=>(el.isActive === true)) :  context.tableHeader ).map((headerItem) => (
-                    <td key={headerItem.key} name={headerItem.key}  style={{textAlign: textAlign(headerItem.key, row[headerItem.key]), backgroundColor:  context.selectedTr === row.id && "#D8CDC1FF"}}>
+                    <td key={headerItem.key} name={headerItem.key}  style={{textAlign: textAlign(headerItem.key, row[headerItem.key]), backgroundColor: whatPageBgTd(row.id)}}>
                       {headerItem.key === "id" ? (
                         index + 1
                       ) : headerItem.key === "status" ? (
@@ -629,7 +678,7 @@ return (
                         >
                           {getContractorItem(row)}
                           {shovBulderPop === row.id && (
-                            <div className={styles.shovStatusPop} style={checkHeights(context?.filteredTableData,index) ? {top:"-70%", width: "200%"} : {width: "200%"}}  >
+                            <div className={styles.shovStatusPop} style={checkHeights(context?.filteredTableData,index) ? {top:"-70%", width: "200%"} : {width: "200%", right:"-365px", top:"40px"}}>
                               <ul>
                               { row[headerItem.key] !== null && <li onClick={() => deleteBilder(row.id)}>Удалить исполнителя</li>}
                                 {context.dataContractors?.map((value, index) => (
@@ -749,7 +798,7 @@ return (
               ))}
               </>
             ):(
-              <tr className={styles.tdNotData}><td style={{background: "#e3dfda"}}><div className={styles.noteData}>Нет данных</div></td></tr>
+             <tr><td colSpan={15} className={styles.tableNotData}>Нет данных</td></tr>
             )}
             </tbody>
           </table>

@@ -146,7 +146,7 @@
     }
     td[name="number"] {
      position: sticky;
-     left: 0px;
+     left: 50px;
      width: 40px;
      min-width: 40px;
      z-index: 50;
@@ -154,7 +154,7 @@
     }
     td[name="contractor"] {
       position: sticky;
-      left: 65px;
+      left: 115px;
       width: 150px;
       min-width: 150px;
       max-width: 150px;
@@ -163,8 +163,8 @@
      }
      td[name="object"] {
       position: sticky;
-      left: 235px;
-      z-index: 50;
+      left: 286px;
+      z-index: 49;
       background-color: #f7f7f7;
       box-shadow: 5px 0 5px #e3dfda75;
      }
@@ -172,9 +172,25 @@
      td[name="tgId"] {
        text-align: center!important;
      }
-     th[name="number"] {
+     td[name="checkAll"]{
       position: sticky;
       left: 0px;
+     
+      width: 40px;
+      z-index: 50;
+      background-color: #f7f7f7;
+     }
+     th[name="checkAll"]{
+      position: sticky;
+      left: 0px;
+      top: 0;
+      width: 40px;
+      z-index: 100;
+      background-color: #B7AB9E;
+     }
+     th[name="number"] {
+      position: sticky;
+      left: 50px;
       top: 0;
       width: 65px;
       z-index: 100;
@@ -182,7 +198,10 @@
      }
      th[name="contractor"] {
        position: sticky;
-       left: 64.5px;
+       left: 115px;
+       width: 150px;
+       min-width: 150px;
+       max-width: 150px;
        top: 0;
        z-index: 100;
        background-color: #B7AB9E;
@@ -190,7 +209,7 @@
       }
       th[name="object"] {
        position: sticky;
-       left: 235px;
+       left: 286px;
        top: 0;
        z-index: 100;
        box-shadow: 5px 0 5px #e3dfda75;
@@ -206,7 +225,8 @@
       }
     }
     .setectedTr {
-      background-color: var(--selectedTr);
+      background-color: #D8CDC1FF;
+      
       &:hover td {
         background-color: var(--selectedTr);
       }
@@ -253,18 +273,39 @@
 }
 
 
-.notdata {
-  display: flex;
+.tableNotData{
+  text-align: center;
+
   width: 100%;
-  justify-content: center;
-  background-color: #fff;
-  border-radius: 8px;
-  height: 90px;
-  align-items: center;
-  font-size: 20px;
-  font-weight: 500;
+  font-size: 24px;
+  padding: 50px 0px;
+  position: relative;
+  left: -50px;
 }
 
-.tdNotData{
-  height: 200px;
+input[type=checkbox] {
+  -moz-appearance:none;
+  -webkit-appearance:none;
+  -o-appearance:none;
+  outline: none !important;
+  content: none;  
+}
+
+input[type=checkbox]:before {
+  font-family: "FontAwesome";
+  content: "\f00c";
+  font-size: 13px;
+  border-radius:4px;
+  color: transparent !important;
+  background: #fff;
+  display: block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #d3d6db;
+}
+
+input[type=checkbox]:checked:before {
+background: var(--turquoise-color);
+border: 2px solid var(--turquoise-color);
+border-radius:4px;
 }

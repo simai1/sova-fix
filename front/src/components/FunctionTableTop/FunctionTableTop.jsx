@@ -20,7 +20,7 @@ function FunctionTableTop(props) {
 
   //!удаление заявки
   const deleteRequestFunc = () =>{
-    if(context.selectedTr != null){
+    if(context.moreSelect.length === 1){
       context.setPopUp("СonfirmDelete")
     }else{
       context.setPopupErrorText("Сначала выберите заявку!");
@@ -29,7 +29,7 @@ function FunctionTableTop(props) {
   }
 
 const editAppoint = ()=>{
-  if(context.selectedTr != null){
+  if(context.moreSelect.length === 1){
   context.setPopUp("PopUpEditAppoint")
   }else{
     context.setPopupErrorText("Сначала выберите заявку!");
@@ -112,7 +112,9 @@ const goBackCurd = () =>{
           {context.selectedTable === "Заявки" && context.selectPage === "Main" ? (
             <div className={styles.HeadMenuMain}>
             <EditColum/>
-             <button onClick={(()=>editAppoint())}>
+            {context.moreSelect.length <= 1 &&  
+            <>
+            <button onClick={(()=>editAppoint())}>
                 <img src="./img/Edit.svg" alt="View" />
                 Редактировать заявку
               </button>
@@ -120,6 +122,9 @@ const goBackCurd = () =>{
                 <img src="./img/Trash.svg" alt="View" />
                 Удалить заявку
               </button>
+            </>
+            }
+            
               <button onClick={() => generateAndDownloadExcel(context?.filteredTableData, "Заявки")}>Экспорт</button>
 
             </div>
