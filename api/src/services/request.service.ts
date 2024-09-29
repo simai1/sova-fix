@@ -381,6 +381,92 @@ const addCheck = async (requestId: string, file: string): Promise<void> => {
     await setStatus(requestId, 3);
 };
 
+const bulkDeleteRequests = async (ids: object): Promise<void> => {
+    const repairRequests = await RepairRequest.findAll({ where: { id: ids } });
+    if (repairRequests.length === 0) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found any requests');
+    await repairRequests.reduce(
+        (chain, request) => chain.then(() => request.destroy({ force: true })),
+        Promise.resolve()
+    );
+};
+
+const bulkSetStatus = async (ids: object, status: number): Promise<void> => {
+    const repairRequests = await RepairRequest.findAll({ where: { id: ids } });
+    if (repairRequests.length === 0) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found any requests');
+    repairRequests.forEach(request => request.update({ status }));
+};
+
+const bulkSetUrgency = async (ids: object, urgency: string): Promise<void> => {
+    const repairRequests = await RepairRequest.findAll({ where: { id: ids } });
+    if (repairRequests.length === 0) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found any requests');
+    repairRequests.forEach(request => request.update({ urgency }));
+};
+
+const bulkSetContractor = async (ids: object, contractorId: string): Promise<void> => {
+    const repairRequests = await RepairRequest.findAll({ where: { id: ids } });
+    if (repairRequests.length === 0) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found any requests');
+    let contractor;
+    if (contractorId.toLowerCase() !== 'внешний подрядчик') contractor = await Contractor.findByPk(contractorId);
+    if (!contractor && contractorId.toLowerCase() !== 'внешний подрядчик')
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Not found contractor with id ' + contractorId);
+    for (const request of repairRequests) {
+        const oldStatus = request.status;
+        if (contractorId.toLowerCase() === 'внешний подрядчик')
+            await request.update({ contractorId: null, builder: 'Внешний подрядчик', isExternal: true });
+        else
+            await request.update({
+                contractorId,
+                builder: 'Внутренний сотрудник',
+                status: 2,
+                daysAtWork: 1,
+                ExtContractorId: null,
+                isExternal: false,
+            });
+        const customer = await TgUser.findByPk(request.createdBy);
+        const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
+        sendMsg({
+            msg: {
+                newStatus: 2,
+                oldStatus: oldStatus,
+                requestId: request.id,
+                contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
+                customer: customer ? customer.tgId : null,
+            },
+            event: 'STATUS_UPDATE',
+        } as WsMsgData);
+    }
+};
+
+// const setContractor = async (requestId: string, contractorId: string): Promise<void> => {
+//     const request = await RepairRequest.findByPk(requestId);
+//     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
+//     const oldStatus = request.status;
+//     if (contractorId.toLowerCase() === 'внешний подрядчик')
+//         await request.update({ contractorId: null, builder: 'Внешний подрядчик', isExternal: true });
+//     else
+//         await request.update({
+//             contractorId,
+//             builder: 'Внутренний сотрудник',
+//             status: 2,
+//             daysAtWork: 1,
+//             ExtContractorId: null,
+//             isExternal: false,
+//         });
+//
+//     const customer = await TgUser.findByPk(request.createdBy);
+//     const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
+//     sendMsg({
+//         msg: {
+//             newStatus: 2,
+//             oldStatus: oldStatus,
+//             requestId: requestId,
+//             contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
+//             customer: customer ? customer.tgId : null,
+//         },
+//         event: 'STATUS_UPDATE',
+//     } as WsMsgData);
+// };
+
 export default {
     getAllRequests,
     getRequestById,
@@ -395,4 +481,8 @@ export default {
     update,
     getCustomersRequests,
     addCheck,
+    bulkDeleteRequests,
+    bulkSetStatus,
+    bulkSetUrgency,
+    bulkSetContractor,
 };
