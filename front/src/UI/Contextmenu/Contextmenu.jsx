@@ -80,7 +80,7 @@ function Contextmenu(props) {
        context.moreSelect.map((el) => data.ids.push(el));
         EditMoreStatusRequest(data).then((resp) => {
                 if(resp?.status === 200){
-                  context.context.UpdateTableReguest(1);
+                  context.UpdateTableReguest(1);
                   closeContextMenu();
                 }
         })
