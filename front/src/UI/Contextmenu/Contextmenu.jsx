@@ -1,11 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
 import styles from './Contextmenu.module.scss';
 import arrowBottom from "./../../assets/images/arrow_bottom.svg";
-import {DeleteMoreRequest, EditMoreStatusRequest, GetAllСontractors} from "./../../API/API";
+import {DeleteMoreRequest, EditMoreContractorRequest, EditMoreStatusRequest, EditMoreUrgencyRequest, GetAllСontractors} from "./../../API/API";
 import DataContext from '../../context';
 function Contextmenu(props) {
-    const [cordX, setCordX] = useState(0);
-    const [cordY, setCordY] = useState(0);
+    const [cordX, setCordX] = useState(props?.X);
+    const [cordY, setCordY] = useState(props?.Y);
     const [showStatusMenu, setShowStatusMenu] = useState(false);
     const [showStatusUrgensy, setShovStatusUrgensy] = useState(false);
     const [showStatusContractor, setShovStatusContractor] = useState(false);
@@ -87,11 +87,31 @@ function Contextmenu(props) {
     }
 
     const setUrgensy = (value) => {
-        console.log(value)
+        const data = {
+            ids: [],
+            urgency: value.name,
+       }
+       context.moreSelect.map((el) => data.ids.push(el));
+       EditMoreUrgencyRequest(data).then((resp) => {
+                if(resp?.status === 200){
+                  context.UpdateTableReguest(1);
+                  closeContextMenu();
+                }
+       })
     }
 
     const setExecutor = (value) => {
-        console.log(value)
+        const data = {
+            ids: [],
+            contractorId: value.id,
+       }
+       context.moreSelect.map((el) => data.ids.push(el));
+       EditMoreContractorRequest(data).then((resp) => {
+                if(resp?.status === 200){
+                  context.UpdateTableReguest(1);
+                  closeContextMenu();
+                }
+       })
     }
 
     const deletetRequest = () => {
@@ -108,8 +128,7 @@ function Contextmenu(props) {
         );
     }
     const closeContextMenu = () => {
-        props.setCoordinatesX(0);
-        props.setCoordinatesY(0);
+        props.setOpenConextMenu(false);
     }
     return (
         <div className={styles.SampleMenu} style={{ top: cordY, left: cordX }} id='SampleMenu'>
