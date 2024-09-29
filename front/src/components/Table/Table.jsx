@@ -11,10 +11,12 @@ import { FilteredSample, funFixEducator } from "../../UI/SamplePoints/Function";
 import СonfirmDelete from "./../СonfirmDelete/СonfirmDelete";
 import СonfirmDeleteUser from "./../СonfirmDeleteUser/СonfirmDeleteUser";
 import { use } from "echarts";
+import Contextmenu from "../../UI/Contextmenu/Contextmenu";
 function Table() {
   const { context } = useContext(DataContext);
   const [actiwFilter, setActiwFilter] = useState(null);
-  const moreCheckedInput = [];
+  const [coordinatesX, setCoordinatesX] = useState(0);
+  const [coordinatesY, setCoordinatesY] = useState(0);
   const trClick = (row, target) => {
     console.log("target",target.tagName)
     context.setSelectedTr(row.id);
@@ -26,6 +28,27 @@ function Table() {
       }    
     }
   
+  };
+
+  const trClickRight = (row, target) => {
+    if(target.className !== "Table_statusClick__QSptV" && target.tagName !== "LI" && !context.moreSelect.includes(row.id)){
+        context.setMoreSelect([...context.moreSelect, row.id])
+    }
+  
+  };
+
+
+
+  const contextmenuClick = (event) => {
+    event.preventDefault(); // Prevent the default context menu from appearing
+    const x = event.clientX; // Get the X coordinate
+    const y = event.clientY; // Get the Y coordinate
+    setCoordinatesX(x);
+    setCoordinatesY(y);
+  
+    if (event.target.className !== "Table_statusClick__QSptV" && event.target.tagName !== "LI") {
+      console.log("target", event.target);
+    }
   };
 
   const status = {
@@ -40,7 +63,6 @@ function Table() {
     {id:2, name:"В течении текущего дня"},
     {id:3, name:"В течении 3-х дней"},
     {id:4, name:"В течении недели"},
-    // {id:5, name:"ВЫПОЛНИТЬ СЕГОДНЯ"},
     {id:5, name:"Маршрут"},
     {id:6, name:"Выполнено"}
   ];
@@ -63,7 +85,7 @@ function Table() {
   const ItineraryOrderPopRef = useRef(null)
   const [arrCount, setArrCount] = useState([])
   const [dataBuilder, setDataBuilder] = useState({});
-
+  const contextmenuRef = useRef(null);
   const editStatus = (status, id) => {
     const data = {
       requestId: id,
@@ -190,6 +212,10 @@ function Table() {
   }
 
   const handleClickOutside = (event) => {
+    if (contextmenuRef.current && !contextmenuRef.current.contains(event.target)) {
+      setCoordinatesX(0);
+      setCoordinatesY(0);
+    }
     if (
       statusPopRef.current && !statusPopRef.current.contains(event.target) && event.target.tagName !== "LI" && event.target.className !== "Table_shovStatusPop__LcpzL"
     ) {
@@ -507,18 +533,18 @@ const clickAllTh = () => {
 }
 
 return (
-    <>
+    <div className={styles.TableWrapper}>
       
         <div className={styles.Table} style={{overflow: context?.filteredTableData.length === 0 ? 'hidden' : 'auto'}}>
-          <table className={styles.TableInner} >
+          <table className={styles.TableInner}>
           {(context.selectedTable === "Заявки" && context.selectPage === "Main") ?(
             <thead>
               <tr>
-              <th name="checkAll">
+              <th name="checkAll" className={styles.MainTh}>
                 <input type="checkbox" name="checkAll" className={styles.checkbox} checked={checkedAllFunc()} onClick={clickAllTh}></input>
               </th>
               {storeTableHeader?.filter((el)=>(el.isActive === true)).map((item, index) => (
-                                <th onClick={(el) => { clickTh(item.key, index, el) }} name={item.key} key={item.key}>
+                                <th onClick={(el) => { clickTh(item.key, index, el) }} name={item.key} key={item.key} className={styles.MainTh}>
                                     <div className={styles.thTable}>
                                         {item.value}
                                         
@@ -582,8 +608,14 @@ return (
                 <tr
                   key={index}
                   onClick={(e) => {
-                    const target = e.target; // Получаем элемент, на который кликнули
-                    trClick(row, target ); // Вызов вашей функции
+                    const target = e.target;
+                    (context.selectedTable === "Заявки" || context.selectedTable === "Пользователи") && trClick(row, target ); 
+                  }}
+                  
+                  onContextMenu={(e) => {
+                    const target = e.target;
+                    context.selectedTable === "Заявки" && trClickRight(row, target ); 
+                    context.selectedTable === "Заявки" && contextmenuClick(e); // Use onContextMenu instead of contextmenu
                   }}
                   className={
                     context.selectedTable === "Заявки" ? context.moreSelect.some((el) => el === row.id) && styles.setectedTr : context.selectedTr === row.id && styles.setectedTr
@@ -591,12 +623,12 @@ return (
                  
                 >
                 {context.selectedTable === "Заявки" &&
-                  <td name="checkAll" style={{textAlign: "center", backgroundColor: whatPageBgTd(row.id)}}>
+                  <td name="checkAll" style={{textAlign: "center", backgroundColor: whatPageBgTd(row.id)}} className={styles.MainTd}>
                     <input type="checkbox" checked={context.moreSelect.some((el) => el === row.id) } key={index} name="checkAll" className={styles.checkbox}></input>
                   </td>
                 }
                   { (context.selectedTable === "Заявки" ? storeTableHeader?.filter((el)=>(el.isActive === true)) :  context.tableHeader ).map((headerItem) => (
-                    <td key={headerItem.key} name={headerItem.key}  style={{textAlign: textAlign(headerItem.key, row[headerItem.key]), backgroundColor: whatPageBgTd(row.id)}}>
+                    <td key={headerItem.key} name={headerItem.key} className={context.selectedTable === "Заявки" && styles.MainTd}  style={{textAlign: textAlign(headerItem.key, row[headerItem.key]), backgroundColor: whatPageBgTd(row.id)}}>
                       {headerItem.key === "id" ? (
                         index + 1
                       ) : headerItem.key === "status" ? (
@@ -802,9 +834,10 @@ return (
             )}
             </tbody>
           </table>
+         
         </div>
-      
-        {/* style={{ pointerEvents: "none", textAlign: textAlign(headerItem.key) }} */}
+        { context.selectedTable === "Заявки" && <div><p style={{margin: "10px 0 0 0px"}}>Кол-во выбранных заявок: {context.moreSelect.length}</p></div>}
+    
       {modalImage && (
         <div className={styles.modal} onClick={closeModal}>
           <span className={styles.close}>&times;</span>
@@ -817,8 +850,12 @@ return (
       {
         context.popUp === "СonfirmDeleteUser" &&  <СonfirmDeleteUser/>
       }
-     
-    </>
+      { coordinatesX !== 0 && coordinatesY !== 0 &&
+        <div ref={contextmenuRef}>
+          <Contextmenu X={coordinatesX} Y={coordinatesY} setCoordinatesX={setCoordinatesX} setCoordinatesY={setCoordinatesY}/>
+        </div>
+      }
+    </div>
   );
 }
 

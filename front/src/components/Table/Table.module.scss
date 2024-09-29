@@ -1,10 +1,14 @@
 @import "./../../styles/color.scss";
 @import "./../../styles/mixins.scss";
+.TableWrapper{
+  display: block;
+  width: 100%;
+}
 .Table {
   width: 100%;
   display: flex;
   overflow: auto;
-  max-height: 62vh;
+  max-height: 58vh;
   // height: 62vh;
   margin-bottom: 0;
   border-radius: 8px;
@@ -144,7 +148,7 @@
         
       }
     }
-    td[name="number"] {
+    .MainTd[name="number"] {
      position: sticky;
      left: 50px;
      width: 40px;
@@ -152,7 +156,7 @@
      z-index: 50;
      background-color: #f7f7f7;
     }
-    td[name="contractor"] {
+    .MainTd[name="contractor"] {
       position: sticky;
       left: 115px;
       width: 150px;
@@ -161,7 +165,7 @@
       z-index: 50;
       background-color: #f7f7f7;
      }
-     td[name="object"] {
+     .MainTd[name="object"] {
       position: sticky;
       left: 286px;
       z-index: 49;
@@ -172,7 +176,7 @@
      td[name="tgId"] {
        text-align: center!important;
      }
-     td[name="checkAll"]{
+     .MainTd[name="checkAll"]{
       position: sticky;
       left: 0px;
      
@@ -180,7 +184,7 @@
       z-index: 50;
       background-color: #f7f7f7;
      }
-     th[name="checkAll"]{
+     .MainTh[name="checkAll"]{
       position: sticky;
       left: 0px;
       top: 0;
@@ -188,7 +192,7 @@
       z-index: 100;
       background-color: #B7AB9E;
      }
-     th[name="number"] {
+     .MainTh[name="number"] {
       position: sticky;
       left: 50px;
       top: 0;
@@ -196,7 +200,7 @@
       z-index: 100;
       background-color: #B7AB9E;
      }
-     th[name="contractor"] {
+     .MainTh[name="contractor"] {
        position: sticky;
        left: 115px;
        width: 150px;
@@ -207,7 +211,7 @@
        background-color: #B7AB9E;
 
       }
-      th[name="object"] {
+      .MainTh[name="object"] {
        position: sticky;
        left: 286px;
        top: 0;

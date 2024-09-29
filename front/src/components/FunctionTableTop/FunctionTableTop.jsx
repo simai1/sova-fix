@@ -112,18 +112,18 @@ const goBackCurd = () =>{
           {context.selectedTable === "Заявки" && context.selectPage === "Main" ? (
             <div className={styles.HeadMenuMain}>
             <EditColum/>
-            {context.moreSelect.length <= 1 &&  
+            {/* {context.moreSelect.length <= 1 &&   */}
             <>
-            <button onClick={(()=>editAppoint())}>
+            <button onClick={(()=>editAppoint())} disabled={context.moreSelect.length > 1} style={{opacity:context.moreSelect.length > 1 ? "0.5" : "1", cursor:context.moreSelect.length > 1 ? "not-allowed" : "pointer"}}>
                 <img src="./img/Edit.svg" alt="View" />
                 Редактировать заявку
               </button>
-              <button onClick={(()=>deleteRequestFunc())}>
+              <button onClick={(()=>deleteRequestFunc())} disabled={context.moreSelect.length >1} style={{opacity:context.moreSelect.length > 1 ? "0.5" : "1", cursor:context.moreSelect.length > 1 ? "not-allowed" : "pointer"}}>
                 <img src="./img/Trash.svg" alt="View" />
                 Удалить заявку
               </button>
             </>
-            }
+            {/* } */}
             
               <button onClick={() => generateAndDownloadExcel(context?.filteredTableData, "Заявки")}>Экспорт</button>
 
