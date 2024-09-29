@@ -362,17 +362,95 @@ const update = async (
     );
 };
 
-const getCustomersRequests = async (tgUserId: string): Promise<RequestDto[]> => {
-    const requests = await RepairRequest.findAll({
-        where: { createdBy: tgUserId },
-        include: [
-            { model: Contractor },
-            { model: ObjectDir },
-            { model: Unit },
-            { model: LegalEntity },
-            { model: ExtContractor },
-        ],
-    });
+const getCustomersRequests = async (tgUserId: string, filter: any): Promise<RequestDto[]> => {
+    let requests;
+    const whereParams = {};
+    Object.keys(filter).forEach((k: any) =>
+        k === 'search'
+            ? null
+            : k !== 'contractor'
+              ? // @ts-expect-error skip
+                (whereParams[k] = filter[k])
+              : // @ts-expect-error skip
+                (whereParams['$Contractor.name$'] = filter[k])
+    );
+    // @ts-expect-error skip
+    whereParams['createdBy'] = tgUserId;
+    if (Object.keys(filter).length !== 0 && typeof filter.search !== 'undefined') {
+        const searchParams = [
+            {
+                status: (() => {
+                    return Object.keys(statusesRuLocale)
+                        .filter(s =>
+                            // @ts-expect-error skip
+                            statusesRuLocale[s].includes(
+                                Number.isInteger(filter.search) ? filter.search : filter.search.toLowerCase()
+                            )
+                        )
+                        .map(s => s);
+                })(),
+            },
+            { '$Unit.name$': { [Op.iLike]: `%${filter.search}%` } },
+            { builder: { [Op.iLike]: `%${filter.search}%` } },
+            { '$Object.name$': { [Op.iLike]: `%${filter.search}%` } },
+            { problemDescription: { [Op.iLike]: `%${filter.search}%` } },
+            { urgency: { [Op.iLike]: `%${filter.search}%` } },
+            sequelize.where(sequelize.cast(sequelize.col('repair_price'), 'varchar'), {
+                [Op.iLike]: `%${filter.search}%`,
+            }),
+            { comment: { [Op.iLike]: `%${filter.search}%` } },
+            { '$LegalEntity.name$': { [Op.iLike]: `%${filter.search}%` } },
+            { '$Contractor.name$': { [Op.iLike]: `%${filter.search}%` } },
+        ];
+        if (Number.isInteger(filter.search)) {
+            // @ts-expect-error skip
+            searchParams.push({ number: filter.search });
+            // @ts-expect-error skip
+            searchParams.push({ itineraryOrder: filter.search });
+            // @ts-expect-error skip
+            searchParams.push({ daysAtWork: filter.search });
+        }
+        requests = await RepairRequest.findAll({
+            where: {
+                [Op.and]: [
+                    {
+                        [Op.or]: searchParams,
+                    },
+                    whereParams,
+                ],
+            },
+            include: [
+                {
+                    model: Contractor,
+                },
+                {
+                    model: ObjectDir,
+                },
+                {
+                    model: Unit,
+                },
+                {
+                    model: LegalEntity,
+                },
+                {
+                    model: ExtContractor,
+                },
+            ],
+            order: [['number', 'desc']],
+        });
+    } else {
+        requests = await RepairRequest.findAll({
+            where: whereParams,
+            include: [
+                { model: Contractor },
+                { model: ObjectDir },
+                { model: Unit },
+                { model: LegalEntity },
+                { model: ExtContractor },
+            ],
+            order: [['number', 'desc']],
+        });
+    }
     return requests.map(r => new RequestDto(r));
 };
 

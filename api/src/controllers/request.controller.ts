@@ -159,8 +159,27 @@ const update = catchAsync(async (req, res) => {
 
 const getCustomersRequests = catchAsync(async (req, res) => {
     const { tgUserId } = req.params;
+    const filter = prepare(
+        pick(req.query, [
+            'search',
+            'number',
+            'status',
+            'unit',
+            'builder',
+            'object',
+            'problemDescription',
+            'urgency',
+            'itineraryOrder',
+            'repairPrice',
+            'comment',
+            'legalEntity',
+            'daysAtWork',
+            'createdAt',
+            'contractor',
+        ])
+    );
     if (!tgUserId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing tgUserId');
-    const requestsDtos = await requestService.getCustomersRequests(tgUserId);
+    const requestsDtos = await requestService.getCustomersRequests(tgUserId, filter);
     res.json(requestsDtos);
 });
 
