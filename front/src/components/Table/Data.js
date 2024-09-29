@@ -1,12 +1,13 @@
 export const tableHeadAppoint = [
   { key: "number", value: "Номер заявки", isActive: true  },
   { key: "contractor", value: "Исполнитель", isActive: true  },
+  { key: "object", value: "Объект", isActive: true  },
   { key: "builder", value: "Подрядчик", isActive: true  },
   { key: "status", value: "Статус заявки", isActive: true  },
   { key: "unit", value: "Подразделение", isActive: true  },
-  { key: "object", value: "Объект", isActive: true  },
   { key: "problemDescription", value: "Описание проблемы", isActive: true  },
   { key: "photo", value: "Фото проблемы", isActive: true  },
+  { key: "itineraryOrder", value: "Порядок маршрута", isActive: true  },
   { key: "urgency", value: "Срочность", isActive: true  },
   { key: "createdAt", value: "Дата создания заявки", isActive: true  },
   { key: "daysAtWork", value: "Дней в работе", isActive: true  },
@@ -14,7 +15,6 @@ export const tableHeadAppoint = [
   { key: "repairPrice", value: "Бюджет ремонта", isActive: true  },
   { key: "comment", value: "Комментарий", isActive: true  },
   { key: "legalEntity", value: "Юр. Лицо", isActive: true  },
-  { key: "itineraryOrder", value: "Порядок маршрута", isActive: true  },
   { key: "checkPhoto", value: "Фото чека", isActive: true  },
 ]; 
 
@@ -30,12 +30,13 @@ export const tableUser = [
 export const tableList = [
   { key: "number", value: "Номер заявки", isActive: true  },
   { key: "contractor", value: "Исполнитель", isActive: true  },
+  { key: "object", value: "Объект", isActive: true  },
   { key: "builder", value: "Подрядчик", isActive: true  },
   { key: "status", value: "Статус заявки", isActive: true  },
   { key: "unit", value: "Подразделение", isActive: true  },
-  { key: "object", value: "Объект", isActive: true  },
   { key: "problemDescription", value: "Описание проблемы", isActive: true  },
   { key: "photo", value: "Фото проблемы", isActive: true  },
+  { key: "itineraryOrder", value: "Порядок маршрута", isActive: true  },
   { key: "urgency", value: "Срочность", isActive: true  },
   { key: "createdAt", value: "Дата создания заявки", isActive: true  },
   { key: "daysAtWork", value: "Дней в работе", isActive: true  },
@@ -43,6 +44,5 @@ export const tableList = [
   { key: "repairPrice", value: "Бюджет ремонта", isActive: true  },
   { key: "comment", value: "Комментарий", isActive: true  },
   { key: "legalEntity", value: "Юр. Лицо", isActive: true  },
-  { key: "itineraryOrder", value: "Порядок маршрута", isActive: true  },
 ]
 
