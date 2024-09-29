@@ -5,6 +5,7 @@ import httpStatus from 'http-status';
 import roles from '../config/roles';
 import UserDto from '../dtos/user.dto';
 import TgUser from '../models/tgUser';
+import { sendMsg, WsMsgData } from '../utils/ws';
 
 type userDir = {
     id: string;
@@ -80,6 +81,12 @@ const confirmTgUser = async (userId: string): Promise<void> => {
     const user = await TgUser.findByPk(userId);
     if (!user) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found user with id ' + userId);
     await user.update({ isConfirmed: true });
+    sendMsg({
+        msg: {
+            tgUser: userId,
+        },
+        event: 'TGUSER_CONFIRM',
+    } as WsMsgData);
 };
 
 export default {
