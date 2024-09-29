@@ -77,7 +77,6 @@ function Header() {
       context.setSelectPage("Card");
       context.setSelectContractor("");
       context.setextSearchTableData("");
-      context.setSelectedTr(null)
       console.log('tableUser', tableList)
       context.settableHeader(tableList);
       context.setSelectedTable("Card");
@@ -87,7 +86,6 @@ function Header() {
       context.setSelectPage("Main");
       context.settableHeader(tableUser);
       context.UpdateTableReguest(2)
-      context.setSelectedTr(null);
       context.setnameClient("Пользователи");
       context.setSelectedTable("Пользователи");
     }
@@ -97,11 +95,12 @@ function Header() {
       context.setSelectPage("Main")
       context.UpdateTableReguest(1)
       context.setDataitinerary([])
-      context.setSelectedTr(null);
       context.setnameClient("Заявки");
       context.setSelectedTable("Заявки");
       context.setextSearchTableData("")
     }
+    context.setMoreSelect([])
+    context.setSelectedTr(null);
   };
 
 

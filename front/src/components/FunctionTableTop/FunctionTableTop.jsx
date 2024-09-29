@@ -20,7 +20,7 @@ function FunctionTableTop(props) {
 
   //!удаление заявки
   const deleteRequestFunc = () =>{
-    if(context.selectedTr != null){
+    if(context.moreSelect.length === 1){
       context.setPopUp("СonfirmDelete")
     }else{
       context.setPopupErrorText("Сначала выберите заявку!");
@@ -29,7 +29,7 @@ function FunctionTableTop(props) {
   }
 
 const editAppoint = ()=>{
-  if(context.selectedTr != null){
+  if(context.moreSelect.length === 1){
   context.setPopUp("PopUpEditAppoint")
   }else{
     context.setPopupErrorText("Сначала выберите заявку!");
@@ -39,11 +39,7 @@ const editAppoint = ()=>{
 
   const deletedUser = ()=>{
     if(context.selectedTr != null &&  context.selectedTr !== JSON.parse(sessionStorage.getItem("userData")).user?.id){
-      DeleteUserFunc(context.selectedTr).then((resp)=>{
-        if(resp?.status === 200){
-          context.UpdateTableReguest(2);
-        }
-      })
+      context.setPopUp("СonfirmDeleteUser")
     }else if(context.selectedTr === null){
       context.setPopupErrorText("Сначала выберите пользователя!");
       context.setPopUp("PopUpError")
@@ -72,6 +68,8 @@ const activePeople = ()=>{
   RejectActiveAccount(context.selectedTr).then((resp)=>{
     if(resp?.status === 200){
       context.UpdateTableReguest(2);
+      context.setPopUp("PopUpGoodMessage")
+      context.setPopupGoodText("Пользователь успешно активирован!")
     }else{
       context.setPopupErrorText("Нельзя активировать этого пользователя!");
       context.setPopUp("PopUpError")
@@ -114,14 +112,19 @@ const goBackCurd = () =>{
           {context.selectedTable === "Заявки" && context.selectPage === "Main" ? (
             <div className={styles.HeadMenuMain}>
             <EditColum/>
-             <button onClick={(()=>editAppoint())}>
+            {/* {context.moreSelect.length <= 1 &&   */}
+            <>
+            <button onClick={(()=>editAppoint())} disabled={context.moreSelect.length > 1} style={{opacity:context.moreSelect.length > 1 ? "0.5" : "1", cursor:context.moreSelect.length > 1 ? "not-allowed" : "pointer"}}>
                 <img src="./img/Edit.svg" alt="View" />
                 Редактировать заявку
               </button>
-              <button onClick={(()=>deleteRequestFunc())}>
+              <button onClick={(()=>deleteRequestFunc())} disabled={context.moreSelect.length >1} style={{opacity:context.moreSelect.length > 1 ? "0.5" : "1", cursor:context.moreSelect.length > 1 ? "not-allowed" : "pointer"}}>
                 <img src="./img/Trash.svg" alt="View" />
                 Удалить заявку
               </button>
+            </>
+            {/* } */}
+            
               <button onClick={() => generateAndDownloadExcel(context?.filteredTableData, "Заявки")}>Экспорт</button>
 
             </div>

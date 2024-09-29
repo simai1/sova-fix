@@ -44,8 +44,9 @@ const [selectId, setSelectId] = useState(null);
   ];
 
   useEffect(()=>{
-    setSelectId(context?.selectedTr)
-    GetOneRequests(context?.selectedTr).then((response) => {
+    
+    setSelectId(context.moreSelect[0] || context.selectedTr)
+    GetOneRequests(context.moreSelect[0] || context.selectedTr).then((response) => {
       if(response?.status === 200) {
         setDataApStart(response.data)
       }

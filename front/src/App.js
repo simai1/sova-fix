@@ -28,6 +28,7 @@ function App() {
   const [dataApointment, setDataAppointment] = useState([]);
   const [dataUsers, setDataUsers] = useState(null);
   const [dataContractors, setDataContractors] = useState([]);
+  const [moreSelect, setMoreSelect] = useState([]);
   const [textSearchTableData, setextSearchTableData] = useState("");
   const [popUp, setPopUp] = useState("");
   const [popupGoodText, setPopupGoodText] = useState("")
@@ -47,6 +48,8 @@ function App() {
   const [selectRowDirectory, setSelectRowDirectory] = useState(null);
   const context = {
     editListOpen,
+    setMoreSelect,
+    moreSelect,
     setSortStateParam,
     sortStateParam,
     sortState,
