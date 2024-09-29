@@ -159,8 +159,27 @@ const update = catchAsync(async (req, res) => {
 
 const getCustomersRequests = catchAsync(async (req, res) => {
     const { tgUserId } = req.params;
+    const filter = prepare(
+        pick(req.query, [
+            'search',
+            'number',
+            'status',
+            'unit',
+            'builder',
+            'object',
+            'problemDescription',
+            'urgency',
+            'itineraryOrder',
+            'repairPrice',
+            'comment',
+            'legalEntity',
+            'daysAtWork',
+            'createdAt',
+            'contractor',
+        ])
+    );
     if (!tgUserId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing tgUserId');
-    const requestsDtos = await requestService.getCustomersRequests(tgUserId);
+    const requestsDtos = await requestService.getCustomersRequests(tgUserId, filter);
     res.json(requestsDtos);
 });
 
@@ -170,6 +189,41 @@ const addCheck = catchAsync(async (req, res) => {
     if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
     if (!fileName) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing file');
     await requestService.addCheck(requestId, fileName);
+    res.json({ status: 'OK' });
+});
+
+const bulkDelete = catchAsync(async (req, res) => {
+    const { ids } = req.body;
+    if (!ids) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing ids');
+    if (typeof ids !== 'object') throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid ids');
+    await requestService.bulkDeleteRequests(ids);
+    res.json({ status: 'OK' });
+});
+
+const bulkStatus = catchAsync(async (req, res) => {
+    const { ids, status } = req.body;
+    if (!ids) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing ids');
+    if (!status) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing status');
+    if (typeof ids !== 'object') throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid ids');
+    await requestService.bulkSetStatus(ids, status);
+    res.json({ status: 'OK' });
+});
+
+const bulkUrgency = catchAsync(async (req, res) => {
+    const { ids, urgency } = req.body;
+    if (!ids) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing ids');
+    if (!urgency) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing urgency');
+    if (typeof ids !== 'object') throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid ids');
+    await requestService.bulkSetUrgency(ids, urgency);
+    res.json({ status: 'OK' });
+});
+
+const bulkContractor = catchAsync(async (req, res) => {
+    const { ids, contractorId } = req.body;
+    if (!ids) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing ids');
+    if (!contractorId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing contractorId');
+    if (typeof ids !== 'object') throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid ids');
+    await requestService.bulkSetContractor(ids, contractorId);
     res.json({ status: 'OK' });
 });
 
@@ -187,4 +241,8 @@ export default {
     update,
     getCustomersRequests,
     addCheck,
+    bulkDelete,
+    bulkStatus,
+    bulkUrgency,
+    bulkContractor,
 };

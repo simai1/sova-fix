@@ -19,8 +19,27 @@ const create = catchAsync(async (req, res) => {
 
 const getContractorsRequests = catchAsync(async (req, res) => {
     const { contractorId } = req.params;
+    const filter = prepare(
+        pick(req.query, [
+            'search',
+            'number',
+            'status',
+            'unit',
+            'builder',
+            'object',
+            'problemDescription',
+            'urgency',
+            'itineraryOrder',
+            'repairPrice',
+            'comment',
+            'legalEntity',
+            'daysAtWork',
+            'createdAt',
+            'contractor',
+        ])
+    );
     if (!contractorId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing contractorId');
-    const requests = await contractorService.getContractorsRequests(contractorId);
+    const requests = await contractorService.getContractorsRequests(contractorId, filter);
     res.json(requests);
 });
 
