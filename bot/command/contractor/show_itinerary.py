@@ -41,9 +41,6 @@ async def show_contractor_requests_handler(user_id: int, message: Message, state
 
     itinerary = await crm.get_itinerary(user_id)
 
-    if not itinerary:
-        await message.answer('В маршрутном листе пока что нет заявок', reply_markup=to_start_kb())
-
     await page0_show_many_rr_for_itinerary(message, state, itinerary)
 
 

@@ -74,7 +74,13 @@ async def page0_show_many_requests(
         params: str = ""
 ) -> None:
     if not repair_requests and prefix != "it":
-        await message.answer('Здесь пока что нет заявок', reply_markup=to_start_kb())
+        match prefix:
+            case "it":
+                no_rr_text = "В маршрутном листе пока что нет заявок"
+            case _:
+                no_rr_text = "Здесь пока что нет заявок"
+
+        await message.answer(no_rr_text, reply_markup=to_start_kb())
 
     await pagination.set_page_in_state(state, 0)
     await send_many_func(repair_requests, message, state)

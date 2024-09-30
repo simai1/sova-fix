@@ -47,9 +47,6 @@ async def show_customer_requests_handler(user_id: int, params: str, message: Mes
 
     repair_requests = await crm.get_customer_requests(user_id, params=params)
 
-    if not repair_requests:
-        await message.answer('Здесь пока что нет заявок', reply_markup=to_start_kb())
-
     await page0_show_many_rr_for_customer(message, state, repair_requests, params)
 
 

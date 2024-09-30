@@ -39,9 +39,6 @@ async def show_all_requests_admin_callback_handler(query: CallbackQuery, state: 
 
     repair_requests = await crm.get_all_requests_with_params(params=params)
 
-    if not repair_requests:
-        await query.message.answer('Пока что список заявок пуст', reply_markup=to_start_kb())
-
     await page0_show_many_rr_for_admin(query.message, state, repair_requests, params)
 
     await query.answer()
