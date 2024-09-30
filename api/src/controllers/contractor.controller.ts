@@ -36,6 +36,7 @@ const getContractorsRequests = catchAsync(async (req, res) => {
             'daysAtWork',
             'createdAt',
             'contractor',
+            'checkPhoto',
         ])
     );
     if (!contractorId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing contractorId');

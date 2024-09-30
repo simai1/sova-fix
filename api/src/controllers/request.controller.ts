@@ -25,6 +25,7 @@ const getAll = catchAsync(async (req, res) => {
             'daysAtWork',
             'createdAt',
             'contractor',
+            'checkPhoto',
         ])
     );
     const order = prepare(pick(req.query, ['col', 'type']));
@@ -176,6 +177,7 @@ const getCustomersRequests = catchAsync(async (req, res) => {
             'daysAtWork',
             'createdAt',
             'contractor',
+            'checkPhoto',
         ])
     );
     if (!tgUserId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing tgUserId');
