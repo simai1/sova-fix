@@ -73,7 +73,7 @@ async def page0_show_many_requests(
         prefix: str,
         params: str = ""
 ) -> None:
-    if not repair_requests and prefix != "it":
+    if not repair_requests:
         match prefix:
             case "it":
                 no_rr_text = "В маршрутном листе пока что нет заявок"
