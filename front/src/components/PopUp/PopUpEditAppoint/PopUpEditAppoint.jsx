@@ -72,7 +72,6 @@ const [selectId, setSelectId] = useState(null);
         legalEntity: dataApStart?.legalEntity,
       });
     }
-    console.log("dataApStart", dataApStart)
   }, [dataApStart]);
 //   const {
 //     objectId,

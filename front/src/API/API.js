@@ -807,10 +807,12 @@ export const DeleteExtContractorsRequest = async (data) => {
 // Функции Массовых действий
 
 //!удаление заявок
+
+
 export const DeleteMoreRequest = async (data) => {
-  console.log("вызвал")
+  console.log("data", data)
   try {
-    const response = await http.post(`${server}requests/delete/bulk`, data, {
+    const response = await http.post(`${server}/requests/delete/bulk`, data, {
       headers: {
         Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
       },

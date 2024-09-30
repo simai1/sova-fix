@@ -46,7 +46,19 @@ function App() {
   const [sortState, setSortState] = useState("");
   const [sortStateParam, setSortStateParam] = useState("");
   const [selectRowDirectory, setSelectRowDirectory] = useState(null);
+  const [checkedAll, setCheckedAll] = useState(false);
+
+  const checkedAllFunc = () => {
+    if(moreSelect.length > 0){
+      setCheckedAll(true)
+    }else{
+      setCheckedAll(false)
+    }
+  }
+  
   const context = {
+    setCheckedAll,
+    checkedAll,
     editListOpen,
     setMoreSelect,
     moreSelect,
@@ -100,7 +112,9 @@ function App() {
     activateId,
     selectContructor,
     setSelectRowDirectory,
-    selectRowDirectory
+    selectRowDirectory,
+    checkedAllFunc,
+    checkedAll
   };
 
   const dispatch = useDispatch();

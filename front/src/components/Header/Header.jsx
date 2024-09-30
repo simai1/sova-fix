@@ -77,7 +77,6 @@ function Header() {
       context.setSelectPage("Card");
       context.setSelectContractor("");
       context.setextSearchTableData("");
-      console.log('tableUser', tableList)
       context.settableHeader(tableList);
       context.setSelectedTable("Card");
     }else if(Link ===  "Polzovateli"){

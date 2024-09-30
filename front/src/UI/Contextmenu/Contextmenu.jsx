@@ -11,13 +11,14 @@ function Contextmenu(props) {
     const [showStatusContractor, setShovStatusContractor] = useState(false);
     const [dataConractor, setDataConractor] = useState([]);
     const { context } = useContext(DataContext);
+    const [confirmDelete, setConfirmDelete] = useState(false);
     useEffect(() => {
         convertCoord(props?.X, props?.Y);
         GetAllСontractors().then((resp) => setDataConractor(resp.data));
     }, [props.X, props.Y]); // Update coordinates when props change
 
     const convertCoord = (X, Y) => {
-        const menuWidth = 320;
+        const menuWidth = 380;
         const menuHeight = 160;
         const SizeX = window.innerWidth;
         const SizeY = window.innerHeight;
@@ -59,6 +60,7 @@ function Contextmenu(props) {
         setShovStatusUrgensy(false);
         setShovStatusContractor(false);
         setShowStatusMenu(false);
+        setConfirmDelete(false);
         switch (action) {
             case "status":
                 setShowStatusMenu(!showStatusMenu);
@@ -119,10 +121,12 @@ function Contextmenu(props) {
             ids: []
        }
        context.moreSelect.map((el) => data.ids.push(el));
-        DeleteMoreRequest(data).then((resp) => {
+       DeleteMoreRequest(data).then((resp) => {
                 if(resp?.status === 200){
-                  context.context.UpdateTableReguest(1);
+                  context.UpdateTableReguest(1);
+                  context.setMoreSelect([]);
                   closeContextMenu();
+                  context.checkedAllFunc();
                 }
             }
         );
@@ -137,7 +141,7 @@ function Contextmenu(props) {
                     <div className={styles.SampleMenuInnerList} onClick={()=>toggleStatusMenu("status")}><li>Редактировать статус</li><img style={{ transform: showStatusMenu ? "rotate(-90deg)" : "" }} src={arrowBottom}/></div>
                     <div className={styles.SampleMenuInnerList} onClick={()=>toggleStatusMenu("urgency")}><li>Изменить срочность</li><img style={{ transform: showStatusUrgensy ? "rotate(-90deg)" : "" }} src={arrowBottom}/></div>
                     <div className={styles.SampleMenuInnerList} onClick={()=>toggleStatusMenu("executor")}><li>Назначить исполнителя</li><img style={{ transform: showStatusContractor ? "rotate(-90deg)" : "" }} src={arrowBottom}/></div>
-                    <li onClick={deletetRequest}>Удалить</li>
+                    <li onClick={ () => setConfirmDelete(!confirmDelete)}>Удалить</li>
                 </ul>
                
             </div>
@@ -168,6 +172,19 @@ function Contextmenu(props) {
                         </ul>
                     </div>
             )}
+            {   confirmDelete && 
+                <div className={styles.StatusMenu}>
+                    <div className={styles.ConfirmDelete}>
+                        <div>
+                            <p>Вы действительно хотите удалить выбранные заявки?</p>
+                        </div>
+                        <div className={styles.ConfirmDeleteButtons}>
+                            <button onClick={deletetRequest}>Да</button>
+                            <button onClick={() => setConfirmDelete(!confirmDelete)}>Нет</button>
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
     );
 }

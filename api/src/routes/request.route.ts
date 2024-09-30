@@ -41,7 +41,7 @@ router.route('/set/contractor').patch(requestController.setContractor);
 router.route('/set/status').patch(requestController.setStatus);
 router.route('/set/comment').patch(requestController.setComment);
 
-router.route('/delete/bulk').delete(requestController.bulkDelete);
+router.route('/delete/bulk').post(requestController.bulkDelete);
 router.route('/status/bulk').patch(requestController.bulkStatus);
 router.route('/urgency/bulk').patch(requestController.bulkUrgency);
 router.route('/contractor/bulk').patch(requestController.bulkContractor);

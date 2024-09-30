@@ -28,7 +28,6 @@ const editColumTable = createSlice({
 
     onCheckState: (state, action) => {
       const {key, isActive} = action.payload;
-      console.log(key, isActive)
       state.ActiveColumTable = state.ActiveColumTable.map((el) => {
         if (el.key === key) {
           return { ...el, isActive: !el.isActive }; // Toggle isActive
@@ -39,9 +38,13 @@ const editColumTable = createSlice({
     },
 
     resetAllColumns: (state) => {
-      state.ActiveColumTable = state.ActiveColumTable.map(el => ({ ...el, isActive: !state.AllCheckbox }));
+      state.ActiveColumTable = [
+          ...state.ActiveColumTable.slice(0, 3), // Keep the first three elements unchanged
+          ...state.ActiveColumTable.slice(3).map(el => ({ ...el, isActive: !state.AllCheckbox })) // Update the rest
+      ];
       state.AllCheckbox = !state.AllCheckbox;
-    },
+  },
+  
   },
 });
 

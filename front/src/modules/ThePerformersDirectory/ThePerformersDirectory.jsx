@@ -24,7 +24,6 @@ function ThePerformersDirectory() {
     const [selectId, setSelectId] = useState('');
     useEffect(() => {
         getData();
-        console.log('Directory.selectRowDirectory', context.selectRowDirectory);
     }, []);
 
     const getData = () => {

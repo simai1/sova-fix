@@ -19,7 +19,6 @@ function Table() {
   const [openConextMenu, setOpenConextMenu] = useState(false);
   const [coordinatesY, setCoordinatesY] = useState(0);
   const trClick = (row, target) => {
-    console.log("target",target.tagName)
     context.setSelectedTr(row.id);
     if(target.className !== "Table_statusClick__QSptV" && target.tagName !== "LI"){
       if(context.moreSelect.includes(row.id)){
@@ -47,10 +46,6 @@ function Table() {
     const y = event.clientY; // Get the Y coordinate
     setCoordinatesX(x);
     setCoordinatesY(y);
-  
-    if (event.target.className !== "Table_statusClick__QSptV" && event.target.tagName !== "LI") {
-      console.log("target", event.target);
-    }
   };
 
   const status = {
@@ -516,14 +511,11 @@ const whatPageBgTd = (row) => {
     }
   }
 }
+useEffect(() => {
+ context.checkedAllFunc()
+},[context.filteredTableData, context?.moreSelect])
 
-const checkedAllFunc = () => {
-  if(context.moreSelect.length > 0){
-    return true
-  }else{
-    return false
-  }
-}
+
 
 const clickAllTh = () => {
   if(context?.moreSelect?.length > 0){
@@ -542,7 +534,7 @@ return (
             <thead>
               <tr>
               <th name="checkAll" className={styles.MainTh}>
-                <input type="checkbox" name="checkAll" className={styles.checkbox} checked={checkedAllFunc()} onClick={clickAllTh}></input>
+                <input type="checkbox" name="checkAll" className={styles.checkbox} checked={context.checkedAll} onClick={clickAllTh}></input>
               </th>
               {storeTableHeader?.filter((el)=>(el.isActive === true)).map((item, index) => (
                                 <th onClick={(el) => { clickTh(item.key, index, el) }} name={item.key} key={item.key} className={styles.MainTh}>

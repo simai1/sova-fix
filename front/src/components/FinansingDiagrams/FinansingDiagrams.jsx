@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import * as echarts from 'echarts';
 
 function FinansingDiagrams(props) {
-    console.log("DataFinansing", props.DataFinansing);
     let additionalData = [];
     const countMapWithCheck = {};
     const countMapWithoutCheck = {};
@@ -78,7 +77,8 @@ function FinansingDiagrams(props) {
                     barWidth: '10%',
                     color: "#C5E384",
                     data: countsWithCheck // Using the counts array here
-                }
+                },
+             
             ]
         };
 

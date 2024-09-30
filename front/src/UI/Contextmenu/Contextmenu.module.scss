@@ -58,4 +58,22 @@
             }
         }
     }
+    .ConfirmDelete{
+        display: block;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        .ConfirmDeleteButtons{
+            display: flex;
+            button{
+                @include button(var(--turquoise-color));
+                width: 100px;
+                text-align: center;
+                display: flex;
+                justify-content: center;
+                margin: 0px 5px;
+            }
+        }
+        
+    }
 }
