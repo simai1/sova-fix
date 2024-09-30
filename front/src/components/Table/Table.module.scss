@@ -306,6 +306,7 @@ input[type=checkbox]:before {
   width: 16px;
   height: 16px;
   border: 2px solid #d3d6db;
+  cursor: pointer;
 }
 
 input[type=checkbox]:checked:before {

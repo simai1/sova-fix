@@ -511,14 +511,11 @@ const whatPageBgTd = (row) => {
     }
   }
 }
+useEffect(() => {
+ context.checkedAllFunc()
+},[context.filteredTableData, context?.moreSelect])
 
-const checkedAllFunc = () => {
-  if(context.moreSelect.length > 0){
-    return true
-  }else{
-    return false
-  }
-}
+
 
 const clickAllTh = () => {
   if(context?.moreSelect?.length > 0){
@@ -537,7 +534,7 @@ return (
             <thead>
               <tr>
               <th name="checkAll" className={styles.MainTh}>
-                <input type="checkbox" name="checkAll" className={styles.checkbox} checked={checkedAllFunc()} onClick={clickAllTh}></input>
+                <input type="checkbox" name="checkAll" className={styles.checkbox} checked={context.checkedAll} onClick={clickAllTh}></input>
               </th>
               {storeTableHeader?.filter((el)=>(el.isActive === true)).map((item, index) => (
                                 <th onClick={(el) => { clickTh(item.key, index, el) }} name={item.key} key={item.key} className={styles.MainTh}>

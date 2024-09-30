@@ -9,7 +9,6 @@ import FunctionReportTop from "../../../../components/FunctionReportTop/Function
 import UniversalTable from "../../../../components/UniversalTable/UniversalTable";
 import { funFixEducator } from "../../../../UI/SamplePoints/Function";
 import { sortDataTable } from "../functionSort/functionSort";
-import BasicDateRangePicker from "../../../../UI/BasicDateRangePicker/BasicDateRangePicker";
 import FinansingDiagrams from "../../../../components/FinansingDiagrams/FinansingDiagrams";
 
 function ReportFinansing() {

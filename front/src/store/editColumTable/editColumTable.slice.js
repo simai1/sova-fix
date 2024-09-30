@@ -38,9 +38,13 @@ const editColumTable = createSlice({
     },
 
     resetAllColumns: (state) => {
-      state.ActiveColumTable = state.ActiveColumTable.map(el => ({ ...el, isActive: !state.AllCheckbox }));
+      state.ActiveColumTable = [
+          ...state.ActiveColumTable.slice(0, 3), // Keep the first three elements unchanged
+          ...state.ActiveColumTable.slice(3).map(el => ({ ...el, isActive: !state.AllCheckbox })) // Update the rest
+      ];
       state.AllCheckbox = !state.AllCheckbox;
-    },
+  },
+  
   },
 });
 

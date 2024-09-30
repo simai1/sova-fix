@@ -77,7 +77,8 @@ function FinansingDiagrams(props) {
                     barWidth: '10%',
                     color: "#C5E384",
                     data: countsWithCheck // Using the counts array here
-                }
+                },
+             
             ]
         };
 
