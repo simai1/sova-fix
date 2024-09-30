@@ -18,11 +18,11 @@ async def you_cant_do_that(message: Message) -> None:
     await message.answer('Вы не можете этого сделать')
 
 
-async def send_back_to_start(message: Message) -> None:
+async def to_start_msg(message: Message) -> None:
     await message.answer("Вернуться на главную?", reply_markup=to_start_kb())
 
 
-async def send_repair_request(message: Message, repair_request: dict, kb: IKM) -> None:
+async def send_repair_request(message: Message, repair_request: dict, kb: IKM | None = None) -> None:
     text = repair_request_text(repair_request)
 
     uploads_path = "../api/uploads/"

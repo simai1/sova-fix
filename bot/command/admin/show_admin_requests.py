@@ -37,7 +37,7 @@ async def show_all_requests_admin_callback_handler(query: CallbackQuery, state: 
 
     await query.answer()
 
-@router.callback_query(F.data.startwith('adm:show_more'))
+@router.callback_query(F.data.startswith('adm:show_more'))
 async def show_more_requests(query: CallbackQuery, state: FSMContext) -> None:
     await pagination.next_page_in_state(state)
 

@@ -13,9 +13,10 @@ async def send_contractor_menu(message: Message) -> None:
 '''
 
     kb = IKM(inline_keyboard=[
-        [IKB(text='Посмотреть заявки 📋', callback_data='contractor_requests:status=1,2,5')],
+        [IKB(text='Посмотреть заявки 📋', callback_data='contractor_requests:status=1,2')],
         [IKB(text='Посмотреть выполненные заявки ✅', callback_data='contractor_requests:status=3')],
-        [IKB(text='Посмотреть маршрутный лист 📍', callback_data='contractor_itinerary')]
+        [IKB(text='Посмотреть маршрутный лист 📍', callback_data='contractor_itinerary')],
+        [IKB(text='Найти заявку по номеру 🔎', callback_data='request_by_number')]
     ])
 
     file = FSInputFile(path=f"./{cf.IMG_PATH}/photo_2024-08-21_17-47-00.jpg", filename="фото.jpg")

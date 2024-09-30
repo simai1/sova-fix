@@ -12,8 +12,9 @@ async def send_customer_menu(message: Message) -> None:
 """
 
     kb = IKM(inline_keyboard=[
-        [IKB(text='Мои заявки 📋', callback_data='customer_requests:status=1,2,5')],
+        [IKB(text='Мои заявки 📋', callback_data='customer_requests:status=1,2')],
         [IKB(text='Выполненные заявки ✅', callback_data='customer_requests:status=3')],
+        [IKB(text='Найти заявку по номеру 🔎', callback_data='request_by_number')],
         [IKB(text='Подать заявку ➕', callback_data='create_repair_request')]
     ])
 
