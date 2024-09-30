@@ -14,7 +14,7 @@ class FSMAddCheck(StatesGroup):
     await_repair_price = State()
 
 
-@router.callback_query(F.data.startswith('con:check'))
+@router.callback_query(F.data.startswith('check'))
 async def request_add_check_callback_handler(query: CallbackQuery, state: FSMContext) -> None:
     await state.clear()
     await state.set_state(FSMAddCheck.await_check_photo)

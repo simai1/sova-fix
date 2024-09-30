@@ -164,10 +164,10 @@ async def get_contractor_id(user_id: int) -> str | None:
     return contractor_id
 
 
-async def get_contractor_requests(user_id: int) -> list | None:
+async def get_contractor_requests(user_id: int, params: str = '') -> list | None:
     contractor_id = await get_contractor_id(user_id)
 
-    url = f'{cf.API_URL}/contractors/{contractor_id}/requests'
+    url = f'{cf.API_URL}/contractors/{contractor_id}/requests?{params}'
 
     request = requests.get(url)
     data = request.json()
@@ -194,11 +194,11 @@ async def get_itinerary(user_id) -> list | None:
         return None
 
 
-async def get_customer_requests(user_id: int) -> list | None:
+async def get_customer_requests(user_id: int, params: str = '') -> list | None:
 
     tg_user_id = await get_tg_user_id(user_id)
 
-    url = f'{cf.API_URL}/requests/customer/{tg_user_id}'
+    url = f'{cf.API_URL}/requests/customer/{tg_user_id}?{params}'
 
     request = requests.get(url)
     data = request.json()
@@ -206,7 +206,7 @@ async def get_customer_requests(user_id: int) -> list | None:
     if request.status_code == 200:
         return data
     else:
-        logger.error(f'API: could not get customer requests (tg_user_id={tg_user_id})')
+        logger.error("API: could not get customer requests", f"tg_user_id={tg_user_id})")
         return None
 
 

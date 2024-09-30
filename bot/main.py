@@ -9,7 +9,7 @@ import config as cf
 from util.websocket_worker import WebSocketWorker
 # routers
 from command.common.add_comment import router as add_comment_router
-from command.contractor.request_done import router as contractor_request_done_router
+from command.common.request_done import router as request_done_router
 from command.contractor.show_contractor_requests import router as show_contractor_requests_command_router
 from command.contractor.show_itinerary import router as show_itinerary_router
 from command.customer.create_repair_request import router as create_repair_request_command_router
@@ -17,7 +17,7 @@ from command.customer.request_not_relevant import router as customer_request_not
 from command.customer.show_customer_requests import router as show_customer_requests_command_router
 from command.register.register_command import router as register_command_router
 from command.start.start_command import router as start_command_router
-from command.admin.show_active_requests import router as show_all_requests_admin_router
+from command.admin.show_admin_requests import router as show_requests_admin_router
 from handler.pagination import router as pagination_router
 from command.common.send_one_request import router as send_one_request_router
 from command.contractor.add_check import router as add_check_router
@@ -31,9 +31,9 @@ routers = [
     customer_request_not_relevant_router,
     show_contractor_requests_command_router,
     show_itinerary_router,
-    contractor_request_done_router,
+    request_done_router,
     add_comment_router,
-    show_all_requests_admin_router,
+    show_requests_admin_router,
     pagination_router,
     send_one_request_router,
     add_check_router

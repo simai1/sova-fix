@@ -40,7 +40,7 @@ async def show_contractor_requests_handler(user_id: int, message: Message, state
 
     await pagination.set_page_in_state(state, 0)
     await send_many_rr_for_itinerary(itinerary, message, state)
-    await pagination.send_next_button_if_needed(len(itinerary), message, state, prefix='it:')
+    await pagination.send_next_button_if_needed(len(itinerary), message, state, prefix='it')
 
 
 @router.callback_query(F.data == 'it:show_more')
@@ -49,7 +49,7 @@ async def show_more_requests(query: CallbackQuery, state: FSMContext) -> None:
 
     itinerary = await crm.get_itinerary(query.from_user.id)
     await send_many_rr_for_itinerary(itinerary, query.message, state)
-    await pagination.send_next_button_if_needed(len(itinerary), query.message, state, prefix='it:')
+    await pagination.send_next_button_if_needed(len(itinerary), query.message, state, prefix='it')
 
     await query.message.delete()
     await query.answer()

@@ -2,7 +2,7 @@ import json
 
 from aiogram import Bot
 from aiogram.types import InlineKeyboardButton as IKB, InlineKeyboardMarkup as IKM
-from common.keyboard import to_start_btn
+from common.keyboard import to_start_btn, to_start_kb
 from data import const
 from util import logger, crm
 
@@ -69,6 +69,8 @@ async def get_simple_notification_text(event: str, msg: dict):
         case "TGUSER_CREATE":
             user = await crm.get_user_by_id(msg['userId'])
             return f"<b>❗ЗАЯВКА НА РЕГИСТРАЦИЮ❗️</b>\nНовая заявка на регистрацию!\n<i>Имя: <b>{user['name']}</b>\nРоль: <b>{crm.roles.get_rus(user['role'])}</b></i>"
+        case "TGUSER_CONFIRM":
+            return f"<b>❗ЗАЯВКА НА РЕГИСТРАЦИЮ ОДОБРЕНА❗️</b>\nВаша заявка на регистрацию одобрена.\nНаслаждайтесь использованием нашего бота!"
         case _:
             return None
 
@@ -77,6 +79,8 @@ def get_simple_notification_kb(event: str, msg: dict, role: int):
     match event:
         case "TGUSER_CREATE":
             return None
+        case "TGUSER_CONFIRM":
+            return to_start_kb()
         case _:
             kb = get_send_one_rr_kb(msg["requestId"], role)
             return kb
@@ -105,6 +109,12 @@ async def from_websocket_message(bot: Bot, message_string: str) -> None:
     else:
         contractor_id = None
 
+    if "tgUser" in msg.keys() and msg['tgUser'] is not None:
+        user = await crm.get_user_by_id(msg['tgUser'])
+        tg_user_id = user['tgId']
+    else:
+        tg_user_id = None
+
     admin_ids = await crm.get_all_manager_tg_ids()
 
     text = await get_simple_notification_text(event, msg)
@@ -118,6 +128,14 @@ async def from_websocket_message(bot: Bot, message_string: str) -> None:
         kb = get_simple_notification_kb(event, msg, crm.roles.CONTRACTOR)
         await bot.send_message(contractor_id, text, reply_markup=kb)
         logger.info("sent notification to contractor", f"\'{event}\'")
+
+    if tg_user_id is not None:
+        kb = get_simple_notification_kb(event, msg, crm.roles.USER)
+        await bot.send_message(tg_user_id, text, reply_markup=kb)
+        logger.info("sent notification to tgUser", f"\'{event}\'")
+
+    if event == "TGUSER_CONFIRM":
+        return
 
     if admin_ids:
         kb = get_simple_notification_kb(event, msg, crm.roles.ADMIN)

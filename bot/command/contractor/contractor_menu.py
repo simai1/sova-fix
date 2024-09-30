@@ -13,7 +13,8 @@ async def send_contractor_menu(message: Message) -> None:
 '''
 
     kb = IKM(inline_keyboard=[
-        [IKB(text='Посмотреть заявки 📋', callback_data='contractor_requests')],
+        [IKB(text='Посмотреть заявки 📋', callback_data='contractor_requests:status=1,2,5')],
+        [IKB(text='Посмотреть выполненные заявки ✅', callback_data='contractor_requests:status=3')],
         [IKB(text='Посмотреть маршрутный лист 📍', callback_data='contractor_itinerary')]
     ])
 

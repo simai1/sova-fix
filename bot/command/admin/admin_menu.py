@@ -15,7 +15,9 @@ async def send_admin_menu(message: Message) -> None:
 '''
 
     kb = IKM(inline_keyboard=[
-        [IKB(text='Посмотреть все актуальные заявки 📋', callback_data='show_active_requests_admin')],
+        [IKB(text='Посмотреть все актуальные заявки 📋', callback_data='requests_admin:status=1,2,5')],
+        [IKB(text='Посмотреть все выполненные заявки ✅', callback_data='requests_admin:status=3')],
+        [IKB(text='Посмотреть ВСЕ заявки ▶️', callback_data='requests_admin:')]
     ])
 
     file = FSInputFile(path=f"./{cf.IMG_PATH}/manager_icon.png", filename="фото.jpg")

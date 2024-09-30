@@ -6,7 +6,7 @@ from util import crm
 router = Router(name=__name__)
 
 
-@router.callback_query(F.data.startswith('con:done'))
+@router.callback_query(F.data.startswith('done'))
 async def request_done_callback_handler(query: CallbackQuery) -> None:
     request_id = query.data.split(':')[-1]
 
