@@ -12,8 +12,6 @@ function UniversalDashbordSrochn(props) {
       { value: 0, name: 'Маршрут' },
     ];
 
-    // Update data values based on props.dataDashbord
-    console.log("props?.dataDashbord", props?.dataDashbord)
     props?.dataDashbord.forEach((el) => {
       const index = datas.findIndex(item => item.name === el.urgency);
       if (index !== -1) {

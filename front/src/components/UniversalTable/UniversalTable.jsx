@@ -55,7 +55,6 @@ function UniversalTable(props) {
     };
 
     const clickTr = (value) => {
-        console.log(value);
         context.setSelectRowDirectory(value.id);
         context.setSelectedTr(value.id);
     };
@@ -75,7 +74,6 @@ function UniversalTable(props) {
     }, [context]);
 
     const textAlign = (keys, item) => {
-        console.log("keys", keys)
         if(keys === "number" || keys === "count" || keys === "itineraryOrder" || keys === "startCoop" || keys === "daysAtWork" || keys === "completeDate" || keys === "createdAt" || keys === "repairPrice" || keys === "startCoop" || keys === "tgId" || keys === "id"){
           return "center"
         }if(item === null){

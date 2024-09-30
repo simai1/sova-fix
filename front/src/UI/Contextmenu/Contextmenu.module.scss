@@ -1,0 +1,79 @@
+@import "./../../styles/color.scss";
+@import "./../../styles/mixins.scss";
+
+.SampleMenu{
+    position: absolute;
+    z-index: 1000;
+
+    display: flex;
+    .StatusMenu{
+        margin-left: 10px;
+        background-color: #fff;
+        box-shadow: 2px 2px 8px var(--dark-grey-color);
+        border-radius: 8px;
+        padding: 10px 20px;
+        max-width: 170px;
+        max-height: 160px;
+        overflow-y: scroll;
+        ul{
+            list-style: none;
+            padding: 0;
+            li{
+                margin: 5px 0px;
+                font-size: 17px;
+                cursor: pointer;
+                transition: 0.1s linear all;
+                &:hover{
+                    color: var(--ActiveText-color);
+                }
+            }
+        }
+    }
+    .SampleMenuInner{
+        background-color: #fff;
+        box-shadow: 2px 2px 8px var(--dark-grey-color);
+        padding: 10px 20px;
+        border-radius: 8px;
+        .SampleMenuInnerList{
+            list-style: none;
+            padding: 0;
+            width: 230px;
+            li{
+                margin: 5px 0px;
+                font-size: 17px;
+                cursor: pointer;
+                transition: 0.1s linear all;
+                &:hover{
+                    color: var(--ActiveText-color);
+                }
+            }
+            .SampleMenuInnerList{
+                display: flex;
+                justify-content: space-between;
+                cursor: pointer;
+                transition: 0.1s linear all;
+                &:hover{
+                    color: var(--ActiveText-color);
+                }
+            }
+        }
+    }
+    .ConfirmDelete{
+        display: block;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        .ConfirmDeleteButtons{
+            display: flex;
+            button{
+                @include button(var(--turquoise-color));
+                width: 100px;
+                text-align: center;
+                display: flex;
+                justify-content: center;
+                margin: 0px 5px;
+            }
+        }
+        
+    }
+}

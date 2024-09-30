@@ -73,8 +73,6 @@ function DirectoryLegalEntities() {
             startCoop: formattedStartCoop,
         };
 
-        console.log(newUnit);
-
         popUpEdit ? EditLegalEntities(newUnit, selectId).then((response) => {
             if (response?.status === 200) {
                 getData();
@@ -98,7 +96,6 @@ function DirectoryLegalEntities() {
                 setUnitName(response.data.name);
                 setLegalForm(response.data.legalForm);
                 setstartCoop(response.data.startCoop.split('T')[0]); // Format the date to 'YYYY-MM-DD'
-                console.log("startCoop", response.data.startCoop.split('T')[0])
             });
         } else {
             context.setPopupErrorText("Сначала выберите Юр. лицо!");

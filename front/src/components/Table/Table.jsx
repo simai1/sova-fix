@@ -8,13 +8,46 @@ import { SamplePoints } from "../../UI/SamplePoints/SamplePoints";
 import { removeTableCheckeds } from "../../store/filter/isChecked.slice";
 import { useDispatch, useSelector } from "react-redux";
 import { FilteredSample, funFixEducator } from "../../UI/SamplePoints/Function";
-import СonfirmDelete from "../СonfirmDelete/СonfirmDelete";
+import СonfirmDelete from "./../СonfirmDelete/СonfirmDelete";
+import СonfirmDeleteUser from "./../СonfirmDeleteUser/СonfirmDeleteUser";
+import { use } from "echarts";
+import Contextmenu from "../../UI/Contextmenu/Contextmenu";
 function Table() {
   const { context } = useContext(DataContext);
   const [actiwFilter, setActiwFilter] = useState(null);
-  const trClick = (row) => {
+  const [coordinatesX, setCoordinatesX] = useState(0);
+  const [openConextMenu, setOpenConextMenu] = useState(false);
+  const [coordinatesY, setCoordinatesY] = useState(0);
+  const trClick = (row, target) => {
     context.setSelectedTr(row.id);
+    if(target.className !== "Table_statusClick__QSptV" && target.tagName !== "LI"){
+      if(context.moreSelect.includes(row.id)){
+        context.setMoreSelect(context.moreSelect.filter(item => item !== row.id))
+      }else{
+        context.setMoreSelect([...context.moreSelect, row.id])
+      }    
+    }
+  
   };
+
+  const trClickRight = (row, target) => {
+    if(target.className !== "Table_statusClick__QSptV" && target.tagName !== "LI" && !context.moreSelect.includes(row.id)){
+        context.setMoreSelect([...context.moreSelect, row.id])
+    }
+    setOpenConextMenu(true)
+  
+  };
+
+
+
+  const contextmenuClick = (event) => {
+    event.preventDefault(); // Prevent the default context menu from appearing
+    const x = event.clientX; // Get the X coordinate
+    const y = event.clientY; // Get the Y coordinate
+    setCoordinatesX(x);
+    setCoordinatesY(y);
+  };
+
   const status = {
     1: "Новая заявка",
     2: "В работе",
@@ -27,7 +60,6 @@ function Table() {
     {id:2, name:"В течении текущего дня"},
     {id:3, name:"В течении 3-х дней"},
     {id:4, name:"В течении недели"},
-    // {id:5, name:"ВЫПОЛНИТЬ СЕГОДНЯ"},
     {id:5, name:"Маршрут"},
     {id:6, name:"Выполнено"}
   ];
@@ -50,7 +82,7 @@ function Table() {
   const ItineraryOrderPopRef = useRef(null)
   const [arrCount, setArrCount] = useState([])
   const [dataBuilder, setDataBuilder] = useState({});
-
+  const contextmenuRef = useRef(null);
   const editStatus = (status, id) => {
     const data = {
       requestId: id,
@@ -177,6 +209,9 @@ function Table() {
   }
 
   const handleClickOutside = (event) => {
+    if (contextmenuRef.current && !contextmenuRef.current.contains(event.target)) {
+      setOpenConextMenu(false)
+    }
     if (
       statusPopRef.current && !statusPopRef.current.contains(event.target) && event.target.tagName !== "LI" && event.target.className !== "Table_shovStatusPop__LcpzL"
     ) {
@@ -246,7 +281,6 @@ function Table() {
 
 
   const getContractorItem = (row, ) =>{
-  console.log("row", row)
   if(row?.isExternal){
     return "Внешний подрядчик"
   }else{
@@ -284,8 +318,7 @@ function Table() {
   }
  const ClickRole = (id, role) =>{
   let data = {};
-  const idInteger = roleUser.find(el => el.name === role)?.id;
-  if(idInteger === 1){
+  if(role === 1){
     data = {
       role: 2,
       userId: id
@@ -296,7 +329,7 @@ function Table() {
       userId: id
     };
   }
- if(id !== JSON.parse(sessionStorage.getItem("userData")).user?.id){
+ if(id !== JSON.parse(sessionStorage.getItem("userData"))?.user?.id){
   SetRole(data).then((resp)=>{
     if(resp?.status === 200){
       context.UpdateTableReguest(2);
@@ -310,7 +343,6 @@ function Table() {
  }
  //! открытие модального окна фильтрации столбца
  const clickTh = (key,index, el) => {
-  // console.log("el", el.target.tagName)
   if(el?.target?.tagName !== "IMG"){
   const status = {
     1: "Новая заявка",
@@ -322,10 +354,10 @@ function Table() {
   let modalData = [];
   if(key !== "photo" && key !== "checkPhoto"){
     if(key === "status"){
-      modalData = context?.tableData.map(
+      modalData = context?.tableData?.map(
         (item) => status[item[key]]);
     }else{
-      modalData = context?.tableData.map(
+      modalData = context?.tableData?.map(
         (item) => item[key]?.name || item[key] 
       );
     }
@@ -394,15 +426,15 @@ useEffect(() => {
           context.setSelectedTr(null);
       }
   };
-
+  WhatNanItem()
   document.addEventListener('click', handleClickOutside);
   return () => {
       document.removeEventListener('click', handleClickOutside);
   };
+
 }, [context]);
 
 const setPerformersDirectory = (el) => {
-  console.log("el", el)
   const data = {
     requestId : el,
     contractorId: "Внешний подрядчик"
@@ -429,7 +461,6 @@ const SetExp = (requestId, ExpId) =>{
 }
 
 const getItemBuilder = (row) => {
-console.log( "row", row)
   if(row?.extContractor && row?.isExternal){
     return row?.extContractor?.name
   }else{
@@ -454,24 +485,59 @@ const textAlign = (keys,item) => {
     return "center"
   }
   else if(item === null){
-    console.log("keys", keys)
     return "center"
   }
   else{
     return "left"
   }
 }
+const WhatNanItem = () => {
+  const tds = document.querySelectorAll("td[name='name']")
+  tds?.forEach((el)=>{
+    if(el.innerText === "___"){
+      el.style.textAlign = "center"
+    }
+  })
+}
+
+const whatPageBgTd = (row) => {
+  if(context?.selectedTable === "Заявки"){
+    if(context.moreSelect.some((el) => el === row)){
+      return "#D8CDC1FF"
+    }
+  }else{
+    if(context.selectedTr === row){
+      return "#D8CDC1FF"
+    }
+  }
+}
+useEffect(() => {
+ context.checkedAllFunc()
+},[context.filteredTableData, context?.moreSelect])
+
+
+
+const clickAllTh = () => {
+  if(context?.moreSelect?.length > 0){
+    context.setMoreSelect([])
+  }else{
+    context.filteredTableData?.map((el) => context.setMoreSelect((prevState) => [...prevState, el.id]))
+  }
+}
 
 return (
-    <>
+    <div className={styles.TableWrapper}>
       
         <div className={styles.Table} style={{overflow: context?.filteredTableData.length === 0 ? 'hidden' : 'auto'}}>
-          <table className={styles.TableInner} >
+          <table className={styles.TableInner}>
           {(context.selectedTable === "Заявки" && context.selectPage === "Main") ?(
             <thead>
               <tr>
-              {storeTableHeader?.filter((el)=>(el.isActive === true)).map((item, index) => (
-                                <th onClick={(el) => { clickTh(item.key, index, el) }} name={item.key} key={item.key}>
+              <th name="checkAll" className={styles.MainTh}>
+                <input type="checkbox" name="checkAll" className={styles.checkbox} checked={context.checkedAll} onClick={clickAllTh}></input>
+              </th>
+              {storeTableHeader?.filter((el)=>(el.isActive === true))?.map((item, index) => (
+                                <th onClick={(el) => { clickTh(item.key, index, el) }} name={item.key} key={item.key} className={styles.MainTh}>
                                     <div className={styles.thTable}>
                                         {item.value}
                                         
@@ -519,7 +585,7 @@ return (
             :(
               <thead>
                 <tr>
-                {context?.tableHeader.map((item,index) => (
+                {context?.tableHeader?.map((item,index) => (
                   <th onClick={() => {clickTh(item.key, index)}} name={item.key} key={item.key} className={styles.headerNotMain}>
                       {item.value} 
                   </th>
@@ -529,20 +595,33 @@ return (
             )
           }
             <tbody >
-            {context?.filteredTableData.length > 0 ? (
-            
+              {context?.filteredTableData.length > 0 ? (
            <>
-              {context?.filteredTableData.map((row, index) => (  
+              {context?.filteredTableData?.map((row, index) => (  
                 <tr
                   key={index}
-                  onClick={() => trClick(row)}
+                  onClick={(e) => {
+                    const target = e.target;
+                    (context.selectedTable === "Заявки" || context.selectedTable === "Пользователи") && trClick(row, target ); 
+                  }}
+                  
+                  onContextMenu={(e) => {
+                    const target = e.target;
+                    context.selectedTable === "Заявки" && trClickRight(row, target ); 
+                    context.selectedTable === "Заявки" && contextmenuClick(e); // Use onContextMenu instead of contextmenu
+                  }}
                   className={
-                    context.selectedTr === row.id && styles.setectedTr
+                    context.selectedTable === "Заявки" ? context.moreSelect.some((el) => el === row.id) && styles.setectedTr : context.selectedTr === row.id && styles.setectedTr
                   }
+                 
                 >
-                
-                  { (context.selectedTable === "Заявки" ? storeTableHeader?.filter((el)=>(el.isActive === true)) :  context.tableHeader ).map((headerItem) => (
-                    <td key={headerItem.key} name={headerItem.key}  style={{textAlign: textAlign(headerItem.key, row[headerItem.key]), backgroundColor:  context.selectedTr === row.id && "#D8CDC1FF"}}>
+                {context.selectedTable === "Заявки" &&
+                  <td name="checkAll" style={{textAlign: "center", backgroundColor: whatPageBgTd(row.id)}} className={styles.MainTd}>
+                    <input type="checkbox" checked={context.moreSelect.some((el) => el === row.id) } key={index} name="checkAll" className={styles.checkbox}></input>
+                  </td>
+                }
+                  { (context.selectedTable === "Заявки" ? storeTableHeader?.filter((el)=>(el.isActive === true)) :  context.tableHeader)?.map((headerItem) => (
+                    <td key={headerItem.key} name={headerItem.key} className={context.selectedTable === "Заявки" && styles.MainTd}  style={{textAlign: textAlign(headerItem.key, row[headerItem.key]), backgroundColor: whatPageBgTd(row.id)}}>
                       {headerItem.key === "id" ? (
                         index + 1
                       ) : headerItem.key === "status" ? (
@@ -568,7 +647,7 @@ return (
                           {shovStatusPop === row.id && (
                             <div className={styles.shovStatusPop} style={checkHeights(context?.filteredTableData,index) ? {top:"-70%", width: "150px"} : {width: "150px"}}>
                               <ul>
-                                {Object.values(status).map((value, index) => (
+                                {Object.values(status)?.map((value, index) => (
                                   <li
                                     onClick={() => editStatus(index + 1, row.id)}
                                     key={index}
@@ -624,7 +703,7 @@ return (
                         >
                           {getContractorItem(row)}
                           {shovBulderPop === row.id && (
-                            <div className={styles.shovStatusPop} style={checkHeights(context?.filteredTableData,index) ? {top:"-70%", width: "200%"} : {width: "200%"}}  >
+                            <div className={styles.shovStatusPop} style={checkHeights(context?.filteredTableData,index) ? {top:"-70%", width: "200%"} : {width: "200%", right:"-365px", top:"40px"}}>
                               <ul>
                               { row[headerItem.key] !== null && <li onClick={() => deleteBilder(row.id)}>Удалить исполнителя</li>}
                                 {context.dataContractors?.map((value, index) => (
@@ -709,8 +788,8 @@ return (
                       ):
                        headerItem.key === "role" ? (
                         <div
-                          onClick={() =>(row[headerItem.key] === 1 || row[headerItem.key] === 2 && ClickRole(row.id, row[headerItem.key]))}
-                          className={styles[(row[headerItem.key] === 1 || row[headerItem.key] === 2) && JSON.parse(localStorage.getItem("userData")).user.role === "ADMIN" ? "statusClick" : ""]}
+                          onClick={() =>((row[headerItem.key] === 1 || row[headerItem.key] === 2) && JSON.parse(localStorage.getItem("userData"))?.user?.role === "ADMIN" &&ClickRole(row.id, row[headerItem.key]))}
+                          className={styles[(row[headerItem.key] === 1 || row[headerItem.key] === 2) && JSON.parse(localStorage.getItem("userData"))?.user?.role === "ADMIN" ? "statusClick" : ""]}
                         >
                           {getRole(row[headerItem.key])}
                         </div>
@@ -726,7 +805,7 @@ return (
                             <div className={styles.shovStatusPop} style={checkHeights(context?.filteredTableData, index) ? {top:"-10%", right:"100px", width: "auto"} : {width: "auto"}}>
                               <ul>
                               {
-                                arrCount.map((el)=>{
+                                arrCount?.map((el)=>{
                                   return  <li key={el} onClick={(event) => SetCountCard(el, row.id)}> {el}</li>
                                 })
                               }
@@ -744,13 +823,14 @@ return (
               ))}
               </>
             ):(
-              <tr className={styles.tdNotData}><td style={{background: "#e3dfda"}}><div className={styles.noteData}>Нет данных</div></td></tr>
+             <tr><td colSpan={15} className={styles.tableNotData}>Нет данных</td></tr>
             )}
             </tbody>
           </table>
+         
         </div>
-      
-        {/* style={{ pointerEvents: "none", textAlign: textAlign(headerItem.key) }} */}
+        { context.selectedTable === "Заявки" && <div><p style={{margin: "10px 0 0 0px"}}>Кол-во выбранных заявок: {context.moreSelect.length}</p></div>}
+    
       {modalImage && (
         <div className={styles.modal} onClick={closeModal}>
           <span className={styles.close}>&times;</span>
@@ -758,10 +838,17 @@ return (
         </div>
       )}
       {
-        context.popUp === "СonfirmDelete" &&  <СonfirmDelete />
+        context.popUp === "СonfirmDelete" &&  <СonfirmDelete />    
       }
-     
-    </>
+      {
+        context.popUp === "СonfirmDeleteUser" &&  <СonfirmDeleteUser/>
+      }
+      {openConextMenu &&
+        <div ref={contextmenuRef} style={{display:openConextMenu ? "block" : "none"}}>
+          <Contextmenu X={coordinatesX} Y={coordinatesY} setOpenConextMenu={setOpenConextMenu}/>
+        </div>
+      }
+    </div>
   );
 }
 

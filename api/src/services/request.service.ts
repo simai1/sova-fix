@@ -471,13 +471,17 @@ const bulkDeleteRequests = async (ids: object): Promise<void> => {
 const bulkSetStatus = async (ids: object, status: number): Promise<void> => {
     const repairRequests = await RepairRequest.findAll({ where: { id: ids } });
     if (repairRequests.length === 0) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found any requests');
-    repairRequests.forEach(request => request.update({ status }));
+    for (const request of repairRequests) {
+        await request.update({ status });
+    }
 };
 
 const bulkSetUrgency = async (ids: object, urgency: string): Promise<void> => {
     const repairRequests = await RepairRequest.findAll({ where: { id: ids } });
     if (repairRequests.length === 0) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found any requests');
-    repairRequests.forEach(request => request.update({ urgency }));
+    for (const request of repairRequests) {
+        await request.update({ urgency });
+    }
 };
 
 const bulkSetContractor = async (ids: object, contractorId: string): Promise<void> => {

@@ -804,7 +804,82 @@ export const DeleteExtContractorsRequest = async (data) => {
   }
 };
 
+// Функции Массовых действий
+
+//!удаление заявок
 
 
+export const DeleteMoreRequest = async (data) => {
+  console.log("data", data)
+  try {
+    const response = await http.post(`${server}/requests/delete/bulk`, data, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      console.log("Ошибка при удалении заявок!");
+    }
+  }
+};
 
+//!массовый статус
+export const EditMoreStatusRequest = async (data) => {
+  console.log("вызвал")
+  try {
+    const response = await http.patch(`${server}/requests/status/bulk`, data, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      console.log("Ошибка при удалении заявок!");
+    }
+  }
+};
 
+//!массовый срочность
+export const EditMoreUrgencyRequest = async (data) => {
+  console.log("вызвал")
+  try {
+    const response = await http.patch(`${server}/requests/urgency/bulk`, data, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      console.log("Ошибка при удалении заявок!");
+    }
+  }
+};
+
+//!массовый contractor
+export const EditMoreContractorRequest = async (data) => {
+  console.log("вызвал")
+  try {
+    const response = await http.patch(`${server}/requests/contractor/bulk`, data, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      console.log("Ошибка при удалении заявок!");
+    }
+  }
+};

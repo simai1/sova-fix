@@ -23,7 +23,6 @@ function FunctionReportTop(props) {
     const TimeComplite = () => {
         let time = 0;
         props?.dataTable.map((el) => time += el.daysAtWork)
-        console.log("time", time)
         if(time === 0){
             return 0
         }else{

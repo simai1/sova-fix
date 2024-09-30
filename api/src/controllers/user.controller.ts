@@ -2,6 +2,7 @@ import catchAsync from '../utils/catchAsync';
 import userService from '../services/user.service';
 import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
+import jwtUtil from '../utils/jwt';
 
 const setRole = catchAsync(async (req, res) => {
     const { role, userId } = req.body;
@@ -18,7 +19,10 @@ const getAll = catchAsync(async (req, res) => {
 
 const destroy = catchAsync(async (req, res) => {
     const { userId } = req.params;
-    await userService.deleteUser(userId);
+    const { refreshToken } = req.cookies;
+    const userData: any = jwtUtil.decode(refreshToken);
+    if (userData.id === userId) throw new ApiError(httpStatus.BAD_REQUEST, 'Can not self delete');
+    await userService.deleteDirUser(userId);
     res.json({ status: 'OK' });
 });
 
