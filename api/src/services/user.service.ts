@@ -77,6 +77,14 @@ const deleteUser = async (userId: string): Promise<void> => {
     await User.destroy({ where: { id: userId }, force: true, individualHooks: true });
 };
 
+const deleteDirUser = async (userId: string): Promise<void> => {
+    let user;
+    user = await getUserById(userId);
+    if (!user) user = await TgUser.findByPk(userId);
+    if (!user) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found user/tgUser with id ' + userId);
+    await user.destroy({ force: true });
+};
+
 const confirmTgUser = async (userId: string): Promise<void> => {
     const user = await TgUser.findByPk(userId);
     if (!user) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found user with id ' + userId);
@@ -97,5 +105,6 @@ export default {
     getUsersDir,
     getAllUsers,
     deleteUser,
+    deleteDirUser,
     confirmTgUser,
 };
