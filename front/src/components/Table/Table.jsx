@@ -329,7 +329,7 @@ function Table() {
       userId: id
     };
   }
- if(id !== JSON.parse(sessionStorage.getItem("userData")).user?.id){
+ if(id !== JSON.parse(sessionStorage.getItem("userData"))?.user?.id){
   SetRole(data).then((resp)=>{
     if(resp?.status === 200){
       context.UpdateTableReguest(2);
@@ -354,10 +354,10 @@ function Table() {
   let modalData = [];
   if(key !== "photo" && key !== "checkPhoto"){
     if(key === "status"){
-      modalData = context?.tableData.map(
+      modalData = context?.tableData?.map(
         (item) => status[item[key]]);
     }else{
-      modalData = context?.tableData.map(
+      modalData = context?.tableData?.map(
         (item) => item[key]?.name || item[key] 
       );
     }
@@ -521,7 +521,7 @@ const clickAllTh = () => {
   if(context?.moreSelect?.length > 0){
     context.setMoreSelect([])
   }else{
-    context.filteredTableData.map((el) => context.setMoreSelect((prevState) => [...prevState, el.id]))
+    context.filteredTableData?.map((el) => context.setMoreSelect((prevState) => [...prevState, el.id]))
   }
 }
 
@@ -536,7 +536,7 @@ return (
               <th name="checkAll" className={styles.MainTh}>
                 <input type="checkbox" name="checkAll" className={styles.checkbox} checked={context.checkedAll} onClick={clickAllTh}></input>
               </th>
-              {storeTableHeader?.filter((el)=>(el.isActive === true)).map((item, index) => (
+              {storeTableHeader?.filter((el)=>(el.isActive === true))?.map((item, index) => (
                                 <th onClick={(el) => { clickTh(item.key, index, el) }} name={item.key} key={item.key} className={styles.MainTh}>
                                     <div className={styles.thTable}>
                                         {item.value}
@@ -585,7 +585,7 @@ return (
             :(
               <thead>
                 <tr>
-                {context?.tableHeader.map((item,index) => (
+                {context?.tableHeader?.map((item,index) => (
                   <th onClick={() => {clickTh(item.key, index)}} name={item.key} key={item.key} className={styles.headerNotMain}>
                       {item.value} 
                   </th>
@@ -597,7 +597,7 @@ return (
             <tbody >
               {context?.filteredTableData.length > 0 ? (
            <>
-              {context?.filteredTableData.map((row, index) => (  
+              {context?.filteredTableData?.map((row, index) => (  
                 <tr
                   key={index}
                   onClick={(e) => {
@@ -620,7 +620,7 @@ return (
                     <input type="checkbox" checked={context.moreSelect.some((el) => el === row.id) } key={index} name="checkAll" className={styles.checkbox}></input>
                   </td>
                 }
-                  { (context.selectedTable === "Заявки" ? storeTableHeader?.filter((el)=>(el.isActive === true)) :  context.tableHeader ).map((headerItem) => (
+                  { (context.selectedTable === "Заявки" ? storeTableHeader?.filter((el)=>(el.isActive === true)) :  context.tableHeader)?.map((headerItem) => (
                     <td key={headerItem.key} name={headerItem.key} className={context.selectedTable === "Заявки" && styles.MainTd}  style={{textAlign: textAlign(headerItem.key, row[headerItem.key]), backgroundColor: whatPageBgTd(row.id)}}>
                       {headerItem.key === "id" ? (
                         index + 1
@@ -647,7 +647,7 @@ return (
                           {shovStatusPop === row.id && (
                             <div className={styles.shovStatusPop} style={checkHeights(context?.filteredTableData,index) ? {top:"-70%", width: "150px"} : {width: "150px"}}>
                               <ul>
-                                {Object.values(status).map((value, index) => (
+                                {Object.values(status)?.map((value, index) => (
                                   <li
                                     onClick={() => editStatus(index + 1, row.id)}
                                     key={index}
@@ -788,8 +788,8 @@ return (
                       ):
                        headerItem.key === "role" ? (
                         <div
-                          onClick={() =>((row[headerItem.key] === 1 || row[headerItem.key] === 2) && JSON.parse(localStorage.getItem("userData")).user.role === "ADMIN" &&ClickRole(row.id, row[headerItem.key]))}
-                          className={styles[(row[headerItem.key] === 1 || row[headerItem.key] === 2) && JSON.parse(localStorage.getItem("userData")).user.role === "ADMIN" ? "statusClick" : ""]}
+                          onClick={() =>((row[headerItem.key] === 1 || row[headerItem.key] === 2) && JSON.parse(localStorage.getItem("userData"))?.user?.role === "ADMIN" &&ClickRole(row.id, row[headerItem.key]))}
+                          className={styles[(row[headerItem.key] === 1 || row[headerItem.key] === 2) && JSON.parse(localStorage.getItem("userData"))?.user?.role === "ADMIN" ? "statusClick" : ""]}
                         >
                           {getRole(row[headerItem.key])}
                         </div>
@@ -805,7 +805,7 @@ return (
                             <div className={styles.shovStatusPop} style={checkHeights(context?.filteredTableData, index) ? {top:"-10%", right:"100px", width: "auto"} : {width: "auto"}}>
                               <ul>
                               {
-                                arrCount.map((el)=>{
+                                arrCount?.map((el)=>{
                                   return  <li key={el} onClick={(event) => SetCountCard(el, row.id)}> {el}</li>
                                 })
                               }
