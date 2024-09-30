@@ -19,7 +19,6 @@ function Table() {
   const [openConextMenu, setOpenConextMenu] = useState(false);
   const [coordinatesY, setCoordinatesY] = useState(0);
   const trClick = (row, target) => {
-    console.log("target",target.tagName)
     context.setSelectedTr(row.id);
     if(target.className !== "Table_statusClick__QSptV" && target.tagName !== "LI"){
       if(context.moreSelect.includes(row.id)){
@@ -47,10 +46,6 @@ function Table() {
     const y = event.clientY; // Get the Y coordinate
     setCoordinatesX(x);
     setCoordinatesY(y);
-  
-    if (event.target.className !== "Table_statusClick__QSptV" && event.target.tagName !== "LI") {
-      console.log("target", event.target);
-    }
   };
 
   const status = {

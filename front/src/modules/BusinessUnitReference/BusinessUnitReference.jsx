@@ -21,7 +21,6 @@ function BusinessUnitReference() {
 
     useEffect(() => {
         getData();
-        console.log('Directory.selectRowDirectory', context.selectRowDirectory);
     }, []);
 
     const getData = () => {
@@ -71,7 +70,6 @@ function BusinessUnitReference() {
             name: unitName,
             description: unitDescription,
         };
-        console.log('newUnit', newUnit);
 
         popUpEdit ? 
         EditUnit(newUnit, selectId).then((response) => {

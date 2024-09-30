@@ -1,7 +1,5 @@
 export const sortDataTable = (valueName, tableDataIndicators, dateFrom, dateTo) => {
-    console.log('valueName', valueName);
     let filteredData = [];
-
     const today = new Date();
     const startOfToday = new Date(today.setHours(0, 0, 0, 0));
     const endOfToday = new Date(today.setHours(23, 59, 59, 999));
@@ -12,7 +10,6 @@ export const sortDataTable = (valueName, tableDataIndicators, dateFrom, dateTo) 
                 const start = new Date(dateFrom);
                 const end = new Date(dateTo);
                 // Проверка, что start не больше end
-                console.log("start", dateFrom, "end", dateTo);
                 if(dateFrom === undefined || dateTo=== undefined){
                     return tableDataIndicators
                 }

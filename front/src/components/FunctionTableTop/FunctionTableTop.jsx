@@ -63,7 +63,6 @@ const editAppoint = ()=>{
 };
 
 const activePeople = ()=>{
- console.log("context.selectedTr", context.selectedTr)
  if(context.selectedTr != null){
   RejectActiveAccount(context.selectedTr).then((resp)=>{
     if(resp?.status === 200){

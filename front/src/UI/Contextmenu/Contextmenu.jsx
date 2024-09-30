@@ -119,7 +119,7 @@ function Contextmenu(props) {
             ids: []
        }
        context.moreSelect.map((el) => data.ids.push(el));
-        DeleteMoreRequest(data).then((resp) => {
+       DeleteMoreRequest(data).then((resp) => {
                 if(resp?.status === 200){
                   context.context.UpdateTableReguest(1);
                   closeContextMenu();
@@ -137,7 +137,7 @@ function Contextmenu(props) {
                     <div className={styles.SampleMenuInnerList} onClick={()=>toggleStatusMenu("status")}><li>Редактировать статус</li><img style={{ transform: showStatusMenu ? "rotate(-90deg)" : "" }} src={arrowBottom}/></div>
                     <div className={styles.SampleMenuInnerList} onClick={()=>toggleStatusMenu("urgency")}><li>Изменить срочность</li><img style={{ transform: showStatusUrgensy ? "rotate(-90deg)" : "" }} src={arrowBottom}/></div>
                     <div className={styles.SampleMenuInnerList} onClick={()=>toggleStatusMenu("executor")}><li>Назначить исполнителя</li><img style={{ transform: showStatusContractor ? "rotate(-90deg)" : "" }} src={arrowBottom}/></div>
-                    <li onClick={deletetRequest}>Удалить</li>
+                    <li onClick={ () => deletetRequest()}>Удалить</li>
                 </ul>
                
             </div>

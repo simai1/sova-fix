@@ -28,7 +28,6 @@ const editColumTable = createSlice({
 
     onCheckState: (state, action) => {
       const {key, isActive} = action.payload;
-      console.log(key, isActive)
       state.ActiveColumTable = state.ActiveColumTable.map((el) => {
         if (el.key === key) {
           return { ...el, isActive: !el.isActive }; // Toggle isActive

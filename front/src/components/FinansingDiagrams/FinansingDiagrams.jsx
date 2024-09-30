@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import * as echarts from 'echarts';
 
 function FinansingDiagrams(props) {
-    console.log("DataFinansing", props.DataFinansing);
     let additionalData = [];
     const countMapWithCheck = {};
     const countMapWithoutCheck = {};

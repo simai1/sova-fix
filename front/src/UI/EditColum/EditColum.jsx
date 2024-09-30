@@ -7,38 +7,21 @@ function EditColum() {
     const [openList, setOpenList] = useState(false);
     const store = useSelector(state => state.editColumTableSlice);
     const dispatch = useDispatch();
-    const ref = useRef(null); // Create a ref for the component
+    const ref = useRef(null);
 
     useEffect(() => {
-        console.log("store", store.AllCheckbox);
-
-        // Function to handle clicks outside the component
         const handleClickOutside = (event) => {
             if (ref.current && !ref.current.contains(event.target)) {
-                setOpenList(false); // Close the list if clicked outside
+                setOpenList(false); 
             }
         };
-
-        // Add event listener for clicks
         document.addEventListener('mousedown', handleClickOutside);
-        
-        // Cleanup the event listener on component unmount
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, [store]);
-    console.log("store", store.AllCheckbox);
-    // const
-    // const checkFilterImg = () => {
-    //     if(store.ActiveColumTable.map(el => el.isActive !== false)) {
-    //         return true
-    //     }else{
-    //         return false
-    //     }
-    // }
-    // useEffect(() => {
-    //     checkFilterImg();
-    // },[store.ActiveColumTable]);
+   
+
     return ( 
         <div className={styles.EditColum} ref={ref}> {/* Attach ref to the main div */}
             <div>
