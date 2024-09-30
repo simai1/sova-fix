@@ -6,7 +6,7 @@ from util import crm
 router = Router(name=__name__)
 
 
-@router.callback_query(F.data.startswith('cus:not_relevant'))
+@router.callback_query(F.data.startswith('not_relevant'))
 async def request_not_relevant_callback_handler(query: CallbackQuery) -> None:
     request_id = query.data.split(':')[-1]
 

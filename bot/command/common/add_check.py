@@ -4,6 +4,7 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import CallbackQuery, Message
 from aiogram.enums.content_type import ContentType
 
+from common.keyboard import to_start_kb
 from util import crm
 
 router = Router(name=__name__)
@@ -71,7 +72,7 @@ async def add_check_handler(message: Message, state: FSMContext) -> None:
     )
 
     if add_check_photo_success and update_repair_price_success:
-        await message.answer("Чек успешно добавлен ✅")
+        await message.answer("Чек успешно добавлен ✅", reply_markup=to_start_kb())
         await state.clear()
     else:
         await message.answer("Что-то пошло не так 😢. Попробуйте снова позже")

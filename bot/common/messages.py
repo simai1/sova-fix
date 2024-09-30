@@ -65,24 +65,17 @@ async def send_several_requests(repair_requests: list, message: Message, state: 
         await asyncio.sleep(0.2)
 
 
-async def send_rr_for_contractor(message: Message, repair_request: dict) -> None:
-    await send_repair_request(message, repair_request, rr_contractor_kb(repair_request))
+async def page0_show_many_requests(
+        message: Message,
+        state: FSMContext,
+        repair_requests: list[dict],
+        send_many_func: Callable,
+        prefix: str,
+        params: str = ""
+) -> None:
+    if not repair_requests and prefix != "it":
+        await message.answer('Здесь пока что нет заявок', reply_markup=to_start_kb())
 
-
-async def send_many_rr_for_contractor(repair_requests: list, message: Message, state: FSMContext) -> None:
-    await send_several_requests(repair_requests, message, state, send_rr_for_contractor)
-
-
-async def send_rr_for_customer(message: Message, repair_request: dict) -> None:
-    await send_repair_request(message, repair_request, rr_customer_kb(repair_request))
-
-
-async def send_many_rr_for_customer(repair_requests: list, message: Message, state: FSMContext) -> None:
-    await send_several_requests(repair_requests, message, state, send_rr_for_customer)
-
-
-async def send_rr_for_admin(message: Message, repair_request: dict) -> None:
-    await send_repair_request(message, repair_request, rr_admin_kb(repair_request))
-
-async def send_many_rr_for_admin(repair_requests: list, message: Message, state: FSMContext) -> None:
-    await send_several_requests(repair_requests, message, state, send_rr_for_admin)
+    await pagination.set_page_in_state(state, 0)
+    await send_many_func(repair_requests, message, state)
+    await pagination.send_next_button_if_needed(len(repair_requests), message, state, prefix=prefix, params=params)

@@ -1,8 +1,10 @@
 from aiogram import Bot, Router, F
 from aiogram.types import CallbackQuery
 
-from common.messages import send_rr_for_customer, send_rr_for_contractor, to_start_msg, send_rr_for_admin
-
+from command.admin.show_admin_requests import send_rr_for_admin
+from command.contractor.show_contractor_requests import send_rr_for_contractor
+from command.customer.show_customer_requests import send_rr_for_customer
+from common.messages import to_start_msg
 from util import crm
 
 router = Router(name=__name__)

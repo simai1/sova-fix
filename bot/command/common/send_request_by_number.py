@@ -6,8 +6,11 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import CallbackQuery, Message
 from aiogram.enums.content_type import ContentType
 
+from command.admin.show_admin_requests import send_rr_for_admin
+from command.contractor.show_contractor_requests import send_rr_for_contractor
+from command.customer.show_customer_requests import send_rr_for_customer
 from common.keyboard import to_start_kb
-from common.messages import send_rr_for_customer, send_rr_for_contractor, send_rr_for_admin, send_repair_request, \
+from common.messages import send_repair_request, \
     to_start_msg
 
 from util import crm

@@ -13,7 +13,7 @@ from command.common.request_done import router as request_done_router
 from command.contractor.show_contractor_requests import router as show_contractor_requests_command_router
 from command.contractor.show_itinerary import router as show_itinerary_router
 from command.customer.create_repair_request import router as create_repair_request_command_router
-from command.customer.request_not_relevant import router as customer_request_not_relevant_router
+from command.common.request_not_relevant import router as customer_request_not_relevant_router
 from command.customer.show_customer_requests import router as show_customer_requests_command_router
 from command.register.register_command import router as register_command_router
 from command.start.start_command import router as start_command_router
@@ -22,6 +22,7 @@ from handler.pagination import router as pagination_router
 from command.common.send_one_request import router as send_one_request_router
 from command.common.add_check import router as add_check_router
 from command.common.send_request_by_number import router as request_by_number_router
+from command.common.show_without_check import router as show_without_check_router
 from util import logger
 
 routers = [
@@ -38,7 +39,8 @@ routers = [
     pagination_router,
     send_one_request_router,
     add_check_router,
-    request_by_number_router
+    request_by_number_router,
+    show_without_check_router
 ]
 
 dp = Dispatcher()
