@@ -161,7 +161,7 @@ return (
       <div className={styles.TitleSitte}>
         <div className={styles.TitleSitteInner}>
         <img src={Logo}/>
-          <h1>Система комплексного управления техническим обслуживанием и оборудованием</h1>
+          <h1>SOVA-fix - система управления ремонтом, эксплуатацией и техническим обслуживанием оборудования и помещений</h1>
         </div>
       </div>
       {
