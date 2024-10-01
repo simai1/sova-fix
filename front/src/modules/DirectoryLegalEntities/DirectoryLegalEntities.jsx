@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { DeletelegalEntities, GetlegalEntitiesAll, CreateLegalEntity, CreateLegalEntities, GetlegalEntitiesOne, EditLegalEntities } from "../../API/API"; // Ensure CreateLegalEntity is imported
 import { tableLagealEntries } from "./DirectoryLegalEntitiesData";
 import UniversalTable from "../../components/UniversalTable/UniversalTable";
@@ -7,7 +7,7 @@ import DataContext from "../../context";
 import { PopUpError } from "../../UI/PopUpError/PopUpError";
 import UneversalDelete from "../../components/UneversalDelete/UneversalDelete";
 import PopUpContainer from "../../UI/PopUpContainer/PopUpContainer";
-
+import arrow from "./../../assets/images/arrow_bottom.svg";
 function DirectoryLegalEntities() {
     const [tableDataEntries, setTableDataEntries] = useState([]);
     const [popUpCreate, setPopUpCreate] = useState(false);
@@ -19,7 +19,9 @@ function DirectoryLegalEntities() {
     const [selectId, setSelectId] = useState('');
     const { context } = useContext(DataContext);
     const [deleteUnitFlag, setDeleteUnitFlag] = useState(false);
-
+    const [openvaluelegalForm, setOpenvaluelegalForm] = useState(false);
+    const containerRef = useRef(null);
+    const [legalFormEcho, setLegalFormEcho] = useState('');
     useEffect(() => {
         getData();
     }, []);
@@ -59,20 +61,21 @@ function DirectoryLegalEntities() {
         setLegalForm('');
         setstartCoop('');
         setErrorMessage('');
+        setLegalFormEcho('');
     };
 
     const handleCreateUnit = () => {
-        if (!unitName || !legalForm || !startCoop) {
+        if (!unitName || !legalForm || !startCoop || (legalForm === "Другое" && !legalFormEcho)) {
             setErrorMessage("Пожалуйста, заполните все поля!");
             return;
         }
         const formattedStartCoop = new Date(startCoop).toISOString();
+        const legalFormValue = legalForm === 'Другое' ? legalFormEcho : legalForm;
         const newUnit = {
             name: unitName,
-            legalForm: legalForm,
+            legalForm: legalFormValue,
             startCoop: formattedStartCoop,
         };
-
         popUpEdit ? EditLegalEntities(newUnit, selectId).then((response) => {
             if (response?.status === 200) {
                 getData();
@@ -103,6 +106,27 @@ function DirectoryLegalEntities() {
         }
     }
     
+    const legalFormData = [
+        {id: 1, name : 'ООО'},
+        {id: 2, name : 'ИП'},
+        {id: 3, name : 'Самозанятый'},
+        {id: 4, name : 'Физ.лицо'},
+        {id: 5, name : 'Другое'},
+    ]
+    
+    useEffect(() => {
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    const handleClickOutside = (event) => {
+        if (containerRef.current && !containerRef.current.contains(event.target)) {
+            setOpenvaluelegalForm(false);
+        }
+    };
+    
 
 
 
@@ -131,12 +155,43 @@ function DirectoryLegalEntities() {
                                         placeholder="Название..." 
                                         value={unitName} 
                                         onChange={(e) => setUnitName(e.target.value)} 
+                                        maxLength={50}
                                     />
-                                    <input 
-                                        placeholder="Правовая форма..." 
-                                        value={legalForm} 
-                                        onChange={(e) => setLegalForm(e.target.value)} 
-                                    />
+                                    <div className={styles.ListCreateDataCont} ref={containerRef}>
+                                        <input 
+                                            placeholder="Подразделение" 
+                                            value={legalForm} 
+                                            onClick={() => setOpenvaluelegalForm(!openvaluelegalForm)} 
+                                            readOnly 
+                                            style={{borderBottom: !openvaluelegalForm ? "1px solid #ADADAD" : "none", borderRadius: openvaluelegalForm ? "8px 8px 0 0" : "8px"}}
+
+                                        />
+                                         <span
+                                                className={styles.arrowBot}
+                                            >
+                                        <img
+                                        style={{
+                                            transform: openvaluelegalForm ? "rotate(0deg)" : "rotate(-90deg)",
+                                        }}
+                                        src={arrow}
+                                        />
+                                    </span>
+                                        {openvaluelegalForm && <ul className={styles.ListCreateData}>
+                                            {legalFormData?.map((item, index) => <li onClick={() => {setLegalForm(item.name); setOpenvaluelegalForm(false);}} key={index}>{item.name}</li>)}
+                                        </ul>}
+                                    </div>
+                                    <div>
+
+                                  
+                                    {
+                                        legalForm === "Другое" && <input 
+                                            placeholder="Другое..." 
+                                            value={legalFormEcho} 
+                                            onChange={(e) => setLegalFormEcho(e.target.value)} 
+                                            maxLength={50}
+                                        />
+                                    }
+                                    </div>
                                    <input 
                                         type="date" 
                                         placeholder="Дата начала сотрудничества..." 

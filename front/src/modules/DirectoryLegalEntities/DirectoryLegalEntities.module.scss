@@ -27,7 +27,7 @@
             justify-content: center;
         }
         input{
-            @include input-text(90%, 8px);
+            @include input-text(400px, 8px);
                 font-size: 18px;
                 margin: 10px 0px;
         }
@@ -49,6 +49,43 @@
         }
         .ErrorMessage{
             color: #d69a81;
+        }
+    }
+    .ListCreateDataCont{
+        position: relative;
+        padding: 0;
+        margin: 0;
+        input{
+            cursor: pointer;
+        }
+        .ListCreateData{
+            list-style: none;
+            background-color: #fff;
+            border: 1px solid #ADADAD;
+            border-radius: 0px 0px 8px 8px;       
+            z-index: 100;
+            top: 40px;
+            position: absolute;
+            max-height: 200px;
+            overflow-y: auto;
+            width: 96.1%;
+            padding-left: 15px;
+            li{
+                margin: 10px 0px;
+                padding: 0;
+                cursor: pointer;
+                width: 100%;
+                background-color: #fff;
+                font-size: 18px;
+                &:hover{
+                    color:var(  --ActiveText-color);
+                }
+            }
+        }
+        .arrowBot{
+            position: absolute;
+            right: 15px;
+            top: 20px;
         }
     }
 }
