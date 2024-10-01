@@ -39,6 +39,8 @@ def make_kb(
         buttons_per_page: int = 8,
         make_pages: bool = True
 ) -> IKM:
+    print(page, names, prefix)
+
     max_page = ceil(len(names) / buttons_per_page)
 
     page = max(0, min(page, max_page - 1))
@@ -85,10 +87,11 @@ def get_page(query: CallbackQuery) -> int:
 async def page_action(query: CallbackQuery, state: FSMContext) -> None:
     page = get_page(query)
     data = await state.get_data()
+    names = list(data['page'].keys())
     prefix = PageCallback.from_str(query.data).prefix
 
     try:
-        await query.message.edit_reply_markup(reply_markup=make_kb(page, data['page'], prefix))
+        await query.message.edit_reply_markup(reply_markup=make_kb(page, names, prefix))
     except (TelegramBadRequest, KeyError):
         pass
     await query.answer()
