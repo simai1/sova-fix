@@ -36,7 +36,7 @@ def make_kb(
         names: list[str],
         prefix: str,
         additional_buttons: list[list[IKB]] | None = None,
-        buttons_per_page: int = 8,
+        buttons_per_page: int = 100,
         make_pages: bool = True
 ) -> IKM:
     max_page = ceil(len(names) / buttons_per_page)
