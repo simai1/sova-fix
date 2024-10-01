@@ -51,15 +51,15 @@ function RepotIndicators() {
                 break;
             case "Сегодня":
                 const today = new Date();
-                const startOfToday = new Date(today.setHours(0, 0, 0, 0));
+                const startOfToday = new Date(today.setHours(23, 59, 59, 999));
                 const endOfToday = new Date(today.setHours(23, 59, 59, 999));
                 setDateFrom(startOfToday.toISOString().slice(0, 10));
                 setDateTo(endOfToday.toISOString().slice(0, 10));
                 break;
             case "Вчера":
                 const yesterday = new Date();
-                const startOfYesterday = new Date(yesterday.setDate(yesterday.getDate() - 1));
-                const endOfYesterday = new Date(yesterday.setDate(yesterday.getDate() - 1));
+                const startOfYesterday = new Date(yesterday.setDate(yesterday.getDate()-1));
+                const endOfYesterday = new Date(yesterday.setDate(yesterday.getDate()));
                 setDateFrom(startOfYesterday.toISOString().slice(0, 10));
                 setDateTo(endOfYesterday.toISOString().slice(0, 10));
                 break;

@@ -260,7 +260,6 @@ function Table() {
   }
 
   const getItem = (item, key) =>{
-   
     if(key === "repairPrice" && key !== "isConfirmed"){
       return    item?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") 
     }if(key === "isConfirmed") {
@@ -494,8 +493,11 @@ const textAlign = (keys,item) => {
 const WhatNanItem = () => {
   const tds = document.querySelectorAll("td[name='name']")
   tds?.forEach((el)=>{
+    console.log(el.innerText)
     if(el.innerText === "___"){
       el.style.textAlign = "center"
+    }else{
+      el.style.textAlign = "left"
     }
   })
 }
@@ -523,6 +525,10 @@ const clickAllTh = () => {
   }else{
     context.filteredTableData?.map((el) => context.setMoreSelect((prevState) => [...prevState, el.id]))
   }
+}
+
+const getTgHref = (tg_user_id) => {
+  return `tg://user?id=${tg_user_id}`
 }
 
 return (
@@ -814,7 +820,15 @@ return (
                             </div>
                           )}
                         </div>
-                      ) : (
+                      ) :
+                       headerItem.key === "tgId" ? (
+                        <>
+                        {
+                          row[headerItem.key] ? <a href={getTgHref(row[headerItem.key])} target="_blank" style={{color: "#bd966c", cursor: "pointer"}}>{getItem(row[headerItem.key],headerItem.key)}</a> : "___"
+                        }
+                        </>
+                       ):
+                       (
                         <p style={{whiteSpace: (headerItem.key === "createdAt" ||  headerItem.key === "completeDate") ? 'nowrap' : 'wrap'}}>{getItem(row[headerItem.key],headerItem.key)}</p>
                       )}
                     </td>
