@@ -56,10 +56,10 @@ function Table() {
   };
 
   const DataUrgency = [
-    {id:1, name:"В течении часа"},
-    {id:2, name:"В течении текущего дня"},
-    {id:3, name:"В течении 3-х дней"},
-    {id:4, name:"В течении недели"},
+    {id:1, name:"В течение часа"},
+    {id:2, name:"В течение текущего дня"},
+    {id:3, name:"В течение 3-х дней"},
+    {id:4, name:"В течение недели"},
     {id:5, name:"Маршрут"},
     {id:6, name:"Выполнено"}
   ];
@@ -759,13 +759,13 @@ return (
                           style={{
                           backgroundColor: 
                             context.selectPage === "Main" 
-                              ? row[headerItem.key] === "В течении часа" 
+                              ? row[headerItem.key] === "В течение часа" 
                                 ? "#d69a81" //красный
-                                : row[headerItem.key] === "В течении текущего дня" 
+                                : row[headerItem.key] === "В течение текущего дня" 
                                 ? "#f9ab23" // ?оранжевый
-                                : row[headerItem.key] === "В течении 3-х дней" 
+                                : row[headerItem.key] === "В течение 3-х дней" 
                                 ? "#ffe78f"  // желтый
-                                : row[headerItem.key] === "В течении недели" 
+                                : row[headerItem.key] === "В течение недели" 
                                 ? "#eaf45b"  // ?светло желтый
                                 : row[headerItem.key] === "Выполнено" 
                                 ? "#C5E384"  // зеленый
