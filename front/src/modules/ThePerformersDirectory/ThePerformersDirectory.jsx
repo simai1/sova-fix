@@ -1,7 +1,7 @@
 
 
 
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import UniversalTable from "../../components/UniversalTable/UniversalTable";
 import styles from "./ThePerformersDirectory.module.scss";
 import { DeleteUnit, GetUnitsAll, CreateUnit, GetextContractorsAll, CreateextContractors, DeleteextContractors, GetextContractorsOne, EditExitContractors } from "../../API/API"; // Ensure CreateUnit is imported
@@ -11,7 +11,7 @@ import { PopUpError } from "../../UI/PopUpError/PopUpError";
 import PopUpContainer from "../../UI/PopUpContainer/PopUpContainer";
 import Input from "../../UI/Input/Input";
 import { tablePerformanseHeader } from "./PerformersData";
-
+import arrow from "./../../assets/images/arrow_bottom.svg";
 function ThePerformersDirectory() {
     const { context } = useContext(DataContext);
     const [tableDataUnit, setTableDataUnit] = useState([]);
@@ -22,6 +22,9 @@ function ThePerformersDirectory() {
     const [errorMessage, setErrorMessage] = useState('');
     const [popUpEdit, setPopUpEdit] = useState(false);
     const [selectId, setSelectId] = useState('');
+    const [legalFormEcho, setLegalFormEcho] = useState('');
+    const [openvaluelegalForm, setOpenvaluelegalForm] = useState(false);
+    const containerRef = useRef(null);
     useEffect(() => {
         getData();
     }, []);
@@ -62,20 +65,20 @@ function ThePerformersDirectory() {
         setPerformedspec('');
         setPerformedLegalForm('');
         setErrorMessage('');
+        setLegalFormEcho('');
     };
 
     const handleCreateUnit = () => {
-        if (!performedLegalForm || !performedName || !performedspec) {
+        if (!performedLegalForm || !performedName || !performedspec || (performedLegalForm === "Другое" && !legalFormEcho)) {
             setErrorMessage("Пожалуйста, заполните все поля!");
             return;
         }
-
+        const legalFormValue = performedLegalForm === 'Другое' ? legalFormEcho : performedLegalForm;
         const newUnit = {
             name: performedName,
             spec: performedspec,
-            legalForm: performedLegalForm,
+            legalForm: legalFormValue,
         };
-
         CreateextContractors(newUnit).then((response) => {
             if (response?.status === 200) {
                 getData();
@@ -118,6 +121,29 @@ function ThePerformersDirectory() {
         }
     }
 
+
+    const legalFormData = [
+        {id: 1, name : 'ООО'},
+        {id: 2, name : 'ИП'},
+        {id: 3, name : 'Самозанятый'},
+        {id: 4, name : 'Физ.лицо'},
+        {id: 5, name : 'Другое'},
+    ]
+
+    useEffect(() => {
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    const handleClickOutside = (event) => {
+        if (containerRef.current && !containerRef.current.contains(event.target)) {
+            setOpenvaluelegalForm(false);
+        }
+    };
+    
+    
     return (
         <div className={styles.ThePerformersDirectory}>
             <div className={styles.ThePerformersDirectoryTop}>
@@ -131,7 +157,7 @@ function ThePerformersDirectory() {
                 </div>
             </div>
             <UniversalTable tableHeader={tablePerformanseHeader} tableBody={tableDataUnit} selectFlag={true} />
-            {deleteUnitFlag && <UneversalDelete text="Подразделение" ClosePopUp={ClosePopUp} FunctionDelete={FunctionDelete} />}
+            {deleteUnitFlag && <UneversalDelete text="Внешнего подрядчика" ClosePopUp={ClosePopUp} FunctionDelete={FunctionDelete} />}
             {context.popUp === "PopUpError" && <PopUpError />}
             {popUpCreate && (
                 <div className={styles.PupUpCreate}>
@@ -150,11 +176,46 @@ function ThePerformersDirectory() {
                                         value={performedspec} 
                                         onChange={(e) => setPerformedspec(e.target.value)} 
                                     />
-                                      <input 
+                                      {/* <input 
                                         placeholder="Правовая форма..." 
                                         value={performedLegalForm} 
                                         onChange={(e) => setPerformedLegalForm(e.target.value)} 
-                                    />
+                                    /> */}
+                                    <div className={styles.ListCreateDataCont} ref={containerRef}>
+                                        <input 
+                                            placeholder="Подразделение" 
+                                            value={performedLegalForm} 
+                                            onClick={() => setOpenvaluelegalForm(!openvaluelegalForm)} 
+                                            readOnly 
+                                            style={{borderBottom: !openvaluelegalForm ? "1px solid #ADADAD" : "none", borderRadius: openvaluelegalForm ? "8px 8px 0 0" : "8px"}}
+
+                                        />
+                                         <span
+                                                className={styles.arrowBot}
+                                            >
+                                        <img
+                                        style={{
+                                            transform: openvaluelegalForm ? "rotate(0deg)" : "rotate(-90deg)",
+                                        }}
+                                        src={arrow}
+                                        />
+                                    </span>
+                                        {openvaluelegalForm && <ul className={styles.ListCreateData}>
+                                            {legalFormData?.map((item, index) => <li onClick={() => {setPerformedLegalForm(item.name); setOpenvaluelegalForm(false);}} key={index}>{item.name}</li>)}
+                                        </ul>}
+                                    </div>
+                                    <div>
+
+                                  
+                                    {
+                                        performedLegalForm === "Другое" && <input 
+                                            placeholder="Другое..." 
+                                            value={legalFormEcho} 
+                                            onChange={(e) => setLegalFormEcho(e.target.value)} 
+                                            maxLength={50}
+                                        />
+                                    }
+                                    </div>
                                 </div>
                                 <div>
                                     {errorMessage && <div className={styles.ErrorMessage} >{errorMessage}</div>}

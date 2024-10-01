@@ -71,6 +71,11 @@ function Contextmenu(props) {
             case "executor":
                 setShovStatusContractor(!showStatusContractor);
                 break;
+            case "delete":
+                setConfirmDelete(!confirmDelete);
+                break;
+            default:
+                break;
         }    
     };
 
@@ -141,7 +146,7 @@ function Contextmenu(props) {
                     <div className={styles.SampleMenuInnerList} onClick={()=>toggleStatusMenu("status")}><li>Редактировать статус</li><img style={{ transform: showStatusMenu ? "rotate(-90deg)" : "" }} src={arrowBottom}/></div>
                     <div className={styles.SampleMenuInnerList} onClick={()=>toggleStatusMenu("urgency")}><li>Изменить срочность</li><img style={{ transform: showStatusUrgensy ? "rotate(-90deg)" : "" }} src={arrowBottom}/></div>
                     <div className={styles.SampleMenuInnerList} onClick={()=>toggleStatusMenu("executor")}><li>Назначить исполнителя</li><img style={{ transform: showStatusContractor ? "rotate(-90deg)" : "" }} src={arrowBottom}/></div>
-                    <li onClick={ () => setConfirmDelete(!confirmDelete)}>Удалить</li>
+                    <li onClick={ () => toggleStatusMenu("delete")}>Удалить</li>
                 </ul>
                
             </div>
