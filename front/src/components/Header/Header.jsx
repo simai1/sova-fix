@@ -79,15 +79,16 @@ function Header() {
       context.setextSearchTableData("");
       context.settableHeader(tableList);
       context.setSelectedTable("Card");
-    }else if(Link ===  "Polzovateli"){
-      setIsOpen(false)
-      navigate("/")
-      context.setSelectPage("Main");
-      context.settableHeader(tableUser);
-      context.UpdateTableReguest(2)
-      context.setnameClient("Пользователи");
-      context.setSelectedTable("Пользователи");
     }
+    // else if(Link ===  "Polzovateli"){
+    //   setIsOpen(false)
+    //   navigate("/")
+    //   context.setSelectPage("Main");
+    //   context.settableHeader(tableUser);
+    //   context.UpdateTableReguest(2)
+    //   context.setnameClient("Пользователи");
+    //   context.setSelectedTable("Пользователи");
+    // }
     else{
       setIsOpen(false)
       navigate("/")
@@ -131,7 +132,7 @@ return (
                   <li className={styles.menuLi} onClick={() => LinkPage("Directory/BusinessUnitReference")}>Подразделения</li>
                   <li className={styles.menuLi} onClick={() => LinkPage("Directory/ReferenceObjects")}>Объекты</li>
                   <li className={styles.menuLi} onClick={() => LinkPage("Directory/ThePerformersDirectory")}>Внешние подрядчики</li>
-                  <li className={styles.menuLi} onClick={() => LinkPage("Polzovateli")}>Пользователи</li>
+                  <li className={styles.menuLi} onClick={() => LinkPage("Directory/UsersDirectory")}>Пользователи</li>
               </ul>
               <li onClick={() => setIsOpenFinans(!isOpenFinans)} className={styles.menuLi} style={isOpenFinans ? { backgroundColor: "#FFE20D" } : { backgroundColor: "#fff" }}>
                   Отчеты

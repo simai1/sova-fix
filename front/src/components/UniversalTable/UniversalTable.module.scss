@@ -96,3 +96,19 @@
         padding: 50px 0px;
       }
 }
+.statusClick {
+  padding: 4px 8px;
+  border-radius: 8px;
+  background-color: var(--dark-grey-color);
+  text-align: center;
+  &:hover {
+    background-color: var(--Active-gray-color);
+  }
+}
+.tgIdLink{
+  text-decoration: none;
+  color: rgb(189, 150, 108);
+  &:hover{
+    color: var(--ActiveText-color);
+  }
+}

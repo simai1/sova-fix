@@ -16,6 +16,7 @@ import DirectoryLegalEntities from "./modules/DirectoryLegalEntities/DirectoryLe
 import ReferenceObjects from "./modules/ReferenceObjects/ReferenceObjects";
 import ThePerformersDirectory from "./modules/ThePerformersDirectory/ThePerformersDirectory";
 import Directory from "./pages/AdminPages/Directory/Directory";
+import UsersDirectory from "./modules/UsersDirectory/UsersDirectory";
 
 function App() {
   const [selectContructor, setSelectContractor] = useState("")
@@ -233,6 +234,7 @@ function App() {
               <Route path="DirectoryLegalEntities" element={<DirectoryLegalEntities />}></Route>
               <Route path="ReferenceObjects" element={<ReferenceObjects />}></Route>
               <Route path="ThePerformersDirectory" element={<ThePerformersDirectory />}></Route>
+              <Route path="UsersDirectory" element={<UsersDirectory />}></Route>
             </Route>
             
             

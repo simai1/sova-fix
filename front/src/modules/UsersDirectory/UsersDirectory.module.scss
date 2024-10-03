@@ -1,0 +1,92 @@
+@import "./../../styles/mixins.scss";
+@import "./../../styles/color.scss";
+
+.ReferenceObjects{
+    .ReferenceObjectsTop{
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        margin-top: 75px;
+       h2{
+        margin: 0;
+       }
+        .ReferenceObjectsTopButton{
+            display: flex;
+            button{
+                @include button(var(--turquoise-color));
+                &:nth-child(2){
+                    margin: 0 15px;
+                }
+            }
+        }
+    }
+    .PupUpCreate{
+      
+        .PupUpCreateInputInner{
+            display: flex;
+            width: 100%;
+            justify-content: center;
+        }
+        input{
+            @include input-text(400px, 8px);
+                font-size: 18px;
+                margin: 10px 0px;
+        }
+        .PupUpCreateButtonInner{
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            .PupUpCreateButton{
+                background-color: #B7AB9E!important;
+                width: 70%;
+                height: 42px;
+                border-radius: 8px;
+                margin-top: 20px;
+                &:hover{
+                    background-color: #9f8b7b!important;
+                    color: #fff;
+                }
+            }
+        }
+        .ErrorMessage{
+            color: #d69a81;
+        }
+        .ListCreateDataCont{
+            position: relative;
+            padding: 0;
+            margin: 0;
+            input{
+                cursor: pointer;
+            }
+            .ListCreateData{
+                list-style: none;
+                background-color: #fff;
+                border: 1px solid #ADADAD;
+                border-radius: 0px 0px 8px 8px;       
+                z-index: 100;
+                top: 40px;
+                position: absolute;
+                max-height: 200px;
+                overflow-y: auto;
+                width: 96.1%;
+                padding-left: 15px;
+                li{
+                    margin: 10px 0px;
+                    padding: 0;
+                    cursor: pointer;
+                    width: 100%;
+                    background-color: #fff;
+                    font-size: 18px;
+                    &:hover{
+                        color:var(  --ActiveText-color);
+                    }
+                }
+            }
+            .arrowBot{
+                position: absolute;
+                right: 15px;
+                top: 20px;
+            }
+        }
+    }
+}

@@ -195,6 +195,24 @@ export const GetAllUsers = async () => {
     }
   }
 };
+
+export const GetOneUsers = async (id) => {
+  try {
+    const response = await http.get(`${server}/users/${id}`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    }else{
+      console.log("Ошибка при получении списка пользователей!");
+    }
+  }
+};
+
 export const GetAllСontractors = async () => {
   try {
     const response = await http.get(`${server}/contractors`, {
