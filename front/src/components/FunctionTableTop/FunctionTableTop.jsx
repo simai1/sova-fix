@@ -129,6 +129,11 @@ const goBackCurd = () =>{
             </div>
           ) : context.selectedTable === "Пользователи" && context.selectPage === "Main" &&  JSON.parse(sessionStorage.getItem("userData")).user.role === "ADMIN" ? (
             <div className={styles.HeadMenu}>
+            <div>
+              <h2>Пользователи</h2>
+            </div>
+            <div className={styles.HeadMenuButton}>
+
             <button onClick={()=>activePeople()}>
                   <img src="./img/ok.png" alt="View" style={{width:"16px", height:"16px"}}/>
                     Активировать пользователя
@@ -141,6 +146,7 @@ const goBackCurd = () =>{
                   <img src="./img/Trash.svg" alt="View" />
                     Удалить пользователя
               </button>
+              </div>
             </div>
           ) : sessionStorage.getItem("userData").user?.id === 1 ? 
           <div className={styles.ButtonBack}>

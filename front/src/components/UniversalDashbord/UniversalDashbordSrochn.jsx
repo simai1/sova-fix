@@ -6,9 +6,9 @@ function UniversalDashbordSrochn(props) {
     var chartDom = document.getElementById('UniversalDashbordSrochn');
     var myChart = echarts.init(chartDom);
     var datas = [
-      { value: 0, name: 'В течении недели' },
-      { value: 0, name: 'В течении 3-х дней' },
-      { value: 0, name: 'В течении текущего дня' },
+      { value: 0, name: 'В течение недели' },
+      { value: 0, name: 'В течение 3-х дней' },
+      { value: 0, name: 'В течение текущего дня' },
       { value: 0, name: 'Маршрут' },
     ];
 
