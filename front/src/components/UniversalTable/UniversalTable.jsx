@@ -1,8 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
 import DataContext from "../../context";
 import styles from "./UniversalTable.module.scss";
-import { SamplePoints } from "../../UI/SamplePoints/SamplePoints";
 import { ReseachDataRequest } from "../../API/API";
+import { useDispatch, useSelector } from "react-redux";
+import SamplePoints from "./../../components/SamplePoints/SamplePoints"
+import FilteImg from "./../../assets/images/filterColumn.svg"
+import { resetFilters } from "../../store/samplePoints/samplePoits";
+import ClearImg from "./../../assets/images/ClearFilter.svg"
+import { useRef } from "react";
 
 function UniversalTable(props) {
     const { context } = useContext(DataContext);
@@ -12,10 +17,19 @@ function UniversalTable(props) {
     const [actiwFilter, setActiwFilter] = useState(null);
     const [itineraryOrderPop, setItineraryOrderPop] = useState("");
     const [arrCount, setArrCount] = useState([])
+    const [sampleShow, setSampleShow] = useState(null);
+    const [basickData, setBasickData] = useState([]);
+
+    const store = useSelector(
+        (state) => state.isSamplePoints[props.tableName].isChecked
+      );
+
+
     useEffect(() => {
         setTableHeaderData(props?.tableHeader);
-        setTableBodyData(props?.tableBody);
-        context.setSelectRowDirectory(null);
+        setTableBodyData(filterBasickData(props?.tableBody, store));
+        setBasickData(props?.tableBody);
+        context.setSelectRowDirectory(null);    
     }, [props?.tableHeader, props?.tableBody]);
 
     const openModal = (src) => {
@@ -26,6 +40,36 @@ function UniversalTable(props) {
         }
     };
     
+    //! открываем или закрываем модальное окно samplePoints
+  const funClickTh = (event, index, key) => {
+    if (event.target.localName === "th" && key !== "number" && key !== "checkPhoto" && key !== "photo" && key !== "fileName") {
+      if (sampleShow === index) {
+        setSampleShow(null);
+      } else {
+        setSampleShow(index);
+      }
+    }
+  };
+
+  //! при клике на пункт li убираем его из массива данных таблицы
+  useEffect(() => {
+    setTableBodyData(filterBasickData(basickData, store));
+  }, [store]);
+
+  //! функция фильтрации
+  function filterBasickData(data, chekeds) {
+    let tb = [...data];
+    let mass = [];
+    tb.filter((el) => {
+      if (chekeds.find((it) => el[it.itemKey] === it.value)) {
+        return;
+      } else {
+        mass.push(el);
+      }
+    });
+    return mass;
+  }
+
     const getCountList = () => {
         let count = tableBodyData?.length;
         let countList = [];
@@ -34,9 +78,10 @@ function UniversalTable(props) {
         }
         setArrCount(countList);
       }
-useEffect(() => {
-    getCountList()
-}, [tableBodyData])
+
+    useEffect(() => {
+        getCountList()
+    }, [tableBodyData])
 
       const getValue = (value, key, index) => {
         switch (key) {
@@ -49,7 +94,11 @@ useEffect(() => {
             case "isConfirmed":
                 return value ? "Активирован" : "Не активирован";
             case "repairPrice":
-                return value?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+              if(value){
+                return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g)
+              }else{
+                return "___"
+              }
             case "fileName":
             case "checkPhoto":
                 return value ? (
@@ -147,18 +196,53 @@ const SetCountCard = (el, idAppoint) =>{
     })
   }
 
+  const dispatch = useDispatch()
+ 
+const contextmenuRef = useRef(null);
+
+const handleClickOutside = (event) => {
+  if (contextmenuRef.current && !contextmenuRef.current.contains(event.target)) {
+    setSampleShow(null);
+  }
+};
+
+useEffect(() => {
+  document.addEventListener('mousedown', handleClickOutside);
+  return () => {
+    document.removeEventListener('mousedown', handleClickOutside);
+  };
+}, []);
+
+
 
       //samplePointsData
     return (
         <div className={styles.UniversalTable}>
-            <table>
+        { props?.FilterFlag &&
+        <div className={styles.clear}>
+          <button onClick={() => dispatch(resetFilters({tableName: props.tableName}))} ><img src={ClearImg} /></button>
+        </div>
+        }
+    <table>
     <thead>
-        {tableHeaderData?.map((el, index) => (
-            <th key={index} name={el.key} onClick={() => clickTh(el.key)}>
-                {el.value}
-            </th>
-        ))}
-    </thead>
+    {tableHeaderData?.map((el, index) => (
+      <th key={index} name={el.key} onClick={(event) => props?.FilterFlag && funClickTh(event, index, el.key)} 
+      style={props?.FilterFlag && el.key !== "number" && el.key !== "checkPhoto" && el.key !== "photo" && el.key !== "fileName" ? {cursor: "pointer"} : {cursor: "default"}}>
+        {el.value}
+        {store.find((elem) => elem.itemKey === el.key) && <img src={FilteImg} />}
+        {sampleShow === index && (
+          <div className={styles.sampleComponent} ref={contextmenuRef}>
+            <SamplePoints
+              basickData={basickData} // нефильтрованные данные
+              punkts={basickData.map((it) => it[el.key])} // пункты то есть то что отображается в li
+              itemKey={el.key} // ключь пунта
+              tableName={props?.tableName}
+            />
+          </div>
+        )}
+      </th>
+    ))}
+  </thead>
     <tbody>
         {tableBodyData?.map((row, rowIndex) => (
             <tr key={rowIndex} onClick={() => props?.selectFlag && clickTr(row)}>

@@ -1,8 +1,9 @@
 .SamplePoints {
-  width: 100%;
+  width: 350px;
   padding: 18px 16px;
+  
   .search {
-    width: 100%;
+    // width: 350px;
     display: flex;
     justify-content: center;
 
@@ -15,16 +16,32 @@
   ul {
     margin: 0;
     padding: 0;
+    max-height: 140px;
+    overflow-y: scroll;
     li {
       display: flex;
       flex-direction: row;
       align-items: center;
       margin: 0;
       padding: 0;
-
-      p {
-        margin-left: 10px;
+      &:first-child{
+      margin-top: 10px;
+      }  
+          p {
+        margin: 5px 0px 5px 10px;
+        text-align: start;
       }
     }
+  }
+  .inputLabel{
+    // width: 200px;
+    height: 35px;
+    position: relative;
+    box-sizing: border-box;
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 8px;
+    border: 1px solid #757575;
+    outline: none;
   }
 }

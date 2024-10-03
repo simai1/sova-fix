@@ -6,7 +6,7 @@ import { setChecked } from "../../store/samplePoints/samplePoits";
 function SamplePoints(props) {
   const [search, setSearch] = useState("");
   const dispatch = useDispatch();
-  const [filtredPunkts, setFiltredPunkts] = useState(props.punkts || []);
+  const [filtredPunkts, setFiltredPunkts] = useState([]);
 
   useEffect(() => {
     console.log("filtredPunkts", filtredPunkts);
@@ -16,9 +16,8 @@ function SamplePoints(props) {
     (state) => state.isSamplePoints[props.tableName].isChecked
   );
   console.log("store", store);
-  //! при клике на Li переключается состояние checkedAll
+
   const funLiCkick = (el) => {
-    //! если в массиве есть уже это значение то удаляем его если нет добавляем
     if (
       store?.find((elem) => elem.value === el && elem.itemKey === props.itemKey)
     ) {
@@ -37,29 +36,23 @@ function SamplePoints(props) {
     }
   };
 
-  //! функция которая проверяет есть ли в checkedAll данное значенее чтобы отображать активность инпута
   const getChecked = (el) => {
     const flag = store?.find(
       (ell) => ell.itemKey === props.itemKey && ell.value === el
     );
-    if (flag) {
-      return false;
-    } else {
-      return true;
-    }
+    return !flag;
   };
 
   useEffect(() => {
     console.log("props.punkts", props.punkts);
-    const fd = [
-      ...props.punkts.filter((el) => {
-        const elString = typeof el === "number" ? el.toString() : el;
-        return elString?.toLowerCase().includes(search?.toLowerCase());
-      }),
-    ];
+    const uniquePunkts = Array.from(new Set(props.punkts));
+    const fd = uniquePunkts.filter((el) => {
+      const elString = typeof el === "number" ? el.toString() : el;
+      return elString?.toLowerCase().includes(search?.toLowerCase());
+    });
     console.log("fd", fd);
     setFiltredPunkts(fd);
-  }, [search]);
+  }, [search, props.punkts]);
 
   return (
     <div className={styles.SamplePoints}>
@@ -69,6 +62,7 @@ function SamplePoints(props) {
           placeholder="Поиск..."
           value={search}
           onChange={(el) => setSearch(el.target.value)}
+          className={styles.inputLabel}
         />
       </div>
       <ul>

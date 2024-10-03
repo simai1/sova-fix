@@ -10,13 +10,16 @@
         width: 100%;
         min-height: auto;
         border-radius: 8px;
+        min-height: 285px;
         thead {
           position: sticky;
           top: 0;
           z-index: 1;
           background-color: var(--tableTh); // Ensure this background color is set, otherwise it will be transparent.
             th{
+              position: relative;
                 align-items: center;
+                height: 40px;
                 padding: 10px;
                 text-align: center;
                 &:nth-child(1) {
@@ -25,7 +28,26 @@
                 &:last-child{
                   border-radius: 0 8px 0 0;
                 }
-            }       
+              
+                img{
+                  margin-left: 5px;
+                }
+                
+
+        .sampleComponent {
+          display: flex;
+          position: absolute;
+          max-width: 200px;
+          min-width: 200px;
+          height: 200px;
+          background-color: #ffffff;
+          left: 0;
+          top: 70px;
+          border-radius: 8px;
+          box-shadow: 9px 3px 18px rgba(0, 0, 0, 0.2);
+        }
+            }     
+          
         }
         tbody{
           tr{
@@ -137,4 +159,21 @@
       }
     }
   }
+}
+.clear{
+  button{
+    border-radius: 8px;
+    background-color: var(--turquoise-color);
+    height: 44px;
+    width: 40px;
+    transition: 0.1s linear all;
+    border: none;
+    &:hover{
+      opacity: 0.8;
+      cursor: pointer;
+    }
+  }
+ 
+  position: absolute;
+  left: 60px;
 }

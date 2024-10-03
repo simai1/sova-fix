@@ -124,7 +124,7 @@ function UsersDirectory() {
                 <button onClick={()=>deletedUser()}>Удалить пользователя</button>
             </div>
         </div>
-        <UniversalTable tableName="table5" tableHeader={tableUser} tableBody={tableDataObject} selectFlag={true} ClickRole={ClickRole}/>
+        <UniversalTable FilterFlag={true} tableName="table5" tableHeader={tableUser} tableBody={tableDataObject} selectFlag={true} ClickRole={ClickRole}/>
         {popUpCreate && (
                 <div className={styles.PupUpCreate}>
                     <PopUpContainer mT={300} title="Добавление пользователя" closePopUpFunc={setPopUpCreate}>

@@ -177,6 +177,7 @@ function ThePerformersDirectory() {
         tableHeader={tablePerformanseHeader}
         tableBody={tableDataUnit}
         selectFlag={true}
+        FilterFlag={true}
       />
       {deleteUnitFlag && (
         <UneversalDelete

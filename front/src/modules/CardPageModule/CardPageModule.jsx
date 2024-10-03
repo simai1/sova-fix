@@ -26,7 +26,7 @@ function CardPageModule() {
         <div>
             <h2>Маршрутный лист</h2>
         </div>
-            <UniversalTable tableName="table8"  tableHeader={tableList} tableBody={tableDataEntries} selectFlag={false} updateTable={getData}/>
+            <UniversalTable FilterFlag={true} tableName="table8"  tableHeader={tableList} tableBody={tableDataEntries} selectFlag={false} updateTable={getData}/>
        </div>
      );
 }
