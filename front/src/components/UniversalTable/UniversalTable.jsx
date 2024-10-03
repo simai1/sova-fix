@@ -5,7 +5,7 @@ import SamplePoints from "../SamplePoints/SamplePoints";
 import { useDispatch, useSelector } from "react-redux";
 
 function UniversalTable(props) {
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const store = useSelector(
     (state) => state.isSamplePoints[props.tableName].isChecked
   );
@@ -17,6 +17,7 @@ function UniversalTable(props) {
   const [sampleShow, setSampleShow] = useState(null);
 
   const [basickData, setBasickData] = useState([]);
+  const [punkts, setPunkts] = useState([]);
 
   useEffect(() => {
     setTableHeaderData(props?.tableHeader);

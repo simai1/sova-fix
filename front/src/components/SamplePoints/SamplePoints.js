@@ -4,7 +4,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { setChecked } from "../../store/samplePoints/samplePoits";
 
 function SamplePoints(props) {
+  const [search, setSearch] = useState("");
   const dispatch = useDispatch();
+  const [filtredPunkts, setFiltredPunkts] = useState(props.punkts || []);
+
+  useEffect(() => {
+    console.log("filtredPunkts", filtredPunkts);
+  }, [filtredPunkts]);
+
   const store = useSelector(
     (state) => state.isSamplePoints[props.tableName].isChecked
   );
@@ -42,10 +49,30 @@ function SamplePoints(props) {
     }
   };
 
+  useEffect(() => {
+    console.log("props.punkts", props.punkts);
+    const fd = [
+      ...props.punkts.filter((el) => {
+        const elString = typeof el === "number" ? el.toString() : el;
+        return elString?.toLowerCase().includes(search?.toLowerCase());
+      }),
+    ];
+    console.log("fd", fd);
+    setFiltredPunkts(fd);
+  }, [search]);
+
   return (
     <div className={styles.SamplePoints}>
+      <div className={styles.search}>
+        <input
+          type="text"
+          placeholder="Поиск..."
+          value={search}
+          onChange={(el) => setSearch(el.target.value)}
+        />
+      </div>
       <ul>
-        {props.punkts.map((el, index) => (
+        {filtredPunkts?.map((el, index) => (
           <li key={index} onClick={() => funLiCkick(el)}>
             <input type="checkbox" checked={getChecked(el)} />
             <p>{el}</p>

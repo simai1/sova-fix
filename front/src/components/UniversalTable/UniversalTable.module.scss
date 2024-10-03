@@ -30,16 +30,18 @@
         &:last-child {
           border-radius: 0 8px 0 0;
         }
+        cursor: pointer;
 
         .sampleComponent {
           display: flex;
           position: absolute;
-          width: 100%;
+          width: 200px;
           height: 200px;
           background-color: #ffffff;
-          border: 1px solid #000;
           left: 0;
           top: 50px;
+          border-radius: 12px;
+          box-shadow: 0 0 10px #aaaaaa;
         }
       }
     }
