@@ -1,7 +1,7 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import isCheckedSlice from "./filter/isChecked.slice.js";
 import editInputChecked from "./filter/editInputChecked.slice.js";
-
+import isSamplePoints from "./samplePoints/samplePoits.js";
 import {
   persistStore,
   persistReducer,
@@ -18,13 +18,14 @@ import editColumTableSlice from "./editColumTable/editColumTable.slice.js";
 const rootReducer = combineReducers({
   isCheckedSlice: isCheckedSlice,
   editInputChecked: editInputChecked,
-  editColumTableSlice: editColumTableSlice
+  editColumTableSlice: editColumTableSlice,
+  isSamplePoints: isSamplePoints,
 });
 
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["isCheckedSlice", "editInputChecked","editColumTableSlice"],
+  whitelist: ["isCheckedSlice", "editInputChecked", "editColumTableSlice"],
   // blacklist: ["editColumTableSlice"],
 };
 const persistedReducer = persistReducer(persistConfig, rootReducer);
