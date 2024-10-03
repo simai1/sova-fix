@@ -4,8 +4,9 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import InlineKeyboardButton as IKB, InlineKeyboardMarkup as IKM
 from aiogram.types import Message, CallbackQuery
 
+from command.contractor.show_contractor_requests import send_many_rr_for_contractor
 from common.keyboard import to_start_kb
-from common.messages import send_several_requests, send_repair_request
+from common.messages import send_several_requests, send_repair_request, page0_show_many_requests
 from handler import pagination
 from util import crm
 from util.crm import roles
@@ -25,6 +26,11 @@ async def show_contractor_requests_callback_handler(query: CallbackQuery, state:
     await query.answer()
 
 
+# send repair request function
+async def page0_show_many_rr_for_itinerary(message: Message, state: FSMContext, repair_requests: list[dict], params: str = ""):
+    await page0_show_many_requests(message, state, repair_requests, send_many_rr_for_contractor, prefix="it", params=params)
+
+
 async def show_contractor_requests_handler(user_id: int, message: Message, state: FSMContext) -> None:
     await state.clear()
 
@@ -35,12 +41,7 @@ async def show_contractor_requests_handler(user_id: int, message: Message, state
 
     itinerary = await crm.get_itinerary(user_id)
 
-    if not itinerary:
-        await message.answer('В маршрутном листе пока что нет заявок', reply_markup=to_start_kb())
-
-    await pagination.set_page_in_state(state, 0)
-    await send_many_rr_for_itinerary(itinerary, message, state)
-    await pagination.send_next_button_if_needed(len(itinerary), message, state, prefix='it:')
+    await page0_show_many_rr_for_itinerary(message, state, itinerary)
 
 
 @router.callback_query(F.data == 'it:show_more')
@@ -49,7 +50,7 @@ async def show_more_requests(query: CallbackQuery, state: FSMContext) -> None:
 
     itinerary = await crm.get_itinerary(query.from_user.id)
     await send_many_rr_for_itinerary(itinerary, query.message, state)
-    await pagination.send_next_button_if_needed(len(itinerary), query.message, state, prefix='it:')
+    await pagination.send_next_button_if_needed(len(itinerary), query.message, state, prefix='it')
 
     await query.message.delete()
     await query.answer()

@@ -1,0 +1,30 @@
+.SamplePoints {
+  width: 100%;
+  padding: 18px 16px;
+  .search {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+
+    input {
+      border-radius: 8px;
+      font-size: 14px;
+      padding: 4px 8px;
+    }
+  }
+  ul {
+    margin: 0;
+    padding: 0;
+    li {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      margin: 0;
+      padding: 0;
+
+      p {
+        margin-left: 10px;
+      }
+    }
+  }
+}

@@ -43,7 +43,7 @@ async def start_handler(user_id: int, message: Message, state: FSMContext) -> No
         return
 
     if not user["isConfirmed"]:
-        await message.answer("Ваша заявка на регистрацию ещё рассматривается. Ожидайте одобрения менеджера")
+        await message.answer("Ваша заявка на регистрацию ещё рассматривается.\nОжидайте одобрения менеджера 🕒")
         return
 
     role: str = user['role']

@@ -1,8 +1,10 @@
 from aiogram import Bot, Router, F
 from aiogram.types import CallbackQuery
 
-from common.messages import send_rr_for_customer, send_rr_for_contractor, send_back_to_start, send_rr_for_admin
-
+from command.admin.show_admin_requests import send_rr_for_admin
+from command.contractor.show_contractor_requests import send_rr_for_contractor
+from command.customer.show_customer_requests import send_rr_for_customer
+from common.messages import to_start_msg
 from util import crm
 
 router = Router(name=__name__)
@@ -23,7 +25,7 @@ async def send_one_repair_request_handler(query: CallbackQuery) -> None:
         case _:
             print(request_id, role)
 
-    await send_back_to_start(query.message)
+    await to_start_msg(query.message)
     await query.answer()
 
 

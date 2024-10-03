@@ -39,6 +39,8 @@ def make_kb(
         buttons_per_page: int = 8,
         make_pages: bool = True
 ) -> IKM:
+    print(page, names, prefix)
+
     max_page = ceil(len(names) / buttons_per_page)
 
     page = max(0, min(page, max_page - 1))
@@ -85,10 +87,11 @@ def get_page(query: CallbackQuery) -> int:
 async def page_action(query: CallbackQuery, state: FSMContext) -> None:
     page = get_page(query)
     data = await state.get_data()
+    names = list(data['page'].keys())
     prefix = PageCallback.from_str(query.data).prefix
 
     try:
-        await query.message.edit_reply_markup(reply_markup=make_kb(page, data['page'], prefix))
+        await query.message.edit_reply_markup(reply_markup=make_kb(page, names, prefix))
     except (TelegramBadRequest, KeyError):
         pass
     await query.answer()
@@ -124,10 +127,10 @@ async def next_page_in_state(state: FSMContext) -> None:
     await state.update_data(page=page+1)
 
 
-async def send_next_button_if_needed(length: int, message: Message, state: FSMContext, prefix: str) -> None:
+async def send_next_button_if_needed(length: int, message: Message, state: FSMContext, prefix: str, params: str = '') -> None:
     page = await get_page_in_state(state)
 
-    next_btn = IKB(text='Далее ➡️', callback_data=f"{prefix}show_more")
+    next_btn = IKB(text='Далее ➡️', callback_data=f"{prefix}:show_more:{params}")
     home_btn = IKB(text='На главную ↩️', callback_data='start_remove_kb')
 
     if length == 0:
