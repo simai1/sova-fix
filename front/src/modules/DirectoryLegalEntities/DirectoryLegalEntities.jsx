@@ -142,7 +142,7 @@ function DirectoryLegalEntities() {
                     <button onClick={() => deleteUnit()}>Удалить юридическое лицо</button>
                 </div>
             </div>
-            <UniversalTable tableHeader={tableLagealEntries} tableBody={tableDataEntries} selectFlag={true} />
+            <UniversalTable tableHeader={tableLagealEntries} tableBody={tableDataEntries} selectFlag={true} setData={setTableDataEntries}/>
             {deleteUnitFlag && <UneversalDelete text="Юр. лицо" ClosePopUp={ClosePopUp} FunctionDelete={FunctionDelete} />}
             {context.popUp === "PopUpError" && <PopUpError />}
             {popUpCreate && (

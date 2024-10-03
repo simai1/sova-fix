@@ -1,13 +1,14 @@
 import React, { useContext, useEffect, useState } from "react";
 import DataContext from "../../context";
 import styles from "./UniversalTable.module.scss";
+import { SamplePoints } from "../../UI/SamplePoints/SamplePoints";
 
 function UniversalTable(props) {
     const { context } = useContext(DataContext);
     const [tableHeaderData, setTableHeaderData] = useState([]);
     const [tableBodyData, setTableBodyData] = useState([]);
     const [modalImage, setModalImage] = useState(null);
-
+    const [actiwFilter, setActiwFilter] = useState(null);
     useEffect(() => {
         setTableHeaderData(props?.tableHeader);
         setTableBodyData(props?.tableBody);
@@ -83,13 +84,42 @@ function UniversalTable(props) {
           return "left"
         }
       }
+      const clickTh = (key) => {
+        if(key !== "number"){
+            setActiwFilter(key);
+        }
+      }
 
+      //samplePointsData
+
+      const [isAllChecked, setAllChecked] = useState([]); // инпут все в SamplePoints //! сбросить
+      const [isChecked, setIsChecked] = useState([]); // инпут в SamplePoints //! сбросить
+      const [isSamplePointsData, setSamplePointsData] = useState([]); // инпут в SamplePoints //! сбросить
     return (
         <div className={styles.UniversalTable}>
             <table>
                 <thead>
                     {tableHeaderData?.map((el, index) => (
-                        <th key={index} name={el.key}>{el.value}</th>
+                        <th key={index} name={el.key} onClick={()=>clickTh(el.key)}> {el.value}
+                        
+                            <div>
+                            {actiwFilter === el.key && <SamplePoints
+                                            index={index + 1}
+                                            actiwFilter={actiwFilter}
+                                            itemKey={el.key}
+                                            isSamplePointsData={isSamplePointsData}
+                                            isAllChecked={isAllChecked}
+                                            isChecked={isChecked}
+                                            setIsChecked={setIsChecked}
+                                            workloadData={tableBodyData}
+                                            setWorkloadDataFix={props.setData}
+                                            setSpShow={setActiwFilter}
+                                            sesionName={`isCheckedFilter`}
+                                        />}
+                            </div>
+                        
+                        
+                        </th>
                     ))}
                 </thead>
                 <tbody>
