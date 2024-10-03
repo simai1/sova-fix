@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import DataContext from "../../context";
 import styles from "./UniversalTable.module.scss";
 import { SamplePoints } from "../../UI/SamplePoints/SamplePoints";
+import { ReseachDataRequest } from "../../API/API";
 
 function UniversalTable(props) {
     const { context } = useContext(DataContext);
@@ -9,6 +10,8 @@ function UniversalTable(props) {
     const [tableBodyData, setTableBodyData] = useState([]);
     const [modalImage, setModalImage] = useState(null);
     const [actiwFilter, setActiwFilter] = useState(null);
+    const [itineraryOrderPop, setItineraryOrderPop] = useState("");
+    const [arrCount, setArrCount] = useState([])
     useEffect(() => {
         setTableHeaderData(props?.tableHeader);
         setTableBodyData(props?.tableBody);
@@ -22,59 +25,62 @@ function UniversalTable(props) {
             setModalImage(src);
         }
     };
-    const roleUser =[
-        {id:1, name:"USER"},
-        {id:2, name:"ADMIN"},
-      ]
-    const getValue = (value, key, index) => {
-        if(key === "tgId" ){
-            if(!value){
-                return "___"
-            }else{
-                return
-            }
+    
+    const getCountList = () => {
+        let count = tableBodyData?.length;
+        let countList = [];
+        for (let i = 0; i < count; i++) {
+          countList.push(i + 1);
         }
-        if(key === "id"){
-            return index+1
-        }
-        if(key === "isConfirmed") {
-   
-            if(value === true){
-              return "Активирован"
-            }else{
-              return "Не активирован"
-            }
-          }
-        if (key === "repairPrice" && key !== "fileName" && key !== "checkPhoto" ) {
-            return value?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-        } else if (key === "fileName" || key === "checkPhoto") {
-            if (value) {
-                return (
+        setArrCount(countList);
+      }
+useEffect(() => {
+    getCountList()
+}, [tableBodyData])
+
+      const getValue = (value, key, index) => {
+        switch (key) {
+            case "itineraryOrder":
+                return 
+            case "tgId":
+                return value ? <a className={styles.tgIdLink} href={`tg://user?id=${value}`}>{value}</a> : "___";
+            case "id":
+                return index + 1;
+            case "isConfirmed":
+                return value ? "Активирован" : "Не активирован";
+            case "repairPrice":
+                return value?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+            case "fileName":
+            case "checkPhoto":
+                return value ? (
                     <div>
                         <img
                             src={`${process.env.REACT_APP_API_URL}/uploads/${value}`}
                             alt="Uploaded file"
-                            onClick={() =>
-                                openModal(
-                                    `${process.env.REACT_APP_API_URL}/uploads/${value}`
-                                )
-                            }
+                            onClick={() => openModal(`${process.env.REACT_APP_API_URL}/uploads/${value}`)}
                             style={{ cursor: "pointer" }}
                             className={styles.imgTable}
                         />
                     </div>
-                );
-            } else {
-                return "___";
-            }
-        } else {
-            if (value) {
-                return value;
-            } else {
-                return "___";
-            }
+                ) : "___";
+            case "fileName":
+                console.log("fileName", value);
+                return value ? (
+                    <div>
+                        <img
+                            src={`${process.env.REACT_APP_API_URL}/uploads/${value}`}
+                            alt="Uploaded file"
+                            onClick={() => openModal(`${process.env.REACT_APP_API_URL}/uploads/${value}`)}
+                            style={{ cursor: "pointer" }}
+                            className={styles.imgTable}
+                        />
+                    </div>
+                ) : "___";
+            default:
+                return value || "___";
         }
     };
+    
 
     const clickTr = (value) => {
         context.setSelectRowDirectory(value.id);
@@ -128,7 +134,18 @@ function UniversalTable(props) {
   }
 }
 
-
+const SetCountCard = (el, idAppoint) =>{
+    const idInteger = context.dataContractors.find(el => el.name === context?.tableData[0].contractor.name)?.id;
+    const data = {
+      itineraryOrder: el,
+    };
+    ReseachDataRequest(idAppoint, data).then((resp)=>{
+      if(resp?.status === 200){
+        props.updateTable();
+        setItineraryOrderPop("");
+      }
+    })
+  }
 
 
       //samplePointsData
@@ -152,8 +169,8 @@ function UniversalTable(props) {
                         className={header.key} 
                         style={context.selectRowDirectory === row.id ? { backgroundColor: "#D8CDC1FF", textAlign: textAlign(header.key, row[header.key]) } : { textAlign: textAlign(header.key, row[header.key]) }}
                     >
-                        {header.key !== "role" ? (
-                            getValue(row[header.key], header.key, rowIndex)
+                        {(header.key !== "role" ) ? (
+                            getValue(row[header.key], header.key, rowIndex) 
                         ) : (
                             <div
                                 onClick={() => {
@@ -168,6 +185,27 @@ function UniversalTable(props) {
                         )}
                         {header.key === "tgId" && (
                             <a  className={styles.tgIdLink} href={`tg://user?id=${row[header.key]}`}>{row[header.key]}</a>
+                        )}
+                        {header.key === "itineraryOrder" && (
+                            <div
+                                onClick={() => setItineraryOrderPop(row.id)}
+                                className={styles.statusClick}
+                                // ref={ItineraryOrderPopRef}
+                                >
+                                {row[header.key] !== null ? row[header.key] : "___"}
+                                {itineraryOrderPop === row.id && (
+                                    <div className={styles.shovStatusPop} >{/* style={checkHeights(context?.filteredTableData, index) ? {top:"-10%", right:"100px", width: "auto"} : {width: "auto"}} */}
+                                    <ul>
+                                    {
+                                        arrCount?.map((el)=>{
+                                        return  <li key={el} onClick={(event) => SetCountCard(el, row.id)}> {el}</li>
+                                        })
+                                    }
+
+                                    </ul>
+                                    </div>
+                                )}
+                                </div>
                         )}
                     </td>
                 ))}
