@@ -42,7 +42,7 @@ function UniversalTable(props) {
     
     //! открываем или закрываем модальное окно samplePoints
   const funClickTh = (event, index, key) => {
-    if (event.target.localName === "th" && key !== "number" && key !== "checkPhoto" && key !== "photo" && key !== "fileName") {
+    if (event.target.localName === "th" && key !== "number" && key !== "checkPhoto" && key !== "photo" && key !== "fileName" && key !== "id") {
       if (sampleShow === index) {
         setSampleShow(null);
       } else {
@@ -213,7 +213,14 @@ useEffect(() => {
   };
 }, []);
 
-
+const whatRight = (key) => {
+  if(key === "legalEntity" && props?.top){
+    return 125
+  }else{
+    return 0
+  }
+ 
+}
 
       //samplePointsData
     return (
@@ -227,14 +234,14 @@ useEffect(() => {
     <thead>
     {tableHeaderData?.map((el, index) => (
       <th key={index} name={el.key} onClick={(event) => props?.FilterFlag && funClickTh(event, index, el.key)} 
-      style={props?.FilterFlag && el.key !== "number" && el.key !== "checkPhoto" && el.key !== "photo" && el.key !== "fileName" ? {cursor: "pointer"} : {cursor: "default"}}>
+      style={props?.FilterFlag && el.key !== "number" && el.key !== "checkPhoto" && el.key !== "id" && el.key !== "photo" && el.key !== "fileName" ? {cursor: "pointer"} : {cursor: "default"}}>
         {el.value}
         {store.find((elem) => elem.itemKey === el.key) && <img src={FilteImg} />}
         {sampleShow === index && (
-          <div className={styles.sampleComponent} ref={contextmenuRef} style={{top: `${props?.top}px`}}>
+          <div className={styles.sampleComponent} ref={contextmenuRef} style={{top: `${props?.top}px`, left: `-${whatRight(el.key)}px`, position: "absolute"}}>
             <SamplePoints
               basickData={basickData} // нефильтрованные данные
-              punkts={basickData.map((it) => it[el.key])} // пункты то есть то что отображается в li
+              punkts={basickData.map((it) => it[el.key] === null ? "___" : it[el.key])} // пункты то есть то что отображается в li
               itemKey={el.key} // ключь пунта
               tableName={props?.tableName}
             />
@@ -278,7 +285,7 @@ useEffect(() => {
                                 >
                                 {row[header.key] !== null ? row[header.key] : "___"}
                                 {itineraryOrderPop === row.id && (
-                                    <div className={styles.shovStatusPop} >{/* style={checkHeights(context?.filteredTableData, index) ? {top:"-10%", right:"100px", width: "auto"} : {width: "auto"}} */}
+                                    <div className={styles.shovStatusPop}>
                                     <ul>
                                     {
                                         arrCount?.map((el)=>{

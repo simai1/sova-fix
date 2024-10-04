@@ -135,6 +135,7 @@
   border-radius: 8px;
   background-color: var(--dark-grey-color);
   text-align: center;
+  position: relative;
   &:hover {
     background-color: var(--Active-gray-color);
   }
@@ -151,6 +152,8 @@
   overflow-y: scroll;
   transform: translateY(20px);
   position: absolute;
+  top: -20px;
+  right: -65px;
   background-color: #fff;
   padding: 10px;
   border-radius: 8px;

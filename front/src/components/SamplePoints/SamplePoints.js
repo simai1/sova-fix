@@ -47,8 +47,11 @@ function SamplePoints(props) {
     console.log("props.punkts", props.punkts);
     const uniquePunkts = Array.from(new Set(props.punkts));
     const fd = uniquePunkts.filter((el) => {
-      const elString = typeof el === "number" ? el.toString() : el;
-      return elString?.toLowerCase().includes(search?.toLowerCase());
+      if(typeof el !== "boolean"){
+        const elString = typeof el === "number" ? el.toString() : el;
+        return elString?.toLowerCase().includes(search?.toLowerCase());
+      }
+    
     });
     console.log("fd", fd);
     setFiltredPunkts(fd);
