@@ -5,8 +5,20 @@
     margin-top: 18px;
     max-height: 62vh;
     overflow-y: scroll;
-    border-radius: 8px;
+    border-radius: 8px;  
+  //   position: relative;
+  //  &::after {
+  //       content: "";
+  //       background-color: red;
+  //       width: 10px;
+  //       height: 10px;
+  //       position: absolute;
+  //       z-index: 100;
+  //       right: 0px;
+  //       bottom: 0px;
+  //     }
     table{
+   
         width: 100%;
         min-height: auto;
         border-radius: 8px;
@@ -19,7 +31,7 @@
             th{
               position: relative;
                 align-items: center;
-                height: 40px;
+              
                 padding: 10px;
                 text-align: center;
                 &:nth-child(1) {
@@ -42,7 +54,7 @@
           height: 200px;
           background-color: #ffffff;
           left: 0;
-          top: 70px;
+          top: 45px;
           border-radius: 8px;
           box-shadow: 9px 3px 18px rgba(0, 0, 0, 0.2);
         }

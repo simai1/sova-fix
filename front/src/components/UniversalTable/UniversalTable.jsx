@@ -231,7 +231,7 @@ useEffect(() => {
         {el.value}
         {store.find((elem) => elem.itemKey === el.key) && <img src={FilteImg} />}
         {sampleShow === index && (
-          <div className={styles.sampleComponent} ref={contextmenuRef}>
+          <div className={styles.sampleComponent} ref={contextmenuRef} style={{top: `${props?.top}px`}}>
             <SamplePoints
               basickData={basickData} // нефильтрованные данные
               punkts={basickData.map((it) => it[el.key])} // пункты то есть то что отображается в li
