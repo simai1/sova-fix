@@ -67,6 +67,7 @@ export function SamplePoints(props) {
       return 0;
     });
     //! записываем только уникальные значения
+    console.log("[...new Set(fd)]", [...new Set(fd)]);
     setFilteredData([...new Set(fd)]);
   }, [props.isSamplePointsData, searchText]);
 
@@ -74,8 +75,8 @@ export function SamplePoints(props) {
   const onAllChecked = () => {
     let checked = [...props.isChecked];
     if (
-      [...props.isChecked].filter((el) => el.itemKey === props.itemKey)?.length >
-      0
+      [...props.isChecked].filter((el) => el.itemKey === props.itemKey)
+        ?.length > 0
     ) {
       checked = checked.filter((el) => el.itemKey !== props.itemKey);
       dispatch(
@@ -116,6 +117,7 @@ export function SamplePoints(props) {
   };
   //! при нажатии на Input
   const onChecked = (el) => {
+    console.log("el", el, [...props.isChecked]);
     let checked = [...props.isChecked]; // основной массив
     if (
       checked.some(
@@ -147,11 +149,13 @@ export function SamplePoints(props) {
       uniqueArray,
       props.sesionName
     );
-  
+    console.log("fdfix", fdfix);
+
     props.setWorkloadDataFix(fdfix);
   };
 
   const getText = (index, el) => {
+    console.log("props.", props.isSamplePointsData);
     if (index === 0) {
       return index + 1;
     } else {
@@ -164,17 +168,21 @@ export function SamplePoints(props) {
   };
 
   return (
-    <main className={styles.SamplePoints} style={{ 
-          marginLeft: 
-            props.actiwFilter === "itineraryOrder"
-              ? "-50px" 
-              : props.actiwFilter === "comment" 
-              ? "126px" 
-              : props.actiwFilter === "legalEntity"
-              ? "8px" 
-              : "0px" 
-        }}  ref={spRef}>
-        <div className={styles.container}>
+    <main
+      className={styles.SamplePoints}
+      style={{
+        marginLeft:
+          props.actiwFilter === "itineraryOrder"
+            ? "-50px"
+            : props.actiwFilter === "comment"
+            ? "126px"
+            : props.actiwFilter === "legalEntity"
+            ? "8px"
+            : "0px",
+      }}
+      ref={spRef}
+    >
+      <div className={styles.container}>
         <div>
           <input
             className={styles.search}

@@ -2,8 +2,7 @@
 export function FilteredSample(data, isChecked, sesionName = "") {
   if (isChecked?.length === 0) {
     return [...data];
-  }
-  else {
+  } else {
     return data.filter(
       (item) => !isChecked?.some((el) => el.value === item[el.itemKey]) && item
     );
@@ -22,7 +21,7 @@ export function funFixEducator(data) {
   return data.map((item) => {
     return {
       ...item,
-      contractor: item?.contractor?.name,
+      contractor: item?.contractor?.name || "___",
       status: status[item?.status],
     };
   });
