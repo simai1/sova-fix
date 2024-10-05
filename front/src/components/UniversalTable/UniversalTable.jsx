@@ -224,13 +224,13 @@ const whatRight = (key) => {
 
       //samplePointsData
     return (
-        <div className={styles.UniversalTable}>
+<div className={styles.UniversalTable} style={{ maxHeight: document.location.pathname === "/CardPage/CardPageModule" ? "73vh" : "auto" }}>
         { props?.FilterFlag &&
         <div className={styles.clear}>
           <button onClick={() => dispatch(resetFilters({tableName: props.tableName}))} ><img src={ClearImg} /></button>
         </div>
         }
-    <table>
+    <table >
     <thead>
     {tableHeaderData?.map((el, index) => (
       <th key={index} name={el.key} onClick={(event) => props?.FilterFlag && funClickTh(event, index, el.key)} 
