@@ -203,6 +203,9 @@
       width: 65px;
       z-index: 100;
       background-color: #B7AB9E;
+      &:hover {
+        cursor: default;
+       }
      }
      .MainTh[name="contractor"] {
        position: sticky;
@@ -213,6 +216,10 @@
        top: 0;
        z-index: 100;
        background-color: #B7AB9E;
+       &:hover {
+        background-color: var(--Active-gray-color);
+
+       }
 
       }
       .MainTh[name="object"] {
@@ -222,6 +229,9 @@
        z-index: 100;
        box-shadow: 5px 0 5px #e3dfda75;
        background-color: #B7AB9E;
+       &:hover {
+        background-color: var(--Active-gray-color);
+       }
       }
     
     .imgTable{

@@ -25,7 +25,11 @@ function UniversalTable(props) {
       );
 
 
+   
+
+
     useEffect(() => {
+     
         setTableHeaderData(props?.tableHeader);
         setTableBodyData(filterBasickData(props?.tableBody, store));
         setBasickData(props?.tableBody);
@@ -42,7 +46,7 @@ function UniversalTable(props) {
     
     //! открываем или закрываем модальное окно samplePoints
   const funClickTh = (event, index, key) => {
-    if (event.target.localName === "th" && key !== "number" && key !== "checkPhoto" && key !== "photo" && key !== "fileName" && key !== "id") {
+    if (event.target.localName === "th" && key !== "number" && key !== "tgId" && key !== "login" && key !== "checkPhoto" && key !== "photo" && key !== "fileName" && key !== "id") {
       if (sampleShow === index) {
         setSampleShow(null);
       } else {
@@ -165,23 +169,6 @@ function UniversalTable(props) {
         }
       }
 
-      const getRoleAdmin = (value) =>
- {
-  if(value !== null){
-    if(value === 2){
-      return "Администратор"
-    }else if(value === 1){
-      return "Пользователь"
-    }else if(value === 3){
-      return "Заказчик"
-    }else{
-      return "Исполнитель"
-    }
-  }else{
-    return "___"
-  }
-}
-
 const SetCountCard = (el, idAppoint) =>{
     const idInteger = context.dataContractors.find(el => el.name === context?.tableData[0].contractor.name)?.id;
     const data = {
@@ -214,7 +201,9 @@ useEffect(() => {
 
 const whatRight = (key) => {
   if(key === "legalEntity" && props?.top){
-    return 125
+    return 175
+  }else if(key === "comment" && props?.top){
+    return 50
   }else{
     return 0
   }
@@ -233,14 +222,14 @@ const whatRight = (key) => {
     <thead>
     {tableHeaderData?.map((el, index) => (
       <th key={index} name={el.key} onClick={(event) => props?.FilterFlag && funClickTh(event, index, el.key)} 
-      style={props?.FilterFlag && el.key !== "number" && el.key !== "checkPhoto" && el.key !== "id" && el.key !== "photo" && el.key !== "fileName" ? {cursor: "pointer"} : {cursor: "default"}}>
+      style={props?.FilterFlag && el.key !== "number" && el.key !== "checkPhoto" && el.key !== "id" && el.key !== "tgId" && el.key !== "login" && el.key !== "photo" && el.key !== "fileName" ? {cursor: "pointer"} : {cursor: "default"}}>
         {el.value}
         {store.find((elem) => elem.itemKey === el.key) && <img src={FilteImg} />}
         {sampleShow === index && (
           <div className={styles.sampleComponent} ref={contextmenuRef} style={{top: `${props?.top}px`, left: `-${whatRight(el.key)}px`, position: "absolute"}}>
             <SamplePoints
               basickData={basickData} // нефильтрованные данные
-              punkts={basickData.map((it) => it[el.key] === null ? "___" : it[el.key])} // пункты то есть то что отображается в li
+              punkts={basickData.map((it) => it[el.key] === null  ? "___" : it[el.key])} // пункты то есть то что отображается в li
               itemKey={el.key} // ключь пунта
               tableName={props?.tableName}
             />
@@ -264,13 +253,13 @@ const whatRight = (key) => {
                         ) : (
                             <div
                                 onClick={() => {
-                                    if ((row[header.key] === 1 || row[header.key] === 2) && JSON.parse(localStorage.getItem("userData"))?.user?.role === "ADMIN") {
+                                    if ((row[header.key] === "Пользователь" || row[header.key] === "Администратор") && JSON.parse(localStorage.getItem("userData"))?.user?.role === "ADMIN") {
                                         props.ClickRole(row.id, row[header.key]);
                                     }
                                 }}
-                                className={((row[header.key] === 1 || row[header.key] === 2) && JSON.parse(localStorage.getItem("userData"))?.user?.role === "ADMIN") ? styles.statusClick : ""}
+                                className={((row[header.key] === "Пользователь" || row[header.key] === "Администратор") && JSON.parse(localStorage.getItem("userData"))?.user?.role === "ADMIN") ? styles.statusClick : ""}
                             >
-                                {getRoleAdmin(row[header.key])}
+                             {row[header.key]}
                             </div>
                         )}
                         {header.key === "tgId" && (

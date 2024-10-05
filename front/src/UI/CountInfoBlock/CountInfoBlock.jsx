@@ -24,7 +24,7 @@ function CountInfoBlock(props) {
                break;
            case "checkPhoto":
                props?.dataCount.forEach((el) => {
-                   if (el.checkPhoto && el.repairPrice) {
+                   if (el.checkPhoto !== "___" && el.repairPrice) {
                        newCount++;
                    }
                });

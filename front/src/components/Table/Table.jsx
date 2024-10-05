@@ -361,7 +361,7 @@ function Table() {
         5: "Принята",
       };
       let modalData = [];
-      if (key !== "photo" && key !== "checkPhoto") {
+      if (key !== "photo" && key !== "checkPhoto" && key !== "number") {
         if (key === "status") {
           modalData = context?.tableData?.map((item) => status[item[key]]);
         } else {

@@ -18,9 +18,42 @@ function UsersDirectory() {
     const {context} = useContext(DataContext);
     const [Email, setEmail] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
+
+
+    function funFixData(data) {
+       
+        return data.map((item) => {
+          return {
+            ...item,
+            id: item?.id || "___",
+            isConfirmed: item?.isConfirmed === true ? "Активирован" : "Не активирован",
+            login: item?.login || "___",
+            tgUserId: item?.tgUserId || "___",
+            name: item?.name || "___",
+            role: funFixRole(item?.role),
+          };
+        });
+      }
+
+    function funFixRole(value){
+      console.log("value", value)
+      if(value === 2){
+        return "Администратор"
+      }else if(value === 1){
+        return "Пользователь"
+      }else if(value === 3){
+        return "Заказчик"
+      }else if(value === 4){
+        return "Исполнитель"
+      }else{
+        return "___"
+      }
+
+    }
+
     const getData = () => {
         GetAllUsers().then((response) => {
-            setTableDataObject(response.data);
+            setTableDataObject(funFixData(response.data));
         })
     }
 
@@ -56,7 +89,7 @@ function UsersDirectory() {
 
     const ClickRole = (id, role) =>{
         let data = {};
-            if(role === 1){
+            if(role === "Пользователь"){
             data = {
                 role: 2,
                 userId: id
