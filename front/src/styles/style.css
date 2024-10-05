@@ -59,16 +59,9 @@ p{
 
 /* Стили для дорожки скроллбара */
 ::-webkit-scrollbar-track {
-    background: transparent; /* Убирает белый фон */
-    border-radius: 8px; /* Закругление углов */
+    background: #fff; /* Убирает белый фон */
 }
-::-webkit-scrollbar-track:after{
-	background-color: red;
-	content: "";
-	position: relative;
-	width: 5px;
-	height: 5px;
-}
+
 
 /* Стили для ползунка скроллбара */
 ::-webkit-scrollbar-thumb {
