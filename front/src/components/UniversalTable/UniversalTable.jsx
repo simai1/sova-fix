@@ -94,11 +94,9 @@ function UniversalTable(props) {
             case "isConfirmed":
                 return value ? "Активирован" : "Не активирован";
             case "repairPrice":
-              if(value){
-                return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g)
-              }else{
-                return "___"
-              }
+             
+                return value.toLocaleString().replace(",", " ") || "___";
+            
             case "fileName":
             case "checkPhoto":
                 return value ? (
@@ -126,6 +124,7 @@ function UniversalTable(props) {
                     </div>
                 ) : "___";
             default:
+              
                 return value || "___";
         }
     };
@@ -153,7 +152,7 @@ function UniversalTable(props) {
     const textAlign = (keys, item) => {
         if(keys === "number" || keys === "count" || keys === "itineraryOrder" || keys === "startCoop" || keys === "daysAtWork" || keys === "completeDate" || keys === "createdAt" || keys === "repairPrice" || keys === "startCoop" || keys === "tgId" || keys === "id"){
           return "center"
-        }if(item === null){
+        }if(item === "___"){
           return "center"
         }
         else{

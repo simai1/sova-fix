@@ -481,7 +481,7 @@ function Table() {
       keys === "repairPrice"
     ) {
       return "center";
-    } else if (item === null) {
+    } else if (item === "___") {
       return "center";
     } else {
       return "left";
@@ -774,7 +774,7 @@ function Table() {
                           </div>
                         ) : headerItem.key === "checkPhoto" ? (
                           <div>
-                            {row.checkPhoto === null ? (
+                            {row.checkPhoto === "___" ? (
                               "___"
                             ) : (
                               <img

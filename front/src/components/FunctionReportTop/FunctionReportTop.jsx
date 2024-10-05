@@ -13,8 +13,18 @@ function FunctionReportTop(props) {
     const [summ, setSumm] = useState(0)
     const CountSumm = () => {
         let summ = 0;
-        props?.dataTable.map((el) => summ += el.repairPrice)
-        setSumm(summ)
+        props?.dataTable.map((el) =>{
+            console.log('el', el)
+            if(typeof el.repairPrice === 'number'){
+                summ += el.repairPrice
+            }
+        })
+
+        console.log('summ', summ)
+        
+    setSumm(Number(summ))
+      
+      
     }
 
     useEffect(() => {
@@ -51,7 +61,7 @@ function FunctionReportTop(props) {
                         <CountInfoBlock dataCount={props?.dataTable} keys="checkPhoto" value="Новая заявка" color="#C5E384" name="С чеком"/>
                     </div>
                     <div className={styles.ReportFinansingButton}>
-                        <p className={styles.ReportFinansingButton__text}>Сумма расхода:  {summ?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") } руб.</p>
+                        <p className={styles.ReportFinansingButton__text}>Сумма расхода:  {summ.toLocaleString().replace(",", " ") || "___"} руб.</p>
                         <button onClick={() => generateAndDownloadExcel(props?.dataTable, "Финансы", summ)}>Экспорт</button>
                     </div>
                 </div> :

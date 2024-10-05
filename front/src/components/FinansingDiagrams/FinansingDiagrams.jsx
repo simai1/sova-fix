@@ -16,7 +16,7 @@ function FinansingDiagrams(props) {
         }
         dataObject.push(object);
         countMap[object] = (countMap[object] || 0) + 1; // Count occurrences
-        if (el.checkPhoto) {
+        if (el.checkPhoto !== "___") {
             countMapWithCheck[object] = (countMapWithCheck[object] || 0) + 1;
         } else {
             countMapWithoutCheck[object] = (countMapWithoutCheck[object] || 0) + 1;
