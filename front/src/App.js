@@ -16,6 +16,9 @@ import DirectoryLegalEntities from "./modules/DirectoryLegalEntities/DirectoryLe
 import ReferenceObjects from "./modules/ReferenceObjects/ReferenceObjects";
 import ThePerformersDirectory from "./modules/ThePerformersDirectory/ThePerformersDirectory";
 import Directory from "./pages/AdminPages/Directory/Directory";
+import UsersDirectory from "./modules/UsersDirectory/UsersDirectory";
+import CardPage from "./pages/AdminPages/CardPageTable/CardPage";
+import CardPageModule from "./modules/CardPageModule/CardPageModule";
 
 function App() {
   const [selectContructor, setSelectContractor] = useState("")
@@ -167,40 +170,33 @@ function App() {
         GetAllRequests("").then((resp) => {
           setDataAppointment(resp?.data.requestsDtos)
         })
-    }if(param === 2){
-          GetAllUsers().then((resp) => {
-          if(resp) {
-            setTableData(resp?.data);
-            setFilteredTableData(resp?.data)
-            settableHeader(tableUser);
-          }
-        })
-    }if(param === 3){
-      let url = ``;
-      if(textSearchTableData === ""){
-        GetContractorsItenerarity(selectContructor, "").then((resp)=>{
-          if(resp?.status == 200){
-            setTableData(resp?.data);
-            setFilteredTableData(funFixEducator(resp?.data))
-            settableHeader(tableList);
-          }
-        })
-      }else{
-        url = `/?search=${textSearchTableData}`;
-        GetContractorsItenerarity(selectContructor, url).then((resp)=>{
-          if(resp?.status == 200){
-            setTableData(resp?.data);
-            setFilteredTableData(funFixEducator(resp?.data))
-            settableHeader(tableList);
-          }
-        })
-      }
-      GetContractorsItenerarity(selectContructor, "").then((resp)=>{
-        if(resp?.status == 200){
-          context.setDataitinerary(resp?.data)
-        }
-      })
     }
+    // if(param === 3){
+    //   let url = ``;
+    //   if(textSearchTableData === ""){
+    //     GetContractorsItenerarity(selectContructor, "").then((resp)=>{
+    //       if(resp?.status == 200){
+    //         setTableData(resp?.data);
+    //         setFilteredTableData(funFixEducator(resp?.data))
+    //         settableHeader(tableList);
+    //       }
+    //     })
+    //   }else{
+    //     url = `/?search=${textSearchTableData}`;
+    //     GetContractorsItenerarity(selectContructor, url).then((resp)=>{
+    //       if(resp?.status == 200){
+    //         setTableData(resp?.data);
+    //         setFilteredTableData(funFixEducator(resp?.data))
+    //         settableHeader(tableList);
+    //       }
+    //     })
+    //   }
+    //   GetContractorsItenerarity(selectContructor, "").then((resp)=>{
+    //     if(resp?.status == 200){
+    //       context.setDataitinerary(resp?.data)
+    //     }
+    //   })
+    // }
   }
 
   useEffect(() => {
@@ -233,6 +229,11 @@ function App() {
               <Route path="DirectoryLegalEntities" element={<DirectoryLegalEntities />}></Route>
               <Route path="ReferenceObjects" element={<ReferenceObjects />}></Route>
               <Route path="ThePerformersDirectory" element={<ThePerformersDirectory />}></Route>
+              <Route path="UsersDirectory" element={<UsersDirectory />}></Route>
+            </Route>
+
+            <Route path="/CardPage/*" element={<CardPage />}>
+              <Route path="CardPageModule" element={<CardPageModule />}></Route>
             </Route>
             
             

@@ -2,15 +2,15 @@ import { DeleteRequest, DeleteUserFunc } from '../../API/API';
 import DataContext from '../../context';
 import styles from './СonfirmDeleteUser.module.scss';
 import React from 'react';
-function СonfirmDeleteUser() {
+function СonfirmDeleteUser(props) {
     const { context } = React.useContext(DataContext);
 
 
     const DeletedRequest = () => {
          DeleteUserFunc(context.selectedTr).then((resp)=>{
         if(resp?.status === 200){
-          context.UpdateTableReguest(2);
-          ClosePopUp();
+            props.updateTable();
+            ClosePopUp();
             }
         })
     }

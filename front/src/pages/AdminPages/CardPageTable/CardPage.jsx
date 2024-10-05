@@ -3,12 +3,9 @@ import Header from "../../../components/Header/Header";
 import Layout from "../../../UI/Layout/Layout";
 import DataContext from "../../../context";
 import { useContext } from "react";
-import UneversalDelete from "../../../components/UneversalDelete/UneversalDelete";
-import { PopUpError } from "../../../UI/PopUpError/PopUpError";
-import PopUpGoodMessage from "../../../UI/PopUpGoodMessage/PopUpGoodMessage";
 
 
-function Directory() {
+function CardPage() {
 
     const context = useContext(DataContext);
     return ( 
@@ -23,4 +20,4 @@ function Directory() {
      );
 }
 
-export default Directory;
+export default CardPage;

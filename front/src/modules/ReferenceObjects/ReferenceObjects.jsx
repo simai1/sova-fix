@@ -182,6 +182,7 @@ function ReferenceObjects() {
         tableHeader={tableHeaderObject}
         tableBody={tableDataObject}
         selectFlag={true}
+        FilterFlag={true}
       />
       {deleteUnitFlag && (
         <UneversalDelete

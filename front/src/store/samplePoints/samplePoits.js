@@ -24,6 +24,9 @@ const isSamplePoints = createSlice({
     table7: {
       isChecked: [],
     },
+    table8: {
+      isChecked: [],
+    },
   },
 
   reducers: {
@@ -32,9 +35,14 @@ const isSamplePoints = createSlice({
       const { tableName, checked } = action.payload;
       state[tableName].isChecked = checked;
     },
+
+    resetFilters(state, action) {
+      const { tableName } = action.payload;
+      state[tableName].isChecked = [];
+    }
   },
 });
 
-export const { setChecked } = isSamplePoints.actions;
+export const { setChecked, resetFilters } = isSamplePoints.actions;
 
 export default isSamplePoints.reducer;

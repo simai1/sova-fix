@@ -1,16 +1,10 @@
 import React, { useState, useContext, useRef, useEffect } from "react";
 import styles from "./Table.module.scss";
 import DataContext from "../../context";
-import { DeleteExtContractorsRequest, GetAllRequests, GetAllUsers, GetextContractorsAll, RemoveContractor, ReseachDataRequest, SetExtContractorsRequest, SetRole, SetStatusRequest, SetcontractorRequest } from "../../API/API";
-import App from "../../App";
-import { tableList, tableUser } from "./Data";
+import { DeleteExtContractorsRequest, GetextContractorsAll, RemoveContractor, ReseachDataRequest, SetExtContractorsRequest, SetRole, SetStatusRequest, SetcontractorRequest } from "../../API/API";
 import { SamplePoints } from "../../UI/SamplePoints/SamplePoints";
-import { removeTableCheckeds } from "../../store/filter/isChecked.slice";
-import { useDispatch, useSelector } from "react-redux";
-import { FilteredSample, funFixEducator } from "../../UI/SamplePoints/Function";
+import {useSelector } from "react-redux";
 import СonfirmDelete from "./../СonfirmDelete/СonfirmDelete";
-import СonfirmDeleteUser from "./../СonfirmDeleteUser/СonfirmDeleteUser";
-import { use } from "echarts";
 import Contextmenu from "../../UI/Contextmenu/Contextmenu";
 function Table() {
   const { context } = useContext(DataContext);
@@ -35,9 +29,7 @@ function Table() {
         context.setMoreSelect([...context.moreSelect, row.id])
     }
     setOpenConextMenu(true)
-  
   };
-
 
 
   const contextmenuClick = (event) => {
@@ -64,10 +56,6 @@ function Table() {
     {id:6, name:"Выполнено"}
   ];
 
-  const roleUser =[
-    {id:1, name:"USER"},
-    {id:2, name:"ADMIN"},
-  ]
 
   const [shovStatusPop, setshovStatusPop] = useState("");
   const [shovBulderPop, setshovBulderPop] = useState("");
@@ -315,31 +303,7 @@ function Table() {
       }
     })
   }
- const ClickRole = (id, role) =>{
-  let data = {};
-  if(role === 1){
-    data = {
-      role: 2,
-      userId: id
-    };
-  }else{
-    data = {
-      role: 1,
-      userId: id
-    };
-  }
- if(id !== JSON.parse(sessionStorage.getItem("userData"))?.user?.id){
-  SetRole(data).then((resp)=>{
-    if(resp?.status === 200){
-      context.UpdateTableReguest(2);
-    }
-  })
- }else{
-  context.setPopUp("PopUpError");
-  context.setPopupErrorText("Вы не можете изменить свою роль!");
- }
 
- }
  //! открытие модального окна фильтрации столбца
  const clickTh = (key,index, el) => {
   if(el?.target?.tagName !== "IMG"){
@@ -366,23 +330,6 @@ function Table() {
 };
 
 
-
-const getRole = (value) =>
- {
-  if(value !== null){
-    if(value === 2){
-      return "Администратор"
-    }else if(value === 1){
-      return "Пользователь"
-    }else if(value === 3){
-      return "Заказчик"
-    }else{
-      return "Исполнитель"
-    }
-  }else{
-    return "___"
-  }
-}
 
 // Initialize sort state as an object
 const [sortImg, setSortImg] = useState(0);
@@ -792,14 +739,6 @@ return (
                           )}
                         </div>
                       ):
-                       headerItem.key === "role" ? (
-                        <div
-                          onClick={() =>((row[headerItem.key] === 1 || row[headerItem.key] === 2) && JSON.parse(localStorage.getItem("userData"))?.user?.role === "ADMIN" &&ClickRole(row.id, row[headerItem.key]))}
-                          className={styles[(row[headerItem.key] === 1 || row[headerItem.key] === 2) && JSON.parse(localStorage.getItem("userData"))?.user?.role === "ADMIN" ? "statusClick" : ""]}
-                        >
-                          {getRole(row[headerItem.key])}
-                        </div>
-                      ):
                        headerItem.key === "itineraryOrder" ? (
                         <div
                           onClick={() => context.selectPage !== "Main" && funSetItineraryOrder(row.id)}
@@ -854,9 +793,7 @@ return (
       {
         context.popUp === "СonfirmDelete" &&  <СonfirmDelete />    
       }
-      {
-        context.popUp === "СonfirmDeleteUser" &&  <СonfirmDeleteUser/>
-      }
+     
       {openConextMenu &&
         <div ref={contextmenuRef} style={{display:openConextMenu ? "block" : "none"}}>
           <Contextmenu X={coordinatesX} Y={coordinatesY} setOpenConextMenu={setOpenConextMenu}/>

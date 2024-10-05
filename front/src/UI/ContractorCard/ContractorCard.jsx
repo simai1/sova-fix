@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
 import styles from "./ContractorCard.module.scss";
 import DataContext from "../../context";
+import { useNavigate } from "react-router-dom";
 const ContractorCard = (props) => {
   const { context } = React.useContext(DataContext);
   const [count, setCount] = useState(0)
+  const navigate = useNavigate();
   const clickCard = () =>{
     const idInteger = context?.dataContractors.find(el => el.name === props?.name)?.id;
     context.setSelectContractor(idInteger)
-    // context.UpdateTableReguest(3)
+    navigate(`/CardPage/CardPageModule`)
   }
 
   useEffect(()=>{

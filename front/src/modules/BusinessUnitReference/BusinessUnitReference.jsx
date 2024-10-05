@@ -128,6 +128,7 @@ function BusinessUnitReference() {
         tableHeader={tableUnitHeader}
         tableBody={tableDataUnit}
         selectFlag={true}
+        FilterFlag={true}
       />
       {deleteUnitFlag && (
         <UneversalDelete

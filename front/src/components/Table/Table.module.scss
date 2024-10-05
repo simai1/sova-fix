@@ -10,9 +10,13 @@
   overflow: auto;
   max-height: 58vh;
   // height: 62vh;
+  min-height: 375px;
   margin-bottom: 0;
   border-radius: 8px;
   margin-top:-5px;
+  table{
+    min-height: 375px;
+  }
   .headerNotMain{
     cursor: auto!important;
     opacity: 1;
@@ -150,7 +154,7 @@
     }
     .MainTd[name="number"] {
      position: sticky;
-     left: 50px;
+     left: 48px;
      width: 40px;
      min-width: 40px;
      z-index: 50;
@@ -158,7 +162,7 @@
     }
     .MainTd[name="contractor"] {
       position: sticky;
-      left: 115px;
+      left: 113px;
       width: 150px;
       min-width: 150px;
       max-width: 150px;
@@ -167,7 +171,7 @@
      }
      .MainTd[name="object"] {
       position: sticky;
-      left: 286px;
+      left: 284px;
       z-index: 49;
       background-color: #f7f7f7;
       box-shadow: 5px 0 5px #e3dfda75;
@@ -194,7 +198,7 @@
      }
      .MainTh[name="number"] {
       position: sticky;
-      left: 50px;
+      left: 48px;
       top: 0;
       width: 65px;
       z-index: 100;
@@ -279,7 +283,7 @@
 
 .tableNotData{
   text-align: center;
-
+  height: 58vh;
   width: 100%;
   font-size: 24px;
   padding: 50px 0px;

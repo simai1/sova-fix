@@ -67,14 +67,14 @@ function FinansingDiagrams(props) {
                 {
                     name: 'Количество заявок без чека', // Updated series name
                     type: 'bar',
-                    barWidth: '10%',
+                    barWidth: '45%',
                     color: "#ffe78f",
                     data: countsWithoutCheck, // Using the counts array hereы
                 },
                 {
                     name: 'Количество заявок c чеком', // Updated series name
                     type: 'bar',
-                    barWidth: '10%',
+                    barWidth: '45%',
                     color: "#C5E384",
                     data: countsWithCheck // Using the counts array here
                 },
