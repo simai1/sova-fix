@@ -11,6 +11,7 @@ import CountInfoBlock from "../../UI/CountInfoBlock/CountInfoBlock";
 import EditColum from "../../UI/EditColum/EditColum";
 import { generateAndDownloadExcel } from "../../function/function";
 import { tableList } from "../Table/Data";
+import { useNavigate } from "react-router-dom";
 
 
 
@@ -37,16 +38,21 @@ const editAppoint = ()=>{
   }
 }
 
+
   const dispatch = useDispatch();
  //!функция сброса фильтров
  const refreshFilters = () => {
+  console.log("вызвал")
+  context.setSortState("");
+  context.setSortStateParam("");
   context.setIsChecked([]);
   context.setAllChecked([]);
   dispatch(removeTableCheckeds());
-  const fdfix = FilteredSample(funFixEducator(context.tableData));
-  context.setFilteredTableData(fdfix, []);
-  context.setSortState("");
-  context.setSortStateParam("");
+  // UpdateTableReguest();
+  context.setFilteredTableData(FilteredSample(funFixEducator(context.tableData)), []);
+};
+
+const UpdateTableReguest = () => {
   context.UpdateTableReguest(1, "");
 };
 

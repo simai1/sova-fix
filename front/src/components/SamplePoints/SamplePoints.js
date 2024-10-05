@@ -8,14 +8,10 @@ function SamplePoints(props) {
   const dispatch = useDispatch();
   const [filtredPunkts, setFiltredPunkts] = useState([]);
 
-  useEffect(() => {
-    console.log("filtredPunkts", filtredPunkts);
-  }, [filtredPunkts]);
-
   const store = useSelector(
     (state) => state.isSamplePoints[props.tableName].isChecked
   );
-  console.log("store", store);
+  
 
   const funLiCkick = (el) => {
     if (
@@ -66,7 +62,7 @@ function SamplePoints(props) {
   };
 
   useEffect(() => {
-    console.log("props.punkts", props.punkts);
+   
     const uniquePunkts = Array.from(new Set(props.punkts));
     const fd = uniquePunkts.filter((el) => {
       if (typeof el !== "boolean") {
@@ -74,7 +70,6 @@ function SamplePoints(props) {
         return elString?.toLowerCase().includes(search?.toLowerCase());
       }
     });
-    console.log("fd", fd);
     setFiltredPunkts(fd);
   }, [search, props.punkts]);
 

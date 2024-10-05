@@ -86,6 +86,10 @@ function Table() {
   const [arrCount, setArrCount] = useState([]);
   const [dataBuilder, setDataBuilder] = useState({});
   const contextmenuRef = useRef(null);
+  const [dataTable, setDataTable] = useState(context?.filteredTableData);
+  useEffect(() => {
+    setDataTable(context?.filteredTableData)
+  },[context?.filteredTableData])
   const editStatus = (status, id) => {
     const data = {
       requestId: id,
@@ -292,26 +296,10 @@ function Table() {
     if (key === "repairPrice" && key !== "isConfirmed") {
       return item?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
     }
-    if (key === "isConfirmed") {
-      if (item === true) {
-        return "Активирован";
-      } else {
-        return "Не активирован";
-      }
-    } else {
-      if (
-        item === null ||
-        item === undefined ||
-        item === "null" ||
-        item === "undefined" ||
-        item === "" ||
-        item === " "
-      ) {
-        return "___";
-      } else {
+    else {
         return item;
       }
-    }
+    
   };
 
   const getContractorItem = (row) => {
@@ -490,7 +478,6 @@ function Table() {
   const WhatNanItem = () => {
     const tds = document.querySelectorAll("td[name='name']");
     tds?.forEach((el) => {
-      console.log(el.innerText);
       if (el.innerText === "___") {
         el.style.textAlign = "center";
       } else {
@@ -533,7 +520,7 @@ function Table() {
       <div
         className={styles.Table}
         style={{
-          overflow: context?.filteredTableData.length === 0 ? "hidden" : "auto",
+          overflow: dataTable.length === 0 ? "hidden" : "auto",
         }}
       >
         <table className={styles.TableInner}>
@@ -548,6 +535,7 @@ function Table() {
                     className={styles.checkbox}
                     checked={context.checkedAll}
                     onClick={clickAllTh}
+                    readOnly
                   ></input>
                 </th>
                 {storeTableHeader
@@ -633,9 +621,9 @@ function Table() {
             </thead>
           )}
           <tbody>
-            {context?.filteredTableData.length > 0 ? (
+            {dataTable.length > 0 ? (
               <>
-                {context?.filteredTableData?.map((row, index) => (
+                {dataTable?.map((row, index) => (
                   <tr
                     key={index}
                     onClick={(e) => {
@@ -674,6 +662,7 @@ function Table() {
                           key={index}
                           name="checkAll"
                           className={styles.checkbox}
+                          readOnly
                         ></input>
                       </td>
                     )}
@@ -685,7 +674,7 @@ function Table() {
                         key={headerItem.key}
                         name={headerItem.key}
                         className={
-                          context.selectedTable === "Заявки" && styles.MainTd
+                          context.selectedTable === "Заявки" ? styles.MainTd : null
                         }
                         style={{
                           textAlign: textAlign(
@@ -704,8 +693,8 @@ function Table() {
                               funSetStatus(row.id)
                             }
                             className={
-                              context.selectPage === "Main" &&
-                              styles.statusClick
+                              context.selectPage === "Main" ?
+                              styles.statusClick : styles.NostatusClick
                             }
                             style={{
                               whiteSpace: "nowrap",
@@ -728,7 +717,7 @@ function Table() {
                                 className={styles.shovStatusPop}
                                 style={
                                   checkHeights(
-                                    context?.filteredTableData,
+                                    dataTable,
                                     index
                                   )
                                     ? { top: "-70%", width: "150px" }
@@ -797,8 +786,8 @@ function Table() {
                               funSetBulder(row.id)
                             }
                             className={
-                              context.selectPage === "Main" &&
-                              styles.statusClick
+                              context.selectPage === "Main" ?
+                              styles.statusClick : styles.NostatusClick
                             }
                             ref={builderPopRef}
                           >
@@ -808,7 +797,7 @@ function Table() {
                                 className={styles.shovStatusPop}
                                 style={
                                   checkHeights(
-                                    context?.filteredTableData,
+                                    dataTable,
                                     index
                                   )
                                     ? { top: "-70%", width: "200%" }
@@ -820,7 +809,7 @@ function Table() {
                                 }
                               >
                                 <ul>
-                                  {row[headerItem.key] !== null && (
+                                  {row[headerItem.key] !== "___" && (
                                     <li onClick={() => deleteBilder(row.id)}>
                                       Удалить исполнителя
                                     </li>
@@ -849,14 +838,14 @@ function Table() {
                             )}
                           </div>
                         ) : headerItem.key === "builder" &&
-                          context?.filteredTableData[index].isExternal ? (
+                        dataTable[index].isExternal ? (
                           <div
                             onClick={() =>
                               context.selectPage === "Main" && funSetExp(row.id)
                             }
                             className={
-                              context.selectPage === "Main" &&
-                              styles.statusClick
+                              context.selectPage === "Main" ?
+                              styles.statusClick : styles.NostatusClick
                             }
                             ref={extPopRef}
                           >
@@ -866,7 +855,7 @@ function Table() {
                                 className={styles.shovStatusPop}
                                 style={
                                   checkHeights(
-                                    context?.filteredTableData,
+                                    dataTable,
                                     index
                                   )
                                     ? { top: "-70%", width: "200%" }
@@ -874,7 +863,7 @@ function Table() {
                                 }
                               >
                                 <ul>
-                                  {row[headerItem.key] !== null && (
+                                  {row[headerItem.key] !== null && row[headerItem.key] !== "___" && row[headerItem.key] !== "Внешний подрядчик" && (
                                     <li onClick={() => deleteExp(row.id)}>
                                       Удалить подрядчика
                                     </li>
@@ -900,8 +889,8 @@ function Table() {
                               funSetUrgency(row.id)
                             }
                             className={
-                              context.selectPage === "Main" &&
-                              styles.statusClick
+                              context.selectPage === "Main" ?
+                              styles.statusClick : styles.NostatusClick
                             }
                             style={{
                               backgroundColor:
@@ -931,7 +920,7 @@ function Table() {
                                 className={styles.shovStatusPop}
                                 style={
                                   checkHeights(
-                                    context?.filteredTableData,
+                                    dataTable,
                                     index
                                   )
                                     ? { top: "-70%", width: "200%" }
@@ -960,8 +949,8 @@ function Table() {
                               funSetItineraryOrder(row.id)
                             }
                             className={
-                              context.selectPage !== "Main" &&
-                              styles.statusClick
+                              context.selectPage !== "Main" ?
+                              styles.statusClick : styles.NostatusClick
                             }
                             ref={ItineraryOrderPopRef}
                           >
@@ -973,7 +962,7 @@ function Table() {
                                 className={styles.shovStatusPop}
                                 style={
                                   checkHeights(
-                                    context?.filteredTableData,
+                                    dataTable,
                                     index
                                   )
                                     ? {

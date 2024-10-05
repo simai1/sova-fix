@@ -67,7 +67,7 @@ export function SamplePoints(props) {
       return 0;
     });
     //! записываем только уникальные значения
-    console.log("[...new Set(fd)]", [...new Set(fd)]);
+   
     setFilteredData([...new Set(fd)]);
   }, [props.isSamplePointsData, searchText]);
 
@@ -117,7 +117,7 @@ export function SamplePoints(props) {
   };
   //! при нажатии на Input
   const onChecked = (el) => {
-    console.log("el", el, [...props.isChecked]);
+   
     let checked = [...props.isChecked]; // основной массив
     if (
       checked.some(
@@ -149,13 +149,10 @@ export function SamplePoints(props) {
       uniqueArray,
       props.sesionName
     );
-    console.log("fdfix", fdfix);
-
     props.setWorkloadDataFix(fdfix);
   };
 
   const getText = (index, el) => {
-    console.log("props.", props.isSamplePointsData);
     if (index === 0) {
       return index + 1;
     } else {
