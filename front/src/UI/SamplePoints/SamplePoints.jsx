@@ -67,6 +67,7 @@ export function SamplePoints(props) {
       return 0;
     });
     //! записываем только уникальные значения
+   
     setFilteredData([...new Set(fd)]);
   }, [props.isSamplePointsData, searchText]);
 
@@ -74,8 +75,8 @@ export function SamplePoints(props) {
   const onAllChecked = () => {
     let checked = [...props.isChecked];
     if (
-      [...props.isChecked].filter((el) => el.itemKey === props.itemKey)?.length >
-      0
+      [...props.isChecked].filter((el) => el.itemKey === props.itemKey)
+        ?.length > 0
     ) {
       checked = checked.filter((el) => el.itemKey !== props.itemKey);
       dispatch(
@@ -116,6 +117,7 @@ export function SamplePoints(props) {
   };
   //! при нажатии на Input
   const onChecked = (el) => {
+   
     let checked = [...props.isChecked]; // основной массив
     if (
       checked.some(
@@ -147,7 +149,6 @@ export function SamplePoints(props) {
       uniqueArray,
       props.sesionName
     );
-  
     props.setWorkloadDataFix(fdfix);
   };
 
@@ -164,17 +165,21 @@ export function SamplePoints(props) {
   };
 
   return (
-    <main className={styles.SamplePoints} style={{ 
-          marginLeft: 
-            props.actiwFilter === "itineraryOrder"
-              ? "-50px" 
-              : props.actiwFilter === "comment" 
-              ? "126px" 
-              : props.actiwFilter === "legalEntity"
-              ? "8px" 
-              : "0px" 
-        }}  ref={spRef}>
-        <div className={styles.container}>
+    <main
+      className={styles.SamplePoints}
+      style={{
+        marginLeft:
+          props.actiwFilter === "itineraryOrder"
+            ? "-50px"
+            : props.actiwFilter === "comment"
+            ? "126px"
+            : props.actiwFilter === "legalEntity"
+            ? "8px"
+            : "0px",
+      }}
+      ref={spRef}
+    >
+      <div className={styles.container}>
         <div>
           <input
             className={styles.search}

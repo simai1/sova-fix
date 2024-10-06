@@ -2,8 +2,7 @@
 export function FilteredSample(data, isChecked, sesionName = "") {
   if (isChecked?.length === 0) {
     return [...data];
-  }
-  else {
+  } else {
     return data.filter(
       (item) => !isChecked?.some((el) => el.value === item[el.itemKey]) && item
     );
@@ -22,8 +21,25 @@ export function funFixEducator(data) {
   return data.map((item) => {
     return {
       ...item,
-      contractor: item?.contractor?.name,
-      status: status[item?.status],
+      contractor: item?.contractor?.name || "___",
+      status: status[item?.status] || "___",
+      number: item?.number || "___",
+      object: item?.object || "___",
+      builder: item?.builder || "___",
+      unit: item?.unit || "___",
+      problemDescription: item?.problemDescription || "___",
+      photo: item?.photo || "___",
+      itineraryOrder: item?.itineraryOrder || "___",
+      urgency: item?.urgency || "___",
+      createdAt: item?.createdAt || "___",
+      daysAtWork: item?.daysAtWork === 0 ? 0 : item?.daysAtWork || "___",
+      completeDate: item?.completeDate || "___",
+      repairPrice: item?.repairPrice || "___",
+      comment: item?.comment || "___",
+      legalEntity: item?.legalEntity || "___",
+      checkPhoto: item?.checkPhoto || "___",
     };
   });
 }
+
+

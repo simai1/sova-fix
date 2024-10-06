@@ -11,6 +11,7 @@ import CountInfoBlock from "../../UI/CountInfoBlock/CountInfoBlock";
 import EditColum from "../../UI/EditColum/EditColum";
 import { generateAndDownloadExcel } from "../../function/function";
 import { tableList } from "../Table/Data";
+import { useNavigate } from "react-router-dom";
 
 
 
@@ -37,48 +38,20 @@ const editAppoint = ()=>{
   }
 }
 
-  const deletedUser = ()=>{
-    if(context.selectedTr != null &&  context.selectedTr !== JSON.parse(sessionStorage.getItem("userData")).user?.id){
-      context.setPopUp("СonfirmDeleteUser")
-    }else if(context.selectedTr === null){
-      context.setPopupErrorText("Сначала выберите пользователя!");
-      context.setPopUp("PopUpError")
-    }else{
-      context.setPopupErrorText("Вы не можете удалить себя!");
-      context.setPopUp("PopUpError")
-    }
-  }
 
   const dispatch = useDispatch();
  //!функция сброса фильтров
  const refreshFilters = () => {
+  console.log("вызвал")
+  context.setSortState("");
+  context.setSortStateParam("");
   context.setIsChecked([]);
   context.setAllChecked([]);
   dispatch(removeTableCheckeds());
-  const fdfix = FilteredSample(funFixEducator(context.tableData));
-  context.setFilteredTableData(fdfix, []);
-  context.setSortState("");
-  context.setSortStateParam("");
-  context.UpdateTableReguest(1, "");
+  // UpdateTableReguest();
+  context.setFilteredTableData(FilteredSample(funFixEducator(context.tableData)), []);
 };
 
-const activePeople = ()=>{
- if(context.selectedTr != null){
-  RejectActiveAccount(context.selectedTr).then((resp)=>{
-    if(resp?.status === 200){
-      context.UpdateTableReguest(2);
-      context.setPopUp("PopUpGoodMessage")
-      context.setPopupGoodText("Пользователь успешно активирован!")
-    }else{
-      context.setPopupErrorText("Нельзя активировать этого пользователя!");
-      context.setPopUp("PopUpError")
-    }
-  })
- }else{
-  context.setPopupErrorText("Сначала выберите пользователя!");
-  context.setPopUp("PopUpError")
- }
-}
 const goBackCurd = () =>{
   context.setSelectPage("Card");
   context.setSelectContractor("");
@@ -126,27 +99,6 @@ const goBackCurd = () =>{
             
               <button onClick={() => generateAndDownloadExcel(context?.filteredTableData, "Заявки")}>Экспорт</button>
 
-            </div>
-          ) : context.selectedTable === "Пользователи" && context.selectPage === "Main" &&  JSON.parse(sessionStorage.getItem("userData")).user.role === "ADMIN" ? (
-            <div className={styles.HeadMenu}>
-            <div>
-              <h2>Пользователи</h2>
-            </div>
-            <div className={styles.HeadMenuButton}>
-
-            <button onClick={()=>activePeople()}>
-                  <img src="./img/ok.png" alt="View" style={{width:"16px", height:"16px"}}/>
-                    Активировать пользователя
-              </button>
-              <button onClick={()=>{context.setPopUp("PopUpCreateUser")}}>
-                  <img src="./img/plus.svg" alt="View" />
-                    Добавить пользователя
-              </button>
-              <button onClick={()=>{deletedUser()}}>
-                  <img src="./img/Trash.svg" alt="View" />
-                    Удалить пользователя
-              </button>
-              </div>
             </div>
           ) : sessionStorage.getItem("userData").user?.id === 1 ? 
           <div className={styles.ButtonBack}>

@@ -8,6 +8,7 @@ import { PopUpError } from "../../UI/PopUpError/PopUpError";
 import UneversalDelete from "../../components/UneversalDelete/UneversalDelete";
 import PopUpContainer from "../../UI/PopUpContainer/PopUpContainer";
 import arrow from "./../../assets/images/arrow_bottom.svg";
+import { useDispatch } from "react-redux";
 function DirectoryLegalEntities() {
     const [tableDataEntries, setTableDataEntries] = useState([]);
     const [popUpCreate, setPopUpCreate] = useState(false);
@@ -127,7 +128,7 @@ function DirectoryLegalEntities() {
         }
     };
     
-
+    
 
 
     return (
@@ -142,7 +143,7 @@ function DirectoryLegalEntities() {
                     <button onClick={() => deleteUnit()}>Удалить юридическое лицо</button>
                 </div>
             </div>
-            <UniversalTable tableHeader={tableLagealEntries} tableBody={tableDataEntries} selectFlag={true} />
+            <UniversalTable FilterFlag={true} tableName="table1" tableHeader={tableLagealEntries} tableBody={tableDataEntries} selectFlag={true} setData={setTableDataEntries}/>
             {deleteUnitFlag && <UneversalDelete text="Юр. лицо" ClosePopUp={ClosePopUp} FunctionDelete={FunctionDelete} />}
             {context.popUp === "PopUpError" && <PopUpError />}
             {popUpCreate && (

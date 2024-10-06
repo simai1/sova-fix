@@ -2,7 +2,8 @@ import axios from "axios";
 const http = axios.create({
   withCredentials: true,
 });
-const server = process.env.REACT_APP_API_URL;
+// const server = process.env.REACT_APP_API_URL;
+const server = "http://localhost:3000";
 
 const REFRESH_INTERVAL = 900000; // 15 минут 900000
 let refreshTokensTimeout;
@@ -11,7 +12,7 @@ let refreshTokensTimeout;
 export const refreshTokens = async () => {
   try {
     const response = await http.get(`${server}/auth/refresh`);
-    console.log('response', response);
+    console.log("response", response);
     sessionStorage.removeItem("accessToken");
     sessionStorage.removeItem("refreshToken");
 
@@ -25,7 +26,6 @@ export const refreshTokens = async () => {
     console.error("Tokens were not updated!");
   }
 };
-
 
 //!таймер рефреша
 const refreshTokensTimer = () => {
@@ -59,22 +59,21 @@ window.addEventListener("unload", () => {
   clearTimeout(refreshTokensTimeout);
 });
 
-
 //! Запрос на авторизацию
 export const LoginFunc = async (UserData) => {
   try {
     const response = await http.post(`${server}/auth/login`, UserData);
     const { accessToken, refreshToken, ...userData } = response.data;
-      sessionStorage.setItem("accessToken", accessToken);
-      sessionStorage.setItem("refreshToken", refreshToken);
-      sessionStorage.setItem("userData", JSON.stringify(userData));
-      refreshTokensTimer();
+    sessionStorage.setItem("accessToken", accessToken);
+    sessionStorage.setItem("refreshToken", refreshToken);
+    sessionStorage.setItem("userData", JSON.stringify(userData));
+    refreshTokensTimer();
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
-      return false   
+    } else {
+      return false;
     }
   }
 };
@@ -91,9 +90,9 @@ export const Register = async (UserData) => {
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
-      console.log("Такой пользователь уже существует!")
-      return false   
+    } else {
+      console.log("Такой пользователь уже существует!");
+      return false;
     }
   }
 };
@@ -101,25 +100,27 @@ export const Register = async (UserData) => {
 //! активация аккаунта
 export const ActivateFunc = async (UserData, idUser) => {
   try {
-    const response = await http.post(`${server}/auth/activate/${idUser}`, UserData);
+    const response = await http.post(
+      `${server}/auth/activate/${idUser}`,
+      UserData
+    );
     const { accessToken, refreshToken, ...userData } = response.data;
-      sessionStorage.setItem("accessToken", accessToken);
-      sessionStorage.setItem("refreshToken", refreshToken);
-      sessionStorage.setItem("userData", JSON.stringify(userData));
-      refreshTokensTimer();
+    sessionStorage.setItem("accessToken", accessToken);
+    sessionStorage.setItem("refreshToken", refreshToken);
+    sessionStorage.setItem("userData", JSON.stringify(userData));
+    refreshTokensTimer();
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       return 0;
     }
   }
 };
 
-
 export const LogOut = async () => {
-  console.log(sessionStorage.getItem("accessToken"))
+  console.log(sessionStorage.getItem("accessToken"));
   try {
     const response = await http.post(
       `${server}/auth/logout`,
@@ -128,20 +129,18 @@ export const LogOut = async () => {
         headers: {
           Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
         },
-        withCredentials: true
+        withCredentials: true,
       }
     );
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Возникла ошибка при выходе!");
     }
   }
 };
-
-
 
 //!полуение всех заявок
 export const GetAllRequests = async (param) => {
@@ -155,7 +154,7 @@ export const GetAllRequests = async (param) => {
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при получении списка заявок!");
     }
   }
@@ -172,7 +171,7 @@ export const GetOneRequests = async (id) => {
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при получении списка заявок!");
     }
   }
@@ -190,11 +189,29 @@ export const GetAllUsers = async () => {
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при получении списка пользователей!");
+    }
+  }
+};
+
+export const GetOneUsers = async (id) => {
+  try {
+    const response = await http.get(`${server}/users/${id}`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
     }else{
       console.log("Ошибка при получении списка пользователей!");
     }
   }
 };
+
 export const GetAllСontractors = async () => {
   try {
     const response = await http.get(`${server}/contractors`, {
@@ -206,7 +223,7 @@ export const GetAllСontractors = async () => {
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при получении списка исполнителей!");
     }
   }
@@ -224,7 +241,7 @@ export const SetStatusRequest = async (data) => {
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при изменении статуса заявки!");
     }
   }
@@ -233,16 +250,20 @@ export const SetStatusRequest = async (data) => {
 //!изменение contractor заявки
 export const SetcontractorRequest = async (data) => {
   try {
-    const response = await http.patch(`${server}/requests/set/contractor`, data, {
-      headers: {
-        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
-      },
-    });
+    const response = await http.patch(
+      `${server}/requests/set/contractor`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+        },
+      }
+    );
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при изменении исполнителя заявки!");
     }
   }
@@ -260,17 +281,17 @@ export const DeleteRequest = async (id) => {
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при удалении заявки!");
     }
   }
 };
 
 //! Получение карты пользователя
-export const GetContractorsItenerarity = async (id, search) => {
+export const GetContractorsItenerarity = async (id) => {
   
   try {
-    const response = await http.get(`${server}/contractors/${id}/itinerary${search}`, {
+    const response = await http.get(`${server}/contractors/${id}/itinerary`, {
       headers: {
         Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
       },
@@ -279,15 +300,14 @@ export const GetContractorsItenerarity = async (id, search) => {
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при получении карты пользователя!");
     }
   }
 };
 
-
 //! Изменение заявки
-export const ReseachDataRequest = async (id,data) => {
+export const ReseachDataRequest = async (id, data) => {
   try {
     const response = await http.patch(`${server}/requests/${id}/update`, data, {
       headers: {
@@ -298,12 +318,11 @@ export const ReseachDataRequest = async (id,data) => {
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при изменении заявки!");
     }
   }
 };
-
 
 //! удаление поьзователя
 export const DeleteUserFunc = async (id) => {
@@ -317,7 +336,7 @@ export const DeleteUserFunc = async (id) => {
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при удалении пользователя!");
     }
   }
@@ -325,22 +344,24 @@ export const DeleteUserFunc = async (id) => {
 
 export const RemoveContractor = async (data) => {
   try {
-    const response = await http.patch(`${server}/requests/remove/contractor`, data, {
-      headers: {
-        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
-      },
-    });
+    const response = await http.patch(
+      `${server}/requests/remove/contractor`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+        },
+      }
+    );
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при удалении исполнителя!");
     }
   }
 };
-
-
 
 export const SetRole = async (data) => {
   try {
@@ -353,14 +374,13 @@ export const SetRole = async (data) => {
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при смены роли!");
     }
   }
 };
 
 export const GetPhotoServer = async (id) => {
-  
   try {
     const response = await http.get(`${server}/uploads/${id}`, {
       headers: {
@@ -371,12 +391,11 @@ export const GetPhotoServer = async (id) => {
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при получении карты пользователя!");
     }
   }
 };
-
 
 export const RejectActiveAccount = async (id) => {
   try {
@@ -389,7 +408,7 @@ export const RejectActiveAccount = async (id) => {
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при получении карты пользователя!");
     }
   }
@@ -398,7 +417,6 @@ export const RejectActiveAccount = async (id) => {
 // legalEntities -------------------------------------------------------------------------------
 
 export const GetlegalEntitiesAll = async () => {
-  
   try {
     const response = await http.get(`${server}/legalEntities`, {
       headers: {
@@ -409,14 +427,13 @@ export const GetlegalEntitiesAll = async () => {
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при получении карты пользователя!");
     }
   }
 };
 
 export const GetlegalEntitiesOne = async (id) => {
-  
   try {
     const response = await http.get(`${server}/legalEntities/${id}`, {
       headers: {
@@ -427,14 +444,13 @@ export const GetlegalEntitiesOne = async (id) => {
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при получении карты пользователя!");
     }
   }
 };
 
 export const DeletelegalEntities = async (id) => {
-  
   try {
     const response = await http.delete(`${server}/legalEntities/${id}`, {
       headers: {
@@ -445,14 +461,13 @@ export const DeletelegalEntities = async (id) => {
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при получении карты пользователя!");
     }
   }
 };
 
 export const CreateLegalEntities = async (data) => {
-  
   try {
     const response = await http.post(`${server}/legalEntities`, data, {
       headers: {
@@ -463,14 +478,13 @@ export const CreateLegalEntities = async (data) => {
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при получении карты пользователя!");
     }
   }
 };
 
-export const EditLegalEntities = async (data,id) => {
-  
+export const EditLegalEntities = async (data, id) => {
   try {
     const response = await http.patch(`${server}/legalEntities/${id}`, data, {
       headers: {
@@ -481,17 +495,15 @@ export const EditLegalEntities = async (data,id) => {
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при получении карты пользователя!");
     }
   }
 };
 
-
 // UNITS -------------------------------------------------------------------------------
 
 export const GetUnitsAll = async () => {
-  
   try {
     const response = await http.get(`${server}/units`, {
       headers: {
@@ -502,14 +514,13 @@ export const GetUnitsAll = async () => {
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при получении карты пользователя!");
     }
   }
 };
 
 export const GetUnitsOne = async (id) => {
-  
   try {
     const response = await http.get(`${server}/units/${id}`, {
       headers: {
@@ -520,14 +531,13 @@ export const GetUnitsOne = async (id) => {
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при получении карты пользователя!");
     }
   }
 };
 
 export const DeleteUnit = async (id) => {
-  
   try {
     const response = await http.delete(`${server}/units/${id}`, {
       headers: {
@@ -538,15 +548,13 @@ export const DeleteUnit = async (id) => {
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при получении карты пользователя!");
     }
   }
 };
 
-
 export const CreateUnit = async (data) => {
-  
   try {
     const response = await http.post(`${server}/units`, data, {
       headers: {
@@ -557,14 +565,13 @@ export const CreateUnit = async (data) => {
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при получении карты пользователя!");
     }
   }
 };
 
-export const EditUnit = async (data,id) => {
-  
+export const EditUnit = async (data, id) => {
   try {
     const response = await http.patch(`${server}/units/${id}`, data, {
       headers: {
@@ -575,18 +582,15 @@ export const EditUnit = async (data,id) => {
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при получении карты пользователя!");
     }
   }
 };
 
-
-
 // objects -------------------------------------------------------------------------------
 
 export const GetObjectsAll = async () => {
-  
   try {
     const response = await http.get(`${server}/objects`, {
       headers: {
@@ -597,14 +601,13 @@ export const GetObjectsAll = async () => {
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при получении карты пользователя!");
     }
   }
 };
 
 export const GetObjectsOne = async (id) => {
-  
   try {
     const response = await http.get(`${server}/objects/${id}`, {
       headers: {
@@ -615,15 +618,13 @@ export const GetObjectsOne = async (id) => {
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при получении карты пользователя!");
     }
   }
 };
 
-
 export const DeleteObjects = async (id) => {
-  
   try {
     const response = await http.delete(`${server}/objects/${id}`, {
       headers: {
@@ -634,14 +635,13 @@ export const DeleteObjects = async (id) => {
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при получении карты пользователя!");
     }
   }
 };
 
 export const CreateObjects = async (data) => {
-  
   try {
     const response = await http.post(`${server}/objects`, data, {
       headers: {
@@ -652,13 +652,12 @@ export const CreateObjects = async (data) => {
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при получении карты пользователя!");
     }
   }
 };
 export const EditObjects = async (data, id) => {
-  
   try {
     const response = await http.patch(`${server}/objects/${id}`, data, {
       headers: {
@@ -669,7 +668,7 @@ export const EditObjects = async (data, id) => {
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при получении карты пользователя!");
     }
   }
@@ -678,7 +677,6 @@ export const EditObjects = async (data, id) => {
 // extContractors -------------------------------------------------------------------------------
 
 export const GetextContractorsAll = async () => {
-  
   try {
     const response = await http.get(`${server}/extContractors`, {
       headers: {
@@ -689,14 +687,13 @@ export const GetextContractorsAll = async () => {
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при получении карты пользователя!");
     }
   }
 };
 
 export const GetextContractorsOne = async (id) => {
-  
   try {
     const response = await http.get(`${server}/extContractors/${id}`, {
       headers: {
@@ -707,14 +704,13 @@ export const GetextContractorsOne = async (id) => {
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при получении карты пользователя!");
     }
   }
 };
 
 export const DeleteextContractors = async (id) => {
-  
   try {
     const response = await http.delete(`${server}/extContractors/${id}`, {
       headers: {
@@ -725,14 +721,13 @@ export const DeleteextContractors = async (id) => {
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при получении карты пользователя!");
     }
   }
 };
 
 export const CreateextContractors = async (data) => {
-  
   try {
     const response = await http.post(`${server}/extContractors`, data, {
       headers: {
@@ -743,15 +738,13 @@ export const CreateextContractors = async (data) => {
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при получении карты пользователя!");
     }
   }
 };
 
-
 export const EditExitContractors = async (data, id) => {
-  
   try {
     const response = await http.patch(`${server}/extContractors/${id}`, data, {
       headers: {
@@ -762,43 +755,49 @@ export const EditExitContractors = async (data, id) => {
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при получении карты пользователя!");
     }
   }
 };
 
 export const SetExtContractorsRequest = async (data) => {
-  
   try {
-    const response = await http.patch(`${server}/requests/set/extContractor`, data, {
-      headers: {
-        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
-      },
-    });
+    const response = await http.patch(
+      `${server}/requests/set/extContractor`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+        },
+      }
+    );
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при получении карты пользователя!");
     }
   }
 };
 
 export const DeleteExtContractorsRequest = async (data) => {
-  
   try {
-    const response = await http.patch(`${server}/requests/remove/extContractor/`, data, {
-      headers: {
-        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
-      },
-    });
+    const response = await http.patch(
+      `${server}/requests/remove/extContractor/`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+        },
+      }
+    );
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при получении карты пользователя!");
     }
   }
@@ -808,9 +807,8 @@ export const DeleteExtContractorsRequest = async (data) => {
 
 //!удаление заявок
 
-
 export const DeleteMoreRequest = async (data) => {
-  console.log("data", data)
+  console.log("data", data);
   try {
     const response = await http.post(`${server}/requests/delete/bulk`, data, {
       headers: {
@@ -821,7 +819,7 @@ export const DeleteMoreRequest = async (data) => {
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при удалении заявок!");
     }
   }
@@ -829,7 +827,7 @@ export const DeleteMoreRequest = async (data) => {
 
 //!массовый статус
 export const EditMoreStatusRequest = async (data) => {
-  console.log("вызвал")
+  console.log("вызвал");
   try {
     const response = await http.patch(`${server}/requests/status/bulk`, data, {
       headers: {
@@ -840,7 +838,7 @@ export const EditMoreStatusRequest = async (data) => {
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при удалении заявок!");
     }
   }
@@ -848,7 +846,7 @@ export const EditMoreStatusRequest = async (data) => {
 
 //!массовый срочность
 export const EditMoreUrgencyRequest = async (data) => {
-  console.log("вызвал")
+  console.log("вызвал");
   try {
     const response = await http.patch(`${server}/requests/urgency/bulk`, data, {
       headers: {
@@ -859,7 +857,7 @@ export const EditMoreUrgencyRequest = async (data) => {
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при удалении заявок!");
     }
   }
@@ -867,18 +865,22 @@ export const EditMoreUrgencyRequest = async (data) => {
 
 //!массовый contractor
 export const EditMoreContractorRequest = async (data) => {
-  console.log("вызвал")
+  console.log("вызвал");
   try {
-    const response = await http.patch(`${server}/requests/contractor/bulk`, data, {
-      headers: {
-        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
-      },
-    });
+    const response = await http.patch(
+      `${server}/requests/contractor/bulk`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+        },
+      }
+    );
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при удалении заявок!");
     }
   }

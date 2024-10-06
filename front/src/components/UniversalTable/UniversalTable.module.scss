@@ -5,18 +5,38 @@
     margin-top: 18px;
     max-height: 62vh;
     overflow-y: scroll;
-    border-radius: 8px;
+    border-radius: 8px;  
+  //   position: relative;
+  //  &::after {
+  //       content: "";
+  //       background-color: red;
+  //       width: 10px;
+  //       height: 10px;
+  //       position: absolute;
+  //       z-index: 100;
+  //       right: 0px;
+  //       bottom: 0px;
+  //     }
+  th[name="tgId"], th[name="login"], th[name="checkPhoto"], th[name="photo"], th[name="fileName"], th[name="id"], th[name="number"]{
+    &:hover {
+     background-color: inherit  ;
+    }
+  }
     table{
+   
         width: 100%;
         min-height: auto;
         border-radius: 8px;
+        min-height: 285px;
         thead {
           position: sticky;
           top: 0;
           z-index: 1;
           background-color: var(--tableTh); // Ensure this background color is set, otherwise it will be transparent.
             th{
+              position: relative;
                 align-items: center;
+              
                 padding: 10px;
                 text-align: center;
                 &:nth-child(1) {
@@ -24,8 +44,30 @@
                 }
                 &:last-child{
                   border-radius: 0 8px 0 0;
+                }&:hover{
+                 background-color: var(--Active-gray-color);
                 }
-            }       
+              
+                img{
+                  margin-left: 5px;
+                }
+                
+                
+
+        .sampleComponent {
+          display: flex;
+          position: absolute;
+          max-width: 200px;
+          min-width: 250px;
+          height: 200px;
+          background-color: #ffffff;
+          left: 0;
+          top: 45px;
+          border-radius: 8px;
+          box-shadow: 9px 3px 18px rgba(0, 0, 0, 0.2);
+        }
+            }     
+          
         }
         tbody{
           tr{
@@ -95,4 +137,67 @@
         font-size: 24px;
         padding: 50px 0px;
       }
+}
+.statusClick {
+  padding: 4px 8px;
+  border-radius: 8px;
+  background-color: var(--dark-grey-color);
+  text-align: center;
+  position: relative;
+  &:hover {
+    background-color: var(--Active-gray-color);
+  }
+}
+.tgIdLink{
+  text-decoration: none;
+  color: rgb(189, 150, 108);
+  &:hover{
+    color: var(--ActiveText-color);
+  }
+}
+.shovStatusPop {
+  max-height: 150px ;
+  overflow-y: scroll;
+  transform: translateY(20px);
+  position: absolute;
+  top: -20px;
+  right: -65px;
+  background-color: #fff;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 1px 0px 8px var(--dark-grey-color);
+  z-index: 100;
+  ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    li {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      text-align: start;
+      &:hover {
+        background-color: var(--Active-gray-color);
+        border-radius: 8px;
+      }
+    }
+  }
+  
+}
+.clear{
+  button{
+    border-radius: 8px;
+    background-color: var(--turquoise-color);
+    height: 44px;
+    width: 40px;
+    transition: 0.1s linear all;
+    border: none;
+    &:hover{
+      opacity: 0.8;
+      cursor: pointer;
+    }
+  }
+ 
+  position: absolute;
+  left: 60px;
 }
