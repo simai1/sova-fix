@@ -103,8 +103,9 @@ async def finish_registration_admin(message: Message, state: FSMContext) -> None
     await state.clear()
 
     user_id = message.from_user.id
+    username = message.from_user.username
 
-    admin = await crm.sync_manager(data['login'], data['password'], data['name'], user_id)
+    admin = await crm.sync_manager(data['login'], data['password'], data['name'], user_id, username)
 
     if admin is None:
         await message.answer('Неверные логин или пароль', reply_markup=to_start_kb())
@@ -115,12 +116,13 @@ async def finish_registration_admin(message: Message, state: FSMContext) -> None
 
 async def finish_registration(query: CallbackQuery, state: FSMContext) -> None:
     user_id = query.from_user.id
+    username = query.from_user.username
 
     data = await state.get_data()
     await state.clear()
 
     # зарегистрировать пользователя через апи
-    user = await crm.register_user(user_id, data['name'], data['role'])
+    user = await crm.register_user(user_id, data['name'], data['role'], username)
 
     if user is None:
         await send_already_registered(query.message, state)

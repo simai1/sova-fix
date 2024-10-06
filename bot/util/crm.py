@@ -30,13 +30,13 @@ class roles:
         return roles.m_roles_list_ru_locale[roles.get_num(string) - 1]
 
 
-async def register_user(user_id: int, name: str, role: int) -> dict | None:
+async def register_user(user_id: int, name: str, role: int, username: str) -> dict | None:
     if await user_already_exists(user_id):
         return None
 
     url = f'{cf.API_URL}/tgUsers'
 
-    data: dict = {'name': name, 'role': role, 'tgId': str(user_id)}
+    data: dict = {'name': name, 'role': role, 'tgId': str(user_id), 'linkId': username}
     request = requests.post(url, data)
 
     if request.status_code == 200:
@@ -263,7 +263,7 @@ async def get_repair_request_number(request_id: str) -> int | None:
     return rr['number']
 
 
-async def sync_manager(email: str, password: str, name: str, tg_id: int) -> dict | None:
+async def sync_manager(email: str, password: str, name: str, tg_id: int, username: str) -> dict | None:
     url = f'{cf.API_URL}/tgUsers/syncManager'
 
     data = {
@@ -271,6 +271,7 @@ async def sync_manager(email: str, password: str, name: str, tg_id: int) -> dict
         "password": password,
         "name": name,
         "tgId": str(tg_id),
+        "linkId": username
     }
 
     request = requests.post(url, data)
