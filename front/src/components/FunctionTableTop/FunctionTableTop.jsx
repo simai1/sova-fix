@@ -52,10 +52,6 @@ const editAppoint = ()=>{
   context.setFilteredTableData(FilteredSample(funFixEducator(context.tableData)), []);
 };
 
-const UpdateTableReguest = () => {
-  context.UpdateTableReguest(1, "");
-};
-
 const goBackCurd = () =>{
   context.setSelectPage("Card");
   context.setSelectContractor("");
