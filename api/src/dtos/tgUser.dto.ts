@@ -8,6 +8,7 @@ export default class TgUserDto {
     name!: string;
     role!: number;
     tgId!: string;
+    linkId?: string;
     isConfirmed!: boolean;
     contractor?: ContractorDto | null;
     manager?: UserDto | null;
@@ -18,6 +19,7 @@ export default class TgUserDto {
         // @ts-expect-error all checks on top level
         this.role = mapRoles[model.role];
         this.tgId = model.tgId;
+        this.linkId = model.linkId;
         this.isConfirmed = model.isConfirmed;
         this.contractor = model.Contractor ? new ContractorDto(model.Contractor) : null;
         this.manager = model.User ? new UserDto(model.User) : null;

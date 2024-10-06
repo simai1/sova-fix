@@ -5,23 +5,25 @@ import roles from '../config/roles';
 import tgUserService from '../services/tgUser.service';
 
 const create = catchAsync(async (req, res) => {
-    const { name, role, tgId } = req.body;
+    const { name, role, tgId, linkId } = req.body;
     if (!name) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing name');
     if (!role) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing role');
     if (!tgId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing tgId');
+    if (!linkId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing linkId');
     if (!Object.values(roles).includes(role) && (role == 1 || role == 2))
         throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid role');
-    const user = await tgUserService.create(name, role, tgId);
+    const user = await tgUserService.create(name, role, tgId, linkId);
     res.json(user);
 });
 
 const syncManager = catchAsync(async (req, res) => {
-    const { email, password, name, tgId } = req.body;
+    const { email, password, name, tgId, linkId } = req.body;
     if (!email) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing email');
     if (!password) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing password');
     if (!name) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing name');
     if (!tgId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing tgId');
-    const user = await tgUserService.syncManagerToTgUser(email, password, name, tgId);
+    if (!linkId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing linkId');
+    const user = await tgUserService.syncManagerToTgUser(email, password, name, tgId, linkId);
     res.json(user);
 });
 

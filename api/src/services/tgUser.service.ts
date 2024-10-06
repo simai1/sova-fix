@@ -9,11 +9,11 @@ import User from '../models/user';
 import { sendMsg, WsMsgData } from '../utils/ws';
 import { Op } from 'sequelize';
 
-const create = async (name: string, role: number, tgId: string): Promise<TgUserDto> => {
+const create = async (name: string, role: number, tgId: string, linkId: string): Promise<TgUserDto> => {
     role = parseInt(String(role));
     const checkUser = await findUserByTgId(tgId);
     if (checkUser) throw new ApiError(httpStatus.BAD_REQUEST, 'Already exists tgUser');
-    const user = await TgUser.create({ name, role, tgId });
+    const user = await TgUser.create({ name, role, tgId, linkId });
     if (role === 4) {
         user.Contractor = await Contractor.create({ name, tgUserId: user.id });
     }
@@ -28,11 +28,17 @@ const create = async (name: string, role: number, tgId: string): Promise<TgUserD
     return new TgUserDto(user);
 };
 
-const syncManagerToTgUser = async (email: string, password: string, name: string, tgId: string): Promise<TgUserDto> => {
+const syncManagerToTgUser = async (
+    email: string,
+    password: string,
+    name: string,
+    tgId: string,
+    linkId: string
+): Promise<TgUserDto> => {
     const user = await userService.getUserByEmail(email);
     if (!user || !(await isMatch(password, user.password)))
         throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid login data');
-    const tgUser = await TgUser.create({ name, role: 2, isConfirmed: true, tgId });
+    const tgUser = await TgUser.create({ name, role: 2, isConfirmed: true, tgId, linkId });
     await user.update({ isTgUser: true, tgManagerId: tgUser.id });
     tgUser.User = user;
     await tgUser.save();
