@@ -1,8 +1,8 @@
 export const tableHeaderObject= [
     { key: "number", value: "№"},
     { key: "name", value: "Адрес"},
-    { key: "unitName", value: "Юр. лицо"},
-    { key: "legalForm", value: "Подразделение"},
+    { key: "legalForm", value: "Юр. лицо"},
+    { key: "unitName", value: "Подразделение"},
     { key: "city", value: "Город"},
 ];
 
