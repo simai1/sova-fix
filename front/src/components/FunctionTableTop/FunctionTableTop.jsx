@@ -82,7 +82,6 @@ const goBackCurd = () =>{
           {context.selectedTable === "Заявки" && context.selectPage === "Main" ? (
             <div className={styles.HeadMenuMain}>
             <EditColum/>
-            {/* {context.moreSelect.length <= 1 &&   */}
             <>
             <button onClick={(()=>editAppoint())} disabled={context.moreSelect.length > 1} style={{opacity:context.moreSelect.length > 1 ? "0.5" : "1", cursor:context.moreSelect.length > 1 ? "not-allowed" : "pointer"}}>
                 <img src="./img/Edit.svg" alt="View" />
@@ -93,10 +92,7 @@ const goBackCurd = () =>{
                 Удалить заявку
               </button>
             </>
-            {/* } */}
-            
               <button onClick={() => generateAndDownloadExcel(context?.filteredTableData, "Заявки")}>Экспорт</button>
-
             </div>
           ) : sessionStorage.getItem("userData").user?.id === 1 ? 
           <div className={styles.ButtonBack}>
@@ -109,7 +105,6 @@ const goBackCurd = () =>{
 
                 </div>
                 :
-          
           (
             <>              
             </>
