@@ -262,9 +262,7 @@ const whatRight = (key) => {
                              {row[header.key]}
                             </div>
                         )}
-                        {header.key === "tgId" && (
-                            <a  className={styles.tgIdLink} href={`tg://user?id=${row[header.key]}`}>{row[header.key]}</a>
-                        )}
+                       
                         {header.key === "itineraryOrder" && (
                             <div
                                 onClick={() => setItineraryOrderPop(row.id)}
