@@ -1,10 +1,10 @@
 export const tableList = [
     { key: "number", value: "Номер заявки", isActive: true  },
-    { key: "contractor", value: "Исполнитель", isActive: true  },
+    { key: "unit", value: "Подразделение", isActive: true  },
     { key: "object", value: "Объект", isActive: true  },
+    { key: "contractor", value: "Исполнитель", isActive: true  },
     { key: "builder", value: "Подрядчик", isActive: true  },
     { key: "status", value: "Статус заявки", isActive: true  },
-    { key: "unit", value: "Подразделение", isActive: true  },
     { key: "problemDescription", value: "Описание проблемы", isActive: true  },
     { key: "fileName", value: "Фото проблемы", isActive: true  },
     { key: "itineraryOrder", value: "Порядок маршрута", isActive: true  },

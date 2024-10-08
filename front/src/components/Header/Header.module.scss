@@ -5,8 +5,8 @@
   width: 100%;
   display: flex;
   justify-content: start;
-height: 150px;
-margin-bottom: 25px;
+  height: 150px;
+  margin-bottom: 25px;
   .buttonMenu {
     @include button(var(--turquoise-color));
     margin: 0px;
@@ -93,14 +93,15 @@ width: 100%;
     text-align: center;
     position: relative;
     img{
-      width: 300px;
+      width: 200px;
       position: relative;
     
     }
-h1{
-  font-weight: 500;
-  font-size: 30px;
-}
+    .TitleSitteInnerText{
+      font-size: 18px;
+      width: 713px;
+    }
+
   }
 }
 .close{

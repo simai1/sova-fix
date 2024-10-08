@@ -70,19 +70,26 @@ function RepotIndicators() {
       case "Текущая неделя":
         const startOfWeek = new Date();
         const endOfWeek = new Date();
-        startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
-        endOfWeek.setDate(endOfWeek.getDate() - endOfWeek.getDay() + 6);
+        startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay()+1);
+        endOfWeek.setDate(endOfWeek.getDate() - endOfWeek.getDay() + 7);
         setDateFrom(startOfWeek.toISOString().slice(0, 10));
         setDateTo(endOfWeek.toISOString().slice(0, 10));
         break;
-      case "Текущий месяц":
-        const startOfMonth = new Date();
-        const endOfMonth = new Date();
-        startOfMonth.setDate(1);
-        endOfMonth.setDate(0);
-        setDateFrom(startOfMonth.toISOString().slice(0, 10));
-        setDateTo(endOfMonth.toISOString().slice(0, 10));
-        break;
+        case "Текущий месяц":
+          const startOfMonth = new Date();
+          const endOfMonth = new Date();
+          
+          // Set the start date to the first day of the current month
+          startOfMonth.setDate(1);
+          
+          // Set the end date to the last day of the current month
+          endOfMonth.setMonth(endOfMonth.getMonth() + 1); // Move to the next month
+          endOfMonth.setDate(0); // Set to the last day of the current month
+          
+          setDateFrom(startOfMonth.toISOString().slice(0, 10));
+          setDateTo(endOfMonth.toISOString().slice(0, 10));
+          break;
+      
       case "Текущий год":
         const startOfYear = new Date();
         const endOfYear = new Date();
