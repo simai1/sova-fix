@@ -12,6 +12,7 @@ type userDir = {
     isConfirmed: boolean;
     login: string | null | undefined;
     tgId: string | null | undefined;
+    linkId: string | null | undefined;
     tgUserId: string | null | undefined;
     name: string;
     role: number;
@@ -53,6 +54,7 @@ const getUsersDir = async (): Promise<userDir[]> => {
             isConfirmed: user.isActivated,
             login: user.login,
             tgId: user.TgUser?.tgId,
+            linkId: user.TgUser?.linkId,
             tgUserId: user.tgManagerId,
             name: user.name,
             role: user.role,
@@ -66,6 +68,7 @@ const getUsersDir = async (): Promise<userDir[]> => {
                 login: null,
                 tgUserId: undefined,
                 tgId: user.tgId,
+                linkId: user.linkId,
                 name: user.name,
                 role: user.role,
             });

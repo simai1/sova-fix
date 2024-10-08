@@ -8,6 +8,7 @@ export default class TgUser extends Model {
     name!: string;
     role!: number;
     tgId!: string;
+    linkId?: string;
     isConfirmed!: boolean;
     contractorId?: string;
     Contractor?: Contractor;
@@ -39,6 +40,11 @@ export default class TgUser extends Model {
                     type: DataTypes.STRING,
                     allowNull: false,
                     unique: 'tgId',
+                },
+                linkId: {
+                    type: DataTypes.STRING,
+                    allowNull: true,
+                    unique: 'linkId',
                 },
                 isConfirmed: {
                     type: DataTypes.BOOLEAN,
