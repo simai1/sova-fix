@@ -6,6 +6,7 @@ import Unit from '../models/unit';
 import LegalEntity from '../models/legalEntity';
 import legalEntityService from './legalEntity.service';
 import unitService from './unit.service';
+import { sendMsg, WsMsgData } from '../utils/ws';
 
 const getObjectById = async (id: string): Promise<ObjectDir | null> => {
     return await ObjectDir.findByPk(id, { include: [{ model: Unit }, { model: LegalEntity }] });
@@ -29,6 +30,12 @@ const createObject = async (name: string, unitId: string, city: string, legalEnt
     const objectDir = await ObjectDir.create({ name, unitId, city, number: 1, legalEntityId });
     await legalEntityService.setCountLegalEntity(legalEntityId);
     await unitService.setCountUnit(unitId);
+    sendMsg({
+        msg: {
+            objectName: name,
+        },
+        event: 'OBJECT_CREATE',
+    } as WsMsgData);
     objectDir.LegalEntity = legalEntity;
     objectDir.Unit = unit;
     return new ObjectDto(objectDir);
