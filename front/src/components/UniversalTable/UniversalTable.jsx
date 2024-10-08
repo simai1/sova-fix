@@ -83,12 +83,14 @@ function UniversalTable(props) {
         getCountList()
     }, [tableBodyData])
 
-      const getValue = (value, key, index) => {
+      const getValue = (value, key, index, row) => {
+      
         switch (key) {
             case "itineraryOrder":
                 return 
             case "tgId":
-                return value ? <a className={styles.tgIdLink} href={`tg://user?id=${value}`}>{value}</a> : "___";
+                return value ? <a className={styles.tgIdLink} href={`https://t.me/${row[index]?.linkId}`}>{value}</a> : "___";
+                
             case "id":
                 return index + 1;
             case "isConfirmed":
@@ -242,7 +244,7 @@ const whatRight = (key) => {
                         style={context.selectRowDirectory === row.id ? { backgroundColor: "#D8CDC1FF", textAlign: textAlign(header.key, row[header.key]) } : { textAlign: textAlign(header.key, row[header.key]) }}
                     >
                         {(header.key !== "role" ) ? (
-                            getValue(row[header.key], header.key, rowIndex) 
+                            getValue(row[header.key], header.key, rowIndex, row) 
                         ) : (
                             <div
                                 onClick={() => {
