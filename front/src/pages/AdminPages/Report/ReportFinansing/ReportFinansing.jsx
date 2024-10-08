@@ -265,6 +265,7 @@ function ReportFinansing() {
               tableName="table7"
               tableHeader={TableHeader}
               tableBody={tableDataFinansingSort}
+              FilterFlag={true}
             />
           ) : (
             <div className={styles.ReportFinansingDiagram}>

@@ -4,7 +4,9 @@ import { useContext, useEffect, useState } from "react";
 import DataContext from "../../context";
 import CountInfoBlock from "../../UI/CountInfoBlock/CountInfoBlock";
 import { generateAndDownloadExcel } from "../../function/function";
-
+import { useDispatch } from "react-redux";
+import { resetFilters } from "../../store/samplePoints/samplePoits";
+import ClearImg from "./../../assets/images/ClearFilter.svg"
 
 function FunctionReportTop(props) {
     const navigate = useNavigate();
@@ -49,7 +51,7 @@ function FunctionReportTop(props) {
             context.setPopUp("PopUpError")
         }
       }
-
+      const dispatch = useDispatch();
     return ( 
         <div className={styles.FunctionReportTop}>
             {
@@ -59,6 +61,9 @@ function FunctionReportTop(props) {
                         <CountInfoBlock dataCount={props?.dataTable} keys="count"  value="Новая заявка" color="#d69a81" name="Всего"/>
                         <CountInfoBlock dataCount={props?.dataTable} keys="status" value="Выполнена" color="#ffe78f" name="Выполненых"/>
                         <CountInfoBlock dataCount={props?.dataTable} keys="checkPhoto" value="Новая заявка" color="#C5E384" name="С чеком"/>
+                        <div className={styles.clear}>
+                            <button onClick={() => dispatch(resetFilters({tableName: "table7"}))} ><img src={ClearImg} /></button>
+                        </div>
                     </div>
                     <div className={styles.ReportFinansingButton}>
                         <p className={styles.ReportFinansingButton__text}>Сумма расхода:  {summ.toLocaleString().replace(",", " ") || "___"} руб.</p>
@@ -71,6 +76,9 @@ function FunctionReportTop(props) {
                     <CountInfoBlock dataCount={props?.dataTable} keys="status" value="Новая заявка" color="#d69a81" name="Новых"/>
                     <CountInfoBlock dataCount={props?.dataTable} keys="status" value="В работе" color="#ffe78f" name="В работе"/>
                     <CountInfoBlock dataCount={props?.dataTable} keys="status" value="Выполнена" color="#C5E384" name="Выполнены"/>
+                    <div className={styles.clear}>
+                            <button onClick={() => dispatch(resetFilters({tableName: "table6"}))} ><img src={ClearImg} /></button>
+                        </div>
                     </div>
                     <div className={styles.ReportFinansingButton}>
                         <p className={styles.ReportFinansingButton__text}>Средняя скорость выполнения:  {TimeComplite()} (дней)</p>

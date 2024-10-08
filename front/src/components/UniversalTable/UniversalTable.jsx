@@ -24,10 +24,6 @@ function UniversalTable(props) {
         (state) => state.isSamplePoints[props.tableName].isChecked
       );
 
-
-   
-
-
     useEffect(() => {
      
         setTableHeaderData(props?.tableHeader);
@@ -201,6 +197,8 @@ useEffect(() => {
 
 const whatRight = (key) => {
   if(key === "legalEntity" && props?.top){
+    return 175
+  } if(key === "itineraryOrder" && props?.top){
     return 175
   }else if(key === "comment" && props?.top){
     return 50

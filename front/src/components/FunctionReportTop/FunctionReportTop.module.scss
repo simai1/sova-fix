@@ -34,3 +34,20 @@
     }
     
 }
+.clear{
+    margin-left: 0px;
+    button{
+      border-radius: 8px;
+      background-color: var(--turquoise-color);
+      height: 44px;
+      width: 40px;
+      transition: 0.1s linear all;
+      border: none;
+      &:hover{
+        opacity: 0.8;
+        cursor: pointer;
+      }
+    }
+   
+  
+  }

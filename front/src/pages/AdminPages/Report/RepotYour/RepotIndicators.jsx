@@ -274,6 +274,8 @@ function RepotIndicators() {
               selectFlag={true}
               tableHeader={tableHeadIndicators}
               tableBody={tableDataIndicatorsSort}
+              FilterFlag={true}
+              top="95"
             />
           ) : (
             <div className={styles.ReportIndicatorsDashbord}>
