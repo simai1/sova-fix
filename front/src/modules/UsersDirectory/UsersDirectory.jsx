@@ -10,7 +10,8 @@ import PopUpContainer from "../../UI/PopUpContainer/PopUpContainer";
 import { PopUpError } from "../../UI/PopUpError/PopUpError";
 import PopUpGoodMessage from "../../UI/PopUpGoodMessage/PopUpGoodMessage";
 import СonfirmDeleteUser from "./../../components/СonfirmDeleteUser/СonfirmDeleteUser";
-
+import ClearImg from "./../../assets/images/ClearFilter.svg"
+import { resetFilters } from "../../store/samplePoints/samplePoits";
 
 function UsersDirectory() {
     const [tableDataObject, setTableDataObject] = useState([]);
@@ -18,7 +19,7 @@ function UsersDirectory() {
     const {context} = useContext(DataContext);
     const [Email, setEmail] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
-
+    const dispatch = useDispatch();
 
     function funFixData(data) {
        
@@ -148,8 +149,13 @@ function UsersDirectory() {
     return ( 
         <div className={styles.ReferenceObjects}>
             <div className={styles.ReferenceObjectsTop}>
-            <div>
+            <div className={styles.BusinessUnitReferenceTopTitle}>
+              <div>
                 <h2>Пользователи</h2>
+              </div>
+              <div className={styles.clear}>
+                  <button onClick={() => dispatch(resetFilters({tableName: "table5"}))} ><img src={ClearImg} /></button>
+              </div>
             </div>
             <div className={styles.ReferenceObjectsTopButton}>
                 <button onClick={() => setPopUpCreate(true)}>Добавить пользователя</button>

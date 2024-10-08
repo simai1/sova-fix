@@ -18,6 +18,9 @@ import PopUpContainer from "../../UI/PopUpContainer/PopUpContainer";
 import Input from "../../UI/Input/Input";
 import { tablePerformanseHeader } from "./PerformersData";
 import arrow from "./../../assets/images/arrow_bottom.svg";
+import { resetFilters } from "../../store/samplePoints/samplePoits";
+import { useDispatch } from "react-redux";
+import ClearImg from "./../../assets/images/ClearFilter.svg"
 function ThePerformersDirectory() {
   const { context } = useContext(DataContext);
   const [tableDataUnit, setTableDataUnit] = useState([]);
@@ -153,12 +156,18 @@ function ThePerformersDirectory() {
       setOpenvaluelegalForm(false);
     }
   };
+  const dispatch = useDispatch();
 
   return (
     <div className={styles.ThePerformersDirectory}>
       <div className={styles.ThePerformersDirectoryTop}>
-        <div>
-          <h2>Внешние подрядчики</h2>
+        <div className={styles.BusinessUnitReferenceTopTitle}>
+            <div>
+            <h2>Внешние подрядчики</h2>
+            </div>
+            <div className={styles.clear}>
+                <button onClick={() => dispatch(resetFilters({tableName: "table4"}))} ><img src={ClearImg} /></button>
+            </div>
         </div>
         <div className={styles.ThePerformersDirectoryTopButton}>
           <button onClick={() => setPopUpCreate(true)}>
