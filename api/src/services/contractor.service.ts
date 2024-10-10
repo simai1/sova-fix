@@ -171,7 +171,7 @@ const getContractorsItinerary = async (id: string, filter: any): Promise<Request
         requests = await RepairRequest.findAll({
             where: {
                 [Op.and]: [
-                    { contractorId: contractor.id, urgency: 'Маршрут' },
+                    { contractorId: contractor.id, urgency: 'Маршрут', status: { [Op.ne]: 3 } },
                     {
                         [Op.or]: searchParams,
                     },
@@ -183,7 +183,9 @@ const getContractorsItinerary = async (id: string, filter: any): Promise<Request
         });
     } else {
         requests = await RepairRequest.findAll({
-            where: { [Op.and]: [{ contractorId: contractor.id, urgency: 'Маршрут' }, whereParams] },
+            where: {
+                [Op.and]: [{ contractorId: contractor.id, urgency: 'Маршрут', status: { [Op.ne]: 3 } }, whereParams],
+            },
             include: [{ model: Contractor }, { model: ObjectDir }, { model: Unit }, { model: LegalEntity }],
             order: [['itineraryOrder', 'ASC']],
         });
