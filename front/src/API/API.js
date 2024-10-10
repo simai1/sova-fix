@@ -2,7 +2,8 @@ import axios from "axios";
 const http = axios.create({
   withCredentials: true,
 });
-const server = process.env.REACT_APP_API_URL;
+// const server = process.env.REACT_APP_API_URL;
+const server = "http://localhost:3000";
 
 const REFRESH_INTERVAL = 900000; // 15 минут 900000
 let refreshTokensTimeout;
@@ -205,7 +206,7 @@ export const GetOneUsers = async (id) => {
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
-    }else{
+    } else {
       console.log("Ошибка при получении списка пользователей!");
     }
   }
@@ -288,7 +289,6 @@ export const DeleteRequest = async (id) => {
 
 //! Получение карты пользователя
 export const GetContractorsItenerarity = async (id) => {
-  
   try {
     const response = await http.get(`${server}/contractors/${id}/itinerary`, {
       headers: {
