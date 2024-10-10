@@ -24,10 +24,6 @@ function UniversalTable(props) {
         (state) => state.isSamplePoints[props.tableName].isChecked
       );
 
-
-   
-
-
     useEffect(() => {
      
         setTableHeaderData(props?.tableHeader);
@@ -87,12 +83,14 @@ function UniversalTable(props) {
         getCountList()
     }, [tableBodyData])
 
-      const getValue = (value, key, index) => {
+      const getValue = (value, key, index, row) => {
+      
         switch (key) {
             case "itineraryOrder":
                 return 
             case "tgId":
-                return value ? <a className={styles.tgIdLink} href={`tg://user?id=${value}`}>{value}</a> : "___";
+                return value ? <a className={styles.tgIdLink} href={`https://t.me/${row[index]?.linkId}`}>{value}</a> : "___";
+                
             case "id":
                 return index + 1;
             case "isConfirmed":
@@ -202,6 +200,8 @@ useEffect(() => {
 const whatRight = (key) => {
   if(key === "legalEntity" && props?.top){
     return 175
+  } if(key === "itineraryOrder" && props?.top){
+    return 175
   }else if(key === "comment" && props?.top){
     return 50
   }else{
@@ -213,11 +213,6 @@ const whatRight = (key) => {
       //samplePointsData
     return (
 <div className={styles.UniversalTable} style={{ maxHeight: document.location.pathname === "/CardPage/CardPageModule" ? "73vh" : "auto" }}>
-        { props?.FilterFlag &&
-        <div className={styles.clear}>
-          <button onClick={() => dispatch(resetFilters({tableName: props.tableName}))} ><img src={ClearImg} /></button>
-        </div>
-        }
     <table >
     <thead>
     {tableHeaderData?.map((el, index) => (
@@ -249,7 +244,7 @@ const whatRight = (key) => {
                         style={context.selectRowDirectory === row.id ? { backgroundColor: "#D8CDC1FF", textAlign: textAlign(header.key, row[header.key]) } : { textAlign: textAlign(header.key, row[header.key]) }}
                     >
                         {(header.key !== "role" ) ? (
-                            getValue(row[header.key], header.key, rowIndex) 
+                            getValue(row[header.key], header.key, rowIndex, row) 
                         ) : (
                             <div
                                 onClick={() => {

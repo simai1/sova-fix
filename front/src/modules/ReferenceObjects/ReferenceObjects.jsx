@@ -17,6 +17,9 @@ import { PopUpError } from "../../UI/PopUpError/PopUpError";
 import PopUpContainer from "../../UI/PopUpContainer/PopUpContainer";
 import UneversalList from "../../UI/UneversalList/UneversalList";
 import arrow from "./../../assets/images/arrow_bottom.svg";
+import { resetFilters } from "../../store/samplePoints/samplePoits";
+import ClearImg from "./../../assets/images/ClearFilter.svg"
+import { useDispatch } from "react-redux";
 function ReferenceObjects() {
   const [tableDataObject, setTableDataObject] = useState([]);
   const [legalData, setLegalData] = useState([]);
@@ -33,7 +36,7 @@ function ReferenceObjects() {
   const [valueCreateLegalId, setValueCreateLegalId] = useState("");
   const [pupUpEdit, setPupUpEdit] = useState(false);
   const [selectId, setSelectId] = useState("");
-
+  const dispatch = useDispatch();
   useEffect(() => {
     getData();
     formatDataObjectAndLegal();
@@ -166,8 +169,13 @@ function ReferenceObjects() {
   return (
     <div className={styles.ReferenceObjects}>
       <div className={styles.ReferenceObjectsTop}>
-        <div>
-          <h2>Объекты</h2>
+        <div className={styles.BusinessUnitReferenceTopTitle}>
+            <div>
+              <h2>Объекты</h2>
+            </div>
+            <div className={styles.clear}>
+                <button onClick={() => dispatch(resetFilters({tableName: "table3"}))} ><img src={ClearImg} /></button>
+            </div>
         </div>
         <div className={styles.ReferenceObjectsTopButton}>
           <button onClick={() => setPopUpCreate(true)}>Добавить объект</button>

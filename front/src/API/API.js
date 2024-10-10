@@ -3,7 +3,6 @@ const http = axios.create({
   withCredentials: true,
 });
 const server = process.env.REACT_APP_API_URL;
-// const server = "http://localhost:3000";
 
 const REFRESH_INTERVAL = 900000; // 15 минут 900000
 let refreshTokensTimeout;

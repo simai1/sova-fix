@@ -3,7 +3,7 @@
 
 .UniversalTable{
     margin-top: 18px;
-    max-height: 62vh;
+    max-height: 65vh;
     overflow-y: scroll;
     border-radius: 8px;  
   //   position: relative;
@@ -21,6 +21,9 @@
     &:hover {
      background-color: inherit  ;
     }
+  }
+  th[name="status"]{
+    width: 210px;
   }
     table{
    
@@ -183,21 +186,4 @@
     }
   }
   
-}
-.clear{
-  button{
-    border-radius: 8px;
-    background-color: var(--turquoise-color);
-    height: 44px;
-    width: 40px;
-    transition: 0.1s linear all;
-    border: none;
-    &:hover{
-      opacity: 0.8;
-      cursor: pointer;
-    }
-  }
- 
-  position: absolute;
-  left: 60px;
 }

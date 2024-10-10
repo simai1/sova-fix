@@ -9,6 +9,8 @@ import UneversalDelete from "../../components/UneversalDelete/UneversalDelete";
 import PopUpContainer from "../../UI/PopUpContainer/PopUpContainer";
 import arrow from "./../../assets/images/arrow_bottom.svg";
 import { useDispatch } from "react-redux";
+import { resetFilters } from "../../store/samplePoints/samplePoits";
+import ClearImg from "./../../assets/images/ClearFilter.svg"
 function DirectoryLegalEntities() {
     const [tableDataEntries, setTableDataEntries] = useState([]);
     const [popUpCreate, setPopUpCreate] = useState(false);
@@ -54,7 +56,7 @@ function DirectoryLegalEntities() {
             }
         });
     };
-
+    const dispatch = useDispatch();
     const closePopUp = () => {
         setPopUpCreate(false);
         setPopUpEdit(false);
@@ -134,8 +136,13 @@ function DirectoryLegalEntities() {
     return (
         <div className={styles.DirectoryLegalEntities}>
             <div className={styles.DirectoryLegalEntitiesTop}>
-                <div>
-                    <h2>Юридические лица</h2>
+                <div className={styles.BusinessUnitReferenceTopTitle}>
+                    <div>
+                        <h2>Юридические лица</h2>
+                    </div>
+                    <div className={styles.clear}>
+                        <button onClick={() => dispatch(resetFilters({tableName: "table1"}))} ><img src={ClearImg} /></button>
+                    </div>
                 </div>
                 <div className={styles.DirectoryLegalEntitiesTopButton}>
                     <button onClick={() => setPopUpCreate(true)}>Добавить юридическое лицо</button>

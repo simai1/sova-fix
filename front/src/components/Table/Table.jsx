@@ -1025,9 +1025,9 @@ function Table() {
               </>
             ) : (
               <tr>
-                <td colSpan={15} className={styles.tableNotData}>
-                  Нет данных
+                <td colSpan={21} className={styles.tableNotData}>
                 </td>
+                <div className={styles.notData}>  Нет данных</div>
               </tr>
             )}
           </tbody>

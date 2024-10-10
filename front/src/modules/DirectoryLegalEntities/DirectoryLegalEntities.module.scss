@@ -2,6 +2,7 @@
 @import "./../../styles/color.scss";
 
 .DirectoryLegalEntities{
+    margin-top: -50px;
     .DirectoryLegalEntitiesTop{
         display: flex;
         justify-content: space-between;
@@ -88,4 +89,25 @@
             top: 20px;
         }
     }
+}
+.BusinessUnitReferenceTopTitle{
+    display: flex;
+    align-items: center;
+    .clear{
+        margin-left: 15px;
+        button{
+          border-radius: 8px;
+          background-color: var(--turquoise-color);
+          height: 44px;
+          width: 40px;
+          transition: 0.1s linear all;
+          border: none;
+          &:hover{
+            opacity: 0.8;
+            cursor: pointer;
+          }
+        }
+       
+      
+      }
 }

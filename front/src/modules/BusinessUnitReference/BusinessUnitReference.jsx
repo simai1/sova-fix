@@ -14,7 +14,9 @@ import UneversalDelete from "../../components/UneversalDelete/UneversalDelete";
 import { PopUpError } from "../../UI/PopUpError/PopUpError";
 import PopUpContainer from "../../UI/PopUpContainer/PopUpContainer";
 import Input from "../../UI/Input/Input";
-
+import { useDispatch } from "react-redux";
+import ClearImg from "./../../assets/images/ClearFilter.svg"
+import { resetFilters } from "../../store/samplePoints/samplePoits";
 function BusinessUnitReference() {
   const { context } = useContext(DataContext);
   const [tableDataUnit, setTableDataUnit] = useState([]);
@@ -91,7 +93,7 @@ function BusinessUnitReference() {
           }
         });
   };
-
+  const dispatch = useDispatch()
   const EditUnitFinc = () => {
     if (context.selectRowDirectory) {
       setPopUpCreate(true);
@@ -110,8 +112,13 @@ function BusinessUnitReference() {
   return (
     <div className={styles.BusinessUnitReference}>
       <div className={styles.BusinessUnitReferenceTop}>
-        <div>
-          <h2>Подразделения</h2>
+        <div className={styles.BusinessUnitReferenceTopTitle}>
+          <div>
+            <h2>Подразделения</h2>
+          </div>
+          <div className={styles.clear}>
+            <button onClick={() => dispatch(resetFilters({tableName: "table2"}))} ><img src={ClearImg} /></button>
+          </div>
         </div>
         <div className={styles.BusinessUnitReferenceTopButton}>
           <button onClick={() => setPopUpCreate(true)}>

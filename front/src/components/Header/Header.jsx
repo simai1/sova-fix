@@ -162,7 +162,7 @@ return (
       <div className={styles.TitleSitte}>
         <div className={styles.TitleSitteInner}>
         <img src={Logo}/>
-          <h1>SOVA-fix - система управления ремонтом, эксплуатацией и техническим обслуживанием оборудования и помещений</h1>
+          <p className={styles.TitleSitteInnerText}>SOVA-fix - система управления ремонтом, эксплуатацией и техническим обслуживанием оборудования и помещений</p>
         </div>
       </div>
       {

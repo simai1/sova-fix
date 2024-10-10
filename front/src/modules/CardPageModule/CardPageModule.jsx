@@ -4,11 +4,14 @@ import { tableList } from "./CardPageModuleData";
 import DataContext from "../../context";
 import { GetContractorsItenerarity } from "../../API/API";
 import { funFixEducator } from "../../UI/SamplePoints/Function";
-
+import ClearImg from "./../../assets/images/ClearFilter.svg"
+import { useDispatch } from "react-redux";
+import { resetFilters } from "../../store/samplePoints/samplePoits";
+import styles from "./CardPageModule.module.scss";
 function CardPageModule() {
     const [tableDataEntries, setTableDataEntries] = useState([]);
     const { context } = useContext(DataContext);
-
+    const dispatch = useDispatch();
     useEffect(() => {
         console.log(context.selectContructor)
         getData()
@@ -23,8 +26,13 @@ function CardPageModule() {
     };
     return ( 
        <div>
-        <div>
+        <div className={styles.BusinessUnitReferenceTopTitle}>
+            <div>
             <h2>Маршрутный лист</h2>
+          </div>
+          <div className={styles.clear}>
+            <button onClick={() => dispatch(resetFilters({tableName: "table8"}))} ><img src={ClearImg} /></button>
+          </div>
         </div>
             <UniversalTable FilterFlag={true} top={90} tableName="table8"  tableHeader={tableList} tableBody={tableDataEntries} selectFlag={false} updateTable={getData}/>
        </div>
