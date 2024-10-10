@@ -4,7 +4,7 @@ import { useContext, useEffect, useState } from "react";
 import DataContext from "../../context";
 import CountInfoBlock from "../../UI/CountInfoBlock/CountInfoBlock";
 import { generateAndDownloadExcel } from "../../function/function";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { resetFilters } from "../../store/samplePoints/samplePoits";
 import ClearImg from "./../../assets/images/ClearFilter.svg"
 
@@ -13,32 +13,37 @@ function FunctionReportTop(props) {
     const location = useLocation();
     const { context } = useContext(DataContext);
     const [summ, setSumm] = useState(0)
+
+      const storeFinansing = useSelector(
+        (state) => state.isSamplePoints["table7"].isChecked
+      );
+      const storeIndicators = useSelector(
+        (state) => state.isSamplePoints["table6"].isChecked
+      );
+
     const CountSumm = () => {
         let summ = 0;
-        props?.dataTable.map((el) =>{
+        filterBasickData(props?.dataTable, storeFinansing).map((el) =>{
             console.log('el', el)
             if(typeof el.repairPrice === 'number'){
                 summ += el.repairPrice
             }
-        })
-
-        console.log('summ', summ)
-        
+        })        
     setSumm(Number(summ))
-      
-      
     }
 
     useEffect(() => {
         CountSumm()
-    }, [props?.dataTable])
+    }, [props?.dataTable, storeFinansing])
+
+    
     const TimeComplite = () => {
         let time = 0;
-        props?.dataTable.map((el) => time += el.daysAtWork)
+        filterBasickData(props?.dataTable, storeIndicators).map((el) => time += el.daysAtWork)
         if(time === 0){
             return 0
         }else{
-            return Math.floor(time / props?.dataTable.length)+1
+            return Math.floor(time / filterBasickData(props?.dataTable, storeIndicators).length)+1
         }
 
     }
@@ -52,15 +57,31 @@ function FunctionReportTop(props) {
         }
       }
       const dispatch = useDispatch();
+      
+      //! функция фильтрации
+      function filterBasickData(data, chekeds) {
+        let tb = [...data];
+        let mass = [];
+        tb.filter((el) => {
+          if (chekeds.find((it) => el[it.itemKey] === it.value)) {
+            return;
+          } else {
+            mass.push(el);
+          }
+        });
+        return mass;
+      }
+
+
     return ( 
         <div className={styles.FunctionReportTop}>
             {
                 location.pathname === "/ReportFinansing" ?
                 <div className={styles.ReportFinansingMenu}>
                     <div className={styles.ReportFinansingList}>
-                        <CountInfoBlock dataCount={props?.dataTable} keys="count"  value="Новая заявка" color="#d69a81" name="Всего"/>
-                        <CountInfoBlock dataCount={props?.dataTable} keys="status" value="Выполнена" color="#ffe78f" name="Выполненых"/>
-                        <CountInfoBlock dataCount={props?.dataTable} keys="checkPhoto" value="Новая заявка" color="#C5E384" name="С чеком"/>
+                        <CountInfoBlock dataCount={filterBasickData(props?.dataTable, storeFinansing)} keys="count"  value="Новая заявка" color="#d69a81" name="Всего"/>
+                        <CountInfoBlock dataCount={filterBasickData(props?.dataTable, storeFinansing)} keys="status" value="Выполнена" color="#ffe78f" name="Выполненых"/>
+                        <CountInfoBlock dataCount={filterBasickData(props?.dataTable, storeFinansing)} keys="checkPhoto" value="Новая заявка" color="#C5E384" name="С чеком"/>
                         <div className={styles.clear}>
                             <button onClick={() => dispatch(resetFilters({tableName: "table7"}))} ><img src={ClearImg} /></button>
                         </div>
@@ -73,16 +94,16 @@ function FunctionReportTop(props) {
             
                 <div className={styles.ReportFinansingMenu}>
                     <div className={styles.ReportFinansingList}>
-                    <CountInfoBlock dataCount={props?.dataTable} keys="status" value="Новая заявка" color="#d69a81" name="Новых"/>
-                    <CountInfoBlock dataCount={props?.dataTable} keys="status" value="В работе" color="#ffe78f" name="В работе"/>
-                    <CountInfoBlock dataCount={props?.dataTable} keys="status" value="Выполнена" color="#C5E384" name="Выполнены"/>
+                    <CountInfoBlock dataCount={filterBasickData(props?.dataTable, storeIndicators)} keys="status" value="Новая заявка" color="#d69a81" name="Новых"/>
+                    <CountInfoBlock dataCount={filterBasickData(props?.dataTable, storeIndicators)} keys="status" value="В работе" color="#ffe78f" name="В работе"/>
+                    <CountInfoBlock dataCount={filterBasickData(props?.dataTable, storeIndicators)} keys="status" value="Выполнена" color="#C5E384" name="Выполнены"/>
                     <div className={styles.clear}>
                             <button onClick={() => dispatch(resetFilters({tableName: "table6"}))} ><img src={ClearImg} /></button>
                         </div>
                     </div>
                     <div className={styles.ReportFinansingButton}>
                         <p className={styles.ReportFinansingButton__text}>Средняя скорость выполнения:  {TimeComplite()} (дней)</p>
-                        <p className={styles.ReportFinansingButton__text}>Количество заявок:  {props?.dataTable.length }</p>
+                        <p className={styles.ReportFinansingButton__text}>Количество заявок:  {filterBasickData(props?.dataTable, storeIndicators).length }</p>
                         <button style={{margin: "0px 10px 0px 0px"}} onClick={()=>editAppoint()}>
                             <img src="./img/Edit.svg" alt="View" />
                             Редактировать заявку

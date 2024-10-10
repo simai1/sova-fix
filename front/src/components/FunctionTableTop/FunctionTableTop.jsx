@@ -4,7 +4,7 @@ import List from "../../UI/List/List";
 import Input from "../../UI/Input/Input";
 import DataContext from "../../context";
 import { DeleteRequest, DeleteUserFunc, RejectActiveAccount } from "../../API/API";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { FilteredSample, funFixEducator } from "../../UI/SamplePoints/Function";
 import { removeTableCheckeds } from "../../store/filter/isChecked.slice";
 import CountInfoBlock from "../../UI/CountInfoBlock/CountInfoBlock";
@@ -12,6 +12,7 @@ import EditColum from "../../UI/EditColum/EditColum";
 import { generateAndDownloadExcel } from "../../function/function";
 import { tableList } from "../Table/Data";
 import { useNavigate } from "react-router-dom";
+import { resetFilters } from "../../store/samplePoints/samplePoits";
 
 
 
@@ -60,6 +61,26 @@ const goBackCurd = () =>{
   context.settableHeader(tableList);
   context.setSelectedTable("Card");
 }
+
+const store = useSelector(
+  (state) => state.isSamplePoints["table9"].isChecked
+);
+
+//! функция фильтрации
+function filterBasickData(data, chekeds) {
+  let tb = [...data];
+  let mass = [];
+  tb.filter((el) => {
+    if (chekeds.find((it) => el[it.itemKey] === it.value)) {
+      return;
+    } else {
+      mass.push(el);
+    }
+  });
+  return mass;
+}
+
+
   return (
     <>
       <div className={styles.FunctionTableTop}>
@@ -74,7 +95,7 @@ const goBackCurd = () =>{
                 settextSearchTableData={context.setextSearchTableData}
               />
               <img src="./img/Search_light.png" />
-              { (context.selectedTable === "Заявки" && context.selectPage === "Main") && <div className={styles.dropFilter} onClick={refreshFilters} title="нажмите для сброса фильтров"><img src="./img/ClearFilter.svg"/></div>}
+              { (context.selectedTable === "Заявки" && context.selectPage === "Main") && <div className={styles.dropFilter}  onClick={() => dispatch(resetFilters({tableName: "table9"}))} title="нажмите для сброса фильтров"><img src="./img/ClearFilter.svg"/></div>}
 
               </>
               }
@@ -115,9 +136,9 @@ const goBackCurd = () =>{
         </div>
         { context.selectedTable === "Заявки" && context.selectPage === "Main" &&
           <div className={styles.countInfo}>
-            <CountInfoBlock dataCount={context?.filteredTableData} keys="status" value="Новая заявка" color="#d69a81" name="Новых"/>
-            <CountInfoBlock dataCount={context?.filteredTableData} keys="status" value="В работе" color="#ffe78f" name="В работе"/>
-            <CountInfoBlock dataCount={context?.filteredTableData} keys="status" value="Выполнена" color="#C5E384" name="Выполнены"/>
+            <CountInfoBlock dataCount={filterBasickData(context?.filteredTableData, store)} keys="status" value="Новая заявка" color="#d69a81" name="Новых"/>
+            <CountInfoBlock dataCount={filterBasickData(context?.filteredTableData, store)} keys="status" value="В работе" color="#ffe78f" name="В работе"/>
+            <CountInfoBlock dataCount={filterBasickData(context?.filteredTableData, store)} keys="status" value="Выполнена" color="#C5E384" name="Выполнены"/>
           </div>
         }
       </div>

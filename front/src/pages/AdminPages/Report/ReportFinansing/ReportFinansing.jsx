@@ -10,6 +10,7 @@ import UniversalTable from "../../../../components/UniversalTable/UniversalTable
 import { funFixEducator } from "../../../../UI/SamplePoints/Function";
 import { sortDataTable } from "../functionSort/functionSort";
 import FinansingDiagrams from "../../../../components/FinansingDiagrams/FinansingDiagrams";
+import { useSelector } from "react-redux";
 
 function ReportFinansing() {
   const { context } = useContext(DataContext);
@@ -152,6 +153,24 @@ function ReportFinansing() {
     }
   }, [valueName]);
 
+  const store = useSelector(
+    (state) => state.isSamplePoints["table7"].isChecked
+  );
+  
+  //! функция фильтрации
+  function filterBasickData(data, chekeds) {
+    let tb = [...data];
+    let mass = [];
+    tb.filter((el) => {
+      if (chekeds.find((it) => el[it.itemKey] === it.value)) {
+        return;
+      } else {
+        mass.push(el);
+      }
+    });
+    return mass;
+  }
+
   return (
     <div className={styles.ReportFinansing}>
       <Layout>
@@ -269,7 +288,7 @@ function ReportFinansing() {
             />
           ) : (
             <div className={styles.ReportFinansingDiagram}>
-              <FinansingDiagrams DataFinansing={tableDataFinansingSort} />
+              <FinansingDiagrams DataFinansing={filterBasickData(tableDataFinansingSort, store )} />
             </div>
           )}
         </div>

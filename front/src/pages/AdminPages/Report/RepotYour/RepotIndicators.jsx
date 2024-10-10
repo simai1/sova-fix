@@ -15,6 +15,7 @@ import UniversalDashboardStatus from "../../../../components/UniversalDashbord/U
 import { sortDataTable } from "../functionSort/functionSort";
 import { PopUpError } from "../../../../UI/PopUpError/PopUpError";
 import PopUpEditAppoint from "../../../../components/PopUp/PopUpEditAppoint/PopUpEditAppoint";
+import { useSelector } from "react-redux";
 
 function RepotIndicators() {
   const { context } = useContext(DataContext);
@@ -162,6 +163,24 @@ function RepotIndicators() {
     };
   }, []);
 
+  const store = useSelector(
+    (state) => state.isSamplePoints["table6"].isChecked
+  );
+  
+  //! функция фильтрации
+  function filterBasickData(data, chekeds) {
+    let tb = [...data];
+    let mass = [];
+    tb.filter((el) => {
+      if (chekeds.find((it) => el[it.itemKey] === it.value)) {
+        return;
+      } else {
+        mass.push(el);
+      }
+    });
+    return mass;
+  }
+
   return (
     <div className={styles.RepotYour}>
       <Layout>
@@ -281,12 +300,12 @@ function RepotIndicators() {
             <div className={styles.ReportIndicatorsDashbord}>
               <div>
                 <UniversalDashboardStatus
-                  dataDashbord={tableDataIndicatorsSort}
+                  dataDashbord={filterBasickData(tableDataIndicatorsSort, store)}
                 />
               </div>
               <div>
                 <UniversalDashbordSrochn
-                  dataDashbord={tableDataIndicatorsSort}
+                  dataDashbord={filterBasickData(tableDataIndicatorsSort, store)}
                 />
               </div>
             </div>

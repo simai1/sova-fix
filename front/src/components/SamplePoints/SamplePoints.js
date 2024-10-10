@@ -70,6 +70,7 @@ function SamplePoints(props) {
         return elString?.toLowerCase().includes(search?.toLowerCase());
       }
     });
+    console.log('fd', fd)
     setFiltredPunkts(fd);
   }, [search, props.punkts]);
 
