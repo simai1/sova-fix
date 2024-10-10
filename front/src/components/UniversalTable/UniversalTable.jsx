@@ -49,6 +49,7 @@ function UniversalTable(props) {
       key !== "checkPhoto" &&
       key !== "photo" &&
       key !== "fileName" &&
+      key !== "problemDescription" &&
       key !== "id"
     ) {
       if (sampleShow === index) {
@@ -116,7 +117,7 @@ function UniversalTable(props) {
 
       case "fileName":
       case "checkPhoto":
-        return value ? (
+        return value !== "___" ? (
           <div>
             <img
               src={`${process.env.REACT_APP_API_URL}/uploads/${value}`}
@@ -133,7 +134,7 @@ function UniversalTable(props) {
         );
       case "fileName":
         console.log("fileName", value);
-        return value ? (
+        return value !== "___" ? (
           <div>
             <img
               src={`${process.env.REACT_APP_API_URL}/uploads/${value}`}
@@ -248,6 +249,10 @@ function UniversalTable(props) {
     }
   };
   console.log("store", store);
+  console.log("tableBodyData", tableBodyData)
+  useEffect(() => {
+      console.log("tableBodyData", tableBodyData)
+  },[tableBodyData])
   //samplePointsData
   return (
     <div
@@ -276,6 +281,7 @@ function UniversalTable(props) {
                 el.key !== "tgId" &&
                 el.key !== "login" &&
                 el.key !== "photo" &&
+                el.key !== "problemDescription" &&
                 el.key !== "fileName"
                   ? { cursor: "pointer" }
                   : { cursor: "default" }
@@ -363,7 +369,7 @@ function UniversalTable(props) {
                   {header.key === "itineraryOrder" && (
                     <div
                       onClick={() => setItineraryOrderPop(row.id)}
-                      className={styles.statusClick}
+                      className={document.location.pathname === "/CardPage/CardPageModule" ? styles.statusClick : styles.statusNotClick}
                       // ref={ItineraryOrderPopRef}
                     >
                       {row[header.key] !== null ? row[header.key] : "___"}

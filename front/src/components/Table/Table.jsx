@@ -16,6 +16,7 @@ import { useSelector } from "react-redux";
 import СonfirmDelete from "./../СonfirmDelete/СonfirmDelete";
 import Contextmenu from "../../UI/Contextmenu/Contextmenu";
 import SamplePoints from "../SamplePoints/SamplePoints";
+import FilteImg from "./../../assets/images/filterColumn.svg";
 function Table() {
   const { context } = useContext(DataContext);
   const [actiwFilter, setActiwFilter] = useState(null);
@@ -372,7 +373,7 @@ function Table() {
         5: "Принята",
       };
       let modalData = [];
-      if (key !== "photo" && key !== "checkPhoto" && key !== "number") {
+      if (key !== "photo" && key !== "checkPhoto" && key !== "number" && key !== "problemDescription") {
         if (key === "status") {
           modalData = context?.tableData?.map((item) => status[item[key]]);
         } else {
@@ -577,7 +578,7 @@ function Table() {
 
                         {item.key !== "number" &&
                           item.key !== "photo" &&
-                          item.key !== "checkPhoto" && (
+                          item.key !== "checkPhoto" && item.key !== "problemDescription" && (
                             <img
                               onClick={() => funSortByColumn(item.key)}
                               className={styles.thSort}
@@ -639,9 +640,9 @@ function Table() {
                           //   sesionName={`isCheckedFilter`}
                           // />
                         )}
-                        {context.isChecked.find(
-                          (el) => el.itemKey === item.key
-                        ) && <img src="./img/filterColumn.svg" />}
+                        {store.find((elem) => elem.itemKey === item.key) && (
+                            <img src={FilteImg} />
+                          )}
                       </div>
                     </th>
                   ))}
