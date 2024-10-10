@@ -247,6 +247,7 @@ function Table() {
       !contextmenuRef.current.contains(event.target)
     ) {
       setOpenConextMenu(false);
+      setActiwFilter("");
     }
     if (
       statusPopRef.current &&
