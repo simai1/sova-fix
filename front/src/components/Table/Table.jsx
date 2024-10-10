@@ -11,16 +11,18 @@ import {
   SetStatusRequest,
   SetcontractorRequest,
 } from "../../API/API";
-import { SamplePoints } from "../../UI/SamplePoints/SamplePoints";
+// import { SamplePoints } from "../../UI/SamplePoints/SamplePoints";
 import { useSelector } from "react-redux";
 import СonfirmDelete from "./../СonfirmDelete/СonfirmDelete";
 import Contextmenu from "../../UI/Contextmenu/Contextmenu";
+import SamplePoints from "../SamplePoints/SamplePoints";
 function Table() {
   const { context } = useContext(DataContext);
   const [actiwFilter, setActiwFilter] = useState(null);
   const [coordinatesX, setCoordinatesX] = useState(0);
   const [openConextMenu, setOpenConextMenu] = useState(false);
   const [coordinatesY, setCoordinatesY] = useState(0);
+
   const trClick = (row, target) => {
     context.setSelectedTr(row.id);
     if (
@@ -71,7 +73,9 @@ function Table() {
     { id: 5, name: "Маршрут" },
     { id: 6, name: "Выполнено" },
   ];
-
+  const store = useSelector(
+    (state) => state.isSamplePoints["table9"].isChecked
+  );
   const [shovStatusPop, setshovStatusPop] = useState("");
   const [shovBulderPop, setshovBulderPop] = useState("");
   const [shovUrgencyPop, setshovUrgencyPop] = useState("");
@@ -87,9 +91,29 @@ function Table() {
   const [dataBuilder, setDataBuilder] = useState({});
   const contextmenuRef = useRef(null);
   const [dataTable, setDataTable] = useState(context?.filteredTableData);
+
+  //! функция фильтрации
+  function filterBasickData(data, chekeds) {
+    let tb = [...data];
+    let mass = [];
+    tb.filter((el) => {
+      if (chekeds.find((it) => el[it.itemKey] === it.value)) {
+        return;
+      } else {
+        mass.push(el);
+      }
+    });
+    return mass;
+  }
+
+  //! при клике на пункт li убираем его из массива данных таблицы
   useEffect(() => {
-    setDataTable(context?.filteredTableData)
-  },[context?.filteredTableData])
+    setDataTable(filterBasickData(context.dataTableFix, store));
+  }, [store]);
+
+  useEffect(() => {
+    setDataTable(context?.filteredTableData);
+  }, [context?.filteredTableData]);
   const editStatus = (status, id) => {
     const data = {
       requestId: id,
@@ -223,6 +247,7 @@ function Table() {
       !contextmenuRef.current.contains(event.target)
     ) {
       setOpenConextMenu(false);
+      setActiwFilter("");
     }
     if (
       statusPopRef.current &&
@@ -295,11 +320,9 @@ function Table() {
   const getItem = (item, key) => {
     if (key === "repairPrice" && key !== "isConfirmed") {
       return item?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+    } else {
+      return item;
     }
-    else {
-        return item;
-      }
-    
   };
 
   const getContractorItem = (row) => {
@@ -578,21 +601,43 @@ function Table() {
                           )}
 
                         {actiwFilter === item.key && (
-                          <SamplePoints
-                            index={index + 1}
-                            actiwFilter={actiwFilter}
-                            itemKey={item.key}
-                            isSamplePointsData={context.isSamplePointsData.map(
-                              (el) => (el === null ? "___" : el)
-                            )}
-                            isAllChecked={context.isAllChecked}
-                            isChecked={context.isChecked}
-                            setIsChecked={context.setIsChecked}
-                            workloadData={context.dataTableFix}
-                            setWorkloadDataFix={context.setFilteredTableData}
-                            setSpShow={setActiwFilter}
-                            sesionName={`isCheckedFilter`}
-                          />
+                          <div
+                            className={styles.sampleComponent}
+                            ref={contextmenuRef}
+                            style={{
+                              top: "70px",
+                              position: "absolute",
+                            }}
+                          >
+                            <SamplePoints
+                              basickData={context.dataTableFix} // нефильтрованные данные
+                              punkts={[
+                                ...dataTable.map((it) =>
+                                  it[item.key] === null ? "___" : it[item.key]
+                                ),
+                                ...store
+                                  .filter((it) => it.itemKey === item.key)
+                                  .map((it) => it.value),
+                              ].sort((a, b) => a.localeCompare(b))} // пункты то есть то что отображается в li
+                              itemKey={item.key} // ключь пунта
+                              tableName={"table9"}
+                            />
+                          </div>
+                          // <SamplePoints
+                          //   index={index + 1}
+                          //   actiwFilter={actiwFilter}
+                          //   itemKey={item.key}
+                          //   isSamplePointsData={context.isSamplePointsData.map(
+                          //     (el) => (el === null ? "___" : el)
+                          //   )}
+                          //   isAllChecked={context.isAllChecked}
+                          //   isChecked={context.isChecked}
+                          //   setIsChecked={context.setIsChecked}
+                          //   workloadData={context.dataTableFix}
+                          //   setWorkloadDataFix={context.setFilteredTableData}
+                          //   setSpShow={setActiwFilter}
+                          //   sesionName={`isCheckedFilter`}
+                          // />
                         )}
                         {context.isChecked.find(
                           (el) => el.itemKey === item.key
@@ -674,7 +719,9 @@ function Table() {
                         key={headerItem.key}
                         name={headerItem.key}
                         className={
-                          context.selectedTable === "Заявки" ? styles.MainTd : null
+                          context.selectedTable === "Заявки"
+                            ? styles.MainTd
+                            : null
                         }
                         style={{
                           textAlign: textAlign(
@@ -693,8 +740,9 @@ function Table() {
                               funSetStatus(row.id)
                             }
                             className={
-                              context.selectPage === "Main" ?
-                              styles.statusClick : styles.NostatusClick
+                              context.selectPage === "Main"
+                                ? styles.statusClick
+                                : styles.NostatusClick
                             }
                             style={{
                               whiteSpace: "nowrap",
@@ -716,10 +764,7 @@ function Table() {
                               <div
                                 className={styles.shovStatusPop}
                                 style={
-                                  checkHeights(
-                                    dataTable,
-                                    index
-                                  )
+                                  checkHeights(dataTable, index)
                                     ? { top: "-70%", width: "150px" }
                                     : { width: "150px" }
                                 }
@@ -786,8 +831,9 @@ function Table() {
                               funSetBulder(row.id)
                             }
                             className={
-                              context.selectPage === "Main" ?
-                              styles.statusClick : styles.NostatusClick
+                              context.selectPage === "Main"
+                                ? styles.statusClick
+                                : styles.NostatusClick
                             }
                             ref={builderPopRef}
                           >
@@ -796,10 +842,7 @@ function Table() {
                               <div
                                 className={styles.shovStatusPop}
                                 style={
-                                  checkHeights(
-                                    dataTable,
-                                    index
-                                  )
+                                  checkHeights(dataTable, index)
                                     ? { top: "-70%", width: "200%" }
                                     : {
                                         width: "200%",
@@ -838,14 +881,15 @@ function Table() {
                             )}
                           </div>
                         ) : headerItem.key === "builder" &&
-                        dataTable[index].isExternal ? (
+                          dataTable[index].isExternal ? (
                           <div
                             onClick={() =>
                               context.selectPage === "Main" && funSetExp(row.id)
                             }
                             className={
-                              context.selectPage === "Main" ?
-                              styles.statusClick : styles.NostatusClick
+                              context.selectPage === "Main"
+                                ? styles.statusClick
+                                : styles.NostatusClick
                             }
                             ref={extPopRef}
                           >
@@ -854,20 +898,20 @@ function Table() {
                               <div
                                 className={styles.shovStatusPop}
                                 style={
-                                  checkHeights(
-                                    dataTable,
-                                    index
-                                  )
+                                  checkHeights(dataTable, index)
                                     ? { top: "-70%", width: "200%" }
                                     : { width: "200%" }
                                 }
                               >
                                 <ul>
-                                  {row[headerItem.key] !== null && row[headerItem.key] !== "___" && row[headerItem.key] !== "Внешний подрядчик" && (
-                                    <li onClick={() => deleteExp(row.id)}>
-                                      Удалить подрядчика
-                                    </li>
-                                  )}
+                                  {row[headerItem.key] !== null &&
+                                    row[headerItem.key] !== "___" &&
+                                    row[headerItem.key] !==
+                                      "Внешний подрядчик" && (
+                                      <li onClick={() => deleteExp(row.id)}>
+                                        Удалить подрядчика
+                                      </li>
+                                    )}
                                   {dataBuilder?.map((value, index) => (
                                     <>
                                       <li
@@ -889,8 +933,9 @@ function Table() {
                               funSetUrgency(row.id)
                             }
                             className={
-                              context.selectPage === "Main" ?
-                              styles.statusClick : styles.NostatusClick
+                              context.selectPage === "Main"
+                                ? styles.statusClick
+                                : styles.NostatusClick
                             }
                             style={{
                               backgroundColor:
@@ -919,10 +964,7 @@ function Table() {
                               <div
                                 className={styles.shovStatusPop}
                                 style={
-                                  checkHeights(
-                                    dataTable,
-                                    index
-                                  )
+                                  checkHeights(dataTable, index)
                                     ? { top: "-70%", width: "200%" }
                                     : { width: "200%" }
                                 }
@@ -949,8 +991,9 @@ function Table() {
                               funSetItineraryOrder(row.id)
                             }
                             className={
-                              context.selectPage !== "Main" ?
-                              styles.statusClick : styles.NostatusClick
+                              context.selectPage !== "Main"
+                                ? styles.statusClick
+                                : styles.NostatusClick
                             }
                             ref={ItineraryOrderPopRef}
                           >
@@ -961,10 +1004,7 @@ function Table() {
                               <div
                                 className={styles.shovStatusPop}
                                 style={
-                                  checkHeights(
-                                    dataTable,
-                                    index
-                                  )
+                                  checkHeights(dataTable, index)
                                     ? {
                                         top: "-10%",
                                         right: "100px",
@@ -1025,9 +1065,8 @@ function Table() {
               </>
             ) : (
               <tr>
-                <td colSpan={21} className={styles.tableNotData}>
-                </td>
-                <div className={styles.notData}>  Нет данных</div>
+                <td colSpan={21} className={styles.tableNotData}></td>
+                <div className={styles.notData}> Нет данных</div>
               </tr>
             )}
           </tbody>

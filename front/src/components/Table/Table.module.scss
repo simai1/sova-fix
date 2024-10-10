@@ -1,6 +1,6 @@
 @import "./../../styles/color.scss";
 @import "./../../styles/mixins.scss";
-.TableWrapper{
+.TableWrapper {
   display: block;
   width: 100%;
 }
@@ -13,29 +13,42 @@
   min-height: 375px;
   margin-bottom: 0;
   border-radius: 8px;
-  margin-top:-5px;
-  table{
+  margin-top: -5px;
+  table {
     min-height: 375px;
   }
-  .headerNotMain{
-    cursor: auto!important;
+
+  .sampleComponent {
+    display: flex;
+    position: absolute;
+    max-width: 225px;
+    min-width: 225px;
+    height: 200px;
+    background-color: #ffffff;
+    left: 0;
+    top: 45px;
+    border-radius: 8px;
+    box-shadow: 9px 3px 18px rgba(0, 0, 0, 0.2);
+  }
+  .headerNotMain {
+    cursor: auto !important;
     opacity: 1;
-    background-color: var(--tableTh)!important;
-    th{
+    background-color: var(--tableTh) !important;
+    th {
       text-align: center;
       display: flex;
       justify-content: center;
     }
-  
   }
-  .thTable{
+  .thTable {
+    position: relative;
     display: flex;
     justify-content: center;
-    img{
+    img {
       padding-left: 5px;
     }
   }
-  .noteData{
+  .noteData {
     position: absolute;
     width: 100vw;
     pointer-events: none;
@@ -76,44 +89,44 @@
     }
     th[name="photo"] {
       &:hover {
-      background-color: var(--tableTh);
-      cursor: auto;
+        background-color: var(--tableTh);
+        cursor: auto;
       }
     }
     th[name="checkPhoto"] {
       &:hover {
-      background-color: var(--tableTh);
-      cursor: auto;
+        background-color: var(--tableTh);
+        cursor: auto;
       }
     }
-    
-    th{
+
+    th {
       &:hover {
-      cursor: pointer;
+        cursor: pointer;
         background-color: var(--Active-gray-color);
       }
     }
 
-    .thSort{
+    .thSort {
       cursor: pointer;
       z-index: 120;
       margin-left: 5px;
-      &:hover{
+      &:hover {
         opacity: 0.6;
       }
     }
-  
+
     td {
       // text-align: center;
       padding: 10px;
       position: relative;
       border-left: 1px solid #e3dfda;
       border-bottom: 1px solid #e3dfda;
-      &:first-child{
+      &:first-child {
         border-left: none;
       }
-      #statusGreen{
-        background-color: red!important;
+      #statusGreen {
+        background-color: red !important;
       }
       .statusClick {
         padding: 4px 8px;
@@ -124,7 +137,7 @@
           background-color: var(--Active-gray-color);
         }
         .shovStatusPop {
-          max-height: 150px ;
+          max-height: 150px;
           overflow-y: scroll;
           transform: translateY(20px);
           position: absolute;
@@ -149,26 +162,25 @@
             }
           }
         }
-        
       }
     }
     .MainTd[name="number"] {
-     position: sticky;
-     left: 48px;
-     width: 40px;
-     min-width: 40px;
-     z-index: 50;
-     background-color: #f7f7f7;
+      position: sticky;
+      left: 48px;
+      width: 40px;
+      min-width: 40px;
+      z-index: 50;
+      background-color: #f7f7f7;
     }
-    .MainTd[name="unit"]{
+    .MainTd[name="unit"] {
       position: sticky;
       left: 113px;
       width: 125px;
-       min-width: 125px;
-       max-width: 125px;
+      min-width: 125px;
+      max-width: 125px;
       z-index: 50;
       background-color: #f7f7f7;
-     }
+    }
     .MainTd[name="contractor"] {
       position: sticky;
       left: 400px;
@@ -178,8 +190,8 @@
       z-index: 50;
       background-color: #f7f7f7;
       box-shadow: 5px 0 5px #e3dfda75;
-     }
-     .MainTd[name="object"] {
+    }
+    .MainTd[name="object"] {
       position: sticky;
       left: 259px;
       width: 120px;
@@ -187,96 +199,91 @@
       max-width: 120px;
       z-index: 49;
       background-color: #f7f7f7;
-     }
+    }
 
-     td[name="tgId"] {
-       text-align: center!important;
-     }
-     .MainTd[name="checkAll"]{
+    td[name="tgId"] {
+      text-align: center !important;
+    }
+    .MainTd[name="checkAll"] {
       position: sticky;
       left: 0px;
-     
+
       width: 40px;
       z-index: 50;
       background-color: #f7f7f7;
-     }
- 
+    }
 
-     
-     .MainTh[name="checkAll"]{
+    .MainTh[name="checkAll"] {
       position: sticky;
       left: 0px;
       top: 0;
       width: 40px;
       z-index: 100;
-      background-color: #B7AB9E;
-     }
-     .MainTh[name="unit"]{
+      background-color: #b7ab9e;
+    }
+    .MainTh[name="unit"] {
       position: sticky;
-       left: 113px;
-       width: 125px;
-       min-width: 125px;
-       max-width: 125px;
-       top: 0;
-       z-index: 100;
-       background-color: #B7AB9E;
-       &:hover {
+      left: 113px;
+      width: 125px;
+      min-width: 125px;
+      max-width: 125px;
+      top: 0;
+      z-index: 100;
+      background-color: #b7ab9e;
+      &:hover {
         background-color: var(--Active-gray-color);
-
-       }
-     }
-     .MainTh[name="number"] {
+      }
+    }
+    .MainTh[name="number"] {
       position: sticky;
       left: 48px;
       top: 0;
       width: 65px;
       z-index: 100;
-      background-color: #B7AB9E;
+      background-color: #b7ab9e;
       &:hover {
         cursor: default;
-       }
-     }
-     .MainTh[name="contractor"] {
-       position: sticky;
-       left: 400px;
-       width: 150px;
-       min-width: 150px;
-       max-width: 150px;
-       top: 0;
-       z-index: 100;
-       background-color: #B7AB9E;
-       box-shadow: 5px 0 5px #e3dfda75;
-       &:hover {
-        background-color: var(--Active-gray-color);
-
-       }
-
       }
-      .MainTh[name="object"] {
-       position: sticky;
-       left: 259px;
-       top: 0;
-       width: 120px;
-       min-width: 120px;
-       max-width: 120px;
-       z-index: 100;
-       background-color: #B7AB9E;
-       &:hover {
+    }
+    .MainTh[name="contractor"] {
+      position: sticky;
+      left: 400px;
+      width: 150px;
+      min-width: 150px;
+      max-width: 150px;
+      top: 0;
+      z-index: 100;
+      background-color: #b7ab9e;
+      box-shadow: 5px 0 5px #e3dfda75;
+      &:hover {
         background-color: var(--Active-gray-color);
-       }
       }
-    
-    .imgTable{
+    }
+    .MainTh[name="object"] {
+      position: sticky;
+      left: 259px;
+      top: 0;
+      width: 120px;
+      min-width: 120px;
+      max-width: 120px;
+      z-index: 100;
+      background-color: #b7ab9e;
+      &:hover {
+        background-color: var(--Active-gray-color);
+      }
+    }
+
+    .imgTable {
       width: 150px;
       height: 150px;
       transition: 0.1s all linear;
-      &:hover{
+      &:hover {
         opacity: 0.4;
       }
     }
     .setectedTr {
-      background-color: #D8CDC1FF;
-      
+      background-color: #d8cdc1ff;
+
       &:hover td {
         background-color: var(--selectedTr);
       }
@@ -322,8 +329,7 @@
   cursor: pointer;
 }
 
-
-.tableNotData{
+.tableNotData {
   text-align: center;
   height: 58vh;
   width: 100%;
@@ -333,19 +339,19 @@
   left: -50px;
 }
 
-input[type=checkbox] {
-  -moz-appearance:none;
-  -webkit-appearance:none;
-  -o-appearance:none;
+input[type="checkbox"] {
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  -o-appearance: none;
   outline: none !important;
-  content: none;  
+  content: none;
 }
 
-input[type=checkbox]:before {
+input[type="checkbox"]:before {
   font-family: "FontAwesome";
   content: "\f00c";
   font-size: 13px;
-  border-radius:4px;
+  border-radius: 4px;
   color: transparent !important;
   background: #fff;
   display: block;
@@ -355,12 +361,12 @@ input[type=checkbox]:before {
   cursor: pointer;
 }
 
-input[type=checkbox]:checked:before {
-background: var(--turquoise-color);
-border: 2px solid var(--turquoise-color);
-border-radius:4px;
+input[type="checkbox"]:checked:before {
+  background: var(--turquoise-color);
+  border: 2px solid var(--turquoise-color);
+  border-radius: 4px;
 }
-.notData{
+.notData {
   position: absolute;
   left: 45%;
   top: 60%;
