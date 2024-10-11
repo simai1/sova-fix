@@ -62,7 +62,6 @@ function SamplePoints(props) {
   };
 
   useEffect(() => {
-   
     const uniquePunkts = Array.from(new Set(props.punkts));
     const fd = uniquePunkts.filter((el) => {
       if (typeof el !== "boolean") {
