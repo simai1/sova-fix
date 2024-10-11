@@ -249,10 +249,10 @@ function UniversalTable(props) {
     }
   };
   console.log("store", store);
-  console.log("tableBodyData", tableBodyData)
+  console.log("tableBodyData", tableBodyData);
   useEffect(() => {
-      console.log("tableBodyData", tableBodyData)
-  },[tableBodyData])
+    console.log("tableBodyData", tableBodyData);
+  }, [tableBodyData]);
   //samplePointsData
   return (
     <div
@@ -303,6 +303,7 @@ function UniversalTable(props) {
                 >
                   <SamplePoints
                     basickData={basickData} // нефильтрованные данные
+                    tableBodyData={tableBodyData} // фильтрованные данные
                     punkts={[
                       ...tableBodyData.map((it) =>
                         it[el.key] === null ? "___" : it[el.key]
@@ -310,7 +311,13 @@ function UniversalTable(props) {
                       ...store
                         .filter((it) => it.itemKey === el.key)
                         .map((it) => it.value),
-                    ].sort((a, b) => a.localeCompare(b))} // пункты то есть то что отображается в li
+                    ].sort((a, b) => {
+                      if (typeof a === "string" && typeof b === "string") {
+                        return a.localeCompare(b);
+                      } else {
+                        return a - b;
+                      }
+                    })} // пункты то есть то что отображается в li
                     itemKey={el.key} // ключь пунта
                     tableName={props?.tableName}
                   />
@@ -369,7 +376,12 @@ function UniversalTable(props) {
                   {header.key === "itineraryOrder" && (
                     <div
                       onClick={() => setItineraryOrderPop(row.id)}
-                      className={document.location.pathname === "/CardPage/CardPageModule" ? styles.statusClick : styles.statusNotClick}
+                      className={
+                        document.location.pathname ===
+                        "/CardPage/CardPageModule"
+                          ? styles.statusClick
+                          : styles.statusNotClick
+                      }
                       // ref={ItineraryOrderPopRef}
                     >
                       {row[header.key] !== null ? row[header.key] : "___"}
