@@ -11,7 +11,6 @@ function SamplePoints(props) {
   const store = useSelector(
     (state) => state.isSamplePoints[props.tableName].isChecked
   );
-  
 
   const funLiCkick = (el) => {
     if (
@@ -34,16 +33,17 @@ function SamplePoints(props) {
 
   const funLiCkickAll = () => {
     if (store?.find((elem) => elem.itemKey === props.itemKey)) {
-      dispatch(setChecked({ tableName: props.tableName, checked: [] }));
+      const checked = store.filter((elem) => elem.itemKey !== props.itemKey);
+      dispatch(setChecked({ tableName: props.tableName, checked: checked }));
     } else {
-      const bd = [...props.basickData].map((el) => ({
+      const bd = [...props.tableBodyData].map((el) => ({
         itemKey: props.itemKey,
         value: el[props.itemKey],
       }));
       dispatch(
         setChecked({
           tableName: props.tableName,
-          checked: bd,
+          checked: [...store, ...bd],
         })
       );
     }
@@ -69,7 +69,7 @@ function SamplePoints(props) {
         return elString?.toLowerCase().includes(search?.toLowerCase());
       }
     });
-    console.log('fd', fd)
+    console.log("fd", fd);
     setFiltredPunkts(fd);
   }, [search, props.punkts]);
 
