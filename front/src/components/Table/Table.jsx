@@ -110,11 +110,9 @@ function Table() {
   //! при клике на пункт li убираем его из массива данных таблицы
   useEffect(() => {
     setDataTable(filterBasickData(context.dataTableFix, store));
-  }, [store]);
+  }, [store, context?.filteredTableData]);
 
-  useEffect(() => {
-    setDataTable(context?.filteredTableData);
-  }, [context?.filteredTableData]);
+
   const editStatus = (status, id) => {
     const data = {
       requestId: id,
@@ -373,7 +371,7 @@ function Table() {
         5: "Принята",
       };
       let modalData = [];
-      if (key !== "photo" && key !== "checkPhoto" && key !== "number" && key !== "problemDescription") {
+      if (key !== "photo" && key !== "checkPhoto" && key !== "number" && key !== "problemDescription" && key !== "id" && key !== "repairPrice") {
         if (key === "status") {
           modalData = context?.tableData?.map((item) => status[item[key]]);
         } else {
@@ -539,6 +537,21 @@ function Table() {
     return `tg://user?id=${tg_user_id}`;
   };
 
+  // function filterBasickData(data, chekeds) {
+  //   let tb = [...data];
+  //   let mass = [];
+  //   tb.filter((el) => {
+  //     if (chekeds.find((it) => el[it.itemKey] === it.value)) {
+  //       return;
+  //     } else {
+  //       mass.push(el);
+  //     }
+  //   });
+  //   return mass;
+  // }
+
+
+
   return (
     <div className={styles.TableWrapper}>
       <div
@@ -578,7 +591,7 @@ function Table() {
 
                         {item.key !== "number" &&
                           item.key !== "photo" &&
-                          item.key !== "checkPhoto" && item.key !== "problemDescription" && (
+                          item.key !== "checkPhoto" && item.key !== "problemDescription" &&  item.key !== "repairPrice" && (
                             <img
                               onClick={() => funSortByColumn(item.key)}
                               className={styles.thSort}
@@ -608,10 +621,12 @@ function Table() {
                             style={{
                               top: "70px",
                               position: "absolute",
+                              left: item.key === "legalEntity" ? "-110px" : "0",
                             }}
                           >
                             <SamplePoints
                               basickData={context.dataTableFix} // нефильтрованные данные
+                              tableBodyData={filterBasickData(context.dataTableFix, store)} // фильтрованные данные
                               punkts={[
                                 ...dataTable.map((it) =>
                                   it[item.key] === null ? "___" : it[item.key]
@@ -619,7 +634,10 @@ function Table() {
                                 ...store
                                   .filter((it) => it.itemKey === item.key)
                                   .map((it) => it.value),
-                              ].sort((a, b) => a.localeCompare(b))} // пункты то есть то что отображается в li
+                              ].sort((a, b) => {
+                                // Convert to string to avoid TypeError
+                                return String(a).localeCompare(String(b));
+                              })}
                               itemKey={item.key} // ключь пунта
                               tableName={"table9"}
                             />

@@ -50,7 +50,8 @@ function UniversalTable(props) {
       key !== "photo" &&
       key !== "fileName" &&
       key !== "problemDescription" &&
-      key !== "id"
+      key !== "id" && 
+      key !== "repairPrice"
     ) {
       if (sampleShow === index) {
         setSampleShow(null);
@@ -282,7 +283,8 @@ function UniversalTable(props) {
                 el.key !== "login" &&
                 el.key !== "photo" &&
                 el.key !== "problemDescription" &&
-                el.key !== "fileName"
+                el.key !== "fileName" &&
+                el.key !== "repairPrice"
                   ? { cursor: "pointer" }
                   : { cursor: "default" }
               }
@@ -306,18 +308,23 @@ function UniversalTable(props) {
                     tableBodyData={tableBodyData} // фильтрованные данные
                     punkts={[
                       ...tableBodyData.map((it) =>
-                        it[el.key] === null ? "___" : it[el.key]
+                        it[el.key] === null ? "___" : String(it[el.key]) // Ensure it's a string
                       ),
                       ...store
                         .filter((it) => it.itemKey === el.key)
-                        .map((it) => it.value),
+                        .map((it) => String(it.value)), // Ensure it's a string
                     ].sort((a, b) => {
+                      // Handle cases where a or b might not be a string
                       if (typeof a === "string" && typeof b === "string") {
                         return a.localeCompare(b);
+                      } else if (a == null) {
+                        return 1; // Place nulls at the end
+                      } else if (b == null) {
+                        return -1; // Place nulls at the end
                       } else {
-                        return a - b;
+                        return String(a).localeCompare(String(b)); // Convert to string for comparison
                       }
-                    })} // пункты то есть то что отображается в li
+                    })}
                     itemKey={el.key} // ключь пунта
                     tableName={props?.tableName}
                   />

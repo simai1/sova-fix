@@ -87,7 +87,7 @@
       border-left: 1px solid #e3dfda;
       @include font(14px, 500);
     }
-    th[name="photo"], th[name="checkPhoto"], th[name="problemDescription"] , th[name="number"] {
+    th[name="photo"], th[name="checkPhoto"], th[name="problemDescription"] , th[name="number"], th[name="repairPrice"] {
       &:hover {
         background-color: var(--tableTh);
         cursor: auto;
