@@ -8,11 +8,22 @@ import { isMatch } from '../utils/encryption';
 import User from '../models/user';
 import { sendMsg, WsMsgData } from '../utils/ws';
 import { Op } from 'sequelize';
+import logger from '../utils/logger';
 
 const create = async (name: string, role: number, tgId: string, linkId: string): Promise<TgUserDto> => {
     role = parseInt(String(role));
     const checkUser = await findUserByTgId(tgId);
-    if (checkUser) throw new ApiError(httpStatus.BAD_REQUEST, 'Already exists tgUser');
+    if (checkUser) {
+        logger.log({
+            level: 'error',
+            message: `Already exists tgUser ${tgId}. NewUser: ${name}, CheckUser: ${checkUser}`,
+        });
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Already exists tgUser');
+    }
+    logger.log({
+        level: 'info',
+        message: `User registered: ${name}`,
+    });
     const user = await TgUser.create({ name, role, tgId, linkId });
     if (role === 4) {
         user.Contractor = await Contractor.create({ name, tgUserId: user.id });

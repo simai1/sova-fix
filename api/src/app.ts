@@ -16,6 +16,8 @@ import objectRoute from './routes/object.route';
 import unitRoute from './routes/unit.route';
 import legalEntityRoute from './routes/legalEntity.route';
 import extContractorRoute from './routes/extContractor.route';
+import logger from './utils/logger';
+import winston from 'winston';
 
 const { app, getWss } = expressWs(express());
 
@@ -55,6 +57,15 @@ app.use('/extContractors', extContractorRoute);
 app.ws('/', () => {
     console.log('Success');
 });
+
+// logger section
+if (process.env.NODE_ENV !== 'production') {
+    logger.add(
+        new winston.transports.Console({
+            format: winston.format.simple(),
+        })
+    );
+}
 
 // export const broadcastConnection = (ws: any, msg: any) => {
 //     aWss.clients.forEach(client => {
