@@ -14,10 +14,6 @@ const create = async (name: string, role: number, tgId: string, linkId: string):
     role = parseInt(String(role));
     const checkUser = await findUserByTgId(tgId);
     if (checkUser) {
-        logger.log({
-            level: 'error',
-            message: `Already exists tgUser ${tgId}. NewUser: ${name}, CheckUser: ${checkUser}`,
-        });
         throw new ApiError(httpStatus.BAD_REQUEST, 'Already exists tgUser');
     }
     logger.log({
