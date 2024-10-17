@@ -10,7 +10,7 @@ class ApiError extends Error {
         this.isOperational = isOperational;
         logger.log({
             level: 'error',
-            message: message?.toString(),
+            message: `${message}`,
         });
         if (stack) {
             this.stack = stack;
