@@ -10,7 +10,7 @@ import { sendMsg, WsMsgData } from '../utils/ws';
 import { Op } from 'sequelize';
 import logger from '../utils/logger';
 
-const create = async (name: string, role: number, tgId: string, linkId: string): Promise<TgUserDto> => {
+const create = async (name: string, role: number, tgId: string, linkId: string | undefined): Promise<TgUserDto> => {
     role = parseInt(String(role));
     const checkUser = await findUserByTgId(tgId);
     if (checkUser) {
@@ -40,7 +40,7 @@ const syncManagerToTgUser = async (
     password: string,
     name: string,
     tgId: string,
-    linkId: string
+    linkId: string | undefined
 ): Promise<TgUserDto> => {
     const user = await userService.getUserByEmail(email);
     if (!user || !(await isMatch(password, user.password)))
