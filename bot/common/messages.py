@@ -60,7 +60,7 @@ async def send_several_requests(repair_requests: list, message: Message, state: 
     bound_ = page * pagination.requests_per_page
     _bound = bound_ + pagination.requests_per_page
 
-    for rr in repair_requests[::-1][bound_:_bound]:
+    for rr in repair_requests[bound_:_bound]:
         await send_func(message, rr)
         await asyncio.sleep(0.2)
 
