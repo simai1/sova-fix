@@ -1,7 +1,7 @@
 .SamplePoints {
   width: 450px;
   padding: 18px 16px;
-  
+  max-height: 55vh;
   .search {
     // width: 350px;
     display: flex;
@@ -17,7 +17,7 @@
   ul {
     margin: 0;
     padding: 0;
-    max-height: 140px;
+    max-height: 90%;
     overflow-y: scroll;
     li {
       display: flex;
