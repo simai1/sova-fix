@@ -10,6 +10,8 @@ import { useDispatch } from "react-redux";
 import imgClose from "./../../assets/images/x.svg";
 import arrowBottom from "./../../assets/images/arrow_bottom.svg";
 import Logo from "./../../assets/images/SovaFixLogo.svg"
+import LogoComp from "./../../assets/images/ЭФОР.svg"
+
 function Header() {
     const { context } = useContext(DataContext);
     const [isOpen, setIsOpen] = useState(false);
@@ -106,7 +108,11 @@ function Header() {
 
 return (
   <div className={styles.Header}>
-      <button className={styles.buttonMenu} onClick={toggleMenu}>Меню</button>
+  <div className={styles.headerButton}>
+    <img src={LogoComp}/>
+    <button className={styles.buttonMenu} onClick={toggleMenu}>Меню</button>
+  </div>
+    
       <div className={`menu ${isOpen ? 'open' : ''}`} ref={menuRef}>
           {/* <h3>{shortName}</h3> */}
           <div className={styles.close}>
@@ -115,7 +121,7 @@ return (
           <ul className={styles.menuUl}>
               <li onClick={() => LinkPage()} className={styles.menuLi}>Главная</li>
               <li onClick={() => LinkPage("Card")} className={styles.menuLi}>Маршрутный лист</li>
-              <li onClick={() => setIsOpenSprav(!isOpenSprav)} className={styles.menuLi} style={isOpenSprav ? { backgroundColor: "#FFE20D" } : { backgroundColor: "#fff" }}>
+              <li onClick={() => setIsOpenSprav(!isOpenSprav)} className={styles.menuLi} style={isOpenSprav ? { backgroundColor: "#FFE20D" } : { backgroundColor: "#e3dfda" }}>
                   Справочники
                   <img style={isOpenSprav ? { transform: "rotate(0deg)" } : { transform: "rotate(-90deg)" }} src={arrowBottom} />
               </li>
@@ -134,7 +140,7 @@ return (
                   <li className={styles.menuLi} onClick={() => LinkPage("Directory/ThePerformersDirectory")}>Внешние подрядчики</li>
                   <li className={styles.menuLi} onClick={() => LinkPage("Directory/UsersDirectory")}>Пользователи</li>
               </ul>
-              <li onClick={() => setIsOpenFinans(!isOpenFinans)} className={styles.menuLi} style={isOpenFinans ? { backgroundColor: "#FFE20D" } : { backgroundColor: "#fff" }}>
+              <li onClick={() => setIsOpenFinans(!isOpenFinans)} className={styles.menuLi} style={isOpenFinans ? { backgroundColor: "#FFE20D" } : { backgroundColor: "#e3dfda" }}>
                   Отчеты
                   <img style={isOpenFinans ? { transform: "rotate(0deg)" } : { transform: "rotate(-90deg)" }} src={arrowBottom} />
               </li>
