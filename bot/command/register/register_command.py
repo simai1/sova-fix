@@ -111,7 +111,7 @@ async def finish_registration_admin(message: Message, state: FSMContext) -> None
         await message.answer('Неверные логин или пароль', reply_markup=to_start_kb())
         return
 
-    await message.answer('Успех', reply_markup=to_start_kb())
+    await message.answer('Вы успешно зарегистрировались в систему ✅', reply_markup=to_start_kb())
 
 
 async def finish_registration(query: CallbackQuery, state: FSMContext) -> None:
