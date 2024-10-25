@@ -1,14 +1,13 @@
 import { CronJob } from 'cron';
 import RepairRequest from '../models/repairRequest';
 export default {
-    setDays: new CronJob('00 00 * * *', async () => {
+    // setDays: new CronJob('* * * * *', async () => { // every 1 min
+    setDays: new CronJob('0 3 * * *', async () => {
         console.log('[CRON] Start setDays');
 
-        const requests = await RepairRequest.findAll({ where: { status: 2 } });
-        const today = new Date();
+        const requests = await RepairRequest.findAll({ where: { status: [1, 2] } });
         for (const request of requests) {
-            const dayDiff = Math.round((today.getTime() - Number(request.createdAt)) / (1000 * 3600 * 24));
-            await request.update({ daysAtWork: dayDiff });
+            await request.increment('daysAtWork');
         }
 
         console.log('[CRON] End setDays');

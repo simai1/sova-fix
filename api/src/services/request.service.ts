@@ -279,7 +279,6 @@ const setStatus = async (requestId: string, status: number): Promise<void> => {
     await request.update({
         status,
         completeDate: status === 3 ? new Date() : null,
-        daysAtWork: status === 2 ? 1 : status === 3 ? undefined : 0,
     });
 };
 
