@@ -87,6 +87,15 @@ const setComment = catchAsync(async (req, res) => {
     res.json({ status: 'OK' });
 });
 
+const setCommentPhoto = catchAsync(async (req, res) => {
+    const { requestId } = req.body;
+    const fileName = req.file?.filename;
+    if (!fileName) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing file');
+    if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
+    const request = await requestService.setCommentPhoto(requestId, fileName);
+    res.json(request);
+});
+
 const removeContractor = catchAsync(async (req, res) => {
     const { requestId } = req.body;
     if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
@@ -232,16 +241,17 @@ const bulkContractor = catchAsync(async (req, res) => {
 export default {
     getAll,
     getOne,
+    getCustomersRequests,
     create,
     setContractor,
     setExtContractor,
-    removeExtContractor,
-    setComment,
-    removeContractor,
     setStatus,
+    setComment,
+    setCommentPhoto,
+    removeExtContractor,
+    removeContractor,
     deleteRequest,
     update,
-    getCustomersRequests,
     addCheck,
     bulkDelete,
     bulkStatus,
