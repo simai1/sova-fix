@@ -8,7 +8,7 @@ import { DataList } from "../ReportFinansing/ReportFinansingData";
 import styles from "./RepotIndicators.module.scss";
 import DataContext from "../../../../context";
 import { funFixEducator } from "../../../../UI/SamplePoints/Function";
-import { tableHeadIndicators } from "./RepotIndicatorsDaat";
+import { DataListViborka, tableHeadIndicators } from "./RepotIndicatorsDaat";
 import UniversalDashbordSrochn from "../../../../components/UniversalDashbord/UniversalDashbordSrochn";
 import UniversalDashbordStatus from "../../../../components/UniversalDashbord/UniversalDashbordStatus";
 import UniversalDashboardStatus from "../../../../components/UniversalDashbord/UniversalDashbordStatus";
@@ -23,6 +23,7 @@ function RepotIndicators() {
   const [tableDataIndicatorsSort, setTableDataIndicatorsSort] = useState([]);
   const [valueName, setValueName] = useState("Все время");
   const [vidView, setVidView] = useState("Таблица");
+  const [nameViborka, setNameViborka] = useState("");
   const [vidViewChange, setVidViewChange] = useState(false);
   const dropdownRef = useRef(null); // Create a ref for the dropdown
   const [dateFrom, setDateFrom] = useState(
@@ -139,14 +140,15 @@ function RepotIndicators() {
 
   useEffect(() => {
     setTableDataIndicatorsSort(
-      sortDataTable(valueName, tableDataIndicators, dateFrom, dateTo)
+      sortDataTable(valueName, tableDataIndicators, dateFrom, dateTo, nameViborka)
     );
-  }, [valueName, tableDataIndicators, dateFrom, dateTo]);
+  }, [valueName, tableDataIndicators, dateFrom, dateTo, nameViborka]);
 
   const refreshFilters = () => {
     setValueName("Все время");
     setDateFrom(new Date().toISOString().slice(0, 10));
     setDateTo(new Date().toISOString().slice(0, 10));
+    setNameViborka("")
   };
 
   // Close dropdown when clicking outside of it
@@ -196,7 +198,6 @@ function RepotIndicators() {
                 setValueName={setValueName}
                 valueName={valueName}
               />
-
               <div className={styles.ReportFinansingListInnerDate}>
                 <span>От:</span>
                 <input
@@ -222,7 +223,20 @@ function RepotIndicators() {
                   value={dateTo}
                   onChange={(e) => setDateTo(e.target.value)}
                 />
+              
               </div>
+              <div className={styles.thisFilter}>
+                  {/* <div>
+                    <p>Формировать по:</p>
+                  </div> */}
+                  <UneversalList
+                    dataList={DataListViborka}
+                    placeholder="Формировать по..."
+                    value=""
+                    setValueName={setNameViborka}
+                    valueName={nameViborka}
+                  />
+                </div>
               <div
                 className={styles.dropFilter}
                 onClick={refreshFilters}
