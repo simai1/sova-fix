@@ -35,9 +35,9 @@ export default {
             uploadsFiles = files;
             const requests = await RepairRequest.findAll();
             requests.forEach(request => {
-                request.commentPhoto
-                    ? uploadsFiles.includes(request.commentPhoto)
-                        ? uploadsFiles.splice(uploadsFiles.indexOf(request.commentPhoto), 1)
+                request.commentAttachment
+                    ? uploadsFiles.includes(request.commentAttachment)
+                        ? uploadsFiles.splice(uploadsFiles.indexOf(request.commentAttachment), 1)
                         : undefined
                     : undefined;
                 request.fileName

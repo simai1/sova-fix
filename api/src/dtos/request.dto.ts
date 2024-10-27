@@ -14,13 +14,13 @@ export default class RequestDto {
     problemDescription?: string;
     urgency!: string;
     fileName!: string;
-    checkPhoto?: string;
+    commentAttachment?: string;
     itineraryOrder?: number;
     completeDate?: string;
     completeDateRaw?: Date;
     repairPrice?: number;
     comment?: string;
-    commentPhoto?: string;
+    checkPhoto?: string;
     legalEntity?: string;
     daysAtWork!: number;
     createdAt!: string;
@@ -44,7 +44,7 @@ export default class RequestDto {
         this.completeDateRaw = model.completeDate;
         this.repairPrice = model.repairPrice;
         this.comment = model.comment;
-        this.commentPhoto = model.commentPhoto;
+        this.commentAttachment = model.commentAttachment;
         this.legalEntity = model.LegalEntity ? model.LegalEntity.name : undefined;
         this.daysAtWork = model.daysAtWork;
         this.fileName = model.fileName;
