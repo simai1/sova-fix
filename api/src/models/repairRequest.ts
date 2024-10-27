@@ -18,6 +18,7 @@ export default class RepairRequest extends Model {
     completeDate?: Date;
     repairPrice?: number;
     comment?: string;
+    commentPhoto?: string;
     daysAtWork!: number;
     fileName!: string;
     checkPhoto?: string;
@@ -83,6 +84,10 @@ export default class RepairRequest extends Model {
                     allowNull: true,
                 },
                 comment: {
+                    type: DataTypes.STRING,
+                    allowNull: true,
+                },
+                commentPhoto: {
                     type: DataTypes.STRING,
                     allowNull: true,
                 },
