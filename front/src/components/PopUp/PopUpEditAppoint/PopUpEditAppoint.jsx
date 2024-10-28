@@ -168,7 +168,7 @@ function PopUpEditAppoint(props) {
   // };
   const handleFileChange = (event) => {
     const file = event.target.files[0];
-    if (file && file.type.startsWith("image/")) {
+    if (file) {
       // Создаем объект FormData
       const formData = new FormData();
       formData.append("requestId", idRequest); // Добавляем requestId
@@ -182,6 +182,7 @@ function PopUpEditAppoint(props) {
           console.log("Response from server:", resp);
           if (resp?.status === 200) {
             updGetData(idRequest);
+            context.UpdateTableReguest(1);
           }
         })
         .catch((error) => {
@@ -196,7 +197,10 @@ function PopUpEditAppoint(props) {
   const openModal = (src) => {
     setModalImage(src);
   };
-
+  const isVideo = (fileName) => {
+    const videoExtensions = ['.mp4', '.avi', '.mov', '.wmv', '.mkv'];
+    return videoExtensions.some(ext => fileName.endsWith(ext));
+  };
   const closeModal = () => {
     setModalImage(null);
   };
@@ -255,41 +259,55 @@ function PopUpEditAppoint(props) {
             />
           </div>
           <div className={styles.SecondBlock}>
-            <div className={styles.commentBlock}>
-              <div
-                className={styles.PhotoImg}
-                onClick={() =>
-                  openModal(
-                    dataApStart?.commentAttachment
-                      ? `${process.env.REACT_APP_API_URL}/uploads/${dataApStart?.commentAttachment}`
-                      : notPhoto
-                  )
-                }
-              >
-                <img
-                  src={
-                    dataApStart?.commentAttachment
-                      ? `${process.env.REACT_APP_API_URL}/uploads/${dataApStart?.commentAttachment}`
-                      : notPhoto
-                  }
-                  alt="Preview"
-                />
-              </div>
-
-              <div>
-                <Input
-                  Textlabel={"Комментарий"}
-                  handleInputChange={handleInputChange}
-                  name="comment"
-                  type="textArea"
-                  placeholder="Комментарий"
-                  value={dataApointment.comment}
-                />
-              </div>
-            </div>
+          <div className={styles.commentBlock}>
+  {dataApStart?.commentAttachment ? (
+    isVideo(dataApStart.commentAttachment) ? (
+      <div className={styles.soursBg}>
+        <video
+          onClick={(e) => {
+            e.preventDefault(); // Prevent the modal from closing
+            e.stopPropagation();
+            openModal(`${process.env.REACT_APP_API_URL}/uploads/${dataApStart.commentAttachment}`);
+          }}
+          style={{ cursor: "pointer" }}
+          className={styles.videoTable}
+        >
+          <source src={`${process.env.REACT_APP_API_URL}/uploads/${dataApStart.commentAttachment}`} />
+          Your browser does not support the video tag.
+        </video>
+      </div>
+    ) : (
+      <img
+        src={`${process.env.REACT_APP_API_URL}/uploads/${dataApStart.commentAttachment}`}
+        alt="Uploaded file"
+        onClick={() => openModal(`${process.env.REACT_APP_API_URL}/uploads/${dataApStart.commentAttachment}`)}
+        style={{ cursor: "pointer" }}
+        className={styles.imgTable}
+      />
+    )
+  ) : (
+    <img
+      src={notPhoto}
+      alt="Uploaded file"
+      onClick={() => openModal(notPhoto)}
+      style={{ cursor: "pointer" }}
+      className={styles.imgTable}
+    />
+  )}
+  <div>
+    <Input
+      Textlabel={"Комментарий"}
+      handleInputChange={handleInputChange}
+      name="comment"
+      type="textArea"
+      placeholder="Комментарий"
+      value={dataApointment.comment}
+    />
+  </div>
+</div>
             <div className={styles.addPhoto}>
               <div>
-                <button onClick={handleButtonClick}>Добавить фотографию</button>
+                <button onClick={handleButtonClick}>Добавить медиафайл</button>
               </div>
               <div>
                 <input
@@ -297,7 +315,7 @@ function PopUpEditAppoint(props) {
                   ref={fileInputRef}
                   onChange={handleFileChange}
                   style={{ display: "none" }} // Hide the input
-                  accept="image/*" // Only allow image files
+                  // accept="image/*" // Only allow image files
                 />
               </div>
             </div>
@@ -326,14 +344,28 @@ function PopUpEditAppoint(props) {
         </button>
       </div>
       {modalImage && (
-        <div className={styles.modal} onClick={closeModal}>
-          <span className={styles.close}>&times;</span>
-          <img
-            className={styles.modalContent}
-            src={modalImage}
-            alt="Full size"
-          />
+        <div className={styles.modal}>
+      <span className={styles.close} onClick={closeModal}>&times;</span>
+      {isVideo(modalImage) ? (
+        <video
+          controls
+          className={styles.modalContent}
+          src={modalImage}
+          alt="Full size video"
+        >
+          Your browser does not support the video tag.
+        </video>
+      ) : (
+        <div onClick={closeModal}>
+
+        <img
+          className={styles.modalContent}
+          src={modalImage}
+          alt="Full size"
+        />
         </div>
+      )}
+    </div>
       )}
     </PopUpContainer>
   );

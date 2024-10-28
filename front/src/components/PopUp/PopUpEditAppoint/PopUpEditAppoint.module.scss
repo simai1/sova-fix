@@ -101,3 +101,22 @@ input {
   text-decoration: none;
   cursor: pointer;
 }
+.commentBlock{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.soursBg{
+  background-color: #f1f1f1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 20px;
+  padding: 0px 10px;
+  border-radius: 8px;
+}
+.commentBlock video{
+  width: 130px;
+  height: 130px;
+ 
+}

@@ -198,6 +198,7 @@ function Table() {
 
   const openModal = (src) => {
     setModalImage(src);
+    console.log("src", src)
   };
 
   const closeModal = () => {
@@ -371,7 +372,7 @@ function Table() {
         5: "Принята",
       };
       let modalData = [];
-      if (key !== "photo" && key !== "checkPhoto" && key !== "number" && key !== "problemDescription" && key !== "id" && key !== "repairPrice") {
+      if (key !== "photo" && key !== "checkPhoto" && key !== "commentAttachment" && key !== "number" && key !== "problemDescription" && key !== "id" && key !== "repairPrice") {
         if (key === "status") {
           modalData = context?.tableData?.map((item) => status[item[key]]);
         } else {
@@ -488,7 +489,8 @@ function Table() {
       keys === "daysAtWork" ||
       keys === "completeDate" ||
       keys === "createdAt" ||
-      keys === "repairPrice"
+      keys === "repairPrice" ||
+      keys === "commentAttachment"
     ) {
       return "center";
     } else if (item === "___") {
@@ -497,6 +499,13 @@ function Table() {
       return "left";
     }
   };
+
+  // Helper function to check if the file is a video
+const isVideo = (fileName) => {
+  const videoExtensions = ['.mp4', '.avi', '.mov', '.wmv', '.mkv'];
+  return videoExtensions.some(ext => fileName.endsWith(ext));
+};
+
   const WhatNanItem = () => {
     const tds = document.querySelectorAll("td[name='name']");
     tds?.forEach((el) => {
@@ -591,7 +600,7 @@ function Table() {
 
                         {item.key !== "number" &&
                           item.key !== "photo" &&
-                          item.key !== "checkPhoto" && item.key !== "problemDescription" &&  item.key !== "repairPrice" && (
+                          item.key !== "checkPhoto" && item.key !== "problemDescription" &&  item.key !== "repairPrice" &&  item.key !== "commentAttachment" && (
                             <img
                               onClick={() => funSortByColumn(item.key)}
                               className={styles.thSort}
@@ -812,20 +821,68 @@ function Table() {
                               : "Не активирован"}
                           </>
                         ) : headerItem.key === "photo" ? (
-                          <div>
-                            <img
-                              src={`${process.env.REACT_APP_API_URL}/uploads/${row.fileName}`}
-                              alt="Uploaded file"
-                              onClick={() =>
-                                openModal(
-                                  `${process.env.REACT_APP_API_URL}/uploads/${row.fileName}`
-                                )
-                              }
-                              style={{ cursor: "pointer" }}
-                              className={styles.imgTable}
-                            />
-                          </div>
-                        ) : headerItem.key === "checkPhoto" ? (
+                  <div>
+                    {isVideo(row.fileName) ? (
+                      <div className={styles.fileVideoTable}>
+                        <video
+                          onClick={(e) => {
+                            e.preventDefault(); // Prevent the default action
+                            e.stopPropagation(); // Prevent the modal from closing
+                            openModal(`${process.env.REACT_APP_API_URL}/uploads/${row.fileName}`);
+                          }}
+                          style={{ cursor: "pointer" }}
+                          className={styles.videoTable}
+                        >
+                          <source src={`${process.env.REACT_APP_API_URL}/uploads/${row.fileName}`} />
+                          Your browser does not support the video tag.
+                        </video>
+                      </div>
+                    ) : (
+                      <img
+                        src={`${process.env.REACT_APP_API_URL}/uploads/${row.fileName}`}
+                        alt="Uploaded file"
+                        onClick={() =>
+                          openModal(`${process.env.REACT_APP_API_URL}/uploads/${row.fileName}`)
+                        }
+                        style={{ cursor: "pointer" }}
+                        className={styles.imgTable}
+                      />
+                    )}
+                  </div>
+                ) : headerItem.key === "commentAttachment" ? (
+            row.commentAttachment === "___" || row.commentAttachment === null ? (
+              "___"
+            ) : (
+              <div className={styles.fileVideoTable}>
+                {isVideo(row.commentAttachment) ? (
+                  <video
+                    
+                    onClick={(e) =>{
+                      e.preventDefault(); // Prevent the modal from closing
+                      e.stopPropagation();
+                      openModal(`${process.env.REACT_APP_API_URL}/uploads/${row.commentAttachment}`)
+                    }
+                    }
+                    style={{ cursor: "pointer" }}
+                    className={styles.videoTable}
+                  >
+                    <source src={`${process.env.REACT_APP_API_URL}/uploads/${row.commentAttachment}`} />
+                    Your browser does not support the video tag.
+                  </video>
+                ) : (
+                  <img
+                    src={`${process.env.REACT_APP_API_URL}/uploads/${row.commentAttachment}`}
+                    alt="Uploaded file"
+                    onClick={() =>
+                      openModal(`${process.env.REACT_APP_API_URL}/uploads/${row.commentAttachment}`)
+                    }
+                    style={{ cursor: "pointer" }}
+                    className={styles.imgTable}
+                  />
+                )}
+              </div>
+            )
+          ) : headerItem.key === "checkPhoto" ? (
                           <div>
                             {row.checkPhoto === "___" ? (
                               "___"
@@ -1100,15 +1157,29 @@ function Table() {
       )}
 
       {modalImage && (
-        <div className={styles.modal} onClick={closeModal}>
-          <span className={styles.close}>&times;</span>
-          <img
-            className={styles.modalContent}
-            src={modalImage}
-            alt="Full size"
-          />
+    <div className={styles.modal}>
+      <span className={styles.close} onClick={closeModal}>&times;</span>
+      {isVideo(modalImage) ? (
+        <video
+          controls
+          className={styles.modalContent}
+          src={modalImage}
+          alt="Full size video"
+        >
+          Your browser does not support the video tag.
+        </video>
+      ) : (
+        <div onClick={closeModal}>
+
+        <img
+          className={styles.modalContent}
+          src={modalImage}
+          alt="Full size"
+        />
         </div>
       )}
+    </div>
+  )}
       {context.popUp === "СonfirmDelete" && <СonfirmDelete />}
 
       {openConextMenu && (

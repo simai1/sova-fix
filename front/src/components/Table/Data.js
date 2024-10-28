@@ -6,7 +6,7 @@ export const tableHeadAppoint = [
   { key: "builder", value: "Подрядчик", isActive: true  },
   { key: "status", value: "Статус заявки", isActive: true  },
   { key: "problemDescription", value: "Описание проблемы", isActive: true  },
-  { key: "photo", value: "Фото проблемы", isActive: true  },
+  { key: "photo", value: "Медиафайл проблемы", isActive: true  },
   { key: "itineraryOrder", value: "Порядок маршрута", isActive: true  },
   { key: "urgency", value: "Срочность", isActive: true  },
   { key: "createdAt", value: "Дата создания заявки", isActive: true  },
@@ -14,6 +14,7 @@ export const tableHeadAppoint = [
   { key: "completeDate", value: "Дата выполнения (факт)", isActive: true  },
   { key: "repairPrice", value: "Бюджет ремонта", isActive: true  },
   { key: "comment", value: "Комментарий", isActive: true  },
+  { key: "commentAttachment", value: "Вложение к комментарию", isActive: true  },
   { key: "legalEntity", value: "Юр. Лицо", isActive: true  },
   { key: "checkPhoto", value: "Фото чека", isActive: true  },
 ]; 
