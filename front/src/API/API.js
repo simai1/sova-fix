@@ -883,11 +883,16 @@ export const EditMoreContractorRequest = async (data) => {
 
 export const setCommentPhotoApi = async (data) => {
   try {
-    const response = await http.patch(`${server}/requests/set/commentPhoto`, data, {
-      headers: {
-        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
-      },
-    });
+    const response = await http.patch(
+      `${server}/requests/set/commentAttachment`,
+      data,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data", // Обязательно указывайте тип содержимого
+          Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+        },
+      }
+    );
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
@@ -897,5 +902,3 @@ export const setCommentPhotoApi = async (data) => {
     }
   }
 };
-
-

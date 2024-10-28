@@ -7,11 +7,11 @@
   width: 100%;
   .buttonSave {
     margin-top: 20px;
-    background-color: var(--turquoise-color)!important;
+    background-color: var(--turquoise-color) !important;
     @include buttonSave(var(--turquoise-color));
   }
 }
-input{
+input {
   height: 16px;
 }
 .popBox {
@@ -22,39 +22,40 @@ input{
     display: flex;
   }
 }
-.FirstBlock{
-margin: 10px;
+.FirstBlock {
+  margin: 10px;
 }
-.SecondBlock{
-margin: 10px;
+.SecondBlock {
+  margin: 10px;
 }
-.commentBlock{
+.commentBlock {
   display: flex;
-  img{
+  img {
     width: 130px;
     margin-right: 20px;
     height: 130px;
-
+    object-fit: cover;
   }
-  textarea{
-    width: 270px!important;
+  textarea {
+    width: 270px !important;
   }
-  .PhotoImg{
+  .PhotoImg {
     display: flex;
     justify-content: center;
     align-items: center;
+    object-fit: cover;
   }
 }
-.addPhoto{
+.addPhoto {
   height: 50px;
-  button{
+  button {
     height: 36px;
-    padding: 5px 15px!important;
-    font-size: 18px!important;
-    background-color: var(--turquoise-color)!important;
+    padding: 5px 15px !important;
+    font-size: 18px !important;
+    background-color: var(--turquoise-color) !important;
     @include buttonSave(var(--turquoise-color));
   }
-  input{
+  input {
     height: 25px;
   }
 }
