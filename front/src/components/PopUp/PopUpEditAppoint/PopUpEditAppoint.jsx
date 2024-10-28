@@ -315,7 +315,7 @@ function PopUpEditAppoint(props) {
                   ref={fileInputRef}
                   onChange={handleFileChange}
                   style={{ display: "none" }} // Hide the input
-                  // accept="image/*" // Only allow image files
+                  accept=".jpg, .jpeg, .png, .mp4" // Only allow image files
                 />
               </div>
             </div>
