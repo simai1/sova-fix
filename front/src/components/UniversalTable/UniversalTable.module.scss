@@ -42,6 +42,7 @@
               
                 padding: 10px;
                 text-align: center;
+                font-weight: 300;
                 &:nth-child(1) {
                   border-radius: 8px 0 0 0;
                 }
@@ -62,7 +63,7 @@
           position: absolute;
           max-width: 225px;
           min-width: 225px;
-          height: 200px;
+          // height: 200px;
           background-color: #ffffff;
           left: 0;
           top: 45px;

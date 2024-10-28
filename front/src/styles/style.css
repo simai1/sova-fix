@@ -47,6 +47,7 @@ h5, h4, h6{
 }
 p{
   font-family: 'FactWebRegular';
+  font-weight: 300;
 }
 
 /* Стили для всего скроллбара */

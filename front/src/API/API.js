@@ -5,7 +5,7 @@ const http = axios.create({
 // const server = process.env.REACT_APP_API_URL;
 const server = "http://localhost:3000";
 
-const REFRESH_INTERVAL = 900000; // 15 минут 900000
+const REFRESH_INTERVAL = 500000; // 15 минут 900000
 let refreshTokensTimeout;
 
 //!Рефреш токенов
@@ -807,7 +807,6 @@ export const DeleteExtContractorsRequest = async (data) => {
 //!удаление заявок
 
 export const DeleteMoreRequest = async (data) => {
-  console.log("data", data);
   try {
     const response = await http.post(`${server}/requests/delete/bulk`, data, {
       headers: {
@@ -826,7 +825,6 @@ export const DeleteMoreRequest = async (data) => {
 
 //!массовый статус
 export const EditMoreStatusRequest = async (data) => {
-  console.log("вызвал");
   try {
     const response = await http.patch(`${server}/requests/status/bulk`, data, {
       headers: {
@@ -845,7 +843,6 @@ export const EditMoreStatusRequest = async (data) => {
 
 //!массовый срочность
 export const EditMoreUrgencyRequest = async (data) => {
-  console.log("вызвал");
   try {
     const response = await http.patch(`${server}/requests/urgency/bulk`, data, {
       headers: {
@@ -864,7 +861,6 @@ export const EditMoreUrgencyRequest = async (data) => {
 
 //!массовый contractor
 export const EditMoreContractorRequest = async (data) => {
-  console.log("вызвал");
   try {
     const response = await http.patch(
       `${server}/requests/contractor/bulk`,
@@ -884,3 +880,22 @@ export const EditMoreContractorRequest = async (data) => {
     }
   }
 };
+
+export const setCommentPhotoApi = async (data) => {
+  try {
+    const response = await http.patch(`${server}/requests/set/commentPhoto`, data, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при удалении заявок!");
+    }
+  }
+};
+
+

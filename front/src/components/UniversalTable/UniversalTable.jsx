@@ -111,8 +111,7 @@ function UniversalTable(props) {
 
       case "id":
         return index + 1;
-      case "isConfirmed":
-        return value ? "Активирован" : "Не активирован";
+   
       case "repairPrice":
         return value.toLocaleString().replace(",", " ") || "___";
 

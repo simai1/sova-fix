@@ -20,6 +20,7 @@ export default class RequestDto {
     completeDateRaw?: Date;
     repairPrice?: number;
     comment?: string;
+    commentPhoto?: string;
     legalEntity?: string;
     daysAtWork!: number;
     createdAt!: string;
@@ -43,6 +44,7 @@ export default class RequestDto {
         this.completeDateRaw = model.completeDate;
         this.repairPrice = model.repairPrice;
         this.comment = model.comment;
+        this.commentPhoto = model.commentPhoto;
         this.legalEntity = model.LegalEntity ? model.LegalEntity.name : undefined;
         this.daysAtWork = model.daysAtWork;
         this.fileName = model.fileName;

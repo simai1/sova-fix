@@ -1,4 +1,5 @@
 import logger from './logger';
+import { format } from 'date-fns';
 
 class ApiError extends Error {
     statusCode: number;
@@ -10,7 +11,7 @@ class ApiError extends Error {
         this.isOperational = isOperational;
         logger.log({
             level: 'error',
-            message: `${message}`,
+            message: `[${format(new Date(), 'dd.MM.yyyy HH:mm')}] ${message}`,
         });
         if (stack) {
             this.stack = stack;

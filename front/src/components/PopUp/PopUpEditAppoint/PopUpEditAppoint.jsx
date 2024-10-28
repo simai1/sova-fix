@@ -1,17 +1,18 @@
 // PopUpNewClient.js
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styles from "./PopUpEditAppoint.module.scss";
 import PopUpContainer from "../../../UI/PopUpContainer/PopUpContainer";
 import Input from "../../../UI/Input/Input";
 import DataContext from "../../../context";
-import { GetObjectsAll, GetOneRequests, Register, ReseachDataRequest, SetcontractorRequest } from "../../../API/API";
+import { GetObjectsAll, GetOneRequests, Register, ReseachDataRequest, SetcontractorRequest, setCommentPhotoApi } from "../../../API/API";
 import List from "../../../UI/List/List";
 import ListInput from "../../../UI/ListInput/ListInput";
-
+import notPhoto from "./../../../assets/images/notPhoto.png"
 function PopUpEditAppoint(props) {
   const { context } = React.useContext(DataContext);
   const [dataApStart, setDataApStart] = useState(null)
   const [dataObject, setDataObject] = useState([]);
+  const [idRequest, setIdRequest] = useState(null)
   const [dataApointment, setdataApointment] = useState({
     contractorId:"",
     builder:"",
@@ -54,6 +55,8 @@ const [selectId, setSelectId] = useState(null);
     GetObjectsAll().then((response) => {
       setDataObject(response.data);
     })
+   
+    setIdRequest(context.moreSelect[0] || context.selectedTr)
   },[])
 
   useEffect(() => {
@@ -117,6 +120,48 @@ const [selectId, setSelectId] = useState(null);
       const toggleDropdown = (name) => {
         setActiveDropdown(activeDropdown === name ? null : name);
       };
+
+        const fileInputRef = useRef(null);
+      
+      
+        const handleButtonClick = () => {
+          // Trigger the file input click
+          fileInputRef.current.click();
+        };
+      
+        const handleFileChange = (event) => {
+          const file = event.target.files[0];
+          if (file && file.type.startsWith('image/')) {
+            // Here you can handle the file upload to the server
+            console.log("file", file)
+              const dataFile = [
+                {
+                  requestId: idRequest,
+                  file: file
+                }
+              ]
+              
+              console.log('dataFile:', dataFile);
+              setCommentPhotoApi(dataFile).then((resp)=>{
+                console.log(resp)
+              })
+              
+            
+          } else {
+            alert('Please select an image file.');
+          }
+        };
+
+        const [modalImage, setModalImage] = useState(null);
+        const openModal = (src) => {
+          setModalImage(src);
+        };
+      
+        const closeModal = () => {
+          setModalImage(null);
+        };
+      
+
   return (
     <PopUpContainer width={true} title={"Редактирование заявки"} mT={75}>
       <div className={styles.popBox}>
@@ -171,14 +216,42 @@ const [selectId, setSelectId] = useState(null);
           />
         </div>     
           <div className={styles.SecondBlock}>
-            <Input
-            Textlabel={"Комментарий"}
-            handleInputChange={handleInputChange}
-            name="comment"
-            type = "textArea"
-            placeholder="Комментарий"
-            value={dataApointment.comment}
-          />
+          
+          <div className={styles.commentBlock}>
+          <div className={styles.PhotoImg}  onClick={() =>
+              openModal(
+                dataApointment.commentPhoto ? `${process.env.REACT_APP_API_URL}/uploads/${dataApointment.commentPhoto}` : notPhoto
+              )
+            }>
+            <img src={dataApointment.commentPhoto ? `${process.env.REACT_APP_API_URL}/uploads/${dataApointment.commentPhoto}` : notPhoto} alt="Preview" />
+          </div>
+
+         
+            <div>
+              <Input
+                  Textlabel={"Комментарий"}
+                  handleInputChange={handleInputChange}
+                  name="comment"
+                  type = "textArea"
+                  placeholder="Комментарий"
+                  value={dataApointment.comment}
+                />
+            </div>
+          </div>
+          <div className={styles.addPhoto}>
+            <div>
+              <button onClick={handleButtonClick}>Добавить фотографию</button>
+            </div>
+            <div>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                style={{ display: 'none' }} // Hide the input
+                accept="image/*" // Only allow image files
+              />
+            </div>
+          </div>
            <Input
             Textlabel={"Описание проблемы"}
             handleInputChange={handleInputChange}
@@ -204,6 +277,16 @@ const [selectId, setSelectId] = useState(null);
           Сохранить
         </button>
       </div>
+      {modalImage && (
+            <div className={styles.modal} onClick={closeModal}>
+              <span className={styles.close}>&times;</span>
+              <img
+                className={styles.modalContent}
+                src={modalImage}
+                alt="Full size"
+              />
+            </div>
+          )}
     </PopUpContainer>
   );
 }

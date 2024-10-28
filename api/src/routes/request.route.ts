@@ -40,6 +40,7 @@ router.route('/set/extContractor').patch(requestController.setExtContractor);
 router.route('/set/contractor').patch(requestController.setContractor);
 router.route('/set/status').patch(requestController.setStatus);
 router.route('/set/comment').patch(requestController.setComment);
+router.route('/set/commentPhoto').patch(upload.single('file'), requestController.setCommentPhoto);
 
 router.route('/delete/bulk').post(requestController.bulkDelete);
 router.route('/status/bulk').patch(requestController.bulkStatus);

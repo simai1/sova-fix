@@ -328,10 +328,10 @@ function Table() {
     if (row?.isExternal) {
       return "Внешний подрядчик";
     } else {
-      if (row?.contractor) {
+      if (row?.contractor !== "___") {
         return row?.contractor;
       } else {
-        return "___";
+        return "Не назначен";
       }
     }
   };
@@ -464,7 +464,7 @@ function Table() {
     if (row?.extContractor && row?.isExternal) {
       return row?.extContractor?.name;
     } else {
-      return "___";
+      return "Не назначен";
     }
   };
 
