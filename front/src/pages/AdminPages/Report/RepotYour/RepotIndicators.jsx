@@ -35,18 +35,7 @@ function RepotIndicators() {
     setTableDataIndicators(funFixEducator(context.dataApointment));
     setTableDataIndicatorsSort(funFixEducator(context.dataApointment));
   }, [context.dataApointment]);
-  // export const DataList = [
-  //     {id:1, name:"Сегодня"},
-  //     {id:2, name:"Текущая неделя"},
-  //     {id:3, name:"Текущий месяц"},
-  //     {id:4, name:"Текущий год"},
-  //     {id:5, name:"Вчера"},
-  //     {id:5, name:"Прошлая неделя"},
-  //     {id:6, name:"Прошлый месяц"},
-  //     {id:7, name:"Прошлый год"},
-  //     {id:8, name:"Все время"}
-
-  //   ];
+  
   useEffect(() => {
     switch (valueName) {
       case "Все время":
@@ -139,10 +128,17 @@ function RepotIndicators() {
   }, [valueName]);
 
   useEffect(() => {
+    var sortParam = ""
+    if(nameViborka === ""){
+      sortParam = "Дата создания"
+    }else{
+      sortParam = nameViborka
+    }
     setTableDataIndicatorsSort(
-      sortDataTable(valueName, tableDataIndicators, dateFrom, dateTo, nameViborka)
+      sortDataTable(valueName, tableDataIndicators, dateFrom, dateTo, sortParam)
     );
-  }, [valueName, tableDataIndicators, dateFrom, dateTo, nameViborka]);
+  }, [ tableDataIndicators, dateFrom, dateTo, nameViborka, vidViewChange]);
+
 
   const refreshFilters = () => {
     setValueName("Все время");
@@ -182,6 +178,7 @@ function RepotIndicators() {
     });
     return mass;
   }
+
 
   return (
     <div className={styles.RepotYour}>
