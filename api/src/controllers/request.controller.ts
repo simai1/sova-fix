@@ -87,12 +87,12 @@ const setComment = catchAsync(async (req, res) => {
     res.json({ status: 'OK' });
 });
 
-const setCommentPhoto = catchAsync(async (req, res) => {
+const setCommentAttachment = catchAsync(async (req, res) => {
     const { requestId } = req.body;
     const fileName = req.file?.filename;
     if (!fileName) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing file');
     if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
-    const request = await requestService.setCommentPhoto(requestId, fileName);
+    const request = await requestService.setCommentAttachment(requestId, fileName);
     res.json(request);
 });
 
@@ -247,7 +247,7 @@ export default {
     setExtContractor,
     setStatus,
     setComment,
-    setCommentPhoto,
+    setCommentAttachment,
     removeExtContractor,
     removeContractor,
     deleteRequest,

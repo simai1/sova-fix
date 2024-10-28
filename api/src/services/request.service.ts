@@ -244,7 +244,7 @@ const setComment = async (requestId: string, comment: string): Promise<void> => 
     await request.update({ comment });
 };
 
-const setCommentPhoto = async (requestId: string, filename: string): Promise<RequestDto> => {
+const setCommentAttachment = async (requestId: string, filename: string): Promise<RequestDto> => {
     const request = await RepairRequest.findByPk(requestId, {
         include: [
             { model: Unit },
@@ -255,7 +255,7 @@ const setCommentPhoto = async (requestId: string, filename: string): Promise<Req
         ],
     });
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest with id ' + requestId);
-    await request.update({ commentPhoto: filename });
+    await request.update({ commentAttachment: filename });
     return new RequestDto(request);
 };
 
@@ -540,7 +540,7 @@ export default {
     setContractor,
     setExtContractor,
     setComment,
-    setCommentPhoto,
+    setCommentAttachment,
     removeContractor,
     removeExtContractor,
     setStatus,
