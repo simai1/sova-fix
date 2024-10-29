@@ -24,7 +24,7 @@ export const DataList = [
     { key: "builder", value: "Подрядчик", isActive: true  },
     { key: "status", value: "Статус заявки", isActive: true  },
     { key: "problemDescription", value: "Описание проблемы", isActive: true  },
-    { key: "fileName", value: "Фото проблемы", isActive: true  },
+    { key: "fileName", value: "Фото/Видео проблемы", isActive: true  },
     { key: "urgency", value: "Срочность", isActive: true  },
     { key: "createdAt", value: "Дата создания заявки", isActive: true  },
     { key: "daysAtWork", value: "Дней в работе", isActive: true  },

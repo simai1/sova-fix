@@ -6,7 +6,7 @@ export const tableHeadAppoint = [
   { key: "builder", value: "Подрядчик", isActive: true  },
   { key: "status", value: "Статус заявки", isActive: true  },
   { key: "problemDescription", value: "Описание проблемы", isActive: true  },
-  { key: "photo", value: "Медиафайл проблемы", isActive: true  },
+  { key: "photo", value: "Фото/Видео проблемы", isActive: true  },
   { key: "itineraryOrder", value: "Порядок маршрута", isActive: true  },
   { key: "urgency", value: "Срочность", isActive: true  },
   { key: "createdAt", value: "Дата создания заявки", isActive: true  },

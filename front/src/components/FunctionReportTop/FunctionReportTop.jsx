@@ -24,7 +24,6 @@ function FunctionReportTop(props) {
     const CountSumm = () => {
         let summ = 0;
         filterBasickData(props?.dataTable, storeFinansing).map((el) =>{
-            console.log('el', el)
             if(typeof el.repairPrice === 'number'){
                 summ += el.repairPrice
             }

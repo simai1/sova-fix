@@ -5,28 +5,38 @@ export const sortDataTable = (valueName, tableDataIndicators, dateFrom, dateTo, 
     const endOfToday = new Date(today.setHours(23, 59, 59, 999));
    
         switch (valueName) {
-            case "Все время":
-                
+           case "Все время":
                 const start = new Date(dateFrom);
                 const end = new Date(dateTo);
+                
                 // Проверка, что start не больше end
-                if(dateFrom === undefined || dateTo=== undefined){
-                    return tableDataIndicators
+                if (dateFrom === undefined || dateTo === undefined) {
+                    return tableDataIndicators;
                 }
-                if(dateFrom === new Date().toISOString().slice(0, 10) && dateTo=== new Date().toISOString().slice(0, 10)){
-                    return tableDataIndicators
-                }else if (start > end) {
+
+                // Устанавливаем время конца дня для end и начала для старт
+                end.setHours(23, 59, 59, 999);
+                start.setHours(0, 0, 0, 0);
+
+                if (dateFrom === new Date().toISOString().slice(0, 10) && dateTo === new Date().toISOString().slice(0, 10)) {        
+                    if (nameViborka === "Дата выполнения") {
+                        filteredData = tableDataIndicators
+                            .filter(el => el.completeDateRaw !== null && el.completeDateRaw !== "___")
+                            .sort((a, b) => new Date(b.completeDateRaw) - new Date(a.completeDateRaw)); // Сортировка от новых к старым
+                    } else {
+                        filteredData = tableDataIndicators;
+                    }
+                    return filteredData; // Возвращаем отфильтрованные данные
+                } else if (start > end) {
                     return []; // Возвращаем пустой массив, если даты некорректны
                 }
+
                 filteredData = tableDataIndicators.filter(el => {
                     var createdAt;
-                    nameViborka === "Дата выполнения" ?  createdAt = new Date(el.completeDateRaw) : createdAt = new Date(el.createdAtRaw);
-                    return createdAt >= start && createdAt <= end;
+                    nameViborka === "Дата выполнения" ? createdAt = new Date(el.completeDateRaw) : createdAt = new Date(el.createdAtRaw);
+                    return createdAt >= start && createdAt <= end; // Нижняя граница включительно
                 });
                 return filteredData; // Возвращаем отфильтрованные данные
-            
-               
-                break;
             case "Сегодня":
                 filteredData = tableDataIndicators.filter(el => {
                     var createdAt;
