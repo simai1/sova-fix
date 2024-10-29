@@ -8,8 +8,12 @@ export const DataList = [
     {id:6, name:"Прошлый месяц"},
     {id:7, name:"Прошлый год"},
     {id:8, name:"Все время"}
-
   ];
+  export const DataListViborka = [
+    {id:1, name:"Дата создания"},
+    {id:2, name:"Дата выполнения"},
+  ];
+  
   
 
   export const tableHeadIndicators = [

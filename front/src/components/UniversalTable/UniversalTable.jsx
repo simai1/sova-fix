@@ -10,9 +10,12 @@ import ClearImg from "./../../assets/images/ClearFilter.svg";
 import { useRef } from "react";
 
 function UniversalTable(props) {
+  const store = useSelector(
+    (state) => state.isSamplePoints[props.tableName].isChecked
+  );
   const { context } = useContext(DataContext);
   const [tableHeaderData, setTableHeaderData] = useState([]);
-  const [tableBodyData, setTableBodyData] = useState([]);
+  const [tableBodyData, setTableBodyData] = useState([filterBasickData(props?.tableBody, store)]);
   const [modalImage, setModalImage] = useState(null);
   const [actiwFilter, setActiwFilter] = useState(null);
   const [itineraryOrderPop, setItineraryOrderPop] = useState("");
@@ -20,16 +23,16 @@ function UniversalTable(props) {
   const [sampleShow, setSampleShow] = useState(null);
   const [basickData, setBasickData] = useState([]);
 
-  const store = useSelector(
-    (state) => state.isSamplePoints[props.tableName].isChecked
-  );
+
 
   useEffect(() => {
     setTableHeaderData(props?.tableHeader);
     setTableBodyData(filterBasickData(props?.tableBody, store));
     setBasickData(props?.tableBody);
     context.setSelectRowDirectory(null);
-  }, [props?.tableHeader, props?.tableBody]);
+  }, [props?.tableHeader, props?.tableBody, store]);
+
+
 
   const openModal = (src) => {
     if (modalImage) {
@@ -62,9 +65,10 @@ function UniversalTable(props) {
   };
 
   //! при клике на пункт li убираем его из массива данных таблицы
-  useEffect(() => {
-    setTableBodyData(filterBasickData(basickData, store));
-  }, [store]);
+  // useEffect(() => {
+  //   setTableBodyData(filterBasickData(basickData, store));
+  // }, [store]);
+
 
   //! функция фильтрации
   function filterBasickData(data, chekeds) {
@@ -93,6 +97,11 @@ function UniversalTable(props) {
     getCountList();
   }, [tableBodyData]);
 
+  const isVideo = (fileName) => {
+    const videoExtensions = ['.mp4', '.avi', '.mov', '.wmv', '.mkv'];
+    return videoExtensions.some(ext => fileName.endsWith(ext));
+  };
+
   const getValue = (value, key, index, row) => {
     switch (key) {
       case "itineraryOrder":
@@ -115,7 +124,7 @@ function UniversalTable(props) {
       case "repairPrice":
         return value.toLocaleString().replace(",", " ") || "___";
 
-      case "fileName":
+     
       case "checkPhoto":
         return value !== "___" ? (
           <div>
@@ -133,19 +142,36 @@ function UniversalTable(props) {
           "___"
         );
       case "fileName":
-        console.log("fileName", value);
         return value !== "___" ? (
           <div>
-            <img
-              src={`${process.env.REACT_APP_API_URL}/uploads/${value}`}
-              alt="Uploaded file"
-              onClick={() =>
-                openModal(`${process.env.REACT_APP_API_URL}/uploads/${value}`)
-              }
-              style={{ cursor: "pointer" }}
-              className={styles.imgTable}
-            />
+          {
+            isVideo(value) ? (
+              <div className={styles.FileVideo}>
+                <video
+                  onClick={(e) => {
+                    e.preventDefault(); // Prevent the modal from closing
+                    e.stopPropagation();
+                    openModal(`${process.env.REACT_APP_API_URL}/uploads/${value}`);
+                  }}
+                  style={{ cursor: "pointer" }}
+                  className={styles.videoTable}
+                >
+                  <source src={`${process.env.REACT_APP_API_URL}/uploads/${value}`} />
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+            ) : (
+              <img
+                src={`${process.env.REACT_APP_API_URL}/uploads/${value}`}
+                alt="Uploaded file"
+                onClick={() => openModal(`${process.env.REACT_APP_API_URL}/uploads/${value}`)}
+                style={{ cursor: "pointer" }}
+                className={styles.imgTable}
+              />
+            )
+          }
           </div>
+         
         ) : (
           "___"
         );
@@ -248,11 +274,7 @@ function UniversalTable(props) {
       return 0;
     }
   };
-  console.log("store", store);
-  console.log("tableBodyData", tableBodyData);
-  useEffect(() => {
-    console.log("tableBodyData", tableBodyData);
-  }, [tableBodyData]);
+ 
   //samplePointsData
   return (
     <div
@@ -428,15 +450,29 @@ function UniversalTable(props) {
       </table>
 
       {modalImage && (
-        <div className={styles.modal} onClick={openModal}>
-          <span className={styles.close}>&times;</span>
-          <img
-            className={styles.modalContent}
-            src={modalImage}
-            alt="Full size"
-          />
+    <div className={styles.modal}>
+      <span className={styles.close} onClick={openModal}>&times;</span>
+      {isVideo(modalImage) ? (
+        <video
+          controls
+          className={styles.modalContent}
+          src={modalImage}
+          alt="Full size video"
+        >
+          Your browser does not support the video tag.
+        </video>
+      ) : (
+        <div onClick={openModal}>
+
+        <img
+          className={styles.modalContent}
+          src={modalImage}
+          alt="Full size"
+        />
         </div>
       )}
+    </div>
+  )}
     </div>
   );
 }

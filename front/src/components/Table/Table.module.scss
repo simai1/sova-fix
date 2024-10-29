@@ -87,7 +87,7 @@
       border-left: 1px solid #e3dfda;
       @include font(14px, 500);
     }
-    th[name="photo"], th[name="checkPhoto"], th[name="problemDescription"] , th[name="number"], th[name="repairPrice"] {
+    th[name="photo"], th[name="checkPhoto"], th[name="problemDescription"] , th[name="number"], th[name="repairPrice"], th[name="commentAttachment"]  {
       &:hover {
         background-color: var(--tableTh);
         cursor: auto;
@@ -366,4 +366,8 @@ input[type="checkbox"]:checked:before {
   left: 45%;
   top: 60%;
   font-size: 22px;
+}
+.fileVideoTable video{
+  width: 150px;
+  height: 150px;
 }

@@ -8,7 +8,7 @@ import { DataList } from "../ReportFinansing/ReportFinansingData";
 import styles from "./RepotIndicators.module.scss";
 import DataContext from "../../../../context";
 import { funFixEducator } from "../../../../UI/SamplePoints/Function";
-import { tableHeadIndicators } from "./RepotIndicatorsDaat";
+import { DataListViborka, tableHeadIndicators } from "./RepotIndicatorsDaat";
 import UniversalDashbordSrochn from "../../../../components/UniversalDashbord/UniversalDashbordSrochn";
 import UniversalDashbordStatus from "../../../../components/UniversalDashbord/UniversalDashbordStatus";
 import UniversalDashboardStatus from "../../../../components/UniversalDashbord/UniversalDashbordStatus";
@@ -23,6 +23,7 @@ function RepotIndicators() {
   const [tableDataIndicatorsSort, setTableDataIndicatorsSort] = useState([]);
   const [valueName, setValueName] = useState("Все время");
   const [vidView, setVidView] = useState("Таблица");
+  const [nameViborka, setNameViborka] = useState("");
   const [vidViewChange, setVidViewChange] = useState(false);
   const dropdownRef = useRef(null); // Create a ref for the dropdown
   const [dateFrom, setDateFrom] = useState(
@@ -34,18 +35,7 @@ function RepotIndicators() {
     setTableDataIndicators(funFixEducator(context.dataApointment));
     setTableDataIndicatorsSort(funFixEducator(context.dataApointment));
   }, [context.dataApointment]);
-  // export const DataList = [
-  //     {id:1, name:"Сегодня"},
-  //     {id:2, name:"Текущая неделя"},
-  //     {id:3, name:"Текущий месяц"},
-  //     {id:4, name:"Текущий год"},
-  //     {id:5, name:"Вчера"},
-  //     {id:5, name:"Прошлая неделя"},
-  //     {id:6, name:"Прошлый месяц"},
-  //     {id:7, name:"Прошлый год"},
-  //     {id:8, name:"Все время"}
-
-  //   ];
+  
   useEffect(() => {
     switch (valueName) {
       case "Все время":
@@ -138,15 +128,23 @@ function RepotIndicators() {
   }, [valueName]);
 
   useEffect(() => {
+    var sortParam = ""
+    if(nameViborka === ""){
+      sortParam = "Дата создания"
+    }else{
+      sortParam = nameViborka
+    }
     setTableDataIndicatorsSort(
-      sortDataTable(valueName, tableDataIndicators, dateFrom, dateTo)
+      sortDataTable(valueName, tableDataIndicators, dateFrom, dateTo, sortParam)
     );
-  }, [valueName, tableDataIndicators, dateFrom, dateTo]);
+  }, [ tableDataIndicators, dateFrom, dateTo, nameViborka, vidViewChange]);
+
 
   const refreshFilters = () => {
     setValueName("Все время");
     setDateFrom(new Date().toISOString().slice(0, 10));
     setDateTo(new Date().toISOString().slice(0, 10));
+    setNameViborka("")
   };
 
   // Close dropdown when clicking outside of it
@@ -181,6 +179,7 @@ function RepotIndicators() {
     return mass;
   }
 
+
   return (
     <div className={styles.RepotYour}>
       <Layout>
@@ -196,7 +195,6 @@ function RepotIndicators() {
                 setValueName={setValueName}
                 valueName={valueName}
               />
-
               <div className={styles.ReportFinansingListInnerDate}>
                 <span>От:</span>
                 <input
@@ -222,7 +220,20 @@ function RepotIndicators() {
                   value={dateTo}
                   onChange={(e) => setDateTo(e.target.value)}
                 />
+              
               </div>
+              <div className={styles.thisFilter}>
+                  {/* <div>
+                    <p>Формировать по:</p>
+                  </div> */}
+                  <UneversalList
+                    dataList={DataListViborka}
+                    placeholder="Формировать по..."
+                    value=""
+                    setValueName={setNameViborka}
+                    valueName={nameViborka}
+                  />
+                </div>
               <div
                 className={styles.dropFilter}
                 onClick={refreshFilters}
