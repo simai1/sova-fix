@@ -141,57 +141,39 @@ function PopUpEditAppoint(props) {
   const fileInputRef = useRef(null);
 
   const handleButtonClick = () => {
-    // Trigger the file input click
     fileInputRef.current.click();
   };
 
-  // const handleFileChange = (event) => {
-  //   const file = event.target.files[0];
-  //   if (file && file.type.startsWith('image/')) {
-  //     // Here you can handle the file upload to the server
-  //     console.log("file", file)
-  //       const dataFile = [
-  //         {
-  //           requestId: idRequest,
-  //           file: file
-  //         }
-  //       ]
-
-  //       console.log('dataFile:', dataFile);
-  //       setCommentPhotoApi(dataFile).then((resp)=>{
-  //         console.log(resp)
-  //       })
-
-  //   } else {
-  //     alert('Please select an image file.');
-  //   }
-  // };
+ 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
-      // Создаем объект FormData
-      const formData = new FormData();
-      formData.append("requestId", idRequest); // Добавляем requestId
-      formData.append("file", file); // Добавляем файл
-      console.log("formData", formData);
-      console.log("file", file);
+        const maxSizeInMB = 50;
+        const fileSizeInMB = file.size / (1024 * 1024); // Конвертация в МБ
+        if (fileSizeInMB > maxSizeInMB) {
+            event.target.value = null; // Очистка инпута
+            alert("Ошибка: размер файла превышает 50 МБ.");
+            return; // Прерываем выполнение функции
+        }
 
-      // Отправка данных на сервер
-      setCommentPhotoApi(formData)
-        .then((resp) => {
-          console.log("Response from server:", resp);
-          if (resp?.status === 200) {
-            updGetData(idRequest);
-            context.UpdateTableReguest(1);
-          }
-        })
-        .catch((error) => {
-          console.error("Error uploading file:", error);
-        });
+        const formData = new FormData();
+        formData.append("requestId", idRequest); // Добавляем requestId
+        formData.append("file", file); // Добавляем файл
+        setCommentPhotoApi(formData)
+            .then((resp) => {
+                if (resp?.status === 200) {
+                    updGetData(idRequest);
+                    context.UpdateTableReguest(1);
+                    event.target.value = null; // Очистка инпута
+                }
+            })
+            .catch((error) => {
+                console.error("Error uploading file:", error);
+            });
     } else {
-      alert("Please select an image file.");
+        alert("Please select an image file.");
     }
-  };
+};
 
   const [modalImage, setModalImage] = useState(null);
   const openModal = (src) => {
@@ -204,7 +186,6 @@ function PopUpEditAppoint(props) {
   const closeModal = () => {
     setModalImage(null);
   };
-  console.log("dataApointment", dataApointment);
   return (
     <PopUpContainer width={true} title={"Редактирование заявки"} mT={75}>
       <div className={styles.popBox}>

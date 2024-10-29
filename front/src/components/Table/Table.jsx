@@ -198,7 +198,6 @@ function Table() {
 
   const openModal = (src) => {
     setModalImage(src);
-    console.log("src", src)
   };
 
   const closeModal = () => {

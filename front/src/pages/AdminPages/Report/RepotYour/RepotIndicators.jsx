@@ -137,7 +137,7 @@ function RepotIndicators() {
     setTableDataIndicatorsSort(
       sortDataTable(valueName, tableDataIndicators, dateFrom, dateTo, sortParam)
     );
-  }, [ tableDataIndicators, dateFrom, dateTo, nameViborka, vidViewChange]);
+  }, [ tableDataIndicators, dateFrom, dateTo, nameViborka, vidViewChange, valueName]);
 
 
   const refreshFilters = () => {
@@ -223,9 +223,6 @@ function RepotIndicators() {
               
               </div>
               <div className={styles.thisFilter}>
-                  {/* <div>
-                    <p>Формировать по:</p>
-                  </div> */}
                   <UneversalList
                     dataList={DataListViborka}
                     placeholder="Формировать по..."
