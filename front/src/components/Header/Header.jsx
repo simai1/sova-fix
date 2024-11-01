@@ -110,7 +110,7 @@ function Header() {
 
   const getLinkImg = () => {
     if (process.env?.REACT_APP_PICTURE_NAME) {
-      return `./img/${process.env.REACT_APP_PICTURE_NAME}`;
+      return `/img/${process.env.REACT_APP_PICTURE_NAME}`;
     }
     return null; 
   };
