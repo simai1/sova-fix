@@ -26,7 +26,11 @@ function UniversalDashbordSrochn(props) {
       title: {
         text: 'Срочность',
         left: 'center',
-        top: 50
+        top: 50,
+        textStyle: {
+          fontWeight: 'normal'
+          
+        },
       },
       tooltip: {
         trigger: 'item'
@@ -61,7 +65,7 @@ function UniversalDashbordSrochn(props) {
   }, [props.dataDashbord]); // Add props.dataDashbord as a dependency
 
   return (
-    <div id="UniversalDashbordSrochn" style={{ width: '700px', height: '600px' }}></div>
+    <div id="UniversalDashbordSrochn" style={{ width: '650px', height: '575px' }}></div>
   );
 }
 

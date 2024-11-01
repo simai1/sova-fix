@@ -185,7 +185,7 @@ function RepotIndicators() {
       <Layout>
         <Header />
         <div>
-          <h2>Показатели</h2>
+          <p style={{fontSize:"24px", margin:"0px"}}>Показатели</p>
           <div className={styles.ReportFinansingList}>
             <div className={styles.ReportFinansingListInner}>
               <UneversalList

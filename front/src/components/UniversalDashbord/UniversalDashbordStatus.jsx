@@ -27,7 +27,10 @@ function UniversalDashboardStatus(props) {
       title: {
         text: 'Статусы',
         left: 'center',
-        top: 50
+        top: 50,
+        textStyle: {
+          fontWeight: 'normal'
+        },
       },
       tooltip: {
         trigger: 'item'
@@ -62,7 +65,7 @@ function UniversalDashboardStatus(props) {
   }, [props.dataDashbord]); // Add props.dataDashbord as a dependency
 
   return (
-    <div id="UniversalDashboardStatus" style={{ width: '700px', height: '600px' }}></div>
+    <div id="UniversalDashboardStatus" style={{ width: '650px', height: '575px' }}></div>
   );
 }
 

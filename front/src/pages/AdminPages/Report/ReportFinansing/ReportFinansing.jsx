@@ -176,7 +176,7 @@ function ReportFinansing() {
       <Layout>
         <Header />
         <div>
-          <h2>Финансы</h2>
+        <p style={{fontSize:"24px", margin:"0px"}}>Финансы</p>
           <div className={styles.ReportFinansingList}>
             <div className={styles.ReportFinansingListFirst}>
               <UneversalList

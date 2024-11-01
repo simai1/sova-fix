@@ -171,18 +171,18 @@ function ReferenceObjects() {
       <div className={styles.ReferenceObjectsTop}>
         <div className={styles.BusinessUnitReferenceTopTitle}>
             <div>
-              <h2>Объекты</h2>
+              <p style={{fontSize:"24px", margin:"0px"}}>Объекты</p>
             </div>
             <div className={styles.clear}>
                 <button onClick={() => dispatch(resetFilters({tableName: "table3"}))} ><img src={ClearImg} /></button>
             </div>
         </div>
         <div className={styles.ReferenceObjectsTopButton}>
-          <button onClick={() => setPopUpCreate(true)}>Добавить объект</button>
+          <button onClick={() => setPopUpCreate(true)}>Добавить</button>
           <button onClick={() => EditObjectsFunc()}>
-            Редактировать объект
+            Редактировать
           </button>
-          <button onClick={() => deleteObjcect()}>Удалить объект</button>
+          <button onClick={() => deleteObjcect()}>Удалить</button>
         </div>
       </div>
       <UniversalTable

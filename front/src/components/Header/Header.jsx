@@ -10,7 +10,7 @@ import { useDispatch } from "react-redux";
 import imgClose from "./../../assets/images/x.svg";
 import arrowBottom from "./../../assets/images/arrow_bottom.svg";
 import Logo from "./../../assets/images/SovaFixLogo.svg"
-import LogoComp from "./../../assets/images/ЭФОР.svg"
+import { env } from "echarts";
 
 function Header() {
     const { context } = useContext(DataContext);
@@ -108,11 +108,19 @@ function Header() {
     context.setSelectedTr(null);
   };
 
+  const getLinkImg = () => {
+    if (process.env?.REACT_APP_PICTURE_NAME) {
+      return `./img/${process.env.REACT_APP_PICTURE_NAME}`;
+    }
+    return null; 
+  };
+
 
 return (
   <div className={styles.Header}>
   <div className={styles.headerButton}>
-    <img src={LogoComp}/>
+  
+    {process.env?.REACT_APP_PICTURE_NAME &&  <img src={getLinkImg()} /> }
     <button className={styles.buttonMenu} onClick={toggleMenu}>Меню</button>
   </div>
     
