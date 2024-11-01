@@ -114,7 +114,7 @@ function BusinessUnitReference() {
       <div className={styles.BusinessUnitReferenceTop}>
         <div className={styles.BusinessUnitReferenceTopTitle}>
           <div>
-            <h2>Подразделения</h2>
+            <p style={{fontSize:"24px", margin:"0px"}}>Подразделения</p>
           </div>
           <div className={styles.clear}>
             <button onClick={() => dispatch(resetFilters({tableName: "table2"}))} ><img src={ClearImg} /></button>
@@ -122,12 +122,12 @@ function BusinessUnitReference() {
         </div>
         <div className={styles.BusinessUnitReferenceTopButton}>
           <button onClick={() => setPopUpCreate(true)}>
-            Добавить подразделение
+            Добавить
           </button>
           <button onClick={() => EditUnitFinc()}>
-            Редактировать подразделение
+            Редактировать
           </button>
-          <button onClick={() => deleteUnit()}>Удалить подразделение</button>
+          <button onClick={() => deleteUnit()}>Удалить</button>
         </div>
       </div>
       <UniversalTable

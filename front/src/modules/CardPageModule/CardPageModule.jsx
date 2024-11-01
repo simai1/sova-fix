@@ -28,7 +28,7 @@ function CardPageModule() {
        <div>
         <div className={styles.BusinessUnitReferenceTopTitle}>
             <div>
-            <h2>Маршрутный лист</h2>
+            <p style={{fontSize:"24px", margin:"0px"}}>Маршрутный лист</p>
           </div>
           <div className={styles.clear}>
             <button onClick={() => dispatch(resetFilters({tableName: "table8"}))} ><img src={ClearImg} /></button>

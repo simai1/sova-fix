@@ -138,16 +138,16 @@ function DirectoryLegalEntities() {
             <div className={styles.DirectoryLegalEntitiesTop}>
                 <div className={styles.BusinessUnitReferenceTopTitle}>
                     <div>
-                        <h2>Юридические лица</h2>
+                        <p style={{fontSize:"24px", margin:"0px"}}>Юридические лица</p>
                     </div>
                     <div className={styles.clear}>
                         <button onClick={() => dispatch(resetFilters({tableName: "table1"}))} ><img src={ClearImg} /></button>
                     </div>
                 </div>
                 <div className={styles.DirectoryLegalEntitiesTopButton}>
-                    <button onClick={() => setPopUpCreate(true)}>Добавить юридическое лицо</button>
-                    <button onClick={() => EditLegalEntitiesFinc()}>Редактировать юридическое лицо</button>
-                    <button onClick={() => deleteUnit()}>Удалить юридическое лицо</button>
+                    <button onClick={() => setPopUpCreate(true)}>Добавить</button>
+                    <button onClick={() => EditLegalEntitiesFinc()}>Редактировать</button>
+                    <button onClick={() => deleteUnit()}>Удалить</button>
                 </div>
             </div>
             <UniversalTable FilterFlag={true} tableName="table1" tableHeader={tableLagealEntries} tableBody={tableDataEntries} selectFlag={true} setData={setTableDataEntries}/>

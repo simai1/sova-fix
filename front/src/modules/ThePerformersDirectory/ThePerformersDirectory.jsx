@@ -163,7 +163,7 @@ function ThePerformersDirectory() {
       <div className={styles.ThePerformersDirectoryTop}>
         <div className={styles.BusinessUnitReferenceTopTitle}>
             <div>
-            <h2>Внешние подрядчики</h2>
+              <p style={{fontSize:"24px", margin:"0px"}}>Внешние подрядчики</p>
             </div>
             <div className={styles.clear}>
                 <button onClick={() => dispatch(resetFilters({tableName: "table4"}))} ><img src={ClearImg} /></button>
@@ -171,13 +171,13 @@ function ThePerformersDirectory() {
         </div>
         <div className={styles.ThePerformersDirectoryTopButton}>
           <button onClick={() => setPopUpCreate(true)}>
-            Добавить внешнего подрядчика
+            Добавить
           </button>
           <button onClick={() => EditPerformers()}>
-            Редактировать внешнего подрядчика
+            Редактировать
           </button>
           <button onClick={() => deleteUnit()}>
-            Удалить внешнего подрядчика
+            Удалить
           </button>
         </div>
       </div>
