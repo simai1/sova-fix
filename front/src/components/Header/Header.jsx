@@ -112,7 +112,7 @@ function Header() {
 return (
   <div className={styles.Header}>
   <div className={styles.headerButton}>
-    <img src={LogoComp}/>
+    {/* <img src={LogoComp}/> */}
     <button className={styles.buttonMenu} onClick={toggleMenu}>Меню</button>
   </div>
     
