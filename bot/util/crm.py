@@ -145,13 +145,18 @@ async def create_repair_request(
         return None
 
 
-async def get_all_contractors() -> dict:
+async def get_all_contractors() -> list:
     url = f'{cf.API_URL}/contractors/'
     
     request = requests.get(url)
     data = request.json()
 
     return data
+
+
+async def get_contractors_dict() -> dict:
+    contractors_list = await get_all_contractors()
+    return {contractor['name']: contractor['id'] for contractor in contractors_list}
 
 
 async def get_contractor_id(user_id: int) -> str | None:
@@ -387,4 +392,22 @@ async def update_repair_request(request_id: str, data: dict) -> bool:
         return True
     else:
         logger.error("could not add check", f"{req.status_code}  requestId: {request_id}, data: {data}")
+        return False
+
+
+async def set_contractor(request_id: str, contractor_id: str) -> bool:
+    url = f"{cf.API_URL}/requests/set/contractor"
+
+    data = {
+        'requestId': request_id,
+        'contractorId': contractor_id
+    }
+
+    req = requests.patch(url, data)
+
+    if req.status_code == 200:
+        logger.info("successfully set contractor", f"data: {data}")
+        return True
+    else:
+        logger.error("could not set contractor", f"{req.status_code}  data: {data}")
         return False

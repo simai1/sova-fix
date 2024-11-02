@@ -29,9 +29,17 @@ def done_btn(repair_request: dict) -> IKB:
     return IKB(text='Выполнено ✅', callback_data=f"done:{repair_request['id']}")
 
 
+def set_contractor_btn(repair_request: dict) -> IKB:
+    return IKB(text="Назначить исполнителя 👨‍🔧", callback_data=f"set_con:{repair_request['id']}")
+
+
 # keyboards for repair request message:
 def rr_admin_kb(repair_request: dict) -> IKM:
     arr_kb = []
+
+    if repair_request['contractor'] is None:
+        row = [set_contractor_btn(repair_request)]
+        arr_kb.append(row)
 
     if repair_request['checkPhoto'] is None:
         row = [check_btn(repair_request)]

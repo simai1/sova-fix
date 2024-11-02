@@ -23,11 +23,11 @@ class PageCallback:
         self.prefix = prefix
 
     def data(self) -> str:
-        return f'page_{self.prefix}_{self.action}_{self.page}'
+        return f'page::{self.prefix}::{self.action}::{self.page}'
 
     @staticmethod
     def from_str(string: str):
-        prefix, action, page = string.split('_')[1:]
+        prefix, action, page = string.split("::")[1:]
         return PageCallback(int(page), action, prefix)
 
 
@@ -39,8 +39,6 @@ def make_kb(
         buttons_per_page: int = 8,
         make_pages: bool = True
 ) -> IKM:
-    print(page, names, prefix)
-
     max_page = ceil(len(names) / buttons_per_page)
 
     page = max(0, min(page, max_page - 1))
@@ -53,7 +51,7 @@ def make_kb(
 
     texts = names[bound:bound+buttons_per_page]
 
-    buttons = [[IKB(text=texts[i], callback_data=f'{prefix}_{i+bound}')] for i in range(len(texts))]
+    buttons = [[IKB(text=texts[i], callback_data=f'{prefix}:{i+bound}')] for i in range(len(texts))]
 
     if make_pages:
         buttons += [[prev_btn, page_btn, next_btn]]
@@ -103,7 +101,7 @@ async def remove_page_list(state: FSMContext) -> None:
 
 async def get_selected_value(query: CallbackQuery, state: FSMContext) -> str:
     data = await state.get_data()
-    index = int(query.data.split('_')[-1])
+    index = int(query.data.split("::")[-1])
     return list(data['page'].values())[index]
 
 

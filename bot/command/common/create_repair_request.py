@@ -133,7 +133,7 @@ async def create_request(query: CallbackQuery, state: FSMContext) -> None:
 
     data = await state.get_data()
 
-    photo_id = data['photo_id']
+    photo_id = data['file_id']
 
     photo = await query.bot.download(photo_id)
 
