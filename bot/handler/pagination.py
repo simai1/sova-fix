@@ -101,7 +101,7 @@ async def remove_page_list(state: FSMContext) -> None:
 
 async def get_selected_value(query: CallbackQuery, state: FSMContext) -> str:
     data = await state.get_data()
-    index = int(query.data.split("::")[-1])
+    index = int(query.data.split(":")[-1])
     return list(data['page'].values())[index]
 
 
