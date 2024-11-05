@@ -19,6 +19,10 @@ import Directory from "./pages/AdminPages/Directory/Directory";
 import UsersDirectory from "./modules/UsersDirectory/UsersDirectory";
 import CardPage from "./pages/AdminPages/CardPageTable/CardPage";
 import CardPageModule from "./modules/CardPageModule/CardPageModule";
+import CategoryEquipment from "./modules/CategoryEquipment/CategoryEquipment";
+import Equipment from "./pages/AdminPages/Equipment/Equipment";
+import RangeEquipment from "./modules/RangeEquipment/RangeEquipment";
+import GraphicEquipment from "./modules/GraphicEquipment/GraphicEquipment";
 
 function App() {
   const [selectContructor, setSelectContractor] = useState("")
@@ -234,6 +238,11 @@ function App() {
 
             <Route path="/CardPage/*" element={<CardPage />}>
               <Route path="CardPageModule" element={<CardPageModule />}></Route>
+            </Route>
+            <Route path="/Equipment/*" element={<Equipment />}>
+              <Route path="GraphicEquipment" element={<GraphicEquipment />}></Route>
+              <Route path="CategoryEquipment" element={<CategoryEquipment />}></Route>
+              <Route path="RangeEquipment" element={<RangeEquipment />}></Route>
             </Route>
             
             

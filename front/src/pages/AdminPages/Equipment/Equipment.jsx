@@ -1,16 +1,14 @@
-import { Outlet } from "react-router-dom";
-import Header from "../../../components/Header/Header";
-import Layout from "../../../UI/Layout/Layout";
-import DataContext from "../../../context";
 import { useContext } from "react";
+import Layout from "../../../UI/Layout/Layout";
+import Header from "../../../components/Header/Header";
+import { Outlet } from "react-router-dom";
+import DataContext from "../../../context";
 
-function Directory() {
+function Equipment() {
 
     const context = useContext(DataContext);
     return ( 
         <div>
-
-        
             <Layout>
                 <Header/>
                 <Outlet/>
@@ -19,4 +17,4 @@ function Directory() {
      );
 }
 
-export default Directory;
+export default Equipment;
