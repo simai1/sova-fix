@@ -120,15 +120,17 @@ function BusinessUnitReference() {
             <button onClick={() => dispatch(resetFilters({tableName: "table2"}))} ><img src={ClearImg} /></button>
           </div>
         </div>
-        <div className={styles.BusinessUnitReferenceTopButton}>
-          <button onClick={() => setPopUpCreate(true)}>
-            Добавить
-          </button>
-          <button onClick={() => EditUnitFinc()}>
-            Редактировать
-          </button>
-          <button onClick={() => deleteUnit()}>Удалить</button>
-        </div>
+        {JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" &&
+          <div className={styles.BusinessUnitReferenceTopButton}>
+            <button onClick={() => setPopUpCreate(true)}>
+              Добавить
+            </button>
+            <button onClick={() => EditUnitFinc()}>
+              Редактировать
+            </button>
+            <button onClick={() => deleteUnit()}>Удалить</button>
+          </div>
+        }
       </div>
       <UniversalTable
         tableName="table2"
