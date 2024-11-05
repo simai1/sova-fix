@@ -1,7 +1,7 @@
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import CallbackQuery
 
 from common.keyboard import to_start_kb
 from handler import pagination

@@ -1,10 +1,9 @@
 from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
-from aiogram.types import InlineKeyboardButton as IKB, InlineKeyboardMarkup as IKM
 from aiogram.types import Message, CallbackQuery
 
-from common.keyboard import to_start_kb, rr_contractor_kb
+from common.keyboard import rr_contractor_kb
 from common.messages import send_several_requests, send_repair_request, page0_show_many_requests
 from handler import pagination
 from util import crm
