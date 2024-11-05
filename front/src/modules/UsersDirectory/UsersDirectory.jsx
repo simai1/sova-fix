@@ -157,11 +157,13 @@ function UsersDirectory() {
                   <button onClick={() => dispatch(resetFilters({tableName: "table5"}))} ><img src={ClearImg} /></button>
               </div>
             </div>
-            <div className={styles.ReferenceObjectsTopButton}>
-                <button onClick={() => setPopUpCreate(true)}>Добавить</button>
-                <button onClick={() => ActivateUser()}>Активировать</button>
-                <button onClick={()=>deletedUser()}>Удалить</button>
-            </div>
+            {JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" &&
+              <div className={styles.ReferenceObjectsTopButton}>
+                  <button onClick={() => setPopUpCreate(true)}>Добавить</button>
+                  <button onClick={() => ActivateUser()}>Активировать</button>
+                  <button onClick={()=>deletedUser()}>Удалить</button>
+              </div>
+            }
         </div>
         <UniversalTable FilterFlag={true} tableName="table5" tableHeader={tableUser} tableBody={tableDataObject} selectFlag={true} ClickRole={ClickRole}/>
         {popUpCreate && (

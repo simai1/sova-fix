@@ -130,6 +130,7 @@
         text-align: center;
         &:hover {
           background-color: var(--Active-gray-color);
+          // opacity: 0.8;
         }
         .shovStatusPop {
           max-height: 150px;
@@ -370,4 +371,8 @@ input[type="checkbox"]:checked:before {
 .fileVideoTable video{
   width: 150px;
   height: 150px;
+  transition: 0.1s linear all;
+  &:hover{
+    opacity: 0.6;
+  }
 }
