@@ -12,6 +12,10 @@ def to_start_btn() -> IKB:
     return IKB(text='На главную ↩️', callback_data='start')
 
 
+def skip_btn() -> IKB:
+    return IKB(text="Пропустить ▶️", callback_data="skip")
+
+
 # menu buttons:
 def check_btn(repair_request: dict) -> IKB:
     return IKB(text='Добавить чек 🧾', callback_data=f"check:{repair_request['id']}")
@@ -31,6 +35,11 @@ def done_btn(repair_request: dict) -> IKB:
 
 def set_contractor_btn(repair_request: dict) -> IKB:
     return IKB(text="Назначить исполнителя 👨‍🔧", callback_data=f"set_con:{repair_request['id']}")
+
+
+# common keyboards
+def skip_kb() -> IKM:
+    return IKM(inline_keyboard=[[skip_btn()]])
 
 
 # keyboards for repair request message:
