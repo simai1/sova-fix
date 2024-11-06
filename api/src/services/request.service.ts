@@ -291,9 +291,14 @@ const setStatus = async (requestId: string, status: number): Promise<void> => {
         },
         event: 'STATUS_UPDATE',
     } as WsMsgData);
+    const dateNow = new Date();
     await request.update({
         status,
-        completeDate: status === 3 ? new Date() : null,
+        completeDate: status === 3 ? dateNow : null,
+        daysAtWork:
+            status === 3
+                ? Math.floor((dateNow.getTime() - request.createdAt.getTime()) / (1000 * 60 * 60 * 24))
+                : undefined,
     });
 };
 

@@ -46,7 +46,10 @@ function UsersDirectory() {
         return "Заказчик"
       }else if(value === 4){
         return "Исполнитель"
-      }else{
+      }else if(value === 5){
+        return "Наблюдатель"
+      }
+      else{
         return "___"
       }
 
@@ -88,32 +91,38 @@ function UsersDirectory() {
         
     }
 
-    const ClickRole = (id, role) =>{
-        let data = {};
-            if(role === "Пользователь"){
-            data = {
-                role: 2,
-                userId: id
-            };
-            }else{
-            data = {
-                role: 1,
-                userId: id
-            };
-            }
-        if(id !== JSON.parse(sessionStorage.getItem("userData"))?.user?.id){
-            SetRole(data).then((resp)=>{
-            if(resp?.status === 200){
-                getData();
-            }
-            })
-        }else{
-                console.log("Вы не можете изменить свою роль!");
-                context.setPopUp("PopUpError");
-                context.setPopupErrorText("Вы не можете изменить свою роль!");
-        }
-      
-       }
+    const ClickRole = (role, id) => {
+      let roleId;
+      switch (role) {
+        case "Администратор":
+          roleId = 2;
+          break;
+        case "Пользователь":
+          roleId = 1;
+          break;
+        case "Наблюдатель":
+          roleId = 5;
+          break;
+        default:
+          return;
+      }
+      const data = {
+        role: roleId,
+        userId: id,
+      }
+      if(id !== JSON.parse(sessionStorage.getItem("userData"))?.user?.id){
+        SetRole(data).then((resp)=>{
+          if(resp?.status === 200){
+              getData();
+          }
+        })
+    }else{
+      console.log("Вы не можете изменить свою роль!");
+      context.setPopUp("PopUpError");
+      context.setPopupErrorText("Вы не можете изменить свою роль!");
+    }
+    };
+
 
        const handleCreateUnit = () => {
         if (!Email) {
@@ -157,7 +166,7 @@ function UsersDirectory() {
                   <button onClick={() => dispatch(resetFilters({tableName: "table5"}))} ><img src={ClearImg} /></button>
               </div>
             </div>
-            {JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" &&
+            {JSON.parse(localStorage.getItem("userData"))?.user?.role === "ADMIN" && 
               <div className={styles.ReferenceObjectsTopButton}>
                   <button onClick={() => setPopUpCreate(true)}>Добавить</button>
                   <button onClick={() => ActivateUser()}>Активировать</button>

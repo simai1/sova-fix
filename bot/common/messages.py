@@ -3,15 +3,14 @@ from typing import Callable
 
 from aiogram.exceptions import TelegramNetworkError
 from aiogram.fsm.context import FSMContext
+from aiogram.types import InlineKeyboardMarkup as IKM
 from aiogram.types import Message, FSInputFile
-from aiogram.types import InlineKeyboardButton as IKB, InlineKeyboardMarkup as IKM
 from aiogram.utils.media_group import MediaGroupBuilder
 
+from common.keyboard import to_start_kb
 from common.text import repair_request_text
 from handler import pagination
 from util import logger
-
-from common.keyboard import to_start_kb, rr_admin_kb, rr_customer_kb, rr_contractor_kb
 
 
 async def you_cant_do_that(message: Message) -> None:
@@ -22,35 +21,54 @@ async def to_start_msg(message: Message) -> None:
     await message.answer("Вернуться на главную?", reply_markup=to_start_kb())
 
 
+async def add_media_to_album(media_filename: str, caption: str, album: MediaGroupBuilder) -> None:
+    uploads_path = "../api/uploads/"
+
+    file_path = f"{uploads_path}/{media_filename}"
+
+    file_ext = media_filename.split('.')[-1]
+    media_type: str = {"jpg": "photo", "mp4": "video", "10": "video"}[file_ext]
+
+    file = FSInputFile(path=file_path, filename=f"{caption}.{file_ext}")
+
+    album.add(type=media_type, media=file, caption=f"<i>{caption}</i>")
+
+
 async def send_repair_request(message: Message, repair_request: dict, kb: IKM | None = None) -> None:
     text = repair_request_text(repair_request)
 
-    uploads_path = "../api/uploads/"
-    photo_filename = repair_request['fileName']
+    file_filename = repair_request['fileName']
     rr_check_filename = repair_request['checkPhoto']
+    rr_comment_attachment_filename = repair_request['commentAttachment']
 
     try:
-        photo_path = f"{uploads_path}/{photo_filename}"
-
-        photo = FSInputFile(path=photo_path, filename="фото.jpg")
-
-        if rr_check_filename is None:
-            await message.answer_photo(photo, text, reply_markup=kb)
-            return
-
-        check_photo_path = f"{uploads_path}/{rr_check_filename}"
-
-        check_photo = FSInputFile(path=check_photo_path, filename="чек.jpg")
-
         album = MediaGroupBuilder()
-        album.add(type='photo', media=photo)
-        album.add(type='photo', media=check_photo)
+
+        await add_media_to_album(
+            media_filename=file_filename,
+            caption="Описание проблемы",
+            album=album
+        )
+
+        if rr_check_filename is not None:
+            await add_media_to_album(
+                media_filename=rr_check_filename,
+                caption="Чек",
+                album=album
+            )
+
+        if rr_comment_attachment_filename is not None:
+            await add_media_to_album(
+                media_filename=rr_comment_attachment_filename,
+                caption="Вложение комментария",
+                album=album
+            )
 
         await message.answer_media_group(album.build())
         await message.answer(text, reply_markup=kb)
 
     except TelegramNetworkError:
-        logger.error(f"photo or check not found", f"photo: {photo_filename}, check: {rr_check_filename}")
+        logger.error(f"could not find some photos", f"photo: {file_filename}, check: {rr_check_filename}, comment_attachment: {rr_comment_attachment_filename}")
         return
 
 

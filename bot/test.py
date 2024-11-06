@@ -1,17 +1,8 @@
 import asyncio
-from pprint import pprint
-
-import requests
-import websocket
-import config as cf
-from bot.util import crm
-from util import logger
 
 
 async def test() -> None:
-    logger.info("some info")
-    logger.warn("warning!")
-    logger.error("error rrrrrrrrrrrrrrrrrr")
+    pass
 
 
 if __name__ == '__main__':
