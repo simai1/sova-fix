@@ -23,6 +23,7 @@ from command.common.send_one_request import router as send_one_request_router
 from command.common.add_check import router as add_check_router
 from command.common.send_request_by_number import router as request_by_number_router
 from command.common.show_without_check import router as show_without_check_router
+from command.admin.set_contractor_command import router as set_contractor_router
 from util import logger
 
 routers = [
@@ -40,7 +41,8 @@ routers = [
     send_one_request_router,
     add_check_router,
     request_by_number_router,
-    show_without_check_router
+    show_without_check_router,
+    set_contractor_router
 ]
 
 dp = Dispatcher()
