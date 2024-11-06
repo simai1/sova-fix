@@ -403,7 +403,7 @@ function UniversalTable(props) {
 
                   {header.key === "itineraryOrder" && (
                     <div
-                      onClick={() => setItineraryOrderPop(row.id)}
+                      onClick={() => JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" && setItineraryOrderPop(row.id)}
                       className={
                         document.location.pathname ===
                         "/CardPage/CardPageModule"

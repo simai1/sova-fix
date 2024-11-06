@@ -144,11 +144,13 @@ function DirectoryLegalEntities() {
                         <button onClick={() => dispatch(resetFilters({tableName: "table1"}))} ><img src={ClearImg} /></button>
                     </div>
                 </div>
-                <div className={styles.DirectoryLegalEntitiesTopButton}>
-                    <button onClick={() => setPopUpCreate(true)}>Добавить</button>
-                    <button onClick={() => EditLegalEntitiesFinc()}>Редактировать</button>
-                    <button onClick={() => deleteUnit()}>Удалить</button>
-                </div>
+                {JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" &&
+                    <div className={styles.DirectoryLegalEntitiesTopButton}>
+                        <button onClick={() => setPopUpCreate(true)}>Добавить</button>
+                        <button onClick={() => EditLegalEntitiesFinc()}>Редактировать</button>
+                        <button onClick={() => deleteUnit()}>Удалить</button>
+                    </div>
+                }
             </div>
             <UniversalTable FilterFlag={true} tableName="table1" tableHeader={tableLagealEntries} tableBody={tableDataEntries} selectFlag={true} setData={setTableDataEntries}/>
             {deleteUnitFlag && <UneversalDelete text="Юр. лицо" ClosePopUp={ClosePopUp} FunctionDelete={FunctionDelete} />}

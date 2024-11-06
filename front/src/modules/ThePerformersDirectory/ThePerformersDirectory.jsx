@@ -169,17 +169,19 @@ function ThePerformersDirectory() {
                 <button onClick={() => dispatch(resetFilters({tableName: "table4"}))} ><img src={ClearImg} /></button>
             </div>
         </div>
-        <div className={styles.ThePerformersDirectoryTopButton}>
-          <button onClick={() => setPopUpCreate(true)}>
-            Добавить
-          </button>
-          <button onClick={() => EditPerformers()}>
-            Редактировать
-          </button>
-          <button onClick={() => deleteUnit()}>
-            Удалить
-          </button>
-        </div>
+        {JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" &&
+          <div className={styles.ThePerformersDirectoryTopButton}>
+            <button onClick={() => setPopUpCreate(true)}>
+              Добавить
+            </button>
+            <button onClick={() => EditPerformers()}>
+              Редактировать
+            </button>
+            <button onClick={() => deleteUnit()}>
+              Удалить
+            </button>
+          </div>
+        }
       </div>
       <UniversalTable
         tableName="table4"

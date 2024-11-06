@@ -44,11 +44,15 @@ function Table() {
     if (
       target.className !== "Table_statusClick__QSptV" &&
       target.tagName !== "LI" &&
-      !context.moreSelect.includes(row.id)
+      !context.moreSelect.includes(row.id) &&
+      JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER"
     ) {
       context.setMoreSelect([...context.moreSelect, row.id]);
     }
-    setOpenConextMenu(true);
+    if(JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER"){
+      setOpenConextMenu(true);
+    }
+
   };
 
   const contextmenuClick = (event) => {
@@ -127,7 +131,7 @@ function Table() {
 
   const funSetStatus = (data) => {
     if (shovStatusPop === "") {
-      setshovStatusPop(data);
+      JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" && setshovStatusPop(data);
       setshovUrgencyPop("");
       setshovBulderPop("");
       setItineraryOrderPop("");
@@ -141,7 +145,7 @@ function Table() {
 
   const funSetBulder = (data) => {
     if (shovBulderPop === "") {
-      setshovBulderPop(data);
+      JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" && setshovBulderPop(data);
       setshovStatusPop("");
       setshovUrgencyPop("");
       setItineraryOrderPop("");
@@ -155,7 +159,7 @@ function Table() {
 
   const funSetUrgency = (data) => {
     if (shovUrgencyPop === "") {
-      setshovUrgencyPop(data);
+      JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" && setshovUrgencyPop(data);
       setshovStatusPop("");
       setshovBulderPop("");
       setItineraryOrderPop("");
@@ -172,7 +176,7 @@ function Table() {
       setshovUrgencyPop("");
       setshovStatusPop("");
       setshovBulderPop("");
-      setItineraryOrderPop(data);
+      JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" && setItineraryOrderPop(data);
     } else {
       setshovStatusPop("");
       setshovBulderPop("");
@@ -183,7 +187,7 @@ function Table() {
 
   const funSetExp = (data) => {
     if (shovExtPop === "") {
-      setshovExtPop(data);
+      JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" && setshovExtPop(data);
       setshovUrgencyPop("");
       setshovStatusPop("");
       setshovBulderPop("");
