@@ -166,7 +166,7 @@ function UsersDirectory() {
                   <button onClick={() => dispatch(resetFilters({tableName: "table5"}))} ><img src={ClearImg} /></button>
               </div>
             </div>
-            {JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" &&
+            {JSON.parse(localStorage.getItem("userData"))?.user?.role === "ADMIN" && 
               <div className={styles.ReferenceObjectsTopButton}>
                   <button onClick={() => setPopUpCreate(true)}>Добавить</button>
                   <button onClick={() => ActivateUser()}>Активировать</button>

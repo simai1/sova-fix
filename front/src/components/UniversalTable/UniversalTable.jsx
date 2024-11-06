@@ -282,7 +282,7 @@ function UniversalTable(props) {
 
 
   const handleRoleClick = (rowIndex, role) => {
-    (role === "Пользователь" || role === "Администратор" || role === "Наблюдатель") && setDropdownVisible(dropdownVisible === rowIndex ? null : rowIndex);
+    (role === "Пользователь" || role === "Администратор" || role === "Наблюдатель") && JSON.parse(localStorage.getItem("userData"))?.user?.role === "ADMIN" && setDropdownVisible(dropdownVisible === rowIndex ? null : rowIndex);
   };
 
  
