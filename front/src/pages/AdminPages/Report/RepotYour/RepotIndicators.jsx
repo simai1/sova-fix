@@ -95,7 +95,7 @@ function RepotIndicators() {
         const startOfLastWeek = new Date();
         const endOfLastWeek = new Date();
         startOfLastWeek.setDate(
-          startOfLastWeek.getDate() - startOfLastWeek.getDay() - 7
+          startOfLastWeek.getDate() - startOfLastWeek.getDay() - 6
         );
         endOfLastWeek.setDate(endOfLastWeek.getDate() - endOfLastWeek.getDay());
         setDateFrom(startOfLastWeek.toISOString().slice(0, 10));
