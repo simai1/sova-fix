@@ -3,6 +3,7 @@ import RepairRequest from '../models/repairRequest';
 import fs from 'node:fs';
 import logger from '../utils/logger';
 import { format } from 'date-fns';
+import { Op } from 'sequelize';
 
 export default {
     // setDays: new CronJob('* * * * *', async () => { // every 1 min
@@ -12,9 +13,12 @@ export default {
             message: `[${format(new Date(), 'dd.MM.yyyy HH:mm')}] [CRON] Start setDays`,
         });
 
-        const requests = await RepairRequest.findAll({ where: { status: [1, 2] } });
+        const requests = await RepairRequest.findAll({ where: { status: { [Op.ne]: 3 } } });
+        const dateNow = new Date();
         for (const request of requests) {
-            await request.increment('daysAtWork');
+            await request.update({
+                daysAtWork: Math.floor((dateNow.getTime() - request.createdAt.getTime()) / (1000 * 60 * 60 * 24)),
+            });
         }
 
         logger.log({
