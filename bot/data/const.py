@@ -1,3 +1,6 @@
+MAX_VIDEO_SIZE_MB = 20
+MAX_VIDEO_SIZE_BYTES = MAX_VIDEO_SIZE_MB * (2 ** 20)
+
 statuses_ru_locale = {
     1: 'новая заявка',
     2: 'в работе',
