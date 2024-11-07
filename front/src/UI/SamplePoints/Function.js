@@ -16,7 +16,7 @@ export function funFixEducator(data) {
     2: "В работе",
     3: "Выполнена",
     4: "Неактуальна",
-    5: "Принята",
+    5: "Выезд без выполнения",
   };
   return data.map((item) => {
     return {
