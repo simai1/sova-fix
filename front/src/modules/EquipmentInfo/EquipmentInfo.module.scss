@@ -1,0 +1,102 @@
+@import "./../../styles/mixins.scss";
+@import "./../../styles/color.scss";
+
+.EquipmentInfo{
+    .EquipmentInfoBlockTopButton{
+        display: flex;
+        justify-content: end;
+        align-items: center;
+        position: relative;
+        top: -35px;
+        button{
+            @include button(var(--turquoise-color));
+            width: 215px!important;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            &:nth-child(1){
+                width: 150px!important;
+            }
+            &:nth-child(2){
+                margin: 0px 15px;
+            }
+        }
+    }
+    .EquipmentblockInfo{
+        .EquipmentSectionInfoFirst{
+            display: flex;
+            .EquipmentblockInfoFirst, .EquipmentblockInfoSecond{
+                display: flex;
+                .paramInfoContainer{
+                    width: 400px;
+                    margin-left: 20px;
+                    p{
+                        padding: 12px 10px;
+                    }
+                    .marginInfo{
+                        margin-bottom: 20px;
+                        display: flex;
+                        align-items: center;
+                        p{
+                            margin: 0;
+                        }
+                        .DataInfo{
+                            background-color: var(--Red-color);
+                            border-radius: 6px;
+                            margin-left: 15px;
+                            width: 200px;
+                            align-items: center;
+                        }
+                    }
+                    .marginInfoAll{
+                          margin-bottom: 20px;
+                    }
+               
+                    .EquipmentImg{
+                        margin: 0px 20px 20px 0px;
+                    }
+                    .paramInfo{
+                        width: 200px;
+                    }
+                    .paramInfo, .paramInfoGray{
+                        background-color: var(--light-gray-color);
+                        border-radius: 6px;
+                    }
+                  
+                    .paramInfoGray{
+                        align-items: center;
+                        display: flex;
+                        justify-content: center;
+                    }
+                }
+               
+            }
+            .button{
+                @include button(var(--turquoise-color));
+                width: 400px!important;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+        }
+    }
+    .EquipmentblockInfoSecond{
+        margin-left: 50px;
+        .paramInfoContainer{
+            width: 650px!important;
+            .paramInfo{
+                width: 450px!important;
+            }
+        }
+       
+        .paramInfoSecond{
+            background-color: var(--light-gray-color);
+            border-radius: 6px;
+            width: 100px;
+            align-items: center;
+            margin-left: 15px!important;
+            display: flex;
+            justify-content: center;
+        }
+    }
+}

@@ -23,6 +23,7 @@ import CategoryEquipment from "./modules/CategoryEquipment/CategoryEquipment";
 import Equipment from "./pages/AdminPages/Equipment/Equipment";
 import RangeEquipment from "./modules/RangeEquipment/RangeEquipment";
 import GraphicEquipment from "./modules/GraphicEquipment/GraphicEquipment";
+import EquipmentInfo from "./modules/EquipmentInfo/EquipmentInfo";
 
 function App() {
   const [selectContructor, setSelectContractor] = useState("")
@@ -243,6 +244,7 @@ function App() {
               <Route path="GraphicEquipment" element={<GraphicEquipment />}></Route>
               <Route path="CategoryEquipment" element={<CategoryEquipment />}></Route>
               <Route path="RangeEquipment" element={<RangeEquipment />}></Route>
+              <Route path="EquipmentInfo" element={<EquipmentInfo />}></Route>
             </Route>
             
             
