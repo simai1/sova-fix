@@ -32,6 +32,7 @@ export function funFixEducator(data) {
       itineraryOrder: item?.itineraryOrder || "___",
       urgency: item?.urgency || "___",
       createdAt: item?.createdAt || "___",
+      planCompleteDate: item?.planCompleteDate || "___",
       daysAtWork: item?.daysAtWork === 0 ? 0 : item?.daysAtWork || "___",
       completeDate: item?.completeDate || "___",
       repairPrice: item?.repairPrice || "___",

@@ -493,7 +493,8 @@ function Table() {
       keys === "completeDate" ||
       keys === "createdAt" ||
       keys === "repairPrice" ||
-      keys === "commentAttachment"
+      keys === "commentAttachment" ||
+      keys === "planCompleteDate"
     ) {
       return "center";
     } else if (item === "___") {

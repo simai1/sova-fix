@@ -15,6 +15,7 @@ export default class RepairRequest extends Model {
     problemDescription?: string;
     urgency!: string;
     itineraryOrder?: number;
+    planCompleteDate?: Date;
     completeDate?: Date;
     repairPrice?: number;
     comment?: string;
@@ -73,6 +74,10 @@ export default class RepairRequest extends Model {
                 },
                 itineraryOrder: {
                     type: DataTypes.SMALLINT,
+                    allowNull: true,
+                },
+                planCompleteDate: {
+                    type: DataTypes.DATE,
                     allowNull: true,
                 },
                 completeDate: {

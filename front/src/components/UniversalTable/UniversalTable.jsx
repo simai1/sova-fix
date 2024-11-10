@@ -213,7 +213,8 @@ function UniversalTable(props) {
       keys === "repairPrice" ||
       keys === "startCoop" ||
       keys === "tgId" ||
-      keys === "id"
+      keys === "id" ||
+      keys === "planCompleteDate"
     ) {
       return "center";
     }

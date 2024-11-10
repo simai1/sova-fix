@@ -137,6 +137,7 @@ const update = catchAsync(async (req, res) => {
         contractorId,
         status,
         builder,
+        planCompleteDate,
     } = req.body;
     const { requestId } = req.params;
     if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
@@ -149,7 +150,8 @@ const update = catchAsync(async (req, res) => {
         !itineraryOrder &&
         !contractorId &&
         !status &&
-        !builder
+        !builder &&
+        !planCompleteDate
     )
         throw new ApiError(httpStatus.BAD_REQUEST, 'Missing body');
     await requestService.update(
@@ -162,7 +164,8 @@ const update = catchAsync(async (req, res) => {
         itineraryOrder,
         contractorId,
         status,
-        builder
+        builder,
+        planCompleteDate
     );
     res.json({ status: 'OK' });
 });
