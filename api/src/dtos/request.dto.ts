@@ -17,6 +17,7 @@ export default class RequestDto {
     commentAttachment?: string;
     itineraryOrder?: number;
     planCompleteDate?: string;
+    planCompleteDateRaw?: Date;
     completeDate?: string;
     completeDateRaw?: Date;
     repairPrice?: number;
@@ -42,6 +43,7 @@ export default class RequestDto {
         this.urgency = model.urgency;
         this.itineraryOrder = model.itineraryOrder;
         this.planCompleteDate = model.planCompleteDate ? strftime('%d.%m.%y', model.planCompleteDate) : '';
+        this.planCompleteDateRaw = model.planCompleteDate;
         this.completeDate = model.completeDate ? strftime('%d.%m.%y', model.completeDate) : '';
         this.completeDateRaw = model.completeDate;
         this.repairPrice = model.repairPrice;
