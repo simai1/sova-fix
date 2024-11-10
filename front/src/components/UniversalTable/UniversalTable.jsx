@@ -210,7 +210,11 @@ function UniversalTable(props) {
       keys === "createdAt" ||
       keys === "repairPrice" ||
       keys === "startCoop" ||
-      keys === "tgId" ||
+      keys === "tgId" || 
+      keys === "dateTo" ||
+      keys === "Bulder" ||
+      keys === "CostTo" ||
+      keys === "CountEquipment" ||
       keys === "id"
     ) {
       return "center";
@@ -221,6 +225,7 @@ function UniversalTable(props) {
       return "left";
     }
   };
+
   const clickTh = (key) => {
     if (key !== "number") {
       setActiwFilter(key);
@@ -283,10 +288,10 @@ function UniversalTable(props) {
         maxHeight:
           document.location.pathname === "/CardPage/CardPageModule"
             ? "73vh"
-            : "auto",
+            : `${props?.heightTable}px` || "auto",
       }}
     >
-      <table>
+     <table>
         <thead>
           {tableHeaderData?.map((el, index) => (
             <th

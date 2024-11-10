@@ -1,0 +1,14 @@
+@import "./../../styles/mixins.scss";
+@import "./../../styles/color.scss";
+
+.GraphicEquipment{
+    .GraphicEquipmentButton{
+        display: flex;
+        justify-content: end;
+        width: 100%;
+        button{
+            @include button(var(--turquoise-color));
+            margin-left: 15px;
+        }
+    }
+}

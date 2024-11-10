@@ -1,6 +1,17 @@
+import styles from "./RangeEquipment.module.scss";
+
 function RangeEquipment() {
     return ( 
-        <p>RangeEquipment</p>
+        <div className={styles.RangeEquipment}>
+        <div className={styles.RangeEquipmentButton}>
+            <button>Добавить</button>
+            <button>Редактировать</button>
+            <button>Удалить</button>
+        </div>
+        <div>
+            <p>RangeEquipment</p>
+        </div>
+    </div>
      );
 }
 

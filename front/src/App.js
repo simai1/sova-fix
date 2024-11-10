@@ -39,6 +39,7 @@ function App() {
   const [moreSelect, setMoreSelect] = useState([]);
   const [textSearchTableData, setextSearchTableData] = useState("");
   const [popUp, setPopUp] = useState("");
+  const [popUpEquipment, setPopUpEquipment] = useState("asddsa");
   const [popupGoodText, setPopupGoodText] = useState("")
   const [selectPage, setSelectPage] = useState("Main")
   const [Dataitinerary, setDataitinerary] = useState([])
@@ -66,6 +67,8 @@ function App() {
   
   const context = {
     setCheckedAll,
+    popUpEquipment,
+    setPopUpEquipment,
     checkedAll,
     editListOpen,
     setMoreSelect,
@@ -246,10 +249,6 @@ function App() {
               <Route path="RangeEquipment" element={<RangeEquipment />}></Route>
               <Route path="EquipmentInfo" element={<EquipmentInfo />}></Route>
             </Route>
-            
-            
-
-
           </Routes>
         </main>
       </BrowserRouter>

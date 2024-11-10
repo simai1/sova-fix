@@ -1,7 +1,14 @@
+import UniversalTable from "../../components/UniversalTable/UniversalTable";
+import { useContext} from "react";
+import DataContext from "../../context";
 import styles from "./EquipmentInfo.module.scss"
+import { TestDataTable, tableHeaderEquipmentInfo } from "./dataEquipmentInfo";
 
 function EquipmentInfo() {
+    const { context } = useContext(DataContext);
+
     return ( 
+        
         <main className={styles.EquipmentInfo}>
             <div className={styles.EquipmentInfoBlockTopButton}>
                 <button>Экспорт</button>
@@ -34,7 +41,7 @@ function EquipmentInfo() {
                                 <p className={styles.paramInfoGray}>Подразделение: КЕКС</p> 
                             </div>
                             <div >
-                                <button className={styles.button}>Проведено ТО</button>
+                                <button className={styles.button} onClick={()=>   context.setPopUp("PopUpNewTO")}>Проведено ТО</button>
                             </div>
                         </div>
                     </div>
@@ -67,12 +74,29 @@ function EquipmentInfo() {
                         </div>
                     </div>
                 </section>
-                <section>
-                    <div>
-
+                <section className={styles.InfoSecodSection}>
+                    <div className={styles.HistoryTo}>
+                            <div className={styles.TitleSecondBlock}>
+                                <p>История ТО</p>
+                            </div>
+                            <div>
+                                <UniversalTable  
+                                    tableName="table10"
+                                    tableHeader={tableHeaderEquipmentInfo}
+                                    tableBody={TestDataTable}
+                                    selectFlag={false}
+                                    FilterFlag={false}
+                                    heightTable={365}
+                                />
+                            </div>
                     </div>
-                    <div>
+                    <div className={styles.CommentTo}>
+                        <div className={styles.TitleSecondBlock}>
+                            <p>Комментарии</p>
+                        </div>
+                        <div className={styles.CommentToBlock}>
 
+                        </div>
                     </div>
                 </section>
             </div> 

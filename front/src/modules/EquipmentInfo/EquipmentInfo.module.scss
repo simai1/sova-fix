@@ -28,13 +28,13 @@
             .EquipmentblockInfoFirst, .EquipmentblockInfoSecond{
                 display: flex;
                 .paramInfoContainer{
-                    width: 400px;
+                    width: 500px;
                     margin-left: 20px;
                     p{
-                        padding: 12px 10px;
+                        padding: 5px 10px;
                     }
                     .marginInfo{
-                        margin-bottom: 20px;
+                        margin-bottom: 15px;
                         display: flex;
                         align-items: center;
                         p{
@@ -44,16 +44,12 @@
                             background-color: var(--Red-color);
                             border-radius: 6px;
                             margin-left: 15px;
-                            width: 200px;
+                            width: 300px;
                             align-items: center;
                         }
                     }
                     .marginInfoAll{
-                          margin-bottom: 20px;
-                    }
-               
-                    .EquipmentImg{
-                        margin: 0px 20px 20px 0px;
+                          margin-bottom: 15px;
                     }
                     .paramInfo{
                         width: 200px;
@@ -69,11 +65,18 @@
                         justify-content: center;
                     }
                 }
+                .EquipmentImg{
+                    margin: 0px 20px 20px 0px;
+                    img{
+                        height: 270px;
+                    }
+                }
                
             }
             .button{
                 @include button(var(--turquoise-color));
-                width: 400px!important;
+                width: 100%!important;
+                padding: 5px;
                 display: flex;
                 justify-content: center;
                 align-items: center;
@@ -85,7 +88,7 @@
         .paramInfoContainer{
             width: 650px!important;
             .paramInfo{
-                width: 450px!important;
+                width: 435px!important;
             }
         }
        
@@ -93,10 +96,48 @@
             background-color: var(--light-gray-color);
             border-radius: 6px;
             width: 100px;
-            align-items: center;
+            align-items: start;
             margin-left: 15px!important;
             display: flex;
-            justify-content: center;
+            justify-content: start;
         }
+    }
+}
+.InfoSecodSection{
+    display: flex;
+    justify-content: space-between;
+    .TitleSecondBlock{
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        background-color: var(--light-gray-color);
+        border-radius: 6px;
+        padding: 5px 10px;
+        box-sizing: border-box;
+        p{
+            margin: 0;
+        };
+    }
+    .HistoryTo{
+        width: 830px;
+        height: 325px;
+        
+    }
+    .CommentTo{
+        width: 605px;
+        margin-left: 70px;
+        height: 325px;
+    }
+    .CommentToBlock{
+        width: 100%;
+        background-color: #b7ab9e4f;
+        border-radius: 8px;
+        padding: 10px;
+        box-sizing: border-box;
+        min-height: 365px;
+        max-height: 365px;
+        margin-top: 20px;
+        // overflow-y: scroll;
+        border: 1px solid #b7ab9eb6;
     }
 }
