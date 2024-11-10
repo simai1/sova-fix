@@ -56,7 +56,7 @@ function Input({
         <input
           onChange={(e) => InputText(e)}
           placeholder={placeholder}
-          value={value}
+          value={value }
           type={type}
           style={isValid ? {} : {border: '1px solid red'}}
           maxLength={75}
