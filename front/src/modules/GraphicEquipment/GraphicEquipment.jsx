@@ -5,9 +5,10 @@ function GraphicEquipment() {
        
         <div className={styles.GraphicEquipment}>
             <div className={styles.GraphicEquipmentButton}>
-                <button>Добавить</button>
-                <button>Редактировать</button>
-                <button>Удалить</button>
+                <button>Проведено ТО</button>
+                <button>Добавить оборудование</button>
+                <button>Удалить оборудование</button>
+                <button>Экспорт</button>
             </div>
             <div>
                 <p>GraphicEquipment</p>

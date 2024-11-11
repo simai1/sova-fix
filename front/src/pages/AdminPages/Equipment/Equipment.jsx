@@ -4,6 +4,7 @@ import Header from "../../../components/Header/Header";
 import { Outlet } from "react-router-dom";
 import DataContext from "../../../context";
 import PopUpNewTO from "../../../components/PopUp/PopUpNewTO/PopUpNewTO";
+import PopUpNewTOCategory from "../../../components/PopUp/PopUpNewTOCategory/PopUpNewTOCategory";
 
 function Equipment() {
 
@@ -16,6 +17,7 @@ function Equipment() {
                 <Outlet/>
             </Layout>
             {context.popUp === "PopUpNewTO" && <PopUpNewTO />}
+            {context.popUp === "PopUpNewTOCategory" && <PopUpNewTOCategory />}
         </div>
             
      );

@@ -1,18 +1,18 @@
 import PopUpContainer from "../../../UI/PopUpContainer/PopUpContainer";
 import React from "react";
-import styles from "./PopUpNewTO.module.scss"
-function PopUpNewTO() {
+import styles from "./PopUpNewTOCategory.module.scss"
+function PopUpNewTOCategory() {
     return ( 
-        <PopUpContainer width={true} title={"Новое техническое обслуживание"} mT={150}>
-            <div className={styles.PopUpNewTO}>
+        <PopUpContainer width={true} title={"Новое техническое обслуживание категории"} mT={150}>
+            <div className={styles.PopUpNewTOCategory}>
                 <div className={styles.pupUpFirstContainer}>
                     <div className={styles.pupUpFirstContainerInfo}>
                         <div className={styles.pupContainerInfoTitle}> <p>Категория:</p></div>
                         <div className={styles.pupUpContainerInfoSubtitle}> <p>Тепловое оборудование</p></div>
                     </div>
                     <div className={styles.pupUpFirstContainerInfo}>
-                        <div className={styles.pupContainerInfoTitle}> <p>Название:</p></div>
-                        <div className={styles.pupUpContainerInfoSubtitle}> <p>Пароконвектомат</p></div>
+                        <div className={styles.pupContainerInfoTitle}> <p>Подразделение:</p></div>
+                        <div className={styles.pupUpContainerInfoSubtitle}> <p>КЕКС</p></div>
                     </div>
                     <div className={styles.pupUpFirstContainerInfo}>
                         <div className={styles.pupContainerInfoTitle}> <p>Объект:</p></div>
@@ -43,10 +43,10 @@ function PopUpNewTO() {
             </div>
             </div>
             <div className={styles.buttonSubmitBlock}>
-                <button className={styles.buttonSubmit}>Добавить Запись</button>
+                <button className={styles.buttonSubmit}>Добавить ТО категории</button>
             </div>
         </PopUpContainer>
      );
 }
 
-export default PopUpNewTO;
+export default PopUpNewTOCategory;
