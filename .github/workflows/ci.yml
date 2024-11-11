@@ -16,7 +16,7 @@ jobs:
 
       - name: Log in to GHCR
         run: |
-          echo ${{ GH_PAT }} | sudo docker login ghcr.io -u simai1 --password-stdin
+          echo ${{ secrets.GH_PAT }} | sudo docker login ghcr.io -u simai1 --password-stdin
 
       - name: Build and push the api container
         run: |
