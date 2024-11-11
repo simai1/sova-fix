@@ -29,5 +29,5 @@ jobs:
 
       - name: Build and push the bot container
         run: |
-          docket build -t ghcr.io/simai1/sova-fix/sova-bot:latest ./bot
+          docker build -t ghcr.io/simai1/sova-fix/sova-bot:latest ./bot
           docker push ghcr.io/simai1/sova-fix/sova-bot:latest
