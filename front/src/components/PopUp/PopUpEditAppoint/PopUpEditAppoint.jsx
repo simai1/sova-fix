@@ -39,7 +39,7 @@ function PopUpEditAppoint(props) {
     { id: 2, name: "В работе" },
     { id: 3, name: "Выполнена" },
     { id: 4, name: "Неактуальна" },
-    { id: 5, name: "Принята" },
+    { id: 5, name: "Выезд без выполнения" },
   ];
 
   const DataUrgency = [
