@@ -376,3 +376,12 @@ input[type="checkbox"]:checked:before {
     opacity: 0.6;
   }
 }
+.planCompleteDate{
+  input{
+    background-color: #b7ab9e;
+    border-color: #b7ab9e;
+    padding: 8px 5px;
+    border-radius: 8px;
+    border: none;
+  }
+}
