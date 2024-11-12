@@ -68,6 +68,7 @@ function Table() {
     2: "В работе",
     3: "Выполнена",
     4: "Неактуальна",
+    5: "Выезд без выполнения",
   };
 
   const DataUrgency = [
@@ -122,6 +123,7 @@ function Table() {
       requestId: id,
       status: status,
     };
+    console.log("data", data)
     SetStatusRequest(data).then((resp) => {
       if (resp?.status === 200) {
         context.UpdateTableReguest(1);
@@ -372,7 +374,7 @@ function Table() {
         2: "В работе",
         3: "Выполнена",
         4: "Неактуальна",
-        5: "Принята",
+        5: "Выезд без выполнения",
       };
       let modalData = [];
       if (key !== "photo" && key !== "checkPhoto" && key !== "commentAttachment" && key !== "number" && key !== "problemDescription" && key !== "id" && key !== "repairPrice") {
@@ -786,6 +788,8 @@ const isVideo = (fileName) => {
                                     ? "#ffe78f" // желтый
                                     : row[headerItem.key] === "Выполнена"
                                     ? "#C5E384" // зеленый
+                                    : row[headerItem.key] === "Выезд без выполнения"
+                                    ? "#f9ab23" // ораньжевый
                                     : ""
                                   : "",
                             }}
@@ -797,8 +801,8 @@ const isVideo = (fileName) => {
                                 className={styles.shovStatusPop}
                                 style={
                                   checkHeights(dataTable, index)
-                                    ? { top: "-70%", width: "150px" }
-                                    : { width: "150px" }
+                                    ? { top: "-70%", width: "250px" }
+                                    : { width: "250px" }
                                 }
                               >
                                 <ul>
@@ -1111,20 +1115,6 @@ const isVideo = (fileName) => {
                               </div>
                             )}
                           </div>
-                        ) : headerItem.key === "tgId" ? (
-                          <>
-                            {row[headerItem.key] ? (
-                              <a
-                                href={getTgHref(row[headerItem.key])}
-                                target="_blank"
-                                style={{ color: "#bd966c", cursor: "pointer" }}
-                              >
-                                {getItem(row[headerItem.key], headerItem.key)}
-                              </a>
-                            ) : (
-                              "___"
-                            )}
-                          </>
                         ) : (
                           <p
                             style={{
