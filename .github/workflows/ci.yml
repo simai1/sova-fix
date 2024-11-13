@@ -36,5 +36,5 @@ jobs:
 
       - name: Notify Jenkins Pipeline
         run: |
-          curl -X POST JENKINS_URL \
+          curl -X POST ${{ secrets.JENKINS_URL }} \
           -d '{"ref": "refs/heads/main"}'
