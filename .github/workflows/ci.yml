@@ -33,3 +33,8 @@ jobs:
         run: |
           docker build -t ghcr.io/simai1/sova-fix/sova-bot:latest ./bot
           docker push ghcr.io/simai1/sova-fix/sova-bot:latest
+
+      - name: Notify Jenkins Pipeline
+        run: |
+          curl -X POST JENKINS_URL \
+          -d '{"ref": "refs/heads/main"}'
