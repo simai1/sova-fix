@@ -151,7 +151,7 @@ const update = catchAsync(async (req, res) => {
         !contractorId &&
         !status &&
         !builder &&
-        !planCompleteDate
+        typeof planCompleteDate === 'undefined'
     )
         throw new ApiError(httpStatus.BAD_REQUEST, 'Missing body');
     await requestService.update(

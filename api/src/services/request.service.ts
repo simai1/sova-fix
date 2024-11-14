@@ -319,7 +319,7 @@ const update = async (
     contractorId: string | undefined,
     status: number | undefined,
     builder: string | undefined,
-    planCompleteDate: Date | undefined
+    planCompleteDate: Date | null | undefined
 ): Promise<void> => {
     const request = await RepairRequest.findByPk(requestId);
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
