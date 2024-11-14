@@ -28,7 +28,7 @@ function Table() {
     context.setSelectedTr(row.id);
     if (
       target.className !== "Table_statusClick__QSptV" &&
-      target.tagName !== "LI"
+      target.tagName !== "LI" && target.className !== "planCompleteDate"
     ) {
       if (context.moreSelect.includes(row.id)) {
         context.setMoreSelect(
@@ -548,25 +548,18 @@ const isVideo = (fileName) => {
     }
   };
 
-  const getTgHref = (tg_user_id) => {
-    return `tg://user?id=${tg_user_id}`;
-  };
 
-  // function filterBasickData(data, chekeds) {
-  //   let tb = [...data];
-  //   let mass = [];
-  //   tb.filter((el) => {
-  //     if (chekeds.find((it) => el[it.itemKey] === it.value)) {
-  //       return;
-  //     } else {
-  //       mass.push(el);
-  //     }
-  //   });
-  //   return mass;
-  // }
-
-
-
+  const selectadNewPlanDateFunction = (id, date) => {
+    const data = {
+      planCompleteDate: new Date(date)
+    }
+    console.log("data", data)
+    ReseachDataRequest(id, data).then((resp) => {
+      if (resp?.status === 200) {
+        context.UpdateTableReguest(1);
+      }
+    });
+  }
   return (
     <div className={styles.TableWrapper}>
       <div
@@ -822,13 +815,27 @@ const isVideo = (fileName) => {
                               </div>
                             )}
                           </div>
-                        ) : headerItem.key === "isActivated" ? (
-                          <>
-                            {row[headerItem.key] === true
-                              ? "Активириван"
-                              : "Не активирован"}
-                          </>
-                        ) : headerItem.key === "photo" ? (
+                        ) : headerItem.key === "planCompleteDate" ? (
+                        <>
+                          {row[headerItem.key] === "___" || row[headerItem.key] === null ? (
+                            "___"
+                          ) : (
+                            JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" ? (
+                              <div className={styles.planCompleteDate}>
+                                <input
+                                  type="date"
+                                  value={row["planCompleteDateRaw"].split('T')[0]} // Extracting date part from ISO string
+                                  onChange={(e) => {
+                                    selectadNewPlanDateFunction(row.id, e.target.value);
+                                  }}
+                                />
+                              </div>
+                            ) : (
+                              row[headerItem.key]
+                            )
+                          )}
+                        </>
+                    ) : headerItem.key === "photo" ? (
                   <div>
                     {isVideo(row.fileName) ? (
                       <div className={styles.fileVideoTable}>
