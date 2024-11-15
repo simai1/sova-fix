@@ -36,6 +36,7 @@ export default class RepairRequest extends Model {
     ExtContractor?: ExtContractor; // external contractor rel
     extContractorId?: string;
     isExternal!: boolean;
+    copiedRequestId?: string;
 
     static initialize(sequelize: Sequelize) {
         RepairRequest.init(
@@ -113,6 +114,10 @@ export default class RepairRequest extends Model {
                     type: DataTypes.BOOLEAN,
                     allowNull: true,
                     defaultValue: false,
+                },
+                copiedRequestId: {
+                    type: DataTypes.UUID,
+                    allowNull: true,
                 },
             },
             {
