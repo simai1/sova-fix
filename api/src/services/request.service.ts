@@ -113,7 +113,18 @@ const getAllRequests = async (filter: any, order: any): Promise<RequestDto[]> =>
         });
     }
 
-    return requests.map(request => new RequestDto(request));
+    // sort copied
+    const sortedRequests: RepairRequest[] = [];
+    const copiedRequests: RepairRequest[] = [];
+    requests.forEach(request => {
+        request.copiedRequestId ? copiedRequests.push(request) : sortedRequests.push(request);
+    });
+    for (const r of copiedRequests) {
+        const targetIndex = sortedRequests.findIndex(sortedRequest => sortedRequest.id === r.copiedRequestId);
+        sortedRequests.splice(targetIndex + 1, 0, r);
+    }
+
+    return sortedRequests.map(request => new RequestDto(request));
 };
 
 const getRequestById = async (requestId: string): Promise<RequestDto> => {
@@ -540,6 +551,24 @@ const bulkSetContractor = async (ids: object, contractorId: string): Promise<voi
     }
 };
 
+const copyRequest = async (requestId: string): Promise<void> => {
+    const request = await RepairRequest.findByPk(requestId);
+    if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found request with id ' + requestId);
+    await RepairRequest.create({
+        unitId: request.unitId,
+        objectId: request.objectId,
+        problemDescription: request.problemDescription,
+        urgency: request.urgency,
+        repairPrice: request.repairPrice,
+        comment: request.comment,
+        legalEntityId: request.legalEntityId,
+        fileName: request.fileName,
+        createdBy: request.createdBy,
+        number: 0,
+        copiedRequestId: request.id,
+    });
+};
+
 export default {
     getAllRequests,
     getRequestById,
@@ -559,4 +588,5 @@ export default {
     bulkSetStatus,
     bulkSetUrgency,
     bulkSetContractor,
+    copyRequest,
 };

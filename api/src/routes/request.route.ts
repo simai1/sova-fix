@@ -62,4 +62,6 @@ router.route('/contractor/bulk').patch(requestController.bulkContractor);
 
 router.route('/customer/:tgUserId').get(requestController.getCustomersRequests);
 router.route('/add/check/:requestId').patch(uploadImage.single('file'), requestController.addCheck);
+
+router.route('/copy/:requestId').post(requestController.copy);
 export default router;
