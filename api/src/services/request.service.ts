@@ -113,7 +113,18 @@ const getAllRequests = async (filter: any, order: any): Promise<RequestDto[]> =>
         });
     }
 
-    return requests.map(request => new RequestDto(request));
+    // sort copied
+    const sortedRequests: RepairRequest[] = [];
+    const copiedRequests: RepairRequest[] = [];
+    requests.forEach(request => {
+        request.copiedRequestId ? copiedRequests.push(request) : sortedRequests.push(request);
+    });
+    for (const r of copiedRequests) {
+        const targetIndex = sortedRequests.findIndex(sortedRequest => sortedRequest.id === r.copiedRequestId);
+        sortedRequests.splice(targetIndex + 1, 0, r);
+    }
+
+    return sortedRequests.map(request => new RequestDto(request));
 };
 
 const getRequestById = async (requestId: string): Promise<RequestDto> => {
@@ -540,6 +551,30 @@ const bulkSetContractor = async (ids: object, contractorId: string): Promise<voi
     }
 };
 
+const copyRequest = async (requestId: string): Promise<void> => {
+    const request = await RepairRequest.findByPk(requestId);
+    if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found request with id ' + requestId);
+    await RepairRequest.create({
+        status: request.status,
+        problemDescription: request.problemDescription,
+        urgency: request.urgency,
+        planCompleteDate: request.planCompleteDate,
+        repairPrice: request.repairPrice,
+        comment: request.comment,
+        commentAttachment: request.commentAttachment,
+        daysAtWork: request.daysAtWork,
+        fileName: request.fileName,
+        checkPhoto: request.checkPhoto,
+        createdAt: request.createdAt,
+        createdBy: request.createdBy,
+        unitId: request.unitId,
+        objectId: request.objectId,
+        legalEntityId: request.legalEntityId,
+        copiedRequestId: request.id,
+        number: 0,
+    });
+};
+
 export default {
     getAllRequests,
     getRequestById,
@@ -559,4 +594,5 @@ export default {
     bulkSetStatus,
     bulkSetUrgency,
     bulkSetContractor,
+    copyRequest,
 };

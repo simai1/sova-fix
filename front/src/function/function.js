@@ -84,3 +84,8 @@ export const generateAndDownloadExcel = (data, nameTable, expenseSum) => {
   });
   saveAs(excelData, `Экспорт_Таблицы_${nameTable}_${formattedDate}.xlsx`);
 };
+
+
+export const filterRequestsWithoutCopiedId = (data) => {
+  return data.filter(row => row.copiedRequestId === null);
+};
