@@ -555,17 +555,23 @@ const copyRequest = async (requestId: string): Promise<void> => {
     const request = await RepairRequest.findByPk(requestId);
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found request with id ' + requestId);
     await RepairRequest.create({
-        unitId: request.unitId,
-        objectId: request.objectId,
+        status: request.status,
         problemDescription: request.problemDescription,
         urgency: request.urgency,
+        planCompleteDate: request.planCompleteDate,
         repairPrice: request.repairPrice,
         comment: request.comment,
-        legalEntityId: request.legalEntityId,
+        commentAttachment: request.commentAttachment,
+        daysAtWork: request.daysAtWork,
         fileName: request.fileName,
+        checkPhoto: request.checkPhoto,
+        createdAt: request.createdAt,
         createdBy: request.createdBy,
-        number: 0,
+        unitId: request.unitId,
+        objectId: request.objectId,
+        legalEntityId: request.legalEntityId,
         copiedRequestId: request.id,
+        number: 0,
     });
 };
 
