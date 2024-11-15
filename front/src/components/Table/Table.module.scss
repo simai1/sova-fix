@@ -74,7 +74,7 @@
     tr {
       background-color: var(--tableTdBg);
       &:hover td {
-        background-color: var(--tableTrHover);
+        background-color: var(--tableTrHover)!important;
         cursor: pointer;
       }
     }
@@ -162,15 +162,15 @@
     }
     .MainTd[name="number"] {
       position: sticky;
-      left: 48px;
-      width: 40px;
-      min-width: 40px;
+      left: 47px;
+      width: 41px!important;
+      min-width: 41px!important;
       z-index: 50;
       background-color: #f7f7f7;
     }
     .MainTd[name="unit"] {
       position: sticky;
-      left: 113px;
+      left: 112px;
       width: 125px;
       min-width: 125px;
       max-width: 125px;
@@ -179,7 +179,7 @@
     }
     .MainTd[name="contractor"] {
       position: sticky;
-      left: 400px;
+      left: 398px;
       width: 150px;
       min-width: 150px;
       max-width: 150px;
@@ -189,14 +189,13 @@
     }
     .MainTd[name="object"] {
       position: sticky;
-      left: 259px;
+      left: 257.5px;
       width: 120px;
       min-width: 120px;
       max-width: 120px;
       z-index: 49;
       background-color: #f7f7f7;
     }
-
     td[name="tgId"] {
       text-align: center !important;
     }
@@ -204,7 +203,7 @@
       position: sticky;
       left: 0px;
 
-      width: 40px;
+      width: 41px;
       z-index: 50;
       background-color: #f7f7f7;
     }
@@ -213,13 +212,13 @@
       position: sticky;
       left: 0px;
       top: 0;
-      width: 40px;
+      width: 41px;
       z-index: 100;
       background-color: #b7ab9e;
     }
     .MainTh[name="unit"] {
       position: sticky;
-      left: 113px;
+      left: 112px;
       width: 125px;
       min-width: 125px;
       max-width: 125px;
@@ -232,7 +231,7 @@
     }
     .MainTh[name="number"] {
       position: sticky;
-      left: 48px;
+      left: 47px;
       top: 0;
       width: 65px;
       z-index: 100;
@@ -243,7 +242,7 @@
     }
     .MainTh[name="contractor"] {
       position: sticky;
-      left: 400px;
+      left: 398px;
       width: 150px;
       min-width: 150px;
       max-width: 150px;
@@ -257,7 +256,7 @@
     }
     .MainTh[name="object"] {
       position: sticky;
-      left: 259px;
+      left: 257.5px;
       top: 0;
       width: 120px;
       min-width: 120px;

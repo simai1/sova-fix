@@ -548,7 +548,6 @@ const isVideo = (fileName) => {
     }
   };
 
-
   const selectadNewPlanDateFunction = (id, date) => {
     const data = {
       planCompleteDate: new Date(date)
@@ -560,6 +559,7 @@ const isVideo = (fileName) => {
       }
     });
   }
+  
   return (
     <div className={styles.TableWrapper}>
       <div
@@ -698,6 +698,9 @@ const isVideo = (fileName) => {
                 {dataTable?.map((row, index) => (
                   <tr
                     key={index}
+                    style={{
+                      backgroundColor: row.copiedRequestId !== null ? "#ffe78f" : "",
+                    }}
                     onClick={(e) => {
                       const target = e.target;
                       (context.selectedTable === "Заявки" ||
@@ -725,6 +728,7 @@ const isVideo = (fileName) => {
                           backgroundColor: whatPageBgTd(row.id),
                         }}
                         className={styles.MainTd}
+                        id={row.copiedRequestId !== null && "copiedRequestId"}
                       >
                         <input
                           type="checkbox"
@@ -745,11 +749,8 @@ const isVideo = (fileName) => {
                       <td
                         key={headerItem.key}
                         name={headerItem.key}
-                        className={
-                          context.selectedTable === "Заявки"
-                            ? styles.MainTd
-                            : null
-                        }
+                        className={styles.MainTd}
+                        id={row.copiedRequestId !== null && "copiedRequestId"}
                         style={{
                           textAlign: textAlign(
                             headerItem.key,
@@ -815,7 +816,9 @@ const isVideo = (fileName) => {
                               </div>
                             )}
                           </div>
-                        ) : headerItem.key === "planCompleteDate" ? (
+                        ) : headerItem.key === "number" ? (<div>
+                          {row.copiedRequestId !== null ? "(" + row[headerItem.key] + ")" : row[headerItem.key]}
+                        </div> ) : headerItem.key === "planCompleteDate" ? (
                         <>
                           {row[headerItem.key] === "___" || row[headerItem.key] === null ? (
                             "___"
