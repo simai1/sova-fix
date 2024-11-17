@@ -40,7 +40,7 @@ async def show_contractor_requests_handler(user_id: int, params: str, message: M
     await state.clear()
 
     try:
-        await verify_user(user_id, message, role=roles.CONTRACTOR)
+        await verify_user(user_id, role=roles.CONTRACTOR, message=message)
     except VerificationError:
         return
 

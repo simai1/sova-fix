@@ -28,6 +28,17 @@ class roles:
         return roles.m_roles_list_ru_locale[roles.get_num(string) - 1]
 
 
+class User:
+    def __init__(self, data: dict):
+        self.id = data['id']
+        self.name = data['name']
+        self.role = roles.get_num(data['role'])
+        self.tg_id = int(data['tgId'])
+        self.linkId = data['linkId']
+        self.is_confirmed = data['isConfirmed']
+
+
+
 async def register_user(user_id: int, name: str, role: int, username: str) -> dict | None:
     if await user_already_exists(user_id):
         return None
@@ -72,13 +83,17 @@ async def user_already_exists(user_id: int) -> bool:
     return user is not None
 
 
-async def get_all_repair_requests() -> dict | None:
-    url = f'{cf.API_URL}/requests/'
+async def get_all_repair_requests(params: str = "") -> dict | None:
+    url = f'{cf.API_URL}/requests?{params}'
 
     request = requests.get(url)
     data: dict = request.json()
 
-    return data
+    if request.status_code == 200:
+        return data['requestsDtos']
+    else:
+        logger.error('API: could not get all repair requests', f'{request.status_code}\nurl={url}')
+        return None
 
 
 async def get_repair_request(request_id: str) -> dict | None:
@@ -435,3 +450,18 @@ async def set_contractor(request_id: str, contractor_id: str) -> bool:
     else:
         logger.error("could not set contractor", f"{req.status_code}  data: {data}")
         return False
+
+
+async def get_rrs_for_user(user_data: dict, params: str = "") -> list:
+    user = User(user_data)
+
+    if not user.is_confirmed:
+        return []
+
+    match user.role:
+        case roles.CUSTOMER:
+            return await get_customer_requests(user.tg_id, params)
+        case roles.CONTRACTOR:
+            return await get_contractor_requests(user.tg_id, params)
+        case roles.ADMIN:
+            return await get_all_requests_with_params(params)
