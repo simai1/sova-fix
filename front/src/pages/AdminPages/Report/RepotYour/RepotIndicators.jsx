@@ -16,6 +16,7 @@ import { sortDataTable } from "../functionSort/functionSort";
 import { PopUpError } from "../../../../UI/PopUpError/PopUpError";
 import PopUpEditAppoint from "../../../../components/PopUp/PopUpEditAppoint/PopUpEditAppoint";
 import { useSelector } from "react-redux";
+import { filterRequestsWithoutCopiedId } from "../../../../function/function";
 
 function RepotIndicators() {
   const { context } = useContext(DataContext);
@@ -294,13 +295,13 @@ function RepotIndicators() {
         </div>
 
         <div>
-          <FunctionReportTop dataTable={tableDataIndicatorsSort} />
+          <FunctionReportTop dataTable={filterRequestsWithoutCopiedId(tableDataIndicatorsSort)} />
           {vidView === "Таблица" ? (
             <UniversalTable
               tableName="table6"
               selectFlag={true}
               tableHeader={tableHeadIndicators}
-              tableBody={tableDataIndicatorsSort}
+              tableBody={filterRequestsWithoutCopiedId(tableDataIndicatorsSort)}
               FilterFlag={true}
               top="95"
             />
@@ -308,12 +309,12 @@ function RepotIndicators() {
             <div className={styles.ReportIndicatorsDashbord}>
               <div>
                 <UniversalDashboardStatus
-                  dataDashbord={filterBasickData(tableDataIndicatorsSort, store)}
+                  dataDashbord={filterRequestsWithoutCopiedId(filterBasickData(tableDataIndicatorsSort, store))}
                 />
               </div>
               <div>
                 <UniversalDashbordSrochn
-                  dataDashbord={filterBasickData(tableDataIndicatorsSort, store)}
+                  dataDashbord={filterRequestsWithoutCopiedId(filterBasickData(tableDataIndicatorsSort, store))}
                 />
               </div>
             </div>

@@ -30,6 +30,7 @@ export default class RequestDto {
     contractor?: ContractorDto | null;
     extContractor?: ExtContractorDto | null;
     isExternal!: boolean;
+    copiedRequestId?: string;
 
     constructor(model: RepairRequest) {
         this.id = model.id;
@@ -58,5 +59,6 @@ export default class RequestDto {
         this.contractor = model.Contractor ? new ContractorDto(model.Contractor) : null;
         this.extContractor = model.ExtContractor ? new ExtContractorDto(model.ExtContractor) : null;
         this.isExternal = model.isExternal;
+        this.copiedRequestId = model.copiedRequestId;
     }
 }

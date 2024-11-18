@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import styles from './Contextmenu.module.scss';
 import arrowBottom from "./../../assets/images/arrow_bottom.svg";
-import {DeleteMoreRequest, EditMoreContractorRequest, EditMoreStatusRequest, EditMoreUrgencyRequest, GetAllСontractors} from "./../../API/API";
+import {CreateCopyRequest, DeleteMoreRequest, EditMoreContractorRequest, EditMoreStatusRequest, EditMoreUrgencyRequest, GetAllСontractors} from "./../../API/API";
 import DataContext from '../../context';
 function Contextmenu(props) {
     const [cordX, setCordX] = useState(props?.X);
@@ -12,6 +12,8 @@ function Contextmenu(props) {
     const [dataConractor, setDataConractor] = useState([]);
     const { context } = useContext(DataContext);
     const [confirmDelete, setConfirmDelete] = useState(false);
+    const [confirmCopy, setConfirmCopy] = useState(false);
+
     useEffect(() => {
         convertCoord(props?.X, props?.Y);
         GetAllСontractors().then((resp) => setDataConractor(resp.data));
@@ -61,6 +63,7 @@ function Contextmenu(props) {
         setShovStatusContractor(false);
         setShowStatusMenu(false);
         setConfirmDelete(false);
+        setConfirmCopy(false)
         switch (action) {
             case "status":
                 setShowStatusMenu(!showStatusMenu);
@@ -73,6 +76,9 @@ function Contextmenu(props) {
                 break;
             case "delete":
                 setConfirmDelete(!confirmDelete);
+                break;
+            case "copy":
+                setConfirmCopy(!confirmCopy);
                 break;
             default:
                 break;
@@ -139,6 +145,31 @@ function Contextmenu(props) {
     const closeContextMenu = () => {
         props.setOpenConextMenu(false);
     }
+    const copyRequest = () => {     
+        console.log("copy",  context.moreSelect[0])
+        CreateCopyRequest(context.moreSelect[0]).then((resp) => {
+            if(resp?.status === 200){
+              setConfirmCopy(false);
+              context.UpdateTableReguest(1);
+              closeContextMenu();
+            }
+        })
+    }
+
+    const checkCloneRequest = () => {
+        let rowData = null
+        context.dataTableFix.map((el) => {
+            if(el.id === context.moreSelect[0]){
+                rowData = el
+            }
+        })
+        if(rowData.copiedRequestId !== null){
+            return false
+        }else{
+            return true
+        }
+    }
+
     return (
         <div className={styles.SampleMenu} style={{ top: cordY, left: cordX }} id='SampleMenu'>
             <div className={styles.SampleMenuInner}>
@@ -146,10 +177,23 @@ function Contextmenu(props) {
                     <div className={styles.SampleMenuInnerList} onClick={()=>toggleStatusMenu("status")}><li>Редактировать статус</li><img style={{ transform: showStatusMenu ? "rotate(-90deg)" : "" }} src={arrowBottom}/></div>
                     <div className={styles.SampleMenuInnerList} onClick={()=>toggleStatusMenu("urgency")}><li>Изменить срочность</li><img style={{ transform: showStatusUrgensy ? "rotate(-90deg)" : "" }} src={arrowBottom}/></div>
                     <div className={styles.SampleMenuInnerList} onClick={()=>toggleStatusMenu("executor")}><li>Назначить исполнителя</li><img style={{ transform: showStatusContractor ? "rotate(-90deg)" : "" }} src={arrowBottom}/></div>
+                    { context.moreSelect.length === 1 && checkCloneRequest() &&<li onClick={ () => toggleStatusMenu("copy")}>Создать копию</li>}
                     <li onClick={ () => toggleStatusMenu("delete")}>Удалить</li>
                 </ul>
-               
             </div>
+            {confirmCopy && (
+                <div className={styles.StatusMenu}>
+                    <div className={styles.ConfirmDelete}>
+                        <div>
+                            <p>Вы точно хотите создать копию заявки?</p>
+                        </div>
+                        <div className={styles.ConfirmDeleteButtons}>
+                            <button onClick={() => copyRequest()}>Да</button>
+                            <button onClick={() => setConfirmCopy(!confirmCopy)}>Нет</button>
+                        </div>
+                    </div>
+                </div>
+            )}
             {showStatusMenu && (
                     <div className={styles.StatusMenu}>
                         <ul>
