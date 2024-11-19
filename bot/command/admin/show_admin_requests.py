@@ -33,7 +33,7 @@ async def show_all_requests_admin_callback_handler(query: CallbackQuery, state: 
     user_id = query.from_user.id
 
     try:
-        await verify_user(user_id, query.message, role=roles.ADMIN)
+        await verify_user(user_id, role=roles.ADMIN, message=query.message)
     except VerificationError:
         return
 

@@ -2,7 +2,7 @@ import asyncio
 
 
 async def test() -> None:
-    pass
+    print("o" in "test")
 
 
 if __name__ == '__main__':

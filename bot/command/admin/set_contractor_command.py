@@ -20,7 +20,7 @@ class FSMSetContractor(StatesGroup):
 async def set_contractor_handler(query: CallbackQuery, state: FSMContext) -> None:
     # verification
     try:
-        await verify_user(query.from_user.id, query.message, role=roles.ADMIN)
+        await verify_user(query.from_user.id, role=roles.ADMIN, message=query.message)
     except VerificationError:
         return
 

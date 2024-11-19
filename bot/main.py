@@ -24,6 +24,7 @@ from command.common.add_check import router as add_check_router
 from command.common.send_request_by_number import router as request_by_number_router
 from command.common.show_without_check import router as show_without_check_router
 from command.admin.set_contractor_command import router as set_contractor_router
+from inline_query.base_inline_query_handler import router as base_inline_query_router
 from util import logger
 
 routers = [
@@ -42,7 +43,8 @@ routers = [
     add_check_router,
     request_by_number_router,
     show_without_check_router,
-    set_contractor_router
+    set_contractor_router,
+    base_inline_query_router
 ]
 
 dp = Dispatcher()

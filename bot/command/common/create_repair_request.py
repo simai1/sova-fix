@@ -46,7 +46,7 @@ async def create_repair_request(user_id: int, message: Message, state: FSMContex
 
     # проверка
     try:
-        await verify_user(user_id, message, role=[roles.CUSTOMER, roles.ADMIN])
+        await verify_user(user_id, role=[roles.CUSTOMER, roles.ADMIN], message=message)
     except VerificationError:
         return
 
