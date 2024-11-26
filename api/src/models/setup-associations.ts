@@ -1,6 +1,19 @@
 import { models } from './index';
 
-const { User, TokenModel, Contractor, RepairRequest, TgUser, ObjectDir, Unit, LegalEntity, ExtContractor } = models;
+const {
+    User,
+    TokenModel,
+    Contractor,
+    RepairRequest,
+    TgUser,
+    ObjectDir,
+    Unit,
+    LegalEntity,
+    Category,
+    Equipment,
+    ExtContractor,
+    History,
+} = models;
 
 export default function () {
     User.hasOne(TokenModel, { foreignKey: 'userId' });
@@ -18,8 +31,8 @@ export default function () {
     LegalEntity.hasMany(RepairRequest, { foreignKey: 'legalEntityId', hooks: true });
     RepairRequest.belongsTo(LegalEntity, { foreignKey: 'legalEntityId', hooks: true });
 
-    ExtContractor.hasMany(RepairRequest, { foreignKey: 'ExtContractorId', hooks: true });
-    RepairRequest.belongsTo(ExtContractor, { foreignKey: 'ExtContractorId', hooks: true });
+    ExtContractor.hasMany(RepairRequest, { foreignKey: 'extContractorId', hooks: true });
+    RepairRequest.belongsTo(ExtContractor, { foreignKey: 'extContractorId', hooks: true });
 
     Unit.hasMany(ObjectDir, { foreignKey: 'unitId' });
     ObjectDir.belongsTo(Unit, { foreignKey: 'unitId' });
@@ -35,4 +48,22 @@ export default function () {
 
     TgUser.hasOne(RepairRequest, { foreignKey: 'createdBy' });
     RepairRequest.belongsTo(TgUser, { foreignKey: 'createdBy' });
+
+    ObjectDir.hasMany(Equipment, { foreignKey: 'legalEntityId', hooks: true });
+    Equipment.belongsTo(ObjectDir, { foreignKey: 'legalEntityId', hooks: true });
+
+    Unit.hasMany(Equipment, { foreignKey: 'unitId', hooks: true });
+    Equipment.belongsTo(Unit, { foreignKey: 'unitId', hooks: true });
+
+    Category.hasMany(Equipment, { foreignKey: 'categoryId' });
+    Equipment.belongsTo(Category, { foreignKey: 'categoryId' });
+
+    Contractor.hasMany(Equipment, { foreignKey: 'contractorId' });
+    Equipment.belongsTo(Contractor, { foreignKey: 'contractorId' });
+
+    ExtContractor.hasMany(Equipment, { foreignKey: 'extContractorId' });
+    Equipment.belongsTo(ExtContractor, { foreignKey: 'extContractorId' });
+
+    Equipment.hasMany(History, { foreignKey: 'equipmentId' });
+    History.belongsTo(Equipment, { foreignKey: 'equipmentId' });
 }
