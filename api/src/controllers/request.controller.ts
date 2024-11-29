@@ -29,9 +29,10 @@ const getAll = catchAsync(async (req, res) => {
         ])
     );
     const order = prepare(pick(req.query, ['col', 'type']));
+    const pagination = prepare(pick(req.query, ['limit', 'offset']));
     if (order.type && ['asc', 'desc'].indexOf(order.type) === -1)
         throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid order type');
-    const requestsDtos = await requestService.getAllRequests(filter, order);
+    const requestsDtos = await requestService.getAllRequests(filter, order, pagination);
     res.json({ requestsDtos });
 });
 

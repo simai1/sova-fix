@@ -15,7 +15,7 @@ import Unit from '../models/unit';
 import LegalEntity from '../models/legalEntity';
 import ExtContractor from '../models/externalContractor';
 
-const getAllRequests = async (filter: any, order: any): Promise<RequestDto[]> => {
+const getAllRequests = async (filter: any, order: any, pagination: any): Promise<RequestDto[]> => {
     let requests;
     const whereParams = {};
     Object.keys(filter).forEach((k: any) =>
@@ -93,6 +93,8 @@ const getAllRequests = async (filter: any, order: any): Promise<RequestDto[]> =>
                         ? [['Contractor', 'name', order.type]]
                         : [[order.col, order.type]]
                     : [['number', 'desc']],
+            limit: pagination.limit,
+            offset: pagination.offset,
         });
     } else {
         requests = await RepairRequest.findAll({
@@ -110,6 +112,8 @@ const getAllRequests = async (filter: any, order: any): Promise<RequestDto[]> =>
                         ? [['Contractor', 'name', order.type]]
                         : [[order.col, order.type]]
                     : [['number', 'desc']],
+            limit: pagination.limit,
+            offset: pagination.offset,
         });
     }
 
