@@ -1,0 +1,44 @@
+@import './../../styles/color.scss';
+
+.PhoneDataVizulizer{
+    height: calc(100vh - 191px);
+    overflow-y: scroll;
+    margin-top: 25px;
+    padding-bottom: 60px;
+    .dataBlock{
+        
+        margin-bottom: 25px;
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        .dataBlockInner{
+            background-color: #fff;
+            width: 80%;
+            // border: var(--GrenColor) 1px solid;
+            padding: 5px 10px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 4px 1px rgba(0, 0, 0, 0.1);
+        }
+        .dataItem{
+            span{
+                margin-left: 5px;
+                
+            }
+        }
+        .dataItemCondition{
+            text-align: end;
+            margin: 6px 0px;
+            span{
+                padding: 2px 5px;
+                border-radius: 20px;
+            }
+        }
+    }
+    .dataBlockNote{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 100px;
+        font-size: 18px;    
+    }
+}

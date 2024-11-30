@@ -11,6 +11,7 @@ import { PopUpError } from "../../../UI/PopUpError/PopUpError";
 import Header from "../../../components/Header/Header";
 import Layout from "../../../UI/Layout/Layout";
 import FunctionReportTop from "../../../components/FunctionReportTop/FunctionReportTop";
+import PhoneDataVizulizer from "../../../components/PhoneDataVizulizer/PhoneDataVizulizer";
 function HomePageAdmin() {
   const { context } = React.useContext(DataContext);
   return (
@@ -19,7 +20,9 @@ function HomePageAdmin() {
       <Header />
       {context.selectPage === "Main" ? 
         <>
+        <div className={styles.TableTop}>
           <FunctionTableTop />
+        </div>
           <div className={styles.Table} >
             <Table />
           </div>
@@ -29,6 +32,12 @@ function HomePageAdmin() {
         </>
       }
     </Layout>
+    <div className={styles.PhoneData}>
+      <div className={styles.Search}>
+        <input type="text" placeholder="Поиск"/>
+      </div>
+      <PhoneDataVizulizer/>
+    </div>
     
       {context.popUp === "PopUpError" && <PopUpError />}
       {context.popUp === "PopUpEditAppoint" && <PopUpEditAppoint />}
