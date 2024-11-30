@@ -3,14 +3,14 @@ from typing import Callable
 
 from aiogram.exceptions import TelegramNetworkError
 from aiogram.fsm.context import FSMContext
-from aiogram.types import InlineKeyboardMarkup as IKM
+from aiogram.types import InlineKeyboardMarkup as IKM, BufferedInputFile
 from aiogram.types import Message, FSInputFile
 from aiogram.utils.media_group import MediaGroupBuilder
 
 from common.keyboard import to_start_kb
 from common.text import repair_request_text
 from handler import pagination
-from util import logger
+from util import logger, crm
 
 
 async def you_cant_do_that(message: Message) -> None:
@@ -22,16 +22,14 @@ async def to_start_msg(message: Message) -> None:
 
 
 async def add_media_to_album(media_filename: str, caption: str, album: MediaGroupBuilder) -> None:
-    uploads_path = "../api/uploads/"
-
-    file_path = f"{uploads_path}/{media_filename}"
-
     file_ext = media_filename.split('.')[-1]
     media_type: str = {"jpg": "photo", "mp4": "video", "10": "video"}[file_ext]
 
-    file = FSInputFile(path=file_path, filename=f"{caption}.{file_ext}")
+    file = await crm.get_static_content(media_filename)
 
-    album.add(type=media_type, media=file, caption=f"<i>{caption}</i>")
+    input_file = BufferedInputFile(file=file, filename=f"{caption}.{file_ext}")
+
+    album.add(type=media_type, media=input_file, caption=f"<i>{caption}</i>")
 
 
 async def send_repair_request(message: Message, repair_request: dict, kb: IKM | None = None) -> None:
