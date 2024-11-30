@@ -50,6 +50,7 @@ function App() {
   const [sortStateParam, setSortStateParam] = useState("");
   const [selectRowDirectory, setSelectRowDirectory] = useState(null);
   const [checkedAll, setCheckedAll] = useState(false);
+  const [textSearchTableDataPhone, setextSearchTableDataPhone] = useState("");
   const checkedAllFunc = () => {
     if(moreSelect.length > 0){
       setCheckedAll(true)
@@ -60,6 +61,8 @@ function App() {
   const [flagFilter, setFlagFilter] = useState(false);
   
   const context = {
+    setextSearchTableDataPhone,
+    textSearchTableDataPhone,
     setFlagFilter,
     flagFilter,
     setCheckedAll,

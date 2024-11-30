@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import styles from "./PhoneDataVizulizer.module.scss";
 import { tableHeadAppoint } from '../Table/Data';
 import { GetAllRequests } from '../../API/API';
+import { use } from 'echarts';
+import DataContext from '../../context';
 
 function PhoneDataVizulizer(props) {
     const [dataBody, setDataBody] = useState([]); // Состояние для данных
@@ -9,19 +11,31 @@ function PhoneDataVizulizer(props) {
     const [loading, setLoading] = useState(false); // Индикатор загрузки
     const [error, setError] = useState(null); // Ошибка, если что-то пошло не так
 
-    const context = props.context;
+   const {context} = useContext(DataContext);
 
     useEffect(() => {
         setDataHeader(tableHeadAppoint); // Устанавливаем заголовки из пропсов или статичных данных
         fetchData(); // Загружаем данные
     }, [props?.tableBody, props?.tableHeader]);
 
+    useEffect(() => {
+        fetchData(context.textSearchTableDataPhone); // Загружаем данные при изменении флага
+    }, [context.textSearchTableDataPhone]);
+
+
     // Асинхронная функция для загрузки данных
-    const fetchData = async () => {
+    const fetchData = async (text) => {
         setLoading(true);
         setError(null);
         try {
-            const response = await GetAllRequests(""); // Выполняем запрос
+            let url = '';
+            if (text) {
+                  url = `?search=${text}`
+              }
+              else{
+                  url = '';
+              } 
+            const response = await GetAllRequests(url); // Выполняем запрос
             if (response?.data?.requestsDtos) {
                 setDataBody(response.data.requestsDtos); // Сохраняем данные в состояние
             } else {

@@ -34,7 +34,7 @@ function HomePageAdmin() {
     </Layout>
     <div className={styles.PhoneData}>
       <div className={styles.Search}>
-        <input type="text" placeholder="Поиск"/>
+        <input type="text" placeholder="Поиск" onChange={(e) => context.setextSearchTableDataPhone(e.target.value)}/>
       </div>
       <PhoneDataVizulizer/>
     </div>
