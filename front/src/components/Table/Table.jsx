@@ -553,7 +553,7 @@ const isVideo = (fileName) => {
   const [offset, setOffset] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true); // Указывает, есть ли еще данные
-  const [limitData, setLimitData] = useState(5);
+  const [limitData, setLimitData] = useState(8);
 
   useEffect(() => {
     const tableWrapper = document.querySelector(`.${styles.Table}`);

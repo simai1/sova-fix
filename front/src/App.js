@@ -144,7 +144,7 @@ function App() {
 
   function UpdateTableReguest(param, par = sortStateParam, limit)  {
     let url = '';
-    let limitNumber = limit ? limit : 5
+    let limitNumber = limit ? limit : 8
      
     if (par || textSearchTableData) {
       if(par != "" && !textSearchTableData){
