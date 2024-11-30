@@ -50,7 +50,6 @@ function App() {
   const [sortStateParam, setSortStateParam] = useState("");
   const [selectRowDirectory, setSelectRowDirectory] = useState(null);
   const [checkedAll, setCheckedAll] = useState(false);
-
   const checkedAllFunc = () => {
     if(moreSelect.length > 0){
       setCheckedAll(true)
@@ -143,19 +142,20 @@ function App() {
   },[textSearchTableData, selectedTable, selectContructor] )
 
 
-  function UpdateTableReguest(param, par = sortStateParam) {
-    if(param === 1){
-      let url = '';
-      if (par || textSearchTableData) {
-        if(par != "" && !textSearchTableData){
-          url = `?${par}`;
-        }
-       else{
-          url = `?search=${textSearchTableData}&${par}`
-        }
+  function UpdateTableReguest(param, par = sortStateParam, limit)  {
+    let url = '';
+    let limitNumber = limit ? limit : 5
+     
+    if (par || textSearchTableData) {
+      if(par != "" && !textSearchTableData){
+        url = `?${par}`;
       }
+      else{
+        url = `?search=${textSearchTableData}&${par}`
+      }
+    }
     else {
-        url = '';
+        url = `?&ofset=0&limit=${limitNumber}`;
     } 
           GetAllRequests(url).then((resp) => {
             if(resp) {
@@ -170,33 +170,6 @@ function App() {
         GetAllRequests("").then((resp) => {
           setDataAppointment(resp?.data.requestsDtos)
         })
-    }
-    // if(param === 3){
-    //   let url = ``;
-    //   if(textSearchTableData === ""){
-    //     GetContractorsItenerarity(selectContructor, "").then((resp)=>{
-    //       if(resp?.status == 200){
-    //         setTableData(resp?.data);
-    //         setFilteredTableData(funFixEducator(resp?.data))
-    //         settableHeader(tableList);
-    //       }
-    //     })
-    //   }else{
-    //     url = `/?search=${textSearchTableData}`;
-    //     GetContractorsItenerarity(selectContructor, url).then((resp)=>{
-    //       if(resp?.status == 200){
-    //         setTableData(resp?.data);
-    //         setFilteredTableData(funFixEducator(resp?.data))
-    //         settableHeader(tableList);
-    //       }
-    //     })
-    //   }
-    //   GetContractorsItenerarity(selectContructor, "").then((resp)=>{
-    //     if(resp?.status == 200){
-    //       context.setDataitinerary(resp?.data)
-    //     }
-    //   })
-    // }
   }
 
   useEffect(() => {

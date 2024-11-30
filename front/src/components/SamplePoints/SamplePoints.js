@@ -72,7 +72,7 @@ function SamplePoints(props) {
   
     // Function to parse custom date format "dd.MM.yy"
     const parseDate = (dateString) => {
-      const parts = dateString.split(".");
+      const parts = dateString?.split(".");
       // Check if the date is in the correct format (dd.MM.yy)
       if (parts.length === 3) {
         const day = parseInt(parts[0], 10);

@@ -7,6 +7,7 @@ import DataContext from '../../context';
 function CountInfoBlock(props) {
     const [contNew, setContNew] = useState(0);
     const { context } = useContext(DataContext);
+    console.log("props", props.dataCount)
       useEffect(() => {
         let newCount = 0;
        switch (props?.keys) {
@@ -15,7 +16,7 @@ function CountInfoBlock(props) {
                break;
            case "status":
                props?.dataCount.forEach((el) => {
-                   if (el.status === props?.value) {
+                   if (el.status == props?.value) {
                        newCount++;
                    }
 

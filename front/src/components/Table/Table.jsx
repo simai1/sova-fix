@@ -223,20 +223,6 @@ function Table() {
     });
   };
 
-  const SetCountCard = (el, idAppoint) => {
-    const idInteger = context.dataContractors.find(
-      (el) => el.name === context?.tableData[0].contractor.name
-    )?.id;
-    const data = {
-      itineraryOrder: el,
-    };
-    ReseachDataRequest(idAppoint, data).then((resp) => {
-      if (resp?.status === 200) {
-        context.UpdateTableReguest(3, idInteger);
-      }
-    });
-  };
-
   const SetUrgency = (name, idAppoint) => {
     const data = {
       urgency: name,
@@ -559,6 +545,57 @@ const isVideo = (fileName) => {
       }
     });
   }
+
+
+
+
+
+  const [offset, setOffset] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true); // Указывает, есть ли еще данные
+  const [limitData, setLimitData] = useState(5);
+
+  useEffect(() => {
+    const tableWrapper = document.querySelector(`.${styles.Table}`);
+    let lastScrollTop = 0; // Хранит предыдущее значение scrollTop
+  
+    const handleScroll = () => {
+      if (!tableWrapper || isLoading || !hasMore) return;
+  
+      const { scrollTop, scrollHeight, clientHeight } = tableWrapper;
+  
+      // Если вертикальная прокрутка изменилась
+      if (scrollTop !== lastScrollTop) {
+        lastScrollTop = scrollTop; // Обновляем значение scrollTop
+  
+        if (
+          Math.round(scrollHeight - scrollTop) === Math.round(clientHeight) &&
+          (context.textSearchTableData === "" ||
+            context.textSearchTableData === null ||
+            !context.textSearchTableData)
+        ) {
+          console.log("Scroll to the end");
+  
+          setLimitData((prevLimit) => {
+            const newLimit = prevLimit + 10;
+            context.UpdateTableReguest("", "", newLimit);
+            return newLimit;
+          });
+        }
+      }
+    };
+  
+    tableWrapper?.addEventListener("scroll", handleScroll);
+  
+    return () => {
+      tableWrapper?.removeEventListener("scroll", handleScroll);
+    };
+  }, [isLoading, hasMore]);
+  
+  
+  
+
+  
   
   return (
     <div className={styles.TableWrapper}>
@@ -650,21 +687,6 @@ const isVideo = (fileName) => {
                               tableName={"table9"}
                             />
                           </div>
-                          // <SamplePoints
-                          //   index={index + 1}
-                          //   actiwFilter={actiwFilter}
-                          //   itemKey={item.key}
-                          //   isSamplePointsData={context.isSamplePointsData.map(
-                          //     (el) => (el === null ? "___" : el)
-                          //   )}
-                          //   isAllChecked={context.isAllChecked}
-                          //   isChecked={context.isChecked}
-                          //   setIsChecked={context.setIsChecked}
-                          //   workloadData={context.dataTableFix}
-                          //   setWorkloadDataFix={context.setFilteredTableData}
-                          //   setSpShow={setActiwFilter}
-                          //   sesionName={`isCheckedFilter`}
-                          // />
                         )}
                         {store.find((elem) => elem.itemKey === item.key) && (
                             <img src={FilteImg} />
@@ -692,7 +714,7 @@ const isVideo = (fileName) => {
               </tr>
             </thead>
           )}
-          <tbody>
+          <tbody id="data-table">
             {dataTable.length > 0 ? (
               <>
                 {dataTable?.map((row, index) => (
@@ -1074,53 +1096,6 @@ const isVideo = (fileName) => {
                                       {value.name}
                                     </li>
                                   ))}
-                                </ul>
-                              </div>
-                            )}
-                          </div>
-                        ) : headerItem.key === "itineraryOrder" ? (
-                          <div
-                            onClick={() =>
-                              context.selectPage !== "Main" &&
-                              funSetItineraryOrder(row.id)
-                            }
-                            className={
-                              context.selectPage !== "Main"
-                                ? styles.statusClick
-                                : styles.NostatusClick
-                            }
-                            ref={ItineraryOrderPopRef}
-                          >
-                            {row[headerItem.key] !== null
-                              ? row[headerItem.key]
-                              : "___"}
-                            {itineraryOrderPop === row.id && (
-                              <div
-                                className={styles.shovStatusPop}
-                                style={
-                                  checkHeights(dataTable, index)
-                                    ? {
-                                        top: "-10%",
-                                        right: "100px",
-                                        width: "auto",
-                                      }
-                                    : { width: "auto" }
-                                }
-                              >
-                                <ul>
-                                  {arrCount?.map((el) => {
-                                    return (
-                                      <li
-                                        key={el}
-                                        onClick={(event) =>
-                                          SetCountCard(el, row.id)
-                                        }
-                                      >
-                                        {" "}
-                                        {el}
-                                      </li>
-                                    );
-                                  })}
                                 </ul>
                               </div>
                             )}
