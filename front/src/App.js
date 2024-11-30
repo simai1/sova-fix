@@ -201,8 +201,6 @@ function App() {
             <Route path="/Authorization" element={<Authorization />}></Route>
             <Route path="/ReportFinansing" element={<ReportFinansing />}></Route>
             <Route path="/RepotYour" element={<RepotYour />}></Route>
-
-
             <Route path="/Directory/*" element={<Directory />}>
               <Route path="BusinessUnitReference" element={<BusinessUnitReference />}></Route>
               <Route path="DirectoryLegalEntities" element={<DirectoryLegalEntities />}></Route>
@@ -210,14 +208,9 @@ function App() {
               <Route path="ThePerformersDirectory" element={<ThePerformersDirectory />}></Route>
               <Route path="UsersDirectory" element={<UsersDirectory />}></Route>
             </Route>
-
             <Route path="/CardPage/*" element={<CardPage />}>
               <Route path="CardPageModule" element={<CardPageModule />}></Route>
             </Route>
-            
-            
-
-
           </Routes>
         </main>
       </BrowserRouter>
