@@ -57,8 +57,11 @@ function App() {
       setCheckedAll(false)
     }
   }
+  const [flagFilter, setFlagFilter] = useState(false);
   
   const context = {
+    setFlagFilter,
+    flagFilter,
     setCheckedAll,
     checkedAll,
     editListOpen,
@@ -145,7 +148,7 @@ function App() {
   function UpdateTableReguest(param, par = sortStateParam, limit)  {
     let url = '';
     let limitNumber = limit ? limit : 8
-     
+    
     if (par || textSearchTableData) {
       if(par != "" && !textSearchTableData){
         url = `?${par}`;
@@ -154,9 +157,12 @@ function App() {
         url = `?search=${textSearchTableData}&${par}`
       }
     }
-    else {
-        url = `?&ofset=0&limit=${limitNumber}`;
-    } 
+    else if(flagFilter) {
+        url = ``;
+    } else{
+      url = `?&ofset=0&limit=${limitNumber}`;
+    }
+    
           GetAllRequests(url).then((resp) => {
             if(resp) {
               const checks = isCheckedStore || [];

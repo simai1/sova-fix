@@ -1,18 +1,21 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import styles from "./SamplePoints.module.scss";
 import { useDispatch, useSelector } from "react-redux";
 import { setChecked } from "../../store/samplePoints/samplePoits";
+import DataContext from "../../context";
 
 function SamplePoints(props) {
   const [search, setSearch] = useState("");
   const dispatch = useDispatch();
   const [filtredPunkts, setFiltredPunkts] = useState([]);
-
+  const {context} = useContext(DataContext);
   const store = useSelector(
     (state) => state.isSamplePoints[props.tableName].isChecked
   );
 
   const funLiCkick = (el) => {
+    context.UpdateTableReguest()
+    context.setFlagFilter(true)
     if (
       store?.find((elem) => elem.value === el && elem.itemKey === props.itemKey)
     ) {
@@ -50,7 +53,9 @@ function SamplePoints(props) {
   };
 
   const getChecked = (el) => {
+    
     const flag = store?.find(
+
       (ell) => ell.itemKey === props.itemKey && ell.value === el
     );
     return !flag;
@@ -72,33 +77,45 @@ function SamplePoints(props) {
   
     // Function to parse custom date format "dd.MM.yy"
     const parseDate = (dateString) => {
-      const parts = dateString?.split(".");
-      // Check if the date is in the correct format (dd.MM.yy)
+      // Проверяем, является ли dateString строкой
+      if (typeof dateString !== "string") {
+        return null; // Если это не строка, возвращаем null
+      }
+    
+      const parts = dateString.split(".");
+      // Проверяем, что строка имеет формат "dd.MM.yy"
       if (parts.length === 3) {
         const day = parseInt(parts[0], 10);
-        const month = parseInt(parts[1], 10) - 1; // Months are 0-based in JavaScript
-        const year = parseInt(parts[2], 10) + 2000; // Assuming the year is in 21st century
+        const month = parseInt(parts[1], 10) - 1; // Месяцы 0-индексные
+        const year = parseInt(parts[2], 10) + 2000; // Предполагаем 21 век
         return new Date(year, month, day);
       }
-      return null; // Return null if the date is invalid
+    
+      return null; // Возвращаем null, если формат некорректный
     };
+    
   
     // Sorting logic
     const sortedFd = fd.sort((a, b) => {
       const dateA = parseDate(a);
       const dateB = parseDate(b);
-  
+    
       if (dateA && dateB) {
-        // Both are valid dates, sort from newest to oldest
-        return dateB - dateA; // Change the order for newest to oldest
+        // Если оба значения являются валидными датами
+        return dateB - dateA; // Сортировка от новейшего к старейшему
+      } else if (dateA) {
+        return -1; // dateA имеет приоритет
+      } else if (dateB) {
+        return 1; // dateB имеет приоритет
       } else if (typeof a === "number" && typeof b === "number") {
-        // Both are numbers
-        return a - b; // Sort numbers in ascending order
+        // Если оба значения числа
+        return a - b; // Сортировка чисел по возрастанию
       } else {
-        // Default to string comparison
+        // Если оба значения строки
         return a.toString().localeCompare(b.toString());
       }
     });
+    
   
     console.log("sortedFd", sortedFd);
     setFiltredPunkts(sortedFd);
