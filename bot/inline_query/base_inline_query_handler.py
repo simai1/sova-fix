@@ -87,6 +87,10 @@ async def make_articles_for_rrs(rr_list: list, content_filter: str = "") -> list
             items.append(item)
             continue
 
+        if content_filter.startswith('status=') and len(content_filter) >= 8 and rr['status'] == int(content_filter[7]):
+            items.append(item)
+            continue
+
         status = const.statuses_ru_locale[rr['status']]
         info = f"{rr['number']}{rr['unit']}{rr['object']}{rr['problemDescription']}{status}{rr['urgency']}"
 
