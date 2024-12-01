@@ -49,8 +49,8 @@ export default function () {
     TgUser.hasOne(RepairRequest, { foreignKey: 'createdBy' });
     RepairRequest.belongsTo(TgUser, { foreignKey: 'createdBy' });
 
-    ObjectDir.hasMany(Equipment, { foreignKey: 'legalEntityId', hooks: true });
-    Equipment.belongsTo(ObjectDir, { foreignKey: 'legalEntityId', hooks: true });
+    ObjectDir.hasMany(Equipment, { foreignKey: 'objectId', hooks: true });
+    Equipment.belongsTo(ObjectDir, { foreignKey: 'objectId', hooks: true });
 
     Unit.hasMany(Equipment, { foreignKey: 'unitId', hooks: true });
     Equipment.belongsTo(Unit, { foreignKey: 'unitId', hooks: true });

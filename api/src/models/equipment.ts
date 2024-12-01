@@ -15,8 +15,8 @@ export default class Equipment extends Model {
     photo?: string;
     Category!: Category;
     categoryId!: string;
-    Unit!: Unit;
-    unitId!: string;
+    Unit?: Unit;
+    unitId?: string;
     Object!: ObjectDir;
     objectId!: string;
     Contractor?: Contractor;

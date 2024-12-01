@@ -16,6 +16,8 @@ import objectRoute from './routes/object.route';
 import unitRoute from './routes/unit.route';
 import legalEntityRoute from './routes/legalEntity.route';
 import extContractorRoute from './routes/extContractor.route';
+import equipmentRoute from './routes/equipment.route';
+
 import logger from './utils/logger';
 import winston from 'winston';
 
@@ -53,6 +55,7 @@ app.use('/objects', objectRoute);
 app.use('/units', unitRoute);
 app.use('/legalEntities', legalEntityRoute);
 app.use('/extContractors', extContractorRoute);
+app.use('/equipments', equipmentRoute);
 
 // websocket section
 app.ws('/', () => {
