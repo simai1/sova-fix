@@ -23,7 +23,9 @@ class LogMessageType:
 
 def init() -> None:
     if log:
-        open(Defaults.LATEST_PATH, 'w').close()
+        now = datetime.now(tz=cf.TIMEZONE)
+        with open(Defaults.LATEST_PATH, 'a') as log_file:
+            log_file.write(f"\n<=====> RESTARTING_BOT <=====> at {now.strftime(Defaults.DT_FORMAT)}\n")
     if color:
         colorama.init()
 
@@ -76,7 +78,7 @@ def msg(msg_type: str, message: str, add: Optional[str]) -> None:
     if log:
         with open(Defaults.LATEST_PATH, 'a') as log_file:
             try:
-                log_text = f"{now.strftime(Defaults.DT_FORMAT)} [{msg_type}] {message}"
+                log_text = f"{now.strftime(Defaults.DT_FORMAT)} [{msg_type}] {message} {add}"
                 log_file.write(log_text+'\n')
             except UnicodeEncodeError:
                 warn('could not encode character for log')

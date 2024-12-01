@@ -16,7 +16,7 @@ export function funFixEducator(data) {
     2: "В работе",
     3: "Выполнена",
     4: "Неактуальна",
-    5: "Принята",
+    5: "Выезд без выполнения",
   };
   return data.map((item) => {
     return {
@@ -32,6 +32,7 @@ export function funFixEducator(data) {
       itineraryOrder: item?.itineraryOrder || "___",
       urgency: item?.urgency || "___",
       createdAt: item?.createdAt || "___",
+      planCompleteDate: item?.planCompleteDate || "___",
       daysAtWork: item?.daysAtWork === 0 ? 0 : item?.daysAtWork || "___",
       completeDate: item?.completeDate || "___",
       repairPrice: item?.repairPrice || "___",

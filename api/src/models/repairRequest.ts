@@ -15,6 +15,7 @@ export default class RepairRequest extends Model {
     problemDescription?: string;
     urgency!: string;
     itineraryOrder?: number;
+    planCompleteDate?: Date;
     completeDate?: Date;
     repairPrice?: number;
     comment?: string;
@@ -35,6 +36,7 @@ export default class RepairRequest extends Model {
     ExtContractor?: ExtContractor; // external contractor rel
     extContractorId?: string;
     isExternal!: boolean;
+    copiedRequestId?: string;
 
     static initialize(sequelize: Sequelize) {
         RepairRequest.init(
@@ -75,6 +77,10 @@ export default class RepairRequest extends Model {
                     type: DataTypes.SMALLINT,
                     allowNull: true,
                 },
+                planCompleteDate: {
+                    type: DataTypes.DATE,
+                    allowNull: true,
+                },
                 completeDate: {
                     type: DataTypes.DATE,
                     allowNull: true,
@@ -108,6 +114,10 @@ export default class RepairRequest extends Model {
                     type: DataTypes.BOOLEAN,
                     allowNull: true,
                     defaultValue: false,
+                },
+                copiedRequestId: {
+                    type: DataTypes.UUID,
+                    allowNull: true,
                 },
             },
             {

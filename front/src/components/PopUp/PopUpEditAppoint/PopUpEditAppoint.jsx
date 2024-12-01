@@ -39,7 +39,7 @@ function PopUpEditAppoint(props) {
     { id: 2, name: "В работе" },
     { id: 3, name: "Выполнена" },
     { id: 4, name: "Неактуальна" },
-    { id: 5, name: "Принята" },
+    { id: 5, name: "Выезд без выполнения" },
   ];
 
   const DataUrgency = [
@@ -76,12 +76,16 @@ function PopUpEditAppoint(props) {
     setIdRequest(context.moreSelect[0] || context.selectedTr);
   }, []);
 
+  const planCompleteDate = dataApStart?.planCompleteDateRaw;
+  const DateplanCompleteDate = planCompleteDate ? new Date(dataApStart?.planCompleteDateRaw).toISOString().split("T")[0] : '';
+  
   useEffect(() => {
     if (dataApStart) {
       setdataApointment({
         contractorId: dataApStart?.contractor?.id,
         builder: dataApStart?.builder,
         status: dataApStart?.status,
+        planCompleteDate:  DateplanCompleteDate,
         unit: dataApStart?.unit,
         objectId: dataApStart?.objectId,
         objectName: dataApStart?.object,
@@ -121,8 +125,9 @@ function PopUpEditAppoint(props) {
 
   const EditAppoint = () => {
     const urgencyName = getUrgencyNameById(dataApointment.urgency);
-    const updatedDataApointment = { ...dataApointment, urgency: urgencyName };
+    const newplanCompleteDate = new Date(dataApointment.planCompleteDate);
 
+    const updatedDataApointment = { ...dataApointment, urgency: urgencyName, planCompleteDate: newplanCompleteDate };
     ReseachDataRequest(selectId, updatedDataApointment).then((resp) => {
       if (resp?.status === 200) {
         context.UpdateTableReguest(1);
@@ -237,6 +242,13 @@ function PopUpEditAppoint(props) {
               name="builder"
               placeholder="Укажите подрядчика"
               value={dataApointment.builder}
+            />
+            <Input
+              Textlabel={"Плановая дата выполнения"}
+              handleInputChange={handleInputChange}
+              name="planCompleteDate"
+              type="date"
+              value={dataApointment.planCompleteDate}
             />
           </div>
           <div className={styles.SecondBlock}>

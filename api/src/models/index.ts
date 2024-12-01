@@ -9,6 +9,9 @@ import ObjectDir from './object';
 import Unit from './unit';
 import LegalEntity from './legalEntity';
 import ExtContractor from './externalContractor';
+import Equipment from './equipment';
+import Category from './category';
+import History from './history';
 
 const { DB_USER, DB_PWD, DB_HOST, DB_PORT, DB_NAME } = process.env;
 export const models = {
@@ -22,6 +25,9 @@ export const models = {
     ObjectDir,
     RepairRequest,
     ApiKey,
+    Category,
+    Equipment,
+    History,
 };
 
 export const sequelize = new Sequelize(`${DB_NAME}`, `${DB_USER}`, `${DB_PWD}`, {

@@ -13,8 +13,9 @@ async def send_contractor_menu(message: Message) -> None:
 '''
 
     kb = IKM(inline_keyboard=[
-        [IKB(text='Посмотреть заявки 📋', callback_data='contractor_requests:status=1,2')],
+        [IKB(text="Список заявок 📋", switch_inline_query_current_chat="rr ")],
         [IKB(text='Посмотреть выполненные заявки ✅', callback_data='contractor_requests:status=3')],
+        [IKB(text='Посмотреть заявки *️⃣', callback_data='contractor_requests:status=1,2,3')],
         [IKB(text='Заявки без чека ❗️🧾', callback_data='show_requests_without_check')],
         [IKB(text='Посмотреть маршрутный лист 📍', callback_data='contractor_itinerary')],
         [IKB(text='Найти заявку по номеру 🔎', callback_data='request_by_number')]

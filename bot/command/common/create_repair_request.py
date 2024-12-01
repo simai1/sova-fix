@@ -1,4 +1,5 @@
 from aiogram import Router, F
+from aiogram.enums import ContentType
 from aiogram.filters import Command
 from aiogram.filters.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
@@ -7,7 +8,7 @@ from aiogram.types import Message, CallbackQuery, FSInputFile
 import config as cf
 from common.keyboard import to_start_kb
 from data import data_loader
-from data.const import urgencies_ru_locale_dict
+from data.const import urgencies_ru_locale_dict, MAX_VIDEO_SIZE_BYTES, MAX_VIDEO_SIZE_MB
 from handler import pagination
 from util import crm
 from util.crm import roles
@@ -45,7 +46,7 @@ async def create_repair_request(user_id: int, message: Message, state: FSMContex
 
     # проверка
     try:
-        await verify_user(user_id, message, role=[roles.CUSTOMER, roles.ADMIN])
+        await verify_user(user_id, role=[roles.CUSTOMER, roles.ADMIN], message=message)
     except VerificationError:
         return
 
@@ -94,26 +95,47 @@ async def ask_problem_description(query: CallbackQuery, state: FSMContext) -> No
 async def ask_photo(message: Message, state: FSMContext) -> None:
     text = message.text
     if not text:
-        await message.answer('Введите описание проблемы')
+        await message.answer('Введите описание проблемы ✏️')
         return
 
     await state.update_data(problem_description=text)
 
     await state.set_state(FSMRepairRequest.photo_input)
-    await message.answer('Пришлите фото')
+    await message.answer('Пришлите фото или видео 📸')
 
 
 @router.message(FSMRepairRequest.photo_input)
 async def check_photo(message: Message, state: FSMContext) -> None:
-    photo_sizes = message.photo
+    match message.content_type:
+        case ContentType.TEXT:
+            await message.answer("Пришлите фото или видео 📸")
+            return
 
-    if photo_sizes is None:
-        await message.answer('Что-то не так, попробуйте ещё раз')
-        return
+        case ContentType.VIDEO:
+            file = message.video
 
-    photo_id = photo_sizes[-1].file_id
+            if file.file_size > MAX_VIDEO_SIZE_BYTES:
+                await message.answer(f"Файл слишком большой (больше {MAX_VIDEO_SIZE_MB}Мб)\nПопробуйте другой")
+                return
 
-    await state.update_data(photo_id=photo_id)
+            await state.update_data({"file_id": file.file_id, "file_content_type": ContentType.VIDEO})
+
+        case ContentType.PHOTO:
+            index = -1
+            file = message.photo[index]
+            while file.file_size > MAX_VIDEO_SIZE_BYTES and -index <= len(message.photo):
+                index -= 1
+                file = message.photo[index]
+
+            if file.file_size > MAX_VIDEO_SIZE_BYTES:
+                await message.answer(f"Файл слишком большой (больше {MAX_VIDEO_SIZE_MB}Мб)\nПопробуйте другой")
+                return
+
+            await state.update_data({"file_id": file.file_id, "file_content_type": ContentType.PHOTO})
+
+        case _:
+            await message.answer('Что-то не так, попробуйте ещё раз 🔄️')
+            return
 
     await ask_urgency(message, state)
 
@@ -133,12 +155,13 @@ async def create_request(query: CallbackQuery, state: FSMContext) -> None:
 
     data = await state.get_data()
 
-    photo_id = data['photo_id']
+    file_id = data['file_id']
+    file_content_type = data['file_content_type']
 
-    photo = await query.bot.download(photo_id)
+    file = await query.bot.download(file_id)
 
-    if photo is None:
-        await query.message.answer('Ошибка при загрузке фото')
+    if file is None:
+        await query.message.answer('Ошибка при загрузке файла')
         await query.answer()
         return
 
@@ -151,7 +174,8 @@ async def create_request(query: CallbackQuery, state: FSMContext) -> None:
 
     rr = await crm.create_repair_request(
         tg_user_id,
-        photo,
+        file,
+        file_content_type,
         data['object'],
         data['problem_description'],
         data['urgency']

@@ -28,7 +28,7 @@ function Table() {
     context.setSelectedTr(row.id);
     if (
       target.className !== "Table_statusClick__QSptV" &&
-      target.tagName !== "LI"
+      target.tagName !== "LI" && target.className !== "planCompleteDate"
     ) {
       if (context.moreSelect.includes(row.id)) {
         context.setMoreSelect(
@@ -44,11 +44,15 @@ function Table() {
     if (
       target.className !== "Table_statusClick__QSptV" &&
       target.tagName !== "LI" &&
-      !context.moreSelect.includes(row.id)
+      !context.moreSelect.includes(row.id) &&
+      JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER"
     ) {
       context.setMoreSelect([...context.moreSelect, row.id]);
     }
-    setOpenConextMenu(true);
+    if(JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER"){
+      setOpenConextMenu(true);
+    }
+
   };
 
   const contextmenuClick = (event) => {
@@ -64,6 +68,7 @@ function Table() {
     2: "В работе",
     3: "Выполнена",
     4: "Неактуальна",
+    5: "Выезд без выполнения",
   };
 
   const DataUrgency = [
@@ -118,6 +123,7 @@ function Table() {
       requestId: id,
       status: status,
     };
+    console.log("data", data)
     SetStatusRequest(data).then((resp) => {
       if (resp?.status === 200) {
         context.UpdateTableReguest(1);
@@ -127,7 +133,7 @@ function Table() {
 
   const funSetStatus = (data) => {
     if (shovStatusPop === "") {
-      setshovStatusPop(data);
+      JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" && setshovStatusPop(data);
       setshovUrgencyPop("");
       setshovBulderPop("");
       setItineraryOrderPop("");
@@ -141,7 +147,7 @@ function Table() {
 
   const funSetBulder = (data) => {
     if (shovBulderPop === "") {
-      setshovBulderPop(data);
+      JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" && setshovBulderPop(data);
       setshovStatusPop("");
       setshovUrgencyPop("");
       setItineraryOrderPop("");
@@ -155,7 +161,7 @@ function Table() {
 
   const funSetUrgency = (data) => {
     if (shovUrgencyPop === "") {
-      setshovUrgencyPop(data);
+      JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" && setshovUrgencyPop(data);
       setshovStatusPop("");
       setshovBulderPop("");
       setItineraryOrderPop("");
@@ -172,7 +178,7 @@ function Table() {
       setshovUrgencyPop("");
       setshovStatusPop("");
       setshovBulderPop("");
-      setItineraryOrderPop(data);
+      JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" && setItineraryOrderPop(data);
     } else {
       setshovStatusPop("");
       setshovBulderPop("");
@@ -183,7 +189,7 @@ function Table() {
 
   const funSetExp = (data) => {
     if (shovExtPop === "") {
-      setshovExtPop(data);
+      JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" && setshovExtPop(data);
       setshovUrgencyPop("");
       setshovStatusPop("");
       setshovBulderPop("");
@@ -368,7 +374,7 @@ function Table() {
         2: "В работе",
         3: "Выполнена",
         4: "Неактуальна",
-        5: "Принята",
+        5: "Выезд без выполнения",
       };
       let modalData = [];
       if (key !== "photo" && key !== "checkPhoto" && key !== "commentAttachment" && key !== "number" && key !== "problemDescription" && key !== "id" && key !== "repairPrice") {
@@ -489,7 +495,8 @@ function Table() {
       keys === "completeDate" ||
       keys === "createdAt" ||
       keys === "repairPrice" ||
-      keys === "commentAttachment"
+      keys === "commentAttachment" ||
+      keys === "planCompleteDate"
     ) {
       return "center";
     } else if (item === "___") {
@@ -541,25 +548,18 @@ const isVideo = (fileName) => {
     }
   };
 
-  const getTgHref = (tg_user_id) => {
-    return `tg://user?id=${tg_user_id}`;
-  };
-
-  // function filterBasickData(data, chekeds) {
-  //   let tb = [...data];
-  //   let mass = [];
-  //   tb.filter((el) => {
-  //     if (chekeds.find((it) => el[it.itemKey] === it.value)) {
-  //       return;
-  //     } else {
-  //       mass.push(el);
-  //     }
-  //   });
-  //   return mass;
-  // }
-
-
-
+  const selectadNewPlanDateFunction = (id, date) => {
+    const data = {
+      planCompleteDate: new Date(date)
+    }
+    console.log("data", data)
+    ReseachDataRequest(id, data).then((resp) => {
+      if (resp?.status === 200) {
+        context.UpdateTableReguest(1);
+      }
+    });
+  }
+  
   return (
     <div className={styles.TableWrapper}>
       <div
@@ -698,6 +698,9 @@ const isVideo = (fileName) => {
                 {dataTable?.map((row, index) => (
                   <tr
                     key={index}
+                    style={{
+                      backgroundColor: row.copiedRequestId !== null ? "#ffe78f" : "",
+                    }}
                     onClick={(e) => {
                       const target = e.target;
                       (context.selectedTable === "Заявки" ||
@@ -725,6 +728,7 @@ const isVideo = (fileName) => {
                           backgroundColor: whatPageBgTd(row.id),
                         }}
                         className={styles.MainTd}
+                        id={row.copiedRequestId !== null && "copiedRequestId"}
                       >
                         <input
                           type="checkbox"
@@ -745,11 +749,8 @@ const isVideo = (fileName) => {
                       <td
                         key={headerItem.key}
                         name={headerItem.key}
-                        className={
-                          context.selectedTable === "Заявки"
-                            ? styles.MainTd
-                            : null
-                        }
+                        className={styles.MainTd}
+                        id={row.copiedRequestId !== null && "copiedRequestId"}
                         style={{
                           textAlign: textAlign(
                             headerItem.key,
@@ -781,6 +782,8 @@ const isVideo = (fileName) => {
                                     ? "#ffe78f" // желтый
                                     : row[headerItem.key] === "Выполнена"
                                     ? "#C5E384" // зеленый
+                                    : row[headerItem.key] === "Выезд без выполнения"
+                                    ? "#f9ab23" // ораньжевый
                                     : ""
                                   : "",
                             }}
@@ -792,8 +795,8 @@ const isVideo = (fileName) => {
                                 className={styles.shovStatusPop}
                                 style={
                                   checkHeights(dataTable, index)
-                                    ? { top: "-70%", width: "150px" }
-                                    : { width: "150px" }
+                                    ? { top: "-70%", width: "250px" }
+                                    : { width: "250px" }
                                 }
                               >
                                 <ul>
@@ -813,13 +816,29 @@ const isVideo = (fileName) => {
                               </div>
                             )}
                           </div>
-                        ) : headerItem.key === "isActivated" ? (
-                          <>
-                            {row[headerItem.key] === true
-                              ? "Активириван"
-                              : "Не активирован"}
-                          </>
-                        ) : headerItem.key === "photo" ? (
+                        ) : headerItem.key === "number" ? (<div>
+                          {row.copiedRequestId !== null ? "(" + row[headerItem.key] + ")" : row[headerItem.key]}
+                        </div> ) : headerItem.key === "planCompleteDate" ? (
+                        <>
+                          {row[headerItem.key] === "___" || row[headerItem.key] === null ? (
+                            "___"
+                          ) : (
+                            JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" ? (
+                              <div className={styles.planCompleteDate}>
+                                <input
+                                  type="date"
+                                  value={row["planCompleteDateRaw"].split('T')[0]} // Extracting date part from ISO string
+                                  onChange={(e) => {
+                                    selectadNewPlanDateFunction(row.id, e.target.value);
+                                  }}
+                                />
+                              </div>
+                            ) : (
+                              row[headerItem.key]
+                            )
+                          )}
+                        </>
+                    ) : headerItem.key === "photo" ? (
                   <div>
                     {isVideo(row.fileName) ? (
                       <div className={styles.fileVideoTable}>
@@ -1106,20 +1125,6 @@ const isVideo = (fileName) => {
                               </div>
                             )}
                           </div>
-                        ) : headerItem.key === "tgId" ? (
-                          <>
-                            {row[headerItem.key] ? (
-                              <a
-                                href={getTgHref(row[headerItem.key])}
-                                target="_blank"
-                                style={{ color: "#bd966c", cursor: "pointer" }}
-                              >
-                                {getItem(row[headerItem.key], headerItem.key)}
-                              </a>
-                            ) : (
-                              "___"
-                            )}
-                          </>
                         ) : (
                           <p
                             style={{

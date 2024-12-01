@@ -16,6 +16,8 @@ export default class RequestDto {
     fileName!: string;
     commentAttachment?: string;
     itineraryOrder?: number;
+    planCompleteDate?: string;
+    planCompleteDateRaw?: Date;
     completeDate?: string;
     completeDateRaw?: Date;
     repairPrice?: number;
@@ -28,6 +30,7 @@ export default class RequestDto {
     contractor?: ContractorDto | null;
     extContractor?: ExtContractorDto | null;
     isExternal!: boolean;
+    copiedRequestId?: string;
 
     constructor(model: RepairRequest) {
         this.id = model.id;
@@ -40,6 +43,8 @@ export default class RequestDto {
         this.problemDescription = model.problemDescription;
         this.urgency = model.urgency;
         this.itineraryOrder = model.itineraryOrder;
+        this.planCompleteDate = model.planCompleteDate ? strftime('%d.%m.%y', model.planCompleteDate) : '';
+        this.planCompleteDateRaw = model.planCompleteDate;
         this.completeDate = model.completeDate ? strftime('%d.%m.%y', model.completeDate) : '';
         this.completeDateRaw = model.completeDate;
         this.repairPrice = model.repairPrice;
@@ -54,5 +59,6 @@ export default class RequestDto {
         this.contractor = model.Contractor ? new ContractorDto(model.Contractor) : null;
         this.extContractor = model.ExtContractor ? new ExtContractorDto(model.ExtContractor) : null;
         this.isExternal = model.isExternal;
+        this.copiedRequestId = model.copiedRequestId;
     }
 }

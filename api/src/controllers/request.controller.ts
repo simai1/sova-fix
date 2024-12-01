@@ -137,6 +137,7 @@ const update = catchAsync(async (req, res) => {
         contractorId,
         status,
         builder,
+        planCompleteDate,
     } = req.body;
     const { requestId } = req.params;
     if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
@@ -149,7 +150,8 @@ const update = catchAsync(async (req, res) => {
         !itineraryOrder &&
         !contractorId &&
         !status &&
-        !builder
+        !builder &&
+        typeof planCompleteDate === 'undefined'
     )
         throw new ApiError(httpStatus.BAD_REQUEST, 'Missing body');
     await requestService.update(
@@ -162,7 +164,8 @@ const update = catchAsync(async (req, res) => {
         itineraryOrder,
         contractorId,
         status,
-        builder
+        builder,
+        planCompleteDate
     );
     res.json({ status: 'OK' });
 });
@@ -238,6 +241,13 @@ const bulkContractor = catchAsync(async (req, res) => {
     res.json({ status: 'OK' });
 });
 
+const copy = catchAsync(async (req, res) => {
+    const { requestId } = req.params;
+    if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
+    await requestService.copyRequest(requestId);
+    res.json({ status: 'OK' });
+});
+
 export default {
     getAll,
     getOne,
@@ -257,4 +267,5 @@ export default {
     bulkStatus,
     bulkUrgency,
     bulkContractor,
+    copy,
 };

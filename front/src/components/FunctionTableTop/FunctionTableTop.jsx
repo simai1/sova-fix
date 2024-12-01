@@ -9,7 +9,7 @@ import { FilteredSample, funFixEducator } from "../../UI/SamplePoints/Function";
 import { removeTableCheckeds } from "../../store/filter/isChecked.slice";
 import CountInfoBlock from "../../UI/CountInfoBlock/CountInfoBlock";
 import EditColum from "../../UI/EditColum/EditColum";
-import { generateAndDownloadExcel } from "../../function/function";
+import { filterRequestsWithoutCopiedId, generateAndDownloadExcel } from "../../function/function";
 import { tableList } from "../Table/Data";
 import { useNavigate } from "react-router-dom";
 import { resetFilters } from "../../store/samplePoints/samplePoits";
@@ -81,6 +81,7 @@ function filterBasickData(data, chekeds) {
 }
 
 
+
   return (
     <>
       <div className={styles.FunctionTableTop}>
@@ -105,16 +106,18 @@ function filterBasickData(data, chekeds) {
           {context.selectedTable === "Заявки" && context.selectPage === "Main" ? (
             <div className={styles.HeadMenuMain}>
             <EditColum/>
-            <>
-            <button onClick={(()=>editAppoint())} disabled={context.moreSelect.length > 1} style={{opacity:context.moreSelect.length > 1 ? "0.5" : "1", cursor:context.moreSelect.length > 1 ? "not-allowed" : "pointer"}}>
-                <img src="./img/Edit.svg" alt="View" />
-                Редактировать заявку
-              </button>
-              <button onClick={(()=>deleteRequestFunc())} disabled={context.moreSelect.length >1} style={{opacity:context.moreSelect.length > 1 ? "0.5" : "1", cursor:context.moreSelect.length > 1 ? "not-allowed" : "pointer"}}>
-                <img src="./img/Trash.svg" alt="View" />
-                Удалить заявку
-              </button>
-            </>
+            {JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" &&
+              <>
+                <button onClick={(()=>editAppoint())} disabled={context.moreSelect.length > 1} style={{opacity:context.moreSelect.length > 1 ? "0.5" : "1", cursor:context.moreSelect.length > 1 ? "not-allowed" : "pointer"}}>
+                  <img src="./img/Edit.svg" alt="View" />
+                  Редактировать заявку
+                </button>
+                <button onClick={(()=>deleteRequestFunc())} disabled={context.moreSelect.length >1} style={{opacity:context.moreSelect.length > 1 ? "0.5" : "1", cursor:context.moreSelect.length > 1 ? "not-allowed" : "pointer"}}>
+                  <img src="./img/Trash.svg" alt="View" />
+                  Удалить заявку
+                </button>
+              </>
+            }
               <button onClick={() => generateAndDownloadExcel(context?.filteredTableData, "Заявки")}>Экспорт</button>
             </div>
           ) : sessionStorage.getItem("userData").user?.id === 1 ? 
@@ -136,9 +139,9 @@ function filterBasickData(data, chekeds) {
         </div>
         { context.selectedTable === "Заявки" && context.selectPage === "Main" &&
           <div className={styles.countInfo}>
-            <CountInfoBlock dataCount={filterBasickData(context?.filteredTableData, store)} keys="status" value="Новая заявка" color="#d69a81" name="Новых"/>
-            <CountInfoBlock dataCount={filterBasickData(context?.filteredTableData, store)} keys="status" value="В работе" color="#ffe78f" name="В работе"/>
-            <CountInfoBlock dataCount={filterBasickData(context?.filteredTableData, store)} keys="status" value="Выполнена" color="#C5E384" name="Выполнены"/>
+            <CountInfoBlock dataCount={filterRequestsWithoutCopiedId(filterBasickData(context?.filteredTableData, store))} keys="status" value="Новая заявка" color="#d69a81" name="Новых"/>
+            <CountInfoBlock dataCount={filterRequestsWithoutCopiedId(filterBasickData(context?.filteredTableData, store))} keys="status" value="В работе" color="#ffe78f" name="В работе"/>
+            <CountInfoBlock dataCount={filterRequestsWithoutCopiedId(filterBasickData(context?.filteredTableData, store))} keys="status" value="Выполнена" color="#C5E384" name="Выполнены"/>
           </div>
         }
       </div>

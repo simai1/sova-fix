@@ -11,6 +11,7 @@ import { funFixEducator } from "../../../../UI/SamplePoints/Function";
 import { sortDataTable } from "../functionSort/functionSort";
 import FinansingDiagrams from "../../../../components/FinansingDiagrams/FinansingDiagrams";
 import { useSelector } from "react-redux";
+import { filterRequestsWithoutCopiedId } from "../../../../function/function";
 
 function ReportFinansing() {
   const { context } = useContext(DataContext);
@@ -121,7 +122,7 @@ function ReportFinansing() {
         const startOfLastWeek = new Date();
         const endOfLastWeek = new Date();
         startOfLastWeek.setDate(
-          startOfLastWeek.getDate() - startOfLastWeek.getDay() - 7
+          startOfLastWeek.getDate() - startOfLastWeek.getDay() - 6
         );
         endOfLastWeek.setDate(endOfLastWeek.getDate() - endOfLastWeek.getDay());
         setDateFrom(startOfLastWeek.toISOString().slice(0, 10));
@@ -278,17 +279,17 @@ function ReportFinansing() {
           </div>
         </div>
         <div>
-          <FunctionReportTop dataTable={tableDataFinansingSort} />
+          <FunctionReportTop dataTable={filterRequestsWithoutCopiedId(tableDataFinansingSort)} />
           {vidView === "Таблица" ? (
             <UniversalTable
               tableName="table7"
               tableHeader={TableHeader}
-              tableBody={tableDataFinansingSort}
+              tableBody={filterRequestsWithoutCopiedId(tableDataFinansingSort)}
               FilterFlag={true}
             />
           ) : (
             <div className={styles.ReportFinansingDiagram}>
-              <FinansingDiagrams DataFinansing={filterBasickData(tableDataFinansingSort, store )} />
+              <FinansingDiagrams DataFinansing={filterRequestsWithoutCopiedId(filterBasickData(tableDataFinansingSort, store ))} />
             </div>
           )}
         </div>

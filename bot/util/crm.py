@@ -1,5 +1,3 @@
-import types
-from pprint import pprint
 from typing import BinaryIO
 
 import requests
@@ -28,6 +26,17 @@ class roles:
     @staticmethod
     def get_rus(string: str) -> str:
         return roles.m_roles_list_ru_locale[roles.get_num(string) - 1]
+
+
+class User:
+    def __init__(self, data: dict):
+        self.id = data['id']
+        self.name = data['name']
+        self.role = roles.get_num(data['role'])
+        self.tg_id = int(data['tgId'])
+        self.linkId = data['linkId']
+        self.is_confirmed = data['isConfirmed']
+
 
 
 async def register_user(user_id: int, name: str, role: int, username: str) -> dict | None:
@@ -74,13 +83,17 @@ async def user_already_exists(user_id: int) -> bool:
     return user is not None
 
 
-async def get_all_repair_requests() -> dict | None:
-    url = f'{cf.API_URL}/requests/'
+async def get_all_repair_requests(params: str = "") -> dict | None:
+    url = f'{cf.API_URL}/requests?{params}'
 
     request = requests.get(url)
     data: dict = request.json()
 
-    return data
+    if request.status_code == 200:
+        return data['requestsDtos']
+    else:
+        logger.error('API: could not get all repair requests', f'{request.status_code}\nurl={url}')
+        return None
 
 
 async def get_repair_request(request_id: str) -> dict | None:
@@ -108,7 +121,8 @@ async def get_tg_user_id(user_id: int) -> str | None:
 
 async def create_repair_request(
         tg_user_id: str,
-        photo: BinaryIO,
+        file,
+        content_type: str,
         object_id: str,
         problem_description: str,
         urgency: str,
@@ -133,9 +147,11 @@ async def create_repair_request(
     if legal_entity is not None:
         values['legalEntity'] = legal_entity
 
-    photo_file = {'file': ('img.jpg', photo, 'image/jpeg')}
+    filename = {"photo": "img.jpg", "video": "video.mp4"}[content_type]
 
-    request = requests.post(url=url, data=values, files=photo_file)
+    files = {"file": (filename, file)}
+
+    request = requests.post(url=url, data=values, files=files)
 
     if request.status_code == 200:
         logger.info('new repair request!', f'{values}')
@@ -145,13 +161,18 @@ async def create_repair_request(
         return None
 
 
-async def get_all_contractors() -> dict:
+async def get_all_contractors() -> list:
     url = f'{cf.API_URL}/contractors/'
     
     request = requests.get(url)
     data = request.json()
 
     return data
+
+
+async def get_contractors_dict() -> dict:
+    contractors_list = await get_all_contractors()
+    return {contractor['name']: contractor['id'] for contractor in contractors_list}
 
 
 async def get_contractor_id(user_id: int) -> str | None:
@@ -236,21 +257,44 @@ async def get_repair_request_comment(request_id: str) -> str | None:
     return rr['comment']
 
 
-async def change_repair_request_comment(request_id: str, new_comment: str) -> bool:
+async def set_repair_request_comment(request_id: str, comment: str) -> bool:
     url = f'{cf.API_URL}/requests/set/comment'
 
     data = {
         "requestId": request_id,
-        "comment": new_comment
+        "comment": comment
     }
 
     request = requests.patch(url, json=data)
 
     if request.status_code == 200:
-        logger.info('API: successfully changed comment', f'request_id={request_id}')
+        logger.info("API: successfully changed comment", f"request_id={request_id}")
         return True
     else:
-        logger.error('API: could not change request comment', f'{request.status_code}request_id={request_id}')
+        logger.error("API: could not change request comment", f"{request.status_code}request_id={request_id}")
+        return False
+
+
+async def set_rr_comment_attachment(request_id: str, file, content_type: str) -> bool:
+    url = f'{cf.API_URL}/requests/set/commentAttachment'
+
+    data = {
+        "requestId": request_id,
+    }
+
+    filename = {"photo": "img.jpg", "video": "video.mp4"}[content_type]
+
+    files = {
+        "file": (filename, file)
+    }
+
+    request = requests.patch(url, data=data, files=files)
+
+    if request.status_code == 200:
+        logger.info("API: successfully changed comment attachment", f"request_id={request_id}")
+        return True
+    else:
+        logger.error("API: could not change comment attachment", f"{request.status_code} request_id={request_id}")
         return False
 
 
@@ -388,3 +432,36 @@ async def update_repair_request(request_id: str, data: dict) -> bool:
     else:
         logger.error("could not add check", f"{req.status_code}  requestId: {request_id}, data: {data}")
         return False
+
+
+async def set_contractor(request_id: str, contractor_id: str) -> bool:
+    url = f"{cf.API_URL}/requests/set/contractor"
+
+    data = {
+        'requestId': request_id,
+        'contractorId': contractor_id
+    }
+
+    req = requests.patch(url, data)
+
+    if req.status_code == 200:
+        logger.info("successfully set contractor", f"data: {data}")
+        return True
+    else:
+        logger.error("could not set contractor", f"{req.status_code}  data: {data}")
+        return False
+
+
+async def get_rrs_for_user(user_data: dict, params: str = "") -> list:
+    user = User(user_data)
+
+    if not user.is_confirmed:
+        return []
+
+    match user.role:
+        case roles.CUSTOMER:
+            return await get_customer_requests(user.tg_id, params)
+        case roles.CONTRACTOR:
+            return await get_contractor_requests(user.tg_id, params)
+        case roles.ADMIN:
+            return await get_all_requests_with_params(params)

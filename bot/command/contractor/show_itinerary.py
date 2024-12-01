@@ -5,7 +5,6 @@ from aiogram.types import InlineKeyboardButton as IKB, InlineKeyboardMarkup as I
 from aiogram.types import Message, CallbackQuery
 
 from command.contractor.show_contractor_requests import send_many_rr_for_contractor
-from common.keyboard import to_start_kb
 from common.messages import send_several_requests, send_repair_request, page0_show_many_requests
 from handler import pagination
 from util import crm
@@ -35,7 +34,7 @@ async def show_contractor_requests_handler(user_id: int, message: Message, state
     await state.clear()
 
     try:
-        await verify_user(user_id, message, role=roles.CONTRACTOR)
+        await verify_user(user_id, role=roles.CONTRACTOR, message=message)
     except VerificationError:
         return
 

@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import DataContext from "../../context";
 import styles from "./UniversalTable.module.scss";
-import { ReseachDataRequest } from "../../API/API";
+import { ReseachDataRequest, SetRole } from "../../API/API";
 import { useDispatch, useSelector } from "react-redux";
 import SamplePoints from "./../../components/SamplePoints/SamplePoints";
 import FilteImg from "./../../assets/images/filterColumn.svg";
@@ -22,7 +22,9 @@ function UniversalTable(props) {
   const [arrCount, setArrCount] = useState([]);
   const [sampleShow, setSampleShow] = useState(null);
   const [basickData, setBasickData] = useState([]);
-
+  const [dropdownVisible, setDropdownVisible] = useState(null);
+  const dropdownRef = useRef(null);
+  const [selecedAccount, setSelecedAccount] = useState(null)
 
 
   useEffect(() => {
@@ -210,12 +212,9 @@ function UniversalTable(props) {
       keys === "createdAt" ||
       keys === "repairPrice" ||
       keys === "startCoop" ||
-      keys === "tgId" || 
-      keys === "dateTo" ||
-      keys === "Bulder" ||
-      keys === "CostTo" ||
-      keys === "CountEquipment" ||
-      keys === "id"
+      keys === "tgId" ||
+      keys === "id" ||
+      keys === "planCompleteDate"
     ) {
       return "center";
     }
@@ -258,6 +257,9 @@ function UniversalTable(props) {
     ) {
       setSampleShow(null);
     }
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      setDropdownVisible(null);
+    }
   };
 
   useEffect(() => {
@@ -279,8 +281,17 @@ function UniversalTable(props) {
       return 0;
     }
   };
+
+
+  const handleRoleClick = (rowIndex, role) => {
+    (role === "Пользователь" || role === "Администратор" || role === "Наблюдатель") && JSON.parse(localStorage.getItem("userData"))?.user?.role === "ADMIN" && setDropdownVisible(dropdownVisible === rowIndex ? null : rowIndex);
+  };
+
  
-  //samplePointsData
+
+  const checkHeights = (arr, index) => {
+    return arr?.length - 1 === index && index === arr?.length - 1 && arr?.length !== 1;
+  };
   return (
     <div
       className={styles.UniversalTable}
@@ -379,36 +390,44 @@ function UniversalTable(props) {
                       : { textAlign: textAlign(header.key, row[header.key]) }
                   }
                 >
-                  {header.key !== "role" ? (
-                    getValue(row[header.key], header.key, rowIndex, row)
-                  ) : (
-                    <div
-                      onClick={() => {
-                        if (
-                          (row[header.key] === "Пользователь" ||
-                            row[header.key] === "Администратор") &&
-                          JSON.parse(localStorage.getItem("userData"))?.user
-                            ?.role === "ADMIN"
-                        ) {
-                          props.ClickRole(row.id, row[header.key]);
-                        }
-                      }}
-                      className={
-                        (row[header.key] === "Пользователь" ||
-                          row[header.key] === "Администратор") &&
-                        JSON.parse(localStorage.getItem("userData"))?.user
-                          ?.role === "ADMIN"
-                          ? styles.statusClick
-                          : ""
-                      }
-                    >
-                      {row[header.key]}
-                    </div>
-                  )}
+                   {header.key !== "role" ? (
+        getValue(row[header.key], header.key, rowIndex, row)
+      ) : (
+            <div key={rowIndex} className={styles.RoleClick}>
+              <div
+                onClick={() => handleRoleClick(rowIndex , row.role)}
+                className={
+                  (row.role === "Пользователь" || row.role === "Администратор" || row.role === "Наблюдатель") &&
+                  JSON.parse(localStorage.getItem("userData"))?.user?.role === "ADMIN"
+                    ? styles.statusClick
+                    : ""
+                }
+              >
+                {row.role}
+              </div>
+              {dropdownVisible === rowIndex && (
+                <div
+                  ref={dropdownRef}
+                  className={styles.shovStatusPopRole}
+                  style={
+                    checkHeights(tableBodyData, rowIndex)
+                      ? { top: "100%", width: "150px" }
+                      : { width: "150px" }
+                  }
+                >
+                  <ul>
+                    <li onClick={() => {props.ClickRole("Администратор", row.id); setDropdownVisible(null);}}>Администратор</li>
+                    <li onClick={() => {props.ClickRole("Пользователь", row.id); setDropdownVisible(null);}}>Пользователь</li>
+                    <li onClick={() => {props.ClickRole("Наблюдатель", row.id); setDropdownVisible(null);}}>Наблюдатель</li>
+                  </ul>
+                </div>
+                )}
+              </div>
+            )}
 
                   {header.key === "itineraryOrder" && (
                     <div
-                      onClick={() => setItineraryOrderPop(row.id)}
+                      onClick={() => JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" && setItineraryOrderPop(row.id)}
                       className={
                         document.location.pathname ===
                         "/CardPage/CardPageModule"

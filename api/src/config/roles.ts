@@ -5,6 +5,7 @@ const roles = {
     ADMIN: 2,
     CUSTOMER: 3,
     CONTRACTOR: 4,
+    OBSERVER: 5,
 };
 
 export default roles;

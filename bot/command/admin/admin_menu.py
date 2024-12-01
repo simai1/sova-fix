@@ -15,11 +15,14 @@ async def send_admin_menu(message: Message) -> None:
 '''
 
     kb = IKM(inline_keyboard=[
-        [IKB(text='Подать заявку ➕', callback_data='create_repair_request')],
-        [IKB(text='Посмотреть все актуальные заявки 📋', callback_data='requests_admin:status=1,2')],
-        [IKB(text='Посмотреть все выполненные заявки ✅', callback_data='requests_admin:status=3')],
-        [IKB(text='Заявки без чека ❗️🧾', callback_data='show_requests_without_check')],
-        [IKB(text='Найти заявку по номеру 🔎', callback_data='request_by_number')]
+        [IKB(text="Список заявок 📋", switch_inline_query_current_chat="rr ")],
+        [IKB(text="Подать заявку ➕", callback_data="create_repair_request")],
+        [
+            IKB(text="Актуальные заявки *️⃣", callback_data="requests_admin:status=1,2,5"),
+            IKB(text="Выполненные заявки ✅", callback_data="requests_admin:status=3")
+        ],
+        [IKB(text="Заявки без чека ❗️🧾", callback_data="show_requests_without_check")],
+        [IKB(text="Найти заявку по номеру 🔎", callback_data="request_by_number")]
     ])
 
     file = FSInputFile(path=f"./{cf.IMG_PATH}/manager_icon.png", filename="фото.jpg")

@@ -13,7 +13,8 @@ services:
       POSTGRES_PASSWORD: ${DB_PWD}
       PGDATA: "/var/lib/postgresql/data/pgdata"
     ports:
-      - "5432:5432"
+      - "5433:5432"
+    command: -p 5433
     networks:
       - sova-fix-network
     volumes:
@@ -27,25 +28,11 @@ services:
     depends_on:
       - db
     ports:
-      - "3000:3000"
+      - "8000:8000"
     env_file:
       - .env
     environment:
-      - DATABASE_URL=${DATABASE_URL}
       - NODE_ENV=${NODE_ENV}
-    networks:
-      - sova-fix-network
-
-  client:
-    depends_on:
-      - server
-    container_name: sova-fix-master-client
-    build:
-      context: ../front
-      dockerfile: Dockerfile
-    ports:
-      - '82:82'
-    restart: always
     networks:
       - sova-fix-network
 

@@ -196,3 +196,35 @@
   width: 150px;
   height: 150px;
 }
+
+.RoleClick {
+  position: relative;
+}
+.shovStatusPopRole {
+  max-height: 150px;
+  overflow-y: scroll;
+  transform: translateY(20px);
+  position: absolute;
+  background-color: #fff;
+  padding: 10px;
+  border-radius: 8px!important;
+  box-shadow: 1px 0px 8px var(--dark-grey-color);
+  z-index: 100;
+  left: -190px;
+  top: -20px;
+  ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    li {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      text-align: start;
+      &:hover {
+        background-color: var(--Active-gray-color);
+        border-radius: 8px;
+      }
+    }
+  }
+}

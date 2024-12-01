@@ -41,7 +41,7 @@ async def show_customer_requests_handler(user_id: int, params: str, message: Mes
     await state.clear()
 
     try:
-        await verify_user(user_id, message, role=roles.CUSTOMER)
+        await verify_user(user_id, role=roles.CUSTOMER, message=message)
     except VerificationError:
         return
 
