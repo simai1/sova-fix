@@ -922,3 +922,40 @@ export const setCommentPhotoApi = async (data) => {
     }
   }
 };
+
+
+// BlockTo  --------------------------------------------------------------------------------------------------/equipments
+
+export const GetAllEquipment = async () => {
+  try {
+    const response = await http.get(`${server}/equipments`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при получении карты пользователя!");
+    }
+  }
+};
+
+export const DeleteEquipment = async (id) => {
+  try {
+    const response = await http.delete(`${server}/equipments/${id}`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при получении карты пользователя!");
+    }
+  }
+};

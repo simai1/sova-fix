@@ -128,6 +128,7 @@ function UniversalTable(props) {
 
      
       case "checkPhoto":
+        case "photo":
         return value !== "___" ? (
           <div>
             <img
@@ -214,6 +215,9 @@ function UniversalTable(props) {
       keys === "startCoop" ||
       keys === "tgId" ||
       keys === "id" ||
+      keys === "supportFrequency" ||
+      keys === "lastTOHuman" ||
+      keys === "nextTOHuman" ||
       keys === "planCompleteDate"
     ) {
       return "center";
@@ -416,9 +420,9 @@ function UniversalTable(props) {
                   }
                 >
                   <ul>
-                    <li onClick={() => {props.ClickRole("Администратор", row.id); setDropdownVisible(null);}}>Администратор</li>
-                    <li onClick={() => {props.ClickRole("Пользователь", row.id); setDropdownVisible(null);}}>Пользователь</li>
-                    <li onClick={() => {props.ClickRole("Наблюдатель", row.id); setDropdownVisible(null);}}>Наблюдатель</li>
+                    <li onClick={() => {props?.ClickRole("Администратор", row.id); setDropdownVisible(null);}}>Администратор</li>
+                    <li onClick={() => {props?.ClickRole("Пользователь", row.id); setDropdownVisible(null);}}>Пользователь</li>
+                    <li onClick={() => {props?.ClickRole("Наблюдатель", row.id); setDropdownVisible(null);}}>Наблюдатель</li>
                   </ul>
                 </div>
                 )}

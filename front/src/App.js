@@ -5,7 +5,7 @@ import DataContext from "./context";
 import "./styles/style.css";
 import { tableHeadAppoint, tableList, tableUser } from "./components/Table/Data";
 import HomePageAdmin from "./pages/AdminPages/HomePageAdmin/HomePageAdmin";
-import { GetAllRequests, GetAllUsers, GetAllСontractors, GetContractorsItenerarity } from "./API/API";
+import { GetAllEquipment, GetAllRequests, GetAllUsers, GetAllСontractors, GetContractorsItenerarity } from "./API/API";
 import Activate from "./pages/Login/Activate/Activate";
 import { useDispatch, useSelector } from "react-redux";
 import { FilteredSample, funFixEducator } from "./UI/SamplePoints/Function";
@@ -56,6 +56,7 @@ function App() {
   const [sortStateParam, setSortStateParam] = useState("");
   const [selectRowDirectory, setSelectRowDirectory] = useState(null);
   const [checkedAll, setCheckedAll] = useState(false);
+  const [dataEquipments, setDataEquipments] = useState([]);
 
   const checkedAllFunc = () => {
     if(moreSelect.length > 0){
@@ -64,6 +65,15 @@ function App() {
       setCheckedAll(false)
     }
   }
+
+  const UpdateDataEquipment = () => {
+    GetAllEquipment().then((res) => {
+        if (res?.status === 200) {
+         setDataEquipments(res.data)
+        }
+    });
+}
+
   
   const context = {
     setCheckedAll,
@@ -125,18 +135,12 @@ function App() {
     setSelectRowDirectory,
     selectRowDirectory,
     checkedAllFunc,
-    checkedAll
+    checkedAll,
+    setDataEquipments,
+    dataEquipments,
+    UpdateDataEquipment
   };
-
-  const dispatch = useDispatch();
-
-  // useEffect(() => {
-  //   if(filteredTableData != null){
-  //   dispatch(setTableData({tableData: 234}))
-  //   }
-  // }, [filteredTableData])
-
-
+  
   const isCheckedStore = useSelector((state) => state.isCheckedSlice.isChecked);
   useEffect(() => {
     if(selectedTable === "Заявки" && selectPage === "Main"){
@@ -179,32 +183,6 @@ function App() {
           setDataAppointment(resp?.data.requestsDtos)
         })
     }
-    // if(param === 3){
-    //   let url = ``;
-    //   if(textSearchTableData === ""){
-    //     GetContractorsItenerarity(selectContructor, "").then((resp)=>{
-    //       if(resp?.status == 200){
-    //         setTableData(resp?.data);
-    //         setFilteredTableData(funFixEducator(resp?.data))
-    //         settableHeader(tableList);
-    //       }
-    //     })
-    //   }else{
-    //     url = `/?search=${textSearchTableData}`;
-    //     GetContractorsItenerarity(selectContructor, url).then((resp)=>{
-    //       if(resp?.status == 200){
-    //         setTableData(resp?.data);
-    //         setFilteredTableData(funFixEducator(resp?.data))
-    //         settableHeader(tableList);
-    //       }
-    //     })
-    //   }
-    //   GetContractorsItenerarity(selectContructor, "").then((resp)=>{
-    //     if(resp?.status == 200){
-    //       context.setDataitinerary(resp?.data)
-    //     }
-    //   })
-    // }
   }
 
   useEffect(() => {

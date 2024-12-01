@@ -6,6 +6,9 @@ import DataContext from "../../../context";
 import PopUpNewTO from "../../../components/PopUp/PopUpNewTO/PopUpNewTO";
 import PopUpNewTOCategory from "../../../components/PopUp/PopUpNewTOCategory/PopUpNewTOCategory";
 import PopUpNewEquipment from "../../../components/PopUp/PopUpNewEquipment/PopUpNewEquipment";
+import { PopUpError } from "../../../UI/PopUpError/PopUpError";
+import PopUpDeleteEquipment from "../../../components/PopUp/PopUpDeleteEquipment/PopUpDeleteEquipment";
+import PopUpGoodMessage from "../../../UI/PopUpGoodMessage/PopUpGoodMessage";
 
 function Equipment() {
 
@@ -20,11 +23,12 @@ function Equipment() {
             {context.popUp === "PopUpNewTO" && <PopUpNewTO />}
             {context.popUp === "PopUpNewTOCategory" && <PopUpNewTOCategory />}
             {context.popUp === "PopUpNewEquipment" && <PopUpNewEquipment />}
-            
+            {context.popUp === "PopUpError" && <PopUpError />}
+            {context.popUp === "PopUpDeleteEquipment" && <PopUpDeleteEquipment />}
+            {context.popUp === "PopUpGoodMessage" && <PopUpGoodMessage />}
+
         </div>
-            
      );
-     
 }
 
 
