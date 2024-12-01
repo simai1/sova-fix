@@ -59,9 +59,11 @@ function App() {
     }
   }
   const [flagFilter, setFlagFilter] = useState(false);
-  
+  const [updatedDataApointment, setUpdatedDataApointment] = useState(0);
   const context = {
     setextSearchTableDataPhone,
+    updatedDataApointment,
+    setUpdatedDataApointment,
     textSearchTableDataPhone,
     setFlagFilter,
     flagFilter,
@@ -122,7 +124,7 @@ function App() {
     setSelectRowDirectory,
     selectRowDirectory,
     checkedAllFunc,
-    checkedAll
+    checkedAll,
   };
 
   const dispatch = useDispatch();

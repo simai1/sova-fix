@@ -7,6 +7,7 @@ import DataContext from "../../../context";
 import {
   GetObjectsAll,
   GetOneRequests,
+  GetextContractorsAll,
   Register,
   ReseachDataRequest,
   SetcontractorRequest,
@@ -20,6 +21,7 @@ function PopUpEditAppoint(props) {
   const [dataApStart, setDataApStart] = useState(null);
   const [dataObject, setDataObject] = useState([]);
   const [idRequest, setIdRequest] = useState(null);
+  const [dataBuilder, setDataBuilder] = useState([]);
   const [dataApointment, setdataApointment] = useState({
     contractorId: "",
     builder: "",
@@ -61,29 +63,24 @@ function PopUpEditAppoint(props) {
 
   useEffect(() => {
     setSelectId(context.moreSelect[0] || context.selectedTr);
-    // GetOneRequests(context.moreSelect[0] || context.selectedTr).then(
-    //   (response) => {
-    //     if (response?.status === 200) {
-    //       setDataApStart(response.data);
-    //     }
-    //   }
-    // );
     updGetData(context.moreSelect[0] || context.selectedTr);
     GetObjectsAll().then((response) => {
       setDataObject(response.data);
     });
-
+    GetextContractorsAll().then((response) => {
+      setDataBuilder(response.data);
+    });
     setIdRequest(context.moreSelect[0] || context.selectedTr);
   }, []);
 
   const planCompleteDate = dataApStart?.planCompleteDateRaw;
   const DateplanCompleteDate = planCompleteDate ? new Date(dataApStart?.planCompleteDateRaw).toISOString().split("T")[0] : '';
-  
+  console.log("dataApStart", dataApStart)
   useEffect(() => {
     if (dataApStart) {
       setdataApointment({
-        contractorId: dataApStart?.contractor?.id,
-        builder: dataApStart?.builder,
+        contractorId: dataApStart?.builder === "Внешний подрядчик" ? "Внешний подрядчик" : dataApStart?.contractor?.id,
+        builder: dataApStart?.builder === "Внешний подрядчик" ? "Не назначен" : dataApStart?.builder,
         status: dataApStart?.status,
         planCompleteDate:  DateplanCompleteDate,
         unit: dataApStart?.unit,
@@ -131,6 +128,7 @@ function PopUpEditAppoint(props) {
     ReseachDataRequest(selectId, updatedDataApointment).then((resp) => {
       if (resp?.status === 200) {
         context.UpdateTableReguest(1);
+        context.setUpdatedDataApointment(1)
         context.setPopUp(null);
       } else {
         alert("Заполните правльно все поля!");
@@ -191,6 +189,9 @@ function PopUpEditAppoint(props) {
   const closeModal = () => {
     setModalImage(null);
   };
+
+  
+ 
   return (
     <PopUpContainer width={true} title={"Редактирование заявки"} mT={75}>
       <div className={styles.popBox}>
@@ -205,6 +206,8 @@ function PopUpEditAppoint(props) {
               placeholder="Выберите исполнителя"
               isActive={activeDropdown === "contractorId"}
               toggleDropdown={() => toggleDropdown("contractorId")}
+              idRequest={idRequest}
+              updGetData={updGetData}
             />
             <ListInput
               Textlabel={"Срочность"}
@@ -236,12 +239,17 @@ function PopUpEditAppoint(props) {
               isActive={activeDropdown === "objectId"}
               toggleDropdown={() => toggleDropdown("objectId")}
             />
-            <Input
+            <ListInput
               Textlabel={"Подрядчик"}
-              handleInputChange={handleInputChange}
+              handleListData={handleListData}
               name="builder"
-              placeholder="Укажите подрядчика"
+              dataList={dataBuilder}
               value={dataApointment.builder}
+              placeholder="Выберите объект"
+              isActive={activeDropdown === "builderId"}
+              toggleDropdown={() => toggleDropdown("builderId")}
+              idRequest={idRequest}
+              updGetData={updGetData}
             />
             <Input
               Textlabel={"Плановая дата выполнения"}
@@ -253,41 +261,47 @@ function PopUpEditAppoint(props) {
           </div>
           <div className={styles.SecondBlock}>
           <div className={styles.commentBlock}>
-  {dataApStart?.commentAttachment ? (
-    isVideo(dataApStart.commentAttachment) ? (
-      <div className={styles.soursBg}>
-        <video
-          onClick={(e) => {
-            e.preventDefault(); // Prevent the modal from closing
-            e.stopPropagation();
-            openModal(`${process.env.REACT_APP_API_URL}/uploads/${dataApStart.commentAttachment}`);
-          }}
-          style={{ cursor: "pointer" }}
-          className={styles.videoTable}
-        >
-          <source src={`${process.env.REACT_APP_API_URL}/uploads/${dataApStart.commentAttachment}`} />
-          Your browser does not support the video tag.
-        </video>
-      </div>
-    ) : (
-      <img
-        src={`${process.env.REACT_APP_API_URL}/uploads/${dataApStart.commentAttachment}`}
-        alt="Uploaded file"
-        onClick={() => openModal(`${process.env.REACT_APP_API_URL}/uploads/${dataApStart.commentAttachment}`)}
-        style={{ cursor: "pointer" }}
-        className={styles.imgTable}
-      />
-    )
-  ) : (
-    <img
-      src={notPhoto}
-      alt="Uploaded file"
-      onClick={() => openModal(notPhoto)}
-      style={{ cursor: "pointer" }}
-      className={styles.imgTable}
-    />
-  )}
+          <div className={styles.commentBlockIMG}>
+
+                  {dataApStart?.commentAttachment ? (
+                    isVideo(dataApStart.commentAttachment) ? (
+                      <div className={styles.soursBg}>
+                        <video
+                          onClick={(e) => {
+                            e.preventDefault(); // Prevent the modal from closing
+                            e.stopPropagation();
+                            openModal(`${process.env.REACT_APP_API_URL}/uploads/${dataApStart.commentAttachment}`);
+                          }}
+                          style={{ cursor: "pointer" }}
+                          className={styles.videoTable}
+                        >
+                          <source src={`${process.env.REACT_APP_API_URL}/uploads/${dataApStart.commentAttachment}`} />
+                          Your browser does not support the video tag.
+                        </video>
+                      </div>
+                    ) : (
+                      <img
+                        src={`${process.env.REACT_APP_API_URL}/uploads/${dataApStart.commentAttachment}`}
+                        alt="Uploaded file"
+                        onClick={() => openModal(`${process.env.REACT_APP_API_URL}/uploads/${dataApStart.commentAttachment}`)}
+                        style={{ cursor: "pointer" }}
+                        className={styles.imgTable}
+                      />
+                    )
+          ) : (
+            <img
+              src={notPhoto}
+              alt="Uploaded file"
+              onClick={() => openModal(notPhoto)}
+              style={{ cursor: "pointer" }}
+              className={styles.imgTable}
+            />
+          )}
+          </div>
   <div>
+  <div className={styles.addPhotoPhone}>
+    <button onClick={handleButtonClick}>Добавить медиафайл</button>
+  </div>
     <Input
       Textlabel={"Комментарий"}
       handleInputChange={handleInputChange}
@@ -299,7 +313,7 @@ function PopUpEditAppoint(props) {
   </div>
 </div>
             <div className={styles.addPhoto}>
-              <div>
+              <div  className={styles.addPhotoPc}>
                 <button onClick={handleButtonClick}>Добавить медиафайл</button>
               </div>
               <div>

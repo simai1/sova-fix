@@ -1,15 +1,49 @@
 import React, { useState } from "react";
 import styles from "./ListInput.module.scss";
 import DataContext from "../../context";
+import { SetExtContractorsRequest, SetcontractorRequest } from "../../API/API";
 
 function ListInput(props) {
   const { context } = React.useContext(DataContext);
   const [valueName, setValueName] = useState(props.value);
 
   const addClient = (el) => {
-    props.handleListData(props.name, el.id);
-    setValueName(el.name);
-    props.toggleDropdown(); // Close the dropdown after selection
+    if(props?.name === "builder"){
+      SetExp(el.id)
+    }else{
+      props.handleListData(props.name, el.id);
+      setValueName(el.name);
+      props.toggleDropdown(); // Close the dropdown after selection
+    }
+  };
+
+  const setPerformersDirectory = () => {
+    const data = {
+      requestId: props?.idRequest,
+      contractorId: "Внешний подрядчик",
+    };
+
+    SetcontractorRequest(data).then((resp) => {
+      if (resp?.status === 200) {
+        props.updGetData(props?.idRequest);
+        props.toggleDropdown();
+      }
+    });
+  };
+
+  const SetExp = (ExpId) => {
+    console.log("builder", ExpId)
+    const data = {
+      requestId: props?.idRequest,
+      extContractorId: ExpId,
+    };
+    console.log("data", data)
+    SetExtContractorsRequest(data).then((resp) => {
+      if (resp?.status === 200) {
+        props.updGetData(props?.idRequest);
+        props.toggleDropdown();
+      }
+    });
   };
 
   return (
@@ -51,6 +85,10 @@ function ListInput(props) {
                 {item.name}
               </p>
             ))}
+
+            {props.name === "contractorId" &&
+              <p style={{marginLeft: "8px"}} onClick={() =>setPerformersDirectory()}>Внешний подрядчик</p>
+            }
           </div>
         )}
       </div>

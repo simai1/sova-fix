@@ -3,6 +3,9 @@
 
 .HomePage {
   // margin-top: 50px;
+  @media (max-width: 870px) {
+   padding-top: 100px;
+   }
   .HeadMenu {
     display: flex;
     margin-bottom: 50px;
@@ -22,7 +25,7 @@
     margin-bottom: 5px;
     background: none;
     border: none;
-    width: 100%;
+    width: 100%!important;
     height: 25px;
     border-bottom: 1px solid #ADADAD;
    padding-left: 10px;
@@ -39,7 +42,6 @@
   display: none;
   @media (max-width: 870px) {
     display: block;
-    margin-top: 135px;
    }
 }
 .Table {
