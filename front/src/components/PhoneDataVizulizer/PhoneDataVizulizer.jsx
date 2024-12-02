@@ -6,7 +6,7 @@ import { GetAllRequests } from "../../API/API";
 import DataContext from "../../context";
 import { funFixEducator } from "../../UI/SamplePoints/Function";
 import { use } from "echarts";
-
+import EditImg from "./../../assets/images/Edit.svg";
 Modal.setAppElement("#root"); // Указываем элемент для библиотеки react-modal
 
 function PhoneDataVizulizer(props) {
@@ -171,7 +171,7 @@ function PhoneDataVizulizer(props) {
                     context.setSelectedTr(item.id);
                   }}
                 >
-                  <img src="/img/edit.svg" />
+                  <img src={EditImg} />
                 </div>
                 {phoneHeaderData?.map((header) => {
                   if (header.isActive && header.key !== "Qr") {

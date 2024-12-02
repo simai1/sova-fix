@@ -35,6 +35,9 @@ body {
   /* font-family: 'FactWebRegular'; */
   background-color: #e3dfda;
   /* padding: 16px 64px; */
+  @media (max-width: 870px) {
+	overflow: hidden;
+	}
 }
 * {
   font-family: 'FactWebRegular';
