@@ -11,6 +11,13 @@ const getAll = catchAsync(async (req, res) => {
     res.json(equipments);
 });
 
+const getOne = catchAsync(async (req, res) => {
+    const { equipmentId } = req.params;
+    if (!equipmentId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing equipmentId');
+    const equipment = await equipmentService.getOne(equipmentId);
+    res.json(equipment);
+});
+
 const create = catchAsync(async (req, res) => {
     const { supportFrequency, name, lastTO, nextTO, comment, categoryName, objectId, contractorId, extContractorId } =
         req.body;
@@ -68,6 +75,7 @@ const update = catchAsync(async (req, res) => {
 export default {
     create,
     getAll,
+    getOne,
     destroy,
     update,
 };

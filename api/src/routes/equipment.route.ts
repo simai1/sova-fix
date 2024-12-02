@@ -31,6 +31,7 @@ const uploadImage = multer({
 router.route('/').get(equipmentController.getAll).post(uploadImage.single('file'), equipmentController.create);
 router
     .route('/:equipmentId')
+    .get(equipmentController.getOne)
     .delete(equipmentController.destroy)
     .patch(uploadImage.single('file'), equipmentController.update);
 

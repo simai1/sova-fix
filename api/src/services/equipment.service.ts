@@ -69,6 +69,19 @@ const getAll = async (pagination: any) => {
     return equipment.map(e => new EquipmentDto(e));
 };
 
+const getOne = async (equipmentId: string) => {
+    const equipment = await Equipment.findByPk(equipmentId, {
+        include: [
+            { model: Category },
+            { model: Contractor },
+            { model: ExtContractor },
+            { model: ObjectDir, include: [{ model: Unit }] },
+        ],
+    });
+    if (!equipment) throw new ApiError(httpStatus.BAD_REQUEST, 'No equipment with id ' + equipmentId);
+    return new EquipmentDto(equipment);
+};
+
 const destroy = async (equipmentId: string) => {
     const equipment = await Equipment.findByPk(equipmentId);
     if (!equipment) throw new ApiError(httpStatus.BAD_REQUEST, 'No equipment with id ' + equipmentId);
@@ -124,6 +137,7 @@ const update = async (
 export default {
     create,
     getAll,
+    getOne,
     destroy,
     update,
 };
