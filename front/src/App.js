@@ -135,7 +135,6 @@ function App() {
   //   }
   // }, [filteredTableData])
 
-  useEffect(() => {console.log("textSearchTableData", textSearchTableData)},[textSearchTableData])
 
   const isCheckedStore = useSelector((state) => state.isCheckedSlice.isChecked);
   useEffect(() => {

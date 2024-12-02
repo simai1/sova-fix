@@ -124,7 +124,6 @@ function Table() {
       requestId: id,
       status: status,
     };
-    console.log("data", data)
     SetStatusRequest(data).then((resp) => {
       if (resp?.status === 200) {
         context.UpdateTableReguest(1);
@@ -539,7 +538,6 @@ const isVideo = (fileName) => {
     const data = {
       planCompleteDate: new Date(date)
     }
-    console.log("data", data)
     ReseachDataRequest(id, data).then((resp) => {
       if (resp?.status === 200) {
         context.UpdateTableReguest(1);
@@ -573,19 +571,11 @@ const isVideo = (fileName) => {
       if (scrollTop !== lastScrollTop) {
         lastScrollTop = scrollTop; // Обновляем значение scrollTop
   
-        // console.log("context.textSearchTableData", searchTableText);
-        // console.log(
-        //   "Math.round(scrollHeight - scrollTop - 1)",
-        //   Math.round(scrollHeight - scrollTop - 1)
-        // );
-        // console.log("Math.round(clientHeight)", Math.round(clientHeight));
-  
         // Проверка на конец прокрутки
         if (
           Math.abs(scrollHeight - scrollTop - clientHeight) <= 1 && // Учет небольшой погрешности
           !searchTableText // Проверка, что поиска нет
         ) {
-          // console.log("Scroll to the end");
   
           setIsLoading(true); // Устанавливаем состояние загрузки
           setLimitData((prevLimit) => {
@@ -700,7 +690,7 @@ const isVideo = (fileName) => {
                               
 
                               punkts={[
-                                ...dataTable.map((it) =>
+                                ...funFixEducator(context.dataApointment).map((it) =>
                                   it[item.key] === null ? "___" : it[item.key]
                                 ),
                                 ...store
