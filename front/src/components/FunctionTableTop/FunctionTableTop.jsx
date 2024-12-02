@@ -139,9 +139,9 @@ function filterBasickData(data, chekeds) {
         </div>
         { context.selectedTable === "Заявки" && context.selectPage === "Main" &&
           <div className={styles.countInfo}>
-            <CountInfoBlock dataCount={filterRequestsWithoutCopiedId(filterBasickData(context?.filteredTableData, store))} keys="status" value="Новая заявка" color="#d69a81" name="Новых"/>
-            <CountInfoBlock dataCount={filterRequestsWithoutCopiedId(filterBasickData(context?.filteredTableData, store))} keys="status" value="В работе" color="#ffe78f" name="В работе"/>
-            <CountInfoBlock dataCount={filterRequestsWithoutCopiedId(filterBasickData(context?.filteredTableData, store))} keys="status" value="Выполнена" color="#C5E384" name="Выполнены"/>
+            <CountInfoBlock dataCount={filterRequestsWithoutCopiedId(filterBasickData(context?.dataApointment, store))} keys="status" value="1" color="#d69a81" name="Новых"/>
+            <CountInfoBlock dataCount={filterRequestsWithoutCopiedId(filterBasickData(context?.dataApointment, store))} keys="status" value="2" color="#ffe78f" name="В работе"/>
+            <CountInfoBlock dataCount={filterRequestsWithoutCopiedId(filterBasickData(context?.dataApointment, store))} keys="status" value="3" color="#C5E384" name="Выполнены"/>
           </div>
         }
       </div>

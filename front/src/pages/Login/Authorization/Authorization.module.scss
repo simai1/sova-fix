@@ -2,9 +2,10 @@
 @import "./../../../styles/mixins.scss";
 
 .AuthorRegistrar {
-  margin-top: 250px;
-  display: flex;
+  align-items: center;
+  height: 100vh;
   justify-content: center;
+  display: flex;
   .box {
     label{
       display: flex;
@@ -17,7 +18,10 @@
     }
     padding: 60px 0px;
     width: 800px;
-
+    @media (max-width: 870px) {
+      width: auto;
+      padding: 25px 10px;
+     }
     background-color: var(--white-color);
     @include flexbox-center(17px);
     .LogoAuth{
@@ -25,6 +29,9 @@
       position: relative;
       right: -40px;
       top: 30px;
+      @media (max-width: 870px) {
+       display: none;
+      }
     }
     .container {
       margin: 0 auto;
@@ -40,6 +47,11 @@
       input {
         @include input-text(360px, 8px);
         margin-bottom: 15px;
+        @media (max-width: 570px) {
+          @include input-text(260px, 8px);
+          margin-bottom: 25px;
+
+         }
       }
 
       .button {
