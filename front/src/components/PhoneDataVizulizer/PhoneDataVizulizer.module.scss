@@ -1,0 +1,164 @@
+@import './../../styles/color.scss';
+
+.PhoneDataVizulizer{
+    height: calc(100vh - 200px);
+    overflow-y: scroll;
+    margin-top: 25px;
+    margin-bottom: 35px;
+    /* Стилизация скролла */
+  &::-webkit-scrollbar {
+    width: 10px; /* ширина вертикальной полосы */
+    height: 8px; /* высота горизонтальной полосы */
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Цвет фона трека */
+    border-radius: 10px; /* Скругление трека */
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background:  #000000; /* Цвет ползунка */
+    border-radius: 10px; /* Скругление ползунка */
+    border: 2px solid #f1f1f1; /* Обводка для создания эффекта пустого пространства */
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: var(--GrenColor); /* Цвет ползунка при наведении */
+  }
+
+  &::-webkit-scrollbar-thumb:active {
+    background: var(--GrenColorDark); /* Цвет ползунка при клике */
+  }
+    .dataBlock{
+        margin-bottom: 25px;
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        .dataBlockInner{
+            position: relative;
+            background-color: #f1f1f1;
+            width: 80%;
+            // border: var(--GrenColor) 1px solid;
+            padding: 5px 10px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 4px 1px rgba(0, 0, 0, 0.1);
+        }
+        .spanBgColor{
+            border-radius: 5px;
+            padding: 1px 5px;
+        }
+        .dataItem{
+            margin: 3px 0px;
+            span{
+                margin-left: 5px;
+                
+            }
+        }
+        .dataItemCondition{
+            text-align: end;
+            margin: 6px 0px;
+            span{
+                padding: 2px 5px;
+                border-radius: 20px;
+            }
+        }
+    }
+    .dataBlockNote{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 100px;
+        font-size: 18px;    
+    }
+    .photoBlock{
+        display: flex;
+        justify-content: start;
+        align-items: center;
+        img{
+            height: 200px;
+            margin: 10px 0px;
+        }
+    }
+}
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: none;
+    padding: 20px;
+    border-radius: 10px;
+    width: 90%;
+    height: 95%;
+    overflow: auto;
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    z-index: 999;
+  }
+  
+  .modalContentWrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .modalClose {
+    position: absolute;
+    top: -5px;
+    right: 5px;
+    background: transparent;
+    border: none;
+    font-size: 40px;
+    cursor: pointer;
+    color: #fff;
+  }
+  
+  .imgTable,
+  .fileVideoTable {
+    max-width: 175px;
+    max-height: 200px;
+    object-fit: cover;
+  }
+  
+  .modalContent {
+    max-width: 100%;
+    max-height: 100%;
+  }
+  .EditDataBlock{
+    display: flex;
+    justify-content: end;
+    position: absolute;
+    right: 3px;
+  }
+  .scrollToTop {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: var(--turquoise-color);
+    color: #000000;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.3s;
+  }
+  

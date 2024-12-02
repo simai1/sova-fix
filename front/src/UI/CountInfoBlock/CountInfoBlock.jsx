@@ -15,7 +15,7 @@ function CountInfoBlock(props) {
                break;
            case "status":
                props?.dataCount.forEach((el) => {
-                   if (el.status === props?.value) {
+                   if (el.status == props?.value) {
                        newCount++;
                    }
 

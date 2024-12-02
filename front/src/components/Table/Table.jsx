@@ -17,6 +17,7 @@ import СonfirmDelete from "./../СonfirmDelete/СonfirmDelete";
 import Contextmenu from "../../UI/Contextmenu/Contextmenu";
 import SamplePoints from "../SamplePoints/SamplePoints";
 import FilteImg from "./../../assets/images/filterColumn.svg";
+import { funFixEducator } from "../../UI/SamplePoints/Function";
 function Table() {
   const { context } = useContext(DataContext);
   const [actiwFilter, setActiwFilter] = useState(null);
@@ -123,7 +124,6 @@ function Table() {
       requestId: id,
       status: status,
     };
-    console.log("data", data)
     SetStatusRequest(data).then((resp) => {
       if (resp?.status === 200) {
         context.UpdateTableReguest(1);
@@ -219,20 +219,6 @@ function Table() {
     SetcontractorRequest(data).then((resp) => {
       if (resp?.status === 200) {
         context.UpdateTableReguest(1);
-      }
-    });
-  };
-
-  const SetCountCard = (el, idAppoint) => {
-    const idInteger = context.dataContractors.find(
-      (el) => el.name === context?.tableData[0].contractor.name
-    )?.id;
-    const data = {
-      itineraryOrder: el,
-    };
-    ReseachDataRequest(idAppoint, data).then((resp) => {
-      if (resp?.status === 200) {
-        context.UpdateTableReguest(3, idInteger);
       }
     });
   };
@@ -552,13 +538,77 @@ const isVideo = (fileName) => {
     const data = {
       planCompleteDate: new Date(date)
     }
-    console.log("data", data)
     ReseachDataRequest(id, data).then((resp) => {
       if (resp?.status === 200) {
         context.UpdateTableReguest(1);
       }
     });
   }
+
+
+
+  const [offset, setOffset] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true); // Указывает, есть ли еще данные
+  const [limitData, setLimitData] = useState(8);
+  const [searchTableText, setSearchTableText] = useState(context.textSearchTableData);
+  const hasActiveFilters = store.some((filter) => filter.itemKey); // Если есть активные фильтры
+
+  useEffect(() => {
+    setSearchTableText(context.textSearchTableData);
+  }, [context.textSearchTableData]);
+  
+  useEffect(() => {
+    const tableWrapper = document.querySelector(`.${styles.Table}`);
+    let lastScrollTop = 0; // Хранит предыдущее значение scrollTop
+  
+    const handleScroll = () => {
+      if (!tableWrapper || isLoading || !hasMore  || hasActiveFilters) return;
+  
+      const { scrollTop, scrollHeight, clientHeight } = tableWrapper;
+  
+      // Если вертикальная прокрутка изменилась
+      if (scrollTop !== lastScrollTop) {
+        lastScrollTop = scrollTop; // Обновляем значение scrollTop
+  
+        // Проверка на конец прокрутки
+        if (
+          Math.abs(scrollHeight - scrollTop - clientHeight) <= 1 && // Учет небольшой погрешности
+          !searchTableText // Проверка, что поиска нет
+        ) {
+  
+          setIsLoading(true); // Устанавливаем состояние загрузки
+          setLimitData((prevLimit) => {
+            const newLimit = prevLimit + 10;
+            context.UpdateTableReguest("", "", newLimit);
+            return newLimit;
+          });
+          setIsLoading(false); // После завершения устанавливаем false
+        }
+      }
+    };
+  
+    tableWrapper?.addEventListener("scroll", handleScroll);
+  
+    return () => {
+      tableWrapper?.removeEventListener("scroll", handleScroll);
+    };
+  }, [isLoading, hasMore, searchTableText, hasActiveFilters]); // Добавляем searchTableText в зависимости
+  
+  
+  const scrollToTop = () => {
+    if (containerRef.current) {
+      containerRef.current.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    }
+  };
+
+  const containerRef = useRef(null);
+  
+
+  
   
   return (
     <div className={styles.TableWrapper}>
@@ -568,7 +618,7 @@ const isVideo = (fileName) => {
           overflow: dataTable.length === 0 ? "hidden" : "auto",
         }}
       >
-        <table className={styles.TableInner}>
+        <table className={styles.TableInner} ref={containerRef}>
           {context.selectedTable === "Заявки" &&
           context.selectPage === "Main" ? (
             <thead>
@@ -633,10 +683,14 @@ const isVideo = (fileName) => {
                             }}
                           >
                             <SamplePoints
-                              basickData={context.dataTableFix} // нефильтрованные данные
-                              tableBodyData={filterBasickData(context.dataTableFix, store)} // фильтрованные данные
+                              // basickData={context.dataTableFix} // нефильтрованные данные
+                              // tableBodyData={filterBasickData(context.dataTableFix, store)} // фильтрованные данные
+                              basickData={context.dataApointment} // нефильтрованные данные
+                              tableBodyData={filterBasickData(funFixEducator(context.dataApointment), store)} // фильтрованные данные
+                              
+
                               punkts={[
-                                ...dataTable.map((it) =>
+                                ...funFixEducator(context.dataApointment).map((it) =>
                                   it[item.key] === null ? "___" : it[item.key]
                                 ),
                                 ...store
@@ -650,21 +704,6 @@ const isVideo = (fileName) => {
                               tableName={"table9"}
                             />
                           </div>
-                          // <SamplePoints
-                          //   index={index + 1}
-                          //   actiwFilter={actiwFilter}
-                          //   itemKey={item.key}
-                          //   isSamplePointsData={context.isSamplePointsData.map(
-                          //     (el) => (el === null ? "___" : el)
-                          //   )}
-                          //   isAllChecked={context.isAllChecked}
-                          //   isChecked={context.isChecked}
-                          //   setIsChecked={context.setIsChecked}
-                          //   workloadData={context.dataTableFix}
-                          //   setWorkloadDataFix={context.setFilteredTableData}
-                          //   setSpShow={setActiwFilter}
-                          //   sesionName={`isCheckedFilter`}
-                          // />
                         )}
                         {store.find((elem) => elem.itemKey === item.key) && (
                             <img src={FilteImg} />
@@ -692,7 +731,7 @@ const isVideo = (fileName) => {
               </tr>
             </thead>
           )}
-          <tbody>
+          <tbody id="data-table">
             {dataTable.length > 0 ? (
               <>
                 {dataTable?.map((row, index) => (
@@ -1074,53 +1113,6 @@ const isVideo = (fileName) => {
                                       {value.name}
                                     </li>
                                   ))}
-                                </ul>
-                              </div>
-                            )}
-                          </div>
-                        ) : headerItem.key === "itineraryOrder" ? (
-                          <div
-                            onClick={() =>
-                              context.selectPage !== "Main" &&
-                              funSetItineraryOrder(row.id)
-                            }
-                            className={
-                              context.selectPage !== "Main"
-                                ? styles.statusClick
-                                : styles.NostatusClick
-                            }
-                            ref={ItineraryOrderPopRef}
-                          >
-                            {row[headerItem.key] !== null
-                              ? row[headerItem.key]
-                              : "___"}
-                            {itineraryOrderPop === row.id && (
-                              <div
-                                className={styles.shovStatusPop}
-                                style={
-                                  checkHeights(dataTable, index)
-                                    ? {
-                                        top: "-10%",
-                                        right: "100px",
-                                        width: "auto",
-                                      }
-                                    : { width: "auto" }
-                                }
-                              >
-                                <ul>
-                                  {arrCount?.map((el) => {
-                                    return (
-                                      <li
-                                        key={el}
-                                        onClick={(event) =>
-                                          SetCountCard(el, row.id)
-                                        }
-                                      >
-                                        {" "}
-                                        {el}
-                                      </li>
-                                    );
-                                  })}
                                 </ul>
                               </div>
                             )}

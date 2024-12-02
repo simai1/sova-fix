@@ -32,7 +32,7 @@ function App() {
   const [dataUsers, setDataUsers] = useState(null);
   const [dataContractors, setDataContractors] = useState([]);
   const [moreSelect, setMoreSelect] = useState([]);
-  const [textSearchTableData, setextSearchTableData] = useState("");
+  const [textSearchTableData, setextSearchTableData] = useState(null);
   const [popUp, setPopUp] = useState("");
   const [popupGoodText, setPopupGoodText] = useState("")
   const [selectPage, setSelectPage] = useState("Main")
@@ -50,7 +50,7 @@ function App() {
   const [sortStateParam, setSortStateParam] = useState("");
   const [selectRowDirectory, setSelectRowDirectory] = useState(null);
   const [checkedAll, setCheckedAll] = useState(false);
-
+  const [textSearchTableDataPhone, setextSearchTableDataPhone] = useState("");
   const checkedAllFunc = () => {
     if(moreSelect.length > 0){
       setCheckedAll(true)
@@ -58,8 +58,15 @@ function App() {
       setCheckedAll(false)
     }
   }
-  
+  const [flagFilter, setFlagFilter] = useState(false);
+  const [updatedDataApointment, setUpdatedDataApointment] = useState(0);
   const context = {
+    setextSearchTableDataPhone,
+    updatedDataApointment,
+    setUpdatedDataApointment,
+    textSearchTableDataPhone,
+    setFlagFilter,
+    flagFilter,
     setCheckedAll,
     checkedAll,
     editListOpen,
@@ -117,7 +124,7 @@ function App() {
     setSelectRowDirectory,
     selectRowDirectory,
     checkedAllFunc,
-    checkedAll
+    checkedAll,
   };
 
   const dispatch = useDispatch();
@@ -143,20 +150,24 @@ function App() {
   },[textSearchTableData, selectedTable, selectContructor] )
 
 
-  function UpdateTableReguest(param, par = sortStateParam) {
-    if(param === 1){
-      let url = '';
-      if (par || textSearchTableData) {
-        if(par != "" && !textSearchTableData){
-          url = `?${par}`;
-        }
-       else{
-          url = `?search=${textSearchTableData}&${par}`
-        }
+  function UpdateTableReguest(param, par = sortStateParam, limit)  {
+    let url = '';
+    let limitNumber = limit ? limit : 8
+    
+    if (par || textSearchTableData) {
+      if(par != "" && !textSearchTableData){
+        url = `?${par}`;
       }
-    else {
-        url = '';
-    } 
+      else{
+        url = `?search=${textSearchTableData}&${par}`
+      }
+    }
+    else if(flagFilter) {
+        url = ``;
+    } else{
+      url = `?&ofset=0&limit=${limitNumber}`;
+    }
+    
           GetAllRequests(url).then((resp) => {
             if(resp) {
               const checks = isCheckedStore || [];
@@ -170,33 +181,6 @@ function App() {
         GetAllRequests("").then((resp) => {
           setDataAppointment(resp?.data.requestsDtos)
         })
-    }
-    // if(param === 3){
-    //   let url = ``;
-    //   if(textSearchTableData === ""){
-    //     GetContractorsItenerarity(selectContructor, "").then((resp)=>{
-    //       if(resp?.status == 200){
-    //         setTableData(resp?.data);
-    //         setFilteredTableData(funFixEducator(resp?.data))
-    //         settableHeader(tableList);
-    //       }
-    //     })
-    //   }else{
-    //     url = `/?search=${textSearchTableData}`;
-    //     GetContractorsItenerarity(selectContructor, url).then((resp)=>{
-    //       if(resp?.status == 200){
-    //         setTableData(resp?.data);
-    //         setFilteredTableData(funFixEducator(resp?.data))
-    //         settableHeader(tableList);
-    //       }
-    //     })
-    //   }
-    //   GetContractorsItenerarity(selectContructor, "").then((resp)=>{
-    //     if(resp?.status == 200){
-    //       context.setDataitinerary(resp?.data)
-    //     }
-    //   })
-    // }
   }
 
   useEffect(() => {
@@ -222,8 +206,6 @@ function App() {
             <Route path="/Authorization" element={<Authorization />}></Route>
             <Route path="/ReportFinansing" element={<ReportFinansing />}></Route>
             <Route path="/RepotYour" element={<RepotYour />}></Route>
-
-
             <Route path="/Directory/*" element={<Directory />}>
               <Route path="BusinessUnitReference" element={<BusinessUnitReference />}></Route>
               <Route path="DirectoryLegalEntities" element={<DirectoryLegalEntities />}></Route>
@@ -231,14 +213,9 @@ function App() {
               <Route path="ThePerformersDirectory" element={<ThePerformersDirectory />}></Route>
               <Route path="UsersDirectory" element={<UsersDirectory />}></Route>
             </Route>
-
             <Route path="/CardPage/*" element={<CardPage />}>
               <Route path="CardPageModule" element={<CardPageModule />}></Route>
             </Route>
-            
-            
-
-
           </Routes>
         </main>
       </BrowserRouter>

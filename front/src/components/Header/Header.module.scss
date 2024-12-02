@@ -7,6 +7,15 @@
   justify-content: start;
   height: 150px;
   margin-bottom: 40px;
+  @media (max-width: 870px) {
+    height: 100px;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    background-color: #e3dfda;
+    box-shadow: 9px 3px 18px rgba(0, 0, 0, 0.2);
+
+   }
   .buttonMenu {
     @include button(var(--turquoise-color));
     margin: 0px;
@@ -21,6 +30,9 @@
     font-size: 18px;
     margin-top: 15px;
     border-radius: 50px;
+    @media (max-width: 870px) {
+      display: none;
+     }
 }
 
   .menuUl{
@@ -97,6 +109,9 @@ width: 100%;
     max-width: 900px;
     text-align: center;
     position: relative;
+    @media (max-width: 870px) {
+      display: none;
+     }
     img{
       width: 200px;
       position: relative;
@@ -121,6 +136,12 @@ width: 100%;
   }
 }
 .headerButton{
+  @media (max-width: 870px) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-left: 10px;
+   }
   img{
     height: 75px;
     width: 180px;

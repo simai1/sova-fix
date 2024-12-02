@@ -3,6 +3,9 @@
 
 .HomePage {
   // margin-top: 50px;
+  @media (max-width: 870px) {
+   padding-top: 100px;
+   }
   .HeadMenu {
     display: flex;
     margin-bottom: 50px;
@@ -15,10 +18,39 @@
     }
   }
 }
+.Search{
+  margin-bottom: 0px;
+  width: 100%;
+  input{
+    margin-bottom: 5px;
+    background: none;
+    border: none;
+    width: 100%!important;
+    height: 30px;
+    border-bottom: 1px solid #ADADAD;
+   padding-left: 10px;
+   box-sizing: border-box;
+   font-size: 16px;
+  }
+}
+.TableTop{
+  display: block;
+  @media (max-width: 870px) {
+    display: none;
+   }
+}
+.PhoneData{
+  display: none;
+  @media (max-width: 870px) {
+    display: block;
+   }
+}
 .Table {
   width: 100%;
   display: flex;
-  
+  @media (max-width: 870px) {
+    display: none;
+   }
   .TableInner {
     background-color: var(--light-grey-color);
     td {
