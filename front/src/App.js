@@ -32,7 +32,7 @@ function App() {
   const [dataUsers, setDataUsers] = useState(null);
   const [dataContractors, setDataContractors] = useState([]);
   const [moreSelect, setMoreSelect] = useState([]);
-  const [textSearchTableData, setextSearchTableData] = useState("");
+  const [textSearchTableData, setextSearchTableData] = useState(null);
   const [popUp, setPopUp] = useState("");
   const [popupGoodText, setPopupGoodText] = useState("")
   const [selectPage, setSelectPage] = useState("Main")
@@ -135,6 +135,7 @@ function App() {
   //   }
   // }, [filteredTableData])
 
+  useEffect(() => {console.log("textSearchTableData", textSearchTableData)},[textSearchTableData])
 
   const isCheckedStore = useSelector((state) => state.isCheckedSlice.isChecked);
   useEffect(() => {

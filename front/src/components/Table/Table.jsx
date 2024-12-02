@@ -17,6 +17,7 @@ import СonfirmDelete from "./../СonfirmDelete/СonfirmDelete";
 import Contextmenu from "../../UI/Contextmenu/Contextmenu";
 import SamplePoints from "../SamplePoints/SamplePoints";
 import FilteImg from "./../../assets/images/filterColumn.svg";
+import { funFixEducator } from "../../UI/SamplePoints/Function";
 function Table() {
   const { context } = useContext(DataContext);
   const [actiwFilter, setActiwFilter] = useState(null);
@@ -548,19 +549,23 @@ const isVideo = (fileName) => {
 
 
 
-
-
   const [offset, setOffset] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true); // Указывает, есть ли еще данные
   const [limitData, setLimitData] = useState(8);
+  const [searchTableText, setSearchTableText] = useState(context.textSearchTableData);
+  const hasActiveFilters = store.some((filter) => filter.itemKey); // Если есть активные фильтры
 
+  useEffect(() => {
+    setSearchTableText(context.textSearchTableData);
+  }, [context.textSearchTableData]);
+  
   useEffect(() => {
     const tableWrapper = document.querySelector(`.${styles.Table}`);
     let lastScrollTop = 0; // Хранит предыдущее значение scrollTop
   
     const handleScroll = () => {
-      if (!tableWrapper || isLoading || !hasMore) return;
+      if (!tableWrapper || isLoading || !hasMore  || hasActiveFilters) return;
   
       const { scrollTop, scrollHeight, clientHeight } = tableWrapper;
   
@@ -568,19 +573,27 @@ const isVideo = (fileName) => {
       if (scrollTop !== lastScrollTop) {
         lastScrollTop = scrollTop; // Обновляем значение scrollTop
   
-        if (
-          Math.round(scrollHeight - scrollTop) === Math.round(clientHeight) &&
-          (context.textSearchTableData === "" ||
-            context.textSearchTableData === null ||
-            !context.textSearchTableData)
-        ) {
-          console.log("Scroll to the end");
+        // console.log("context.textSearchTableData", searchTableText);
+        // console.log(
+        //   "Math.round(scrollHeight - scrollTop - 1)",
+        //   Math.round(scrollHeight - scrollTop - 1)
+        // );
+        // console.log("Math.round(clientHeight)", Math.round(clientHeight));
   
+        // Проверка на конец прокрутки
+        if (
+          Math.abs(scrollHeight - scrollTop - clientHeight) <= 1 && // Учет небольшой погрешности
+          !searchTableText // Проверка, что поиска нет
+        ) {
+          // console.log("Scroll to the end");
+  
+          setIsLoading(true); // Устанавливаем состояние загрузки
           setLimitData((prevLimit) => {
             const newLimit = prevLimit + 10;
             context.UpdateTableReguest("", "", newLimit);
             return newLimit;
           });
+          setIsLoading(false); // После завершения устанавливаем false
         }
       }
     };
@@ -590,9 +603,19 @@ const isVideo = (fileName) => {
     return () => {
       tableWrapper?.removeEventListener("scroll", handleScroll);
     };
-  }, [isLoading, hasMore]);
+  }, [isLoading, hasMore, searchTableText, hasActiveFilters]); // Добавляем searchTableText в зависимости
   
   
+  const scrollToTop = () => {
+    if (containerRef.current) {
+      containerRef.current.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    }
+  };
+
+  const containerRef = useRef(null);
   
 
   
@@ -605,7 +628,7 @@ const isVideo = (fileName) => {
           overflow: dataTable.length === 0 ? "hidden" : "auto",
         }}
       >
-        <table className={styles.TableInner}>
+        <table className={styles.TableInner} ref={containerRef}>
           {context.selectedTable === "Заявки" &&
           context.selectPage === "Main" ? (
             <thead>
@@ -670,8 +693,12 @@ const isVideo = (fileName) => {
                             }}
                           >
                             <SamplePoints
-                              basickData={context.dataTableFix} // нефильтрованные данные
-                              tableBodyData={filterBasickData(context.dataTableFix, store)} // фильтрованные данные
+                              // basickData={context.dataTableFix} // нефильтрованные данные
+                              // tableBodyData={filterBasickData(context.dataTableFix, store)} // фильтрованные данные
+                              basickData={context.dataApointment} // нефильтрованные данные
+                              tableBodyData={filterBasickData(funFixEducator(context.dataApointment), store)} // фильтрованные данные
+                              
+
                               punkts={[
                                 ...dataTable.map((it) =>
                                   it[item.key] === null ? "___" : it[item.key]

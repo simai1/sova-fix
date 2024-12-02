@@ -5,26 +5,31 @@ import { setChecked } from "../../store/samplePoints/samplePoits";
 import DataContext from "../../context";
 
 function SamplePoints(props) {
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(""); // Строка поиска
+  const [filtredPunkts, setFiltredPunkts] = useState([]); // Отфильтрованные пункты
   const dispatch = useDispatch();
-  const [filtredPunkts, setFiltredPunkts] = useState([]);
-  const {context} = useContext(DataContext);
+  const { context } = useContext(DataContext);
+
+  // Получаем состояние чекбоксов из Redux
   const store = useSelector(
-    (state) => state.isSamplePoints[props.tableName].isChecked
+    (state) => state.isSamplePoints[props.tableName]?.isChecked || []
   );
 
+  // Обработка клика по пункту
   const funLiCkick = (el) => {
-    context.UpdateTableReguest()
-    context.setFlagFilter(true)
+    context.UpdateTableReguest();
+    context.setFlagFilter(true);
+
     if (
       store?.find((elem) => elem.value === el && elem.itemKey === props.itemKey)
     ) {
-      let c = [...store];
-      c = c.filter(
+      // Убираем элемент из выбранных
+      const updatedStore = store.filter(
         (elem) => elem.itemKey !== props.itemKey || elem.value !== el
       );
-      dispatch(setChecked({ tableName: props.tableName, checked: c }));
+      dispatch(setChecked({ tableName: props.tableName, checked: updatedStore }));
     } else {
+      // Добавляем новый элемент в выбранные
       dispatch(
         setChecked({
           tableName: props.tableName,
@@ -34,93 +39,89 @@ function SamplePoints(props) {
     }
   };
 
+  // Обработка клика "Выбрать все"
   const funLiCkickAll = () => {
     if (store?.find((elem) => elem.itemKey === props.itemKey)) {
-      const checked = store.filter((elem) => elem.itemKey !== props.itemKey);
-      dispatch(setChecked({ tableName: props.tableName, checked: checked }));
+      // Сброс всех выбранных
+      const updatedStore = store.filter((elem) => elem.itemKey !== props.itemKey);
+      dispatch(setChecked({ tableName: props.tableName, checked: updatedStore }));
     } else {
-      const bd = [...props.tableBodyData].map((el) => ({
+      // Добавление всех пунктов в выбранные
+      const allItems = props.tableBodyData.map((el) => ({
         itemKey: props.itemKey,
         value: el[props.itemKey],
       }));
       dispatch(
         setChecked({
           tableName: props.tableName,
-          checked: [...store, ...bd],
+          checked: [...store, ...allItems],
         })
       );
     }
   };
 
+  // Проверка, выбран ли элемент
   const getChecked = (el) => {
-    
-    const flag = store?.find(
-
-      (ell) => ell.itemKey === props.itemKey && ell.value === el
+    return !store?.find(
+      (elem) => elem.itemKey === props.itemKey && elem.value === el
     );
-    return !flag;
   };
 
+  // Проверка, выбраны ли все элементы
   const getCheckedAll = () => {
-    const flag = store?.find((ell) => ell.itemKey === props.itemKey);
-    return !flag;
+    return !store?.find((elem) => elem.itemKey === props.itemKey);
   };
 
+  // Фильтрация и сортировка данных
   useEffect(() => {
-    const uniquePunkts = Array.from(new Set(props.punkts));
-    const fd = uniquePunkts.filter((el) => {
+    if (!props.tableBodyData || props.tableBodyData.length === 0) return;
+
+    const uniquePunkts = Array.from(
+      new Set(props.tableBodyData.map((item) => item[props.itemKey]))
+    );
+
+    // Фильтрация данных по строке поиска
+    const filteredData = uniquePunkts.filter((el) => {
       if (typeof el !== "boolean") {
         const elString = typeof el === "number" ? el.toString() : el;
         return elString?.toLowerCase().includes(search?.toLowerCase());
       }
+      return false;
     });
-  
-    // Function to parse custom date format "dd.MM.yy"
+
+    // Парсинг даты для сортировки (формат "dd.MM.yy")
     const parseDate = (dateString) => {
-      // Проверяем, является ли dateString строкой
-      if (typeof dateString !== "string") {
-        return null; // Если это не строка, возвращаем null
-      }
-    
+      if (typeof dateString !== "string") return null;
       const parts = dateString.split(".");
-      // Проверяем, что строка имеет формат "dd.MM.yy"
       if (parts.length === 3) {
         const day = parseInt(parts[0], 10);
         const month = parseInt(parts[1], 10) - 1; // Месяцы 0-индексные
         const year = parseInt(parts[2], 10) + 2000; // Предполагаем 21 век
         return new Date(year, month, day);
       }
-    
-      return null; // Возвращаем null, если формат некорректный
+      return null;
     };
-    
-  
-    // Sorting logic
-    const sortedFd = fd.sort((a, b) => {
+
+    // Сортировка
+    const sortedData = filteredData.sort((a, b) => {
       const dateA = parseDate(a);
       const dateB = parseDate(b);
-    
+
       if (dateA && dateB) {
-        // Если оба значения являются валидными датами
-        return dateB - dateA; // Сортировка от новейшего к старейшему
+        return dateB - dateA; // Новейшие даты выше
       } else if (dateA) {
-        return -1; // dateA имеет приоритет
+        return -1; // Даты имеют приоритет
       } else if (dateB) {
-        return 1; // dateB имеет приоритет
+        return 1;
       } else if (typeof a === "number" && typeof b === "number") {
-        // Если оба значения числа
         return a - b; // Сортировка чисел по возрастанию
       } else {
-        // Если оба значения строки
         return a.toString().localeCompare(b.toString());
       }
     });
-    
-  
-    console.log("sortedFd", sortedFd);
-    setFiltredPunkts(sortedFd);
-  }, [search, props.punkts]);
-  
+
+    setFiltredPunkts(sortedData); // Устанавливаем отфильтрованные и отсортированные данные
+  }, [search, props.tableBodyData, props.itemKey]);
 
   return (
     <div className={styles.SamplePoints}>
@@ -129,7 +130,7 @@ function SamplePoints(props) {
           type="text"
           placeholder="Поиск..."
           value={search}
-          onChange={(el) => setSearch(el.target.value)}
+          onChange={(e) => setSearch(e.target.value)}
           className={styles.inputLabel}
         />
       </div>
@@ -138,7 +139,7 @@ function SamplePoints(props) {
           <input type="checkbox" checked={getCheckedAll()} />
           <p>Все</p>
         </li>
-        {filtredPunkts?.map((el, index) => (
+        {filtredPunkts.map((el, index) => (
           <li key={index} onClick={() => funLiCkick(el)}>
             <input type="checkbox" checked={getChecked(el)} />
             <p>{el}</p>
