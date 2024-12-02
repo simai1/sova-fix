@@ -9,6 +9,7 @@ export default class Equipment extends Model {
     id!: string;
     number!: number;
     supportFrequency!: number;
+    name!: string;
     lastTO!: Date;
     nextTO!: Date;
     comment?: string;
@@ -37,6 +38,10 @@ export default class Equipment extends Model {
                     type: DataTypes.INTEGER,
                     allowNull: false,
                     unique: true,
+                },
+                name: {
+                    type: DataTypes.STRING,
+                    allowNull: false,
                 },
                 supportFrequency: {
                     type: DataTypes.SMALLINT,

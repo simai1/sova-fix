@@ -10,6 +10,7 @@ import httpStatus from 'http-status';
 
 const create = async (
     supportFrequency: number | undefined,
+    name: string,
     lastTO: Date | undefined,
     nextTO: Date,
     comment: string | undefined,
@@ -34,6 +35,7 @@ const create = async (
     }
     const equipment = await Equipment.create({
         number: 0,
+        name,
         supportFrequency,
         lastTO,
         nextTO,
@@ -76,6 +78,7 @@ const destroy = async (equipmentId: string) => {
 const update = async (
     equipmentId: string,
     supportFrequency: number | undefined,
+    name: string | undefined,
     lastTO: Date | undefined,
     nextTO: Date | undefined,
     comment: string | undefined,
@@ -106,6 +109,7 @@ const update = async (
     }
     await equipment.update({
         supportFrequency,
+        name,
         lastTO,
         nextTO,
         comment,

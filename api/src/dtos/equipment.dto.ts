@@ -4,6 +4,7 @@ import strftime from 'strftime';
 export default class EquipmentDto {
     id!: string;
     number!: number;
+    name!: string;
     supportFrequency!: number;
     lastTO!: Date;
     lastTOHuman!: string;
@@ -20,6 +21,7 @@ export default class EquipmentDto {
     constructor(model: Equipment) {
         this.id = model.id;
         this.number = model.number;
+        this.name = model.name;
         this.supportFrequency = model.supportFrequency;
         this.lastTO = model.lastTO;
         this.lastTOHuman = strftime('%d.%m.%y', model.lastTO);

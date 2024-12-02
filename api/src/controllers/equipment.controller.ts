@@ -12,9 +12,10 @@ const getAll = catchAsync(async (req, res) => {
 });
 
 const create = catchAsync(async (req, res) => {
-    const { supportFrequency, lastTO, nextTO, comment, categoryName, objectId, contractorId, extContractorId } =
+    const { supportFrequency, name, lastTO, nextTO, comment, categoryName, objectId, contractorId, extContractorId } =
         req.body;
     const photo = req.file?.filename;
+    if (!name) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing name');
     if (!nextTO) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing nextTO');
     if (!objectId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing objectId');
     if (!categoryName) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing categoryName');
@@ -22,6 +23,7 @@ const create = catchAsync(async (req, res) => {
     if (contractorId && extContractorId) throw new ApiError(httpStatus.BAD_REQUEST, 'Required only one contractor');
     const equipment = await equipmentService.create(
         supportFrequency,
+        name,
         lastTO,
         nextTO,
         comment,
@@ -44,12 +46,13 @@ const destroy = catchAsync(async (req, res) => {
 const update = catchAsync(async (req, res) => {
     const { equipmentId } = req.params;
     const photo = req.file?.filename;
-    const { supportFrequency, lastTO, nextTO, comment, categoryName, objectId, contractorId, extContractorId } =
+    const { supportFrequency, name, lastTO, nextTO, comment, categoryName, objectId, contractorId, extContractorId } =
         req.body;
     if (contractorId && extContractorId) throw new ApiError(httpStatus.BAD_REQUEST, 'Required only one contractor');
     await equipmentService.update(
         equipmentId,
         supportFrequency,
+        name,
         lastTO,
         nextTO,
         comment,
