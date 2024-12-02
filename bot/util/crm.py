@@ -465,3 +465,16 @@ async def get_rrs_for_user(user_data: dict, params: str = "") -> list:
             return await get_contractor_requests(user.tg_id, params)
         case roles.ADMIN:
             return await get_all_requests_with_params(params)
+
+
+async def get_static_content(filename: str) -> bytes | None:
+    url = f"{cf.API_URL}/uploads/{filename}"
+
+    req = requests.get(url)
+
+    if req.status_code == 200:
+        logger.debug("UPLOADS: successfully loaded", f"{filename}")
+        return req.content
+    else:
+        logger.error(f"could not get {filename} from uploads", f"{req.status_code}")
+        return None

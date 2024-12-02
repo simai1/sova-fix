@@ -8,7 +8,7 @@ from colorama import Fore, Style
 
 log = True
 color = True
-
+_debug = True
 
 class Defaults:
     LATEST_PATH = 'latest.log'
@@ -17,6 +17,7 @@ class Defaults:
 
 class LogMessageType:
     INFO: str = 'INFO'
+    DEBUG: str = 'DEBUG'
     WARNING: str = 'WARN'
     ERROR: str = 'ERROR'
 
@@ -42,6 +43,11 @@ def info(message: str, add: str | None = None) -> None:
     msg(LogMessageType.INFO, message, add)
 
 
+def debug(message: str, add: str | None = None) -> None:
+    if _debug:
+        msg(LogMessageType.DEBUG, message, add)
+
+
 def msg(msg_type: str, message: str, add: Optional[str]) -> None:
     now = datetime.now(tz=cf.TIMEZONE)
 
@@ -53,6 +59,9 @@ def msg(msg_type: str, message: str, add: Optional[str]) -> None:
             case LogMessageType.INFO:
                 Fore_MSG = Fore.LIGHTWHITE_EX
                 Fore_MSG_TYPE = Fore.LIGHTGREEN_EX
+            case LogMessageType.DEBUG:
+                Fore_MSG = Fore.LIGHTWHITE_EX
+                Fore_MSG_TYPE = Fore.LIGHTCYAN_EX
             case LogMessageType.WARNING:
                 Fore_MSG = Fore.LIGHTYELLOW_EX
                 Fore_MSG_TYPE = Fore.LIGHTYELLOW_EX

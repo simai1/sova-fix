@@ -1,8 +1,10 @@
 import asyncio
+import requests
+import config as cf
 
 
 async def test() -> None:
-    print("o" in "test")
+    pass
 
 
 if __name__ == '__main__':
