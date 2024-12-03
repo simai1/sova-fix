@@ -10,6 +10,8 @@ function ListInput(props) {
   const addClient = (el) => {
     if(props?.name === "builder"){
       SetExp(el.id)
+    }else if(props?.name === "contractorId"){
+      setStatus(el.id)
     }else{
       props.handleListData(props.name, el.id);
       setValueName(el.name);
@@ -22,6 +24,21 @@ function ListInput(props) {
       requestId: props?.idRequest,
       contractorId: "Внешний подрядчик",
     };
+
+    SetcontractorRequest(data).then((resp) => {
+      if (resp?.status === 200) {
+        props.updGetData(props?.idRequest);
+        props.toggleDropdown();
+      }
+    });
+  };
+
+  const setStatus = (id) => {
+    const data = {
+      requestId: props?.idRequest,
+      contractorId: id,
+    };
+    console.log("data", data)
 
     SetcontractorRequest(data).then((resp) => {
       if (resp?.status === 200) {
