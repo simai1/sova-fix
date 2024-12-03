@@ -35,7 +35,7 @@ function CreateCategory() {
                    
                 </div>
                 <div className={styles.buttonSubmitBlock}>
-                    <button className={styles.buttonSubmit} onClick={() => handleCreateCategory()}>Добавить ТО категории</button>
+                    <button className={styles.buttonSubmit} onClick={() => handleCreateCategory()}>Добавить категорию</button>
                 </div>
             </div>
 

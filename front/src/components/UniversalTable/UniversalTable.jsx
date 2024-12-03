@@ -194,6 +194,7 @@ function UniversalTable(props) {
     const handleClickOutside = (event) => {
       if (!event.target.closest("tr") && !event.target.closest("button")) {
         context.setSelectRowDirectory(null);
+        context.setSelectedTr(null);
       }
     };
 

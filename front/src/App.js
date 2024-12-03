@@ -5,7 +5,7 @@ import DataContext from "./context";
 import "./styles/style.css";
 import { tableHeadAppoint, tableList, tableUser } from "./components/Table/Data";
 import HomePageAdmin from "./pages/AdminPages/HomePageAdmin/HomePageAdmin";
-import { GetAllCategories, GetAllEquipment, GetAllRequests, GetAllUsers, GetAllСontractors, GetContractorsItenerarity } from "./API/API";
+import { GetAllCategories, GetAllEquipment, GetAllNomenclatures, GetAllRequests, GetAllUsers, GetAllСontractors, GetContractorsItenerarity } from "./API/API";
 import Activate from "./pages/Login/Activate/Activate";
 import { useDispatch, useSelector } from "react-redux";
 import { FilteredSample, funFixEducator } from "./UI/SamplePoints/Function";
@@ -58,6 +58,7 @@ function App() {
   const [checkedAll, setCheckedAll] = useState(false);
   const [dataEquipments, setDataEquipments] = useState([]);
   const [dataCategory, setDataCategory] = useState([]);
+  const [dataNomenclature, setDataNomenclature] = useState([]);
   const checkedAllFunc = () => {
     if(moreSelect.length > 0){
       setCheckedAll(true)
@@ -82,8 +83,19 @@ const UpdateDataCategory = () => {
   });
 }
 
+const UpdateDataNomenclature = () => {
+  GetAllNomenclatures().then((res) => {
+      if (res?.status === 200) {
+       setDataNomenclature(res.data)
+      }
+  });
+}
+
   
   const context = {
+    UpdateDataNomenclature,
+    dataNomenclature,
+    setDataNomenclature,
     UpdateDataCategory,
     setCheckedAll,
     dataCategory,

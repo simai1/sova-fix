@@ -1091,3 +1091,78 @@ export const UpdateCategories = async (id,data) => {
   }
 };
 
+// BlockTo  --------------------------------------------------------------------------------------------------/nomenclature
+
+
+
+//!Получение списка номенклатур
+export const GetAllNomenclatures = async () => {
+  try {
+    const response = await http.get(`${server}/nomenclatures`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при получении списка номенклатур!");
+    }
+  }
+};
+
+//!Создание номенклатуры
+export const CreateNomenclatures = async (data) => {
+  try {
+    const response = await http.post(`${server}/nomenclatures`, data, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при создании номенклатуры!");
+    }
+  }
+};
+
+//!Обновление номенклатуры
+export const UpdateNomenclatures = async (id,data) => {
+  try {
+    const response = await http.patch(`${server}/nomenclatures/${id}`,data, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при удалении номенклатуры!");
+    }
+  }
+};
+
+//!Удаление номенклатуры
+export const DeleteNomenclaturesAPI = async (id) => {
+  try {
+    const response = await http.delete(`${server}/nomenclatures/${id}`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при удалении номенклатуры!");
+    }
+  }
+}

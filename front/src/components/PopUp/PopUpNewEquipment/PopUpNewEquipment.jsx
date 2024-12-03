@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import PopUpContainer from "../../../UI/PopUpContainer/PopUpContainer";
 import styles from "./PopUpNewEquipment.module.scss";
-import { CreateEquipment, GetAllСontractors, GetObjectsAll } from "../../../API/API";
+import { CreateEquipment, GetAllNomenclatures, GetAllСontractors, GetObjectsAll } from "../../../API/API";
 import ListInputTOForm from "../../../UI/ListInputTOForm/ListInputTOForm";
 import { useContext } from "react";
 import DataContext from "../../../context";
@@ -9,10 +9,11 @@ import DataContext from "../../../context";
 function PopUpNewEquipment() {
   const [contractors, setContractors] = useState([]);
   const [objects, setObjects] = useState([]);
-  const {context} = useContext(DataContext)
+  const [nomenclatures, setNomenclatures] = useState([]);
+  const { context } = useContext(DataContext);
   const [formData, setFormData] = useState({
-    name: "",
-    categoryName: "",
+    nomenclatureId: "",
+    nomenclatureName: "",
     objectId: "",
     objectName: "",
     contractorId: "",
@@ -36,6 +37,12 @@ function PopUpNewEquipment() {
         setContractors(response.data);
       }
     });
+
+    GetAllNomenclatures().then((response) => {
+      if (response.status === 200) {
+        setNomenclatures(response.data);
+      }
+    });
   };
 
   useEffect(() => {
@@ -44,17 +51,39 @@ function PopUpNewEquipment() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({ ...prevData, [name]: value }));
+
+    setFormData((prevData) => {
+      const updatedData = { ...prevData, [name]: value };
+
+      // Автоматически вычисляем дату следующего ТО
+      if (name === "lastTO" || name === "supportFrequency") {
+        if (updatedData.lastTO && updatedData.supportFrequency) {
+          const nextDate = new Date(updatedData.lastTO);
+          nextDate.setDate(nextDate.getDate() + parseInt(updatedData.supportFrequency, 10));
+          updatedData.nextTO = nextDate.toISOString().split("T")[0];
+        } else {
+          updatedData.nextTO = "";
+        }
+      }
+
+      return updatedData;
+    });
   };
 
   const handleListData = (name, value) => {
-    // Сохраняем ID и название объекта или подрядчика
     if (name === "objectId") {
       const selectedObject = objects.find((obj) => obj.id === value);
       setFormData((prevData) => ({
         ...prevData,
         objectId: value,
         objectName: selectedObject ? selectedObject.name : "",
+      }));
+    } else if (name === "nomenclatureId") {
+      const selectedNomenclature = nomenclatures.find((nom) => nom.id === value);
+      setFormData((prevData) => ({
+        ...prevData,
+        nomenclatureId: value,
+        nomenclatureName: selectedNomenclature ? selectedNomenclature.name : "",
       }));
     } else if (name === "contractorId") {
       const selectedContractor = contractors.find((cont) => cont.id === value);
@@ -67,14 +96,28 @@ function PopUpNewEquipment() {
   };
 
   const handleSubmit = () => {
-    // Удаляем ненужные поля (objectName и contractorName) перед отправкой
+    // Проверка на заполненность всех обязательных полей
+    const requiredFields = [
+      "nomenclatureId",
+      "objectId",
+      "contractorId",
+      "supportFrequency",
+      "lastTO",
+    ];
+    const isFormValid = requiredFields.every((field) => formData[field]);
+
+    if (!isFormValid) {
+      alert("Пожалуйста, заполните все обязательные поля.");
+      return;
+    }
+
     const { objectName, contractorName, ...dataToSubmit } = formData;
-    console.log("Отправка данных на сервер:", dataToSubmit);
+
     CreateEquipment(dataToSubmit).then((response) => {
       if (response?.status === 200) {
-        context.setPopUp("PopUpGoodMessage")
-        context.setPopupGoodText("Оборудование успешно добавлено!")
-        context.UpdateDataEquipment()
+        context.setPopUp("PopUpGoodMessage");
+        context.setPopupGoodText("Оборудование успешно добавлено!");
+        context.UpdateDataEquipment();
       } else {
         console.log("Ошибка при создании оборудования");
       }
@@ -92,26 +135,16 @@ function PopUpNewEquipment() {
         <div className={styles.pupUpFirstContainer}>
           <div className={styles.pupUpFirstContainerInfo}>
             <div className={styles.pupContainerInfoTitle}>
-              <p>Категория:</p>
+              <p>Номенклатура:</p>
             </div>
-            <input
-              name="categoryName"
-              className={styles.pupUpContainerInfoInput}
-              placeholder="Тепловое оборудование"
-              value={formData.categoryName}
-              onChange={handleInputChange}
-            />
-          </div>
-          <div className={styles.pupUpFirstContainerInfo}>
-            <div className={styles.pupContainerInfoTitle}>
-              <p>Название:</p>
-            </div>
-            <input
-              name="name"
-              className={styles.pupUpContainerInfoInput}
-              placeholder="Пароконвектомат"
-              value={formData.name}
-              onChange={handleInputChange}
+            <ListInputTOForm
+              handleListData={handleListData}
+              name="nomenclatureId"
+              dataList={nomenclatures}
+              value={formData.nomenclatureId}
+              placeholder="Выберите номенклатуру"
+              isActive={activeDropdown === "nomenclatureId"}
+              toggleDropdown={() => toggleDropdown("nomenclatureId")}
             />
           </div>
           <div className={styles.pupUpFirstContainerInfo}>
@@ -189,7 +222,7 @@ function PopUpNewEquipment() {
               className={styles.pupUpContainerInfoInput}
               type="date"
               value={formData.nextTO}
-              onChange={handleInputChange}
+              disabled
             />
           </div>
         </div>

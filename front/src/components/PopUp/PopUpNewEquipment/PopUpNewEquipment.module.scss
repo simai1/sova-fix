@@ -25,6 +25,7 @@
                 background-color: var(--light-gray-color);
                 width: 100%;
                 border-radius: 6px;
+                align-items: center;
             }
             .commentBlockInput{
                 width: 100%;
@@ -38,11 +39,13 @@
         }
     }
     .pupContainerInfoTitle {
-        padding: 5px 10px;
+        padding: 7px 10px;
         background-color: var(--light-gray-color);
         border-radius: 6px;
         margin: 5px 0px;
-        width: 155px; /* Fixed width */
+        align-items: center;
+        display: flex;
+        width: 175px; /* Fixed width */
     }
     
     .pupUpContainerInfoSubtitle {
@@ -82,7 +85,6 @@
         .pupContainerInfoTitle {
             display: flex;
             align-items: center; /* Центрирование текста по вертикали */
-            
         }
     }
     input{

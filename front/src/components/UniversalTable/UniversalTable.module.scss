@@ -239,7 +239,8 @@
     background-color: var(--turquoise-color);
   }
   &:active{
-    background-color: red;
+    background-color: #ffd30d;
+    border: 2px solid #ffd30d;
   }
   
 }

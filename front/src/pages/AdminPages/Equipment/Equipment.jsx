@@ -10,6 +10,8 @@ import PopUpDeleteEquipment from "../../../components/PopUp/PopUpDeleteEquipment
 import PopUpGoodMessage from "../../../UI/PopUpGoodMessage/PopUpGoodMessage";
 import PopUpNewTOCategory from "../../../components/PopUp/Category/PopUpNewTOCategory/PopUpNewTOCategory";
 import CreateCategory from "../../../components/PopUp/Category/CreateCategory/CreateCategory";
+import CreateNomenclature from "../../../components/PopUp/Nomenclature/CreateNomenclature/CreateNomenclature";
+import PopUpDeleteNomeclature from "../../../components/PopUp/Nomenclature/PopUpDeleteNomeclature/PopUpDeleteNomeclature";
 
 function Equipment() {
 
@@ -28,6 +30,10 @@ function Equipment() {
             {context.popUp === "PopUpDeleteEquipment" && <PopUpDeleteEquipment />}
             {context.popUp === "PopUpGoodMessage" && <PopUpGoodMessage />}
             {context.popUp === "CreateCategory" && <CreateCategory />}
+            {context.popUp === "CreateNomenclature" && <CreateNomenclature />}
+            {context.popUp === "PopUpDeleteNomeclature" && <PopUpDeleteNomeclature />}
+            
+            
 
         </div>
      );
