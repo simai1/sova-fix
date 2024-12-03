@@ -4,21 +4,29 @@ import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
 
 const getAll = async (pagination: any) => {
-    const categories = await Category.findAll({ limit: pagination.limit, offset: pagination.offset });
+    const categories = await Category.findAll({
+        limit: pagination.limit,
+        offset: pagination.offset,
+        order: [['name', 'ASC']],
+    });
     return categories.map(c => new CategoryDto(c));
 };
 
-const create = async (name: string) => {
-    const category = await Category.create({ name });
+const getOne = async (categoryId: string) => {
+    const category = await Category.findByPk(categoryId);
+    if (!category) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found category with id ' + categoryId);
     return new CategoryDto(category);
 };
 
-const update = async (categoryId: string, name: string) => {
+const create = async (name: string, comment: string | undefined) => {
+    const category = await Category.create({ name, comment });
+    return new CategoryDto(category);
+};
+
+const update = async (categoryId: string, name: string | undefined, comment: string | undefined) => {
     const category = await Category.findByPk(categoryId);
     if (!category) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found category with id ' + categoryId);
-    category.name = name;
-    await category.save();
-    return new CategoryDto(category);
+    await category.update({ name, comment });
 };
 
 const destroy = async (categoryId: string) => {
@@ -29,6 +37,7 @@ const destroy = async (categoryId: string) => {
 
 export default {
     getAll,
+    getOne,
     create,
     update,
     destroy,

@@ -1,12 +1,15 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
+import Category from './category';
 
-export default class Category extends Model {
+export default class Nomenclature extends Model {
     id!: string;
     name!: string;
+    Category?: Category;
+    categoryId?: string;
     comment?: string;
 
     static initialize(sequelize: Sequelize) {
-        Category.init(
+        Nomenclature.init(
             {
                 id: {
                     type: DataTypes.UUID,
@@ -17,7 +20,6 @@ export default class Category extends Model {
                 name: {
                     type: DataTypes.STRING,
                     allowNull: false,
-                    unique: true,
                 },
                 comment: {
                     type: DataTypes.STRING,
@@ -27,8 +29,8 @@ export default class Category extends Model {
             {
                 sequelize,
                 schema: 'public',
-                modelName: 'Category',
-                tableName: 'categories',
+                modelName: 'Nomenclature',
+                tableName: 'nomenclatures',
                 paranoid: true,
             }
         );

@@ -18,6 +18,7 @@ import legalEntityRoute from './routes/legalEntity.route';
 import extContractorRoute from './routes/extContractor.route';
 import equipmentRoute from './routes/equipment.route';
 import categoryRoute from './routes/category.route';
+import nomenclatureRoute from './routes/nomenclature.route';
 
 import logger from './utils/logger';
 import winston from 'winston';
@@ -58,6 +59,7 @@ app.use('/legalEntities', legalEntityRoute);
 app.use('/extContractors', extContractorRoute);
 app.use('/equipments', equipmentRoute);
 app.use('/categories', categoryRoute);
+app.use('/nomenclatures', nomenclatureRoute);
 
 // websocket section
 app.ws('/', () => {

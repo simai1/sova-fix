@@ -12,6 +12,7 @@ import ExtContractor from './externalContractor';
 import Equipment from './equipment';
 import Category from './category';
 import History from './history';
+import Nomenclature from './nomenclature';
 
 const { DB_USER, DB_PWD, DB_HOST, DB_PORT, DB_NAME } = process.env;
 export const models = {
@@ -25,6 +26,7 @@ export const models = {
     ObjectDir,
     RepairRequest,
     ApiKey,
+    Nomenclature,
     Category,
     Equipment,
     History,
