@@ -144,6 +144,8 @@ function UniversalTable(props) {
         ) : (
           "___"
         );
+        case "info":
+          return <button className={styles.buttonInfo}>Подробная информация</button>
       case "fileName":
         return value !== "___" ? (
           <div>
@@ -296,6 +298,36 @@ function UniversalTable(props) {
   const checkHeights = (arr, index) => {
     return arr?.length - 1 === index && index === arr?.length - 1 && arr?.length !== 1;
   };
+
+  const getBgColorlastTOHuman = (key, lastTOHuman) => {
+    if (key === "nextTOHuman") {
+      console.log('lastTOHuman', lastTOHuman);
+  
+      // Преобразуем дату в объект Date
+      const currentDate = new Date(); // текущая дата
+      const nextTODate = new Date(lastTOHuman); // дата следующего ТО
+  
+      // Вычисляем разницу в днях
+      const diffInMs = nextTODate - currentDate;
+      const diffInDays = Math.ceil(diffInMs / (1000 * 60 * 60 * 24)); // округляем до ближайшего большего числа
+  
+      // Определяем цвет в зависимости от разницы
+      if (diffInDays === 0) {
+        return "#ffa500"; // оранжевый
+      } else if (diffInDays > 7) {
+        return "#C5E384"; // зелёный
+      } else if (diffInDays >= 1 && diffInDays <= 7) {
+        return "#ffe78f"; // жёлтый
+      } else if (diffInDays < 0) {
+        return "#d69a81"; // красный
+      }
+    }
+  
+    // Если ключ не соответствует "lastTOHuman", возвращаем null
+    return null;
+  };
+
+
   return (
     <div
       className={styles.UniversalTable}
@@ -385,17 +417,20 @@ function UniversalTable(props) {
                   key={header.key}
                   name={header.key}
                   className={header.key}
+
                   style={
                     context.selectRowDirectory === row.id
                       ? {
                           backgroundColor: "#D8CDC1FF",
                           textAlign: textAlign(header.key, row[header.key]),
                         }
-                      : { textAlign: textAlign(header.key, row[header.key]) }
+                      : { textAlign: textAlign(header.key, row[header.key]),
+                         
+                       }
                   }
                 >
-                   {header.key !== "role" ? (
-        getValue(row[header.key], header.key, rowIndex, row)
+        {header.key !== "role" ? (
+          <span style={{ padding: header.key === "nextTOHuman" ? "5px 10px" : "0px", borderRadius: "5px", backgroundColor: getBgColorlastTOHuman(header.key, row[header.key])}} >{getValue(row[header.key], header.key, rowIndex, row)}</span>
       ) : (
             <div key={rowIndex} className={styles.RoleClick}>
               <div

@@ -1,4 +1,4 @@
-import PopUpContainer from "../../../UI/PopUpContainer/PopUpContainer";
+import PopUpContainer from "../../../../UI/PopUpContainer/PopUpContainer";
 import React from "react";
 import styles from "./PopUpNewTOCategory.module.scss"
 function PopUpNewTOCategory() {

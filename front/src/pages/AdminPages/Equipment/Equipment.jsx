@@ -4,11 +4,12 @@ import Header from "../../../components/Header/Header";
 import { Outlet } from "react-router-dom";
 import DataContext from "../../../context";
 import PopUpNewTO from "../../../components/PopUp/PopUpNewTO/PopUpNewTO";
-import PopUpNewTOCategory from "../../../components/PopUp/PopUpNewTOCategory/PopUpNewTOCategory";
 import PopUpNewEquipment from "../../../components/PopUp/PopUpNewEquipment/PopUpNewEquipment";
 import { PopUpError } from "../../../UI/PopUpError/PopUpError";
 import PopUpDeleteEquipment from "../../../components/PopUp/PopUpDeleteEquipment/PopUpDeleteEquipment";
 import PopUpGoodMessage from "../../../UI/PopUpGoodMessage/PopUpGoodMessage";
+import PopUpNewTOCategory from "../../../components/PopUp/Category/PopUpNewTOCategory/PopUpNewTOCategory";
+import CreateCategory from "../../../components/PopUp/Category/CreateCategory/CreateCategory";
 
 function Equipment() {
 
@@ -26,6 +27,7 @@ function Equipment() {
             {context.popUp === "PopUpError" && <PopUpError />}
             {context.popUp === "PopUpDeleteEquipment" && <PopUpDeleteEquipment />}
             {context.popUp === "PopUpGoodMessage" && <PopUpGoodMessage />}
+            {context.popUp === "CreateCategory" && <CreateCategory />}
 
         </div>
      );

@@ -228,3 +228,18 @@
     }
   }
 }
+.buttonInfo{
+  background-color: inherit;
+  border: none;
+  border: 2px solid var(--turquoise-color);
+  border-radius: 5px;
+  padding: 5px;
+  cursor: pointer;
+  &:hover{
+    background-color: var(--turquoise-color);
+  }
+  &:active{
+    background-color: red;
+  }
+  
+}

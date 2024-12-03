@@ -4,11 +4,18 @@
 .GraphicEquipment{
     .GraphicEquipmentButton{
         display: flex;
-        justify-content: end;
+        justify-content: space-between;
         width: 100%;
-        button{
-            @include button(var(--turquoise-color));
-            margin-left: 15px;
+        align-items: center;
+        h3{
+            margin: 0;
+        }
+        .GraphicEquipmentButtonInner{
+            display: flex;
+            button{
+                @include button(var(--turquoise-color));
+                margin-left: 15px;
+            }
         }
     }
 }
