@@ -5,7 +5,7 @@ import DataContext from "./context";
 import "./styles/style.css";
 import { tableHeadAppoint, tableList, tableUser } from "./components/Table/Data";
 import HomePageAdmin from "./pages/AdminPages/HomePageAdmin/HomePageAdmin";
-import { GetAllEquipment, GetAllRequests, GetAllUsers, GetAllСontractors, GetContractorsItenerarity } from "./API/API";
+import { GetAllCategories, GetAllEquipment, GetAllRequests, GetAllUsers, GetAllСontractors, GetContractorsItenerarity } from "./API/API";
 import Activate from "./pages/Login/Activate/Activate";
 import { useDispatch, useSelector } from "react-redux";
 import { FilteredSample, funFixEducator } from "./UI/SamplePoints/Function";
@@ -57,7 +57,7 @@ function App() {
   const [selectRowDirectory, setSelectRowDirectory] = useState(null);
   const [checkedAll, setCheckedAll] = useState(false);
   const [dataEquipments, setDataEquipments] = useState([]);
-
+  const [dataCategory, setDataCategory] = useState([]);
   const checkedAllFunc = () => {
     if(moreSelect.length > 0){
       setCheckedAll(true)
@@ -74,9 +74,20 @@ function App() {
     });
 }
 
+const UpdateDataCategory = () => {
+  GetAllCategories().then((res) => {
+      if (res?.status === 200) {
+       setDataCategory(res.data)
+      }
+  });
+}
+
   
   const context = {
+    UpdateDataCategory,
     setCheckedAll,
+    dataCategory,
+    setDataCategory,
     popUpEquipment,
     setPopUpEquipment,
     checkedAll,

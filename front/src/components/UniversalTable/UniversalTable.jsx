@@ -132,7 +132,7 @@ function UniversalTable(props) {
         return value !== "___" ? (
           <div>
             <img
-              src={`${process.env.REACT_APP_API_URL}/uploads/${value}`}
+              src={value !== null ?`${process.env.REACT_APP_API_URL}/uploads/${value}` : "/img/noimage.jpg"}
               alt="Uploaded file"
               onClick={() =>
                 openModal(`${process.env.REACT_APP_API_URL}/uploads/${value}`)

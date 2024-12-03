@@ -212,7 +212,7 @@ export const GetOneUsers = async (id) => {
   }
 };
 
-export const GetAllСontractors = async () => {
+export const GetAllСontractors  = async () => {
   try {
     const response = await http.get(`${server}/contractors`, {
       headers: {
@@ -926,6 +926,8 @@ export const setCommentPhotoApi = async (data) => {
 
 // BlockTo  --------------------------------------------------------------------------------------------------/equipments
 
+
+//!Получение оборудования ВСЕГО
 export const GetAllEquipment = async () => {
   try {
     const response = await http.get(`${server}/equipments`, {
@@ -938,11 +940,48 @@ export const GetAllEquipment = async () => {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
     } else {
-      console.log("Ошибка при получении карты пользователя!");
+      console.log("Ошибка при получении оборудования!");
     }
   }
 };
 
+//!Обновление оборудования
+export const UpdateEquipment = async (id,data) => {
+  try {
+    const response = await http.patch(`${server}/equipments/${id}`, data, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при обновлении оборудования!");
+    }
+  }
+};
+
+//!Получение оборудования ПО ID
+export const GetOneEquipment = async (id) => {
+  try {
+    const response = await http.get(`${server}/equipments/${id}`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при Полученини оборудования по ID!");
+    }
+  }
+};
+
+//!Удаление оборудования
 export const DeleteEquipment = async (id) => {
   try {
     const response = await http.delete(`${server}/equipments/${id}`, {
@@ -955,7 +994,100 @@ export const DeleteEquipment = async (id) => {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
     } else {
-      console.log("Ошибка при получении карты пользователя!");
+      console.log("Ошибка при удалении оборудования!");
     }
   }
 };
+
+//!Создание оборудования
+export const CreateEquipment = async (data) => {
+  try {
+    const response = await http.post(`${server}/equipments`, data, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при создании оборудования!");
+    }
+  }
+};
+
+// BlockTo  --------------------------------------------------------------------------------------------------/Categories
+
+//!Получение списка категорий
+export const GetAllCategories = async (data) => {
+  try {
+    const response = await http.get(`${server}/categories`, data, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при получении списка категорий!");
+    }
+  }
+};
+
+//!Создание категории
+export const CreateCategories = async (data) => {
+  try {
+    const response = await http.post(`${server}/categories`, data, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при создании категории!");
+    }
+  }
+};
+
+//!Обновление категории
+export const DeleteCategories = async (id) => {
+  try {
+    const response = await http.delete(`${server}/categories/${id}`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при удалении категории!");
+    }
+  }
+};
+
+//!Обновление категории
+export const UpdateCategories = async (id,data) => {
+  try {
+    const response = await http.patch(`${server}/categories/${id}`,data, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при удалении категории!");
+    }
+  }
+};
+

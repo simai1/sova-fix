@@ -1,10 +1,15 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import DataContext from "../../context";
 import styles from "./CategoryEquipment.module.scss";
+import UniversalTable from "../../components/UniversalTable/UniversalTable";
+import { headerTableCategory } from "./dataEquipmentCategory";
 
 function CategoryEquipment() {
     const { context } = useContext(DataContext);
 
+    useEffect(() => {
+        context?.UpdateDataCategory();
+      }, []);
     
     return ( 
         <div className={styles.CategoryEquipment}>
@@ -14,7 +19,8 @@ function CategoryEquipment() {
             <button>Удалить</button>
         </div>
         <div>
-            <p>CategoryEquipment</p>
+            <UniversalTable FilterFlag={true} tableName="table5" tableHeader={headerTableCategory} tableBody={context?.dataCategory} selectFlag={true}/>
+
         </div>
     </div>
      );

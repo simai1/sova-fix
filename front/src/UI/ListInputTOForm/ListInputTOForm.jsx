@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import styles from "./ListInput.module.scss";
+import styles from "./ListInputTOForm.module.scss";
 import DataContext from "../../context";
 
-function ListInput(props) {
+function ListInputTOForm(props) {
   const { context } = React.useContext(DataContext);
   const [valueName, setValueName] = useState(props.value);
 
@@ -13,7 +13,7 @@ function ListInput(props) {
   };
 
   return (
-    <div className={styles.List}>
+    <div className={styles.ListInputTOForm}>
       <div>
         {props.Textlabel && (
           <div>
@@ -58,4 +58,4 @@ function ListInput(props) {
   );
 }
 
-export default ListInput;
+export default ListInputTOForm;
