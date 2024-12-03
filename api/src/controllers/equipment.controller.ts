@@ -19,26 +19,21 @@ const getOne = catchAsync(async (req, res) => {
 });
 
 const create = catchAsync(async (req, res) => {
-    const { supportFrequency, name, lastTO, nextTO, comment, categoryName, objectId, contractorId, extContractorId } =
-        req.body;
+    const { supportFrequency, lastTO, nextTO, objectId, contractorId, extContractorId, nomenclatureId } = req.body;
     const photo = req.file?.filename;
-    if (!name) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing name');
-    if (!nextTO) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing nextTO');
     if (!objectId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing objectId');
-    if (!categoryName) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing categoryName');
+    if (!nomenclatureId) throw new ApiError(httpStatus.BAD_REQUEST, 'missing nomenclatureId');
     if (!contractorId && !extContractorId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing contractors');
     if (contractorId && extContractorId) throw new ApiError(httpStatus.BAD_REQUEST, 'Required only one contractor');
     const equipment = await equipmentService.create(
         supportFrequency,
-        name,
         lastTO,
         nextTO,
-        comment,
-        categoryName,
         objectId,
         contractorId,
         extContractorId,
-        photo
+        photo,
+        nomenclatureId
     );
     res.json(equipment);
 });
@@ -53,21 +48,29 @@ const destroy = catchAsync(async (req, res) => {
 const update = catchAsync(async (req, res) => {
     const { equipmentId } = req.params;
     const photo = req.file?.filename;
-    const { supportFrequency, name, lastTO, nextTO, comment, categoryName, objectId, contractorId, extContractorId } =
-        req.body;
+    const { supportFrequency, lastTO, nextTO, objectId, contractorId, extContractorId, nomenclatureId } = req.body;
+    if (
+        !photo &&
+        !supportFrequency &&
+        !lastTO &&
+        !nextTO &&
+        !objectId &&
+        !contractorId &&
+        !extContractorId &&
+        !nomenclatureId
+    )
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Missing body');
     if (contractorId && extContractorId) throw new ApiError(httpStatus.BAD_REQUEST, 'Required only one contractor');
     await equipmentService.update(
         equipmentId,
         supportFrequency,
-        name,
         lastTO,
         nextTO,
-        comment,
         photo,
-        categoryName,
         objectId,
         contractorId,
-        extContractorId
+        extContractorId,
+        nomenclatureId
     );
     res.json({ status: 'ok' });
 });

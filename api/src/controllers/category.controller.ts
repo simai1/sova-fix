@@ -11,20 +11,27 @@ const getAll = catchAsync(async (req, res) => {
     res.json(categories);
 });
 
+const getOne = catchAsync(async (req, res) => {
+    const { categoryId } = req.params;
+    if (!categoryId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing categoryId');
+    const category = await categoryService.getOne(categoryId);
+    res.json(category);
+});
+
 const create = catchAsync(async (req, res) => {
-    const { name } = req.body;
+    const { name, comment } = req.body;
     if (!name) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing name');
-    const category = await categoryService.create(name);
+    const category = await categoryService.create(name, comment);
     res.json(category);
 });
 
 const update = catchAsync(async (req, res) => {
-    const { name } = req.body;
+    const { name, comment } = req.body;
     const { categoryId } = req.params;
-    if (!name) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing name');
+    if (!name && !comment) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing body');
     if (!categoryId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing categoryId');
-    const category = await categoryService.update(categoryId, name);
-    res.json(category);
+    await categoryService.update(categoryId, name, comment);
+    res.json({ status: 'OK' });
 });
 
 const destroy = catchAsync(async (req, res) => {
@@ -36,6 +43,7 @@ const destroy = catchAsync(async (req, res) => {
 
 export default {
     getAll,
+    getOne,
     create,
     update,
     destroy,

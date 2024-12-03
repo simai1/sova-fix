@@ -1,25 +1,23 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
-import Category from './category';
 import Unit from './unit';
 import ObjectDir from './object';
 import Contractor from './contractor';
 import ExtContractor from './externalContractor';
+import Nomenclature from './nomenclature';
 
 export default class Equipment extends Model {
     id!: string;
     number!: number;
     supportFrequency!: number;
-    name!: string;
     lastTO!: Date;
     nextTO!: Date;
-    comment?: string;
     photo?: string;
-    Category!: Category;
-    categoryId!: string;
+    Nomenclature?: Nomenclature;
+    nomenclatureId?: string;
     Unit?: Unit;
     unitId?: string;
-    Object!: ObjectDir;
-    objectId!: string;
+    Object?: ObjectDir;
+    objectId?: string;
     Contractor?: Contractor;
     contractorId?: string;
     ExtContractor?: ExtContractor;
@@ -39,10 +37,6 @@ export default class Equipment extends Model {
                     allowNull: false,
                     unique: true,
                 },
-                name: {
-                    type: DataTypes.STRING,
-                    allowNull: false,
-                },
                 supportFrequency: {
                     type: DataTypes.SMALLINT,
                     allowNull: false,
@@ -56,10 +50,6 @@ export default class Equipment extends Model {
                 nextTO: {
                     type: DataTypes.DATE,
                     allowNull: false,
-                },
-                comment: {
-                    type: DataTypes.STRING,
-                    allowNull: true,
                 },
                 photo: {
                     type: DataTypes.STRING,
