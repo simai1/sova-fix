@@ -4,14 +4,18 @@ import Header from "../../../components/Header/Header";
 import { Outlet } from "react-router-dom";
 import DataContext from "../../../context";
 import PopUpNewTO from "../../../components/PopUp/PopUpNewTO/PopUpNewTO";
-import PopUpNewEquipment from "../../../components/PopUp/PopUpNewEquipment/PopUpNewEquipment";
 import { PopUpError } from "../../../UI/PopUpError/PopUpError";
-import PopUpDeleteEquipment from "../../../components/PopUp/PopUpDeleteEquipment/PopUpDeleteEquipment";
 import PopUpGoodMessage from "../../../UI/PopUpGoodMessage/PopUpGoodMessage";
 import PopUpNewTOCategory from "../../../components/PopUp/Category/PopUpNewTOCategory/PopUpNewTOCategory";
 import CreateCategory from "../../../components/PopUp/Category/CreateCategory/CreateCategory";
 import CreateNomenclature from "../../../components/PopUp/Nomenclature/CreateNomenclature/CreateNomenclature";
 import PopUpDeleteNomeclature from "../../../components/PopUp/Nomenclature/PopUpDeleteNomeclature/PopUpDeleteNomeclature";
+import PopUpEditTOCategory from "../../../components/PopUp/Category/PopUpEditTOCategory/PopUpEditTOCategory";
+import EditNomenclature from "../../../components/PopUp/Nomenclature/EditNomenclature/EditNomenclature";
+import PopUpDeleteCategory from "../../../components/PopUp/Category/PopUpDeleteCategory/PopUpDeleteCategory";
+import PopUpNewEquipment from "../../../components/PopUp/Equipment/PopUpNewEquipment/PopUpNewEquipment";
+import PopUpDeleteEquipment from "../../../components/PopUp/Equipment/PopUpDeleteEquipment/PopUpDeleteEquipment";
+import PopUpEditEquipment from "../../../components/PopUp/Equipment/PopUpEditEquipment/PopUpEditEquipment";
 
 function Equipment() {
 
@@ -32,9 +36,10 @@ function Equipment() {
             {context.popUp === "CreateCategory" && <CreateCategory />}
             {context.popUp === "CreateNomenclature" && <CreateNomenclature />}
             {context.popUp === "PopUpDeleteNomeclature" && <PopUpDeleteNomeclature />}
-            
-            
-
+            {context.popUp === "PopUpEditTOCategory" && <PopUpEditTOCategory />}
+            {context.popUp === "EditNomenclature" && <EditNomenclature />}
+            {context.popUp === "PopUpDeleteCategory" && <PopUpDeleteCategory />}
+            {context.popUp === "PopUpEditEquipment" && <PopUpEditEquipment />}
         </div>
      );
 }

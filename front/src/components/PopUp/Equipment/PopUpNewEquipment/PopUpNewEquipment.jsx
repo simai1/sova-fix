@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import PopUpContainer from "../../../UI/PopUpContainer/PopUpContainer";
+import PopUpContainer from "../../../../UI/PopUpContainer/PopUpContainer";
 import styles from "./PopUpNewEquipment.module.scss";
-import { CreateEquipment, GetAllNomenclatures, GetAllСontractors, GetObjectsAll } from "../../../API/API";
-import ListInputTOForm from "../../../UI/ListInputTOForm/ListInputTOForm";
+import { CreateEquipment, GetAllNomenclatures, GetAllСontractors, GetObjectsAll } from "../../../../API/API";
+import ListInputTOForm from "../../../../UI/ListInputTOForm/ListInputTOForm";
 import { useContext } from "react";
-import DataContext from "../../../context";
+import DataContext from "../../../../context";
 
 function PopUpNewEquipment() {
   const [contractors, setContractors] = useState([]);
@@ -199,6 +199,7 @@ function PopUpNewEquipment() {
               placeholder="Укажите количество дней"
               value={formData.supportFrequency}
               onChange={handleInputChange}
+              style={{ textAlign: "center", paddingLeft: "0px" }}
             />
           </div>
           <div className={styles.pupUpSecondContainerInfo}>

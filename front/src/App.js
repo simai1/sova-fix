@@ -5,7 +5,7 @@ import DataContext from "./context";
 import "./styles/style.css";
 import { tableHeadAppoint, tableList, tableUser } from "./components/Table/Data";
 import HomePageAdmin from "./pages/AdminPages/HomePageAdmin/HomePageAdmin";
-import { GetAllCategories, GetAllEquipment, GetAllNomenclatures, GetAllRequests, GetAllUsers, GetAllСontractors, GetContractorsItenerarity } from "./API/API";
+import { GetAllCategories, GetAllEquipment, GetAllNomenclatures, GetAllRequests, GetAllUsers, GetAllСontractors, GetContractorsItenerarity, GetOneEquipment } from "./API/API";
 import Activate from "./pages/Login/Activate/Activate";
 import { useDispatch, useSelector } from "react-redux";
 import { FilteredSample, funFixEducator } from "./UI/SamplePoints/Function";
@@ -59,6 +59,9 @@ function App() {
   const [dataEquipments, setDataEquipments] = useState([]);
   const [dataCategory, setDataCategory] = useState([]);
   const [dataNomenclature, setDataNomenclature] = useState([]);
+  const [selectEquipment, setSelectEquipment] = useState(null);
+  const [dataEquipment, setDataEquipment] = useState(null);
+
   const checkedAllFunc = () => {
     if(moreSelect.length > 0){
       setCheckedAll(true)
@@ -91,8 +94,20 @@ const UpdateDataNomenclature = () => {
   });
 }
 
+const GetDataEquipment = (id) =>{
+  GetOneEquipment(id).then((res) => {
+      setDataEquipment(res?.data)
+      setSelectEquipment(res?.data)
+  })
+}
+
   
   const context = {
+    dataEquipment,
+    setDataEquipment,
+    GetDataEquipment,
+    setSelectEquipment,
+    selectEquipment,
     UpdateDataNomenclature,
     dataNomenclature,
     setDataNomenclature,

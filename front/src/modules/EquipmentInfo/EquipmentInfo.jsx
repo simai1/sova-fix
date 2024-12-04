@@ -1,44 +1,97 @@
 import UniversalTable from "../../components/UniversalTable/UniversalTable";
-import { useContext} from "react";
+import { useContext, useEffect, useState} from "react";
 import DataContext from "../../context";
 import styles from "./EquipmentInfo.module.scss"
 import { TestDataTable, tableHeaderEquipmentInfo } from "./dataEquipmentInfo";
+import { use } from "echarts";
+import { useLocation, useNavigate } from "react-router-dom";
+import { GetOneEquipment } from "../../API/API";
 
 function EquipmentInfo() {
     const { context } = useContext(DataContext);
+    const location = useLocation();
 
+     // Получаем query-параметры из строки запроса
+    const [idEquipment, setIdEquipment] = useState(null);
+    const getData = () =>{
+        const queryParams = new URLSearchParams(location.search);
+        setIdEquipment(queryParams.get("idEquipment"));
+    } 
+
+    useEffect(() => {
+        getData()
+    },[])
+
+    useEffect(() => {
+        context.GetDataEquipment(idEquipment)   
+    },[idEquipment])
+
+    const getBgColorlastTOHuman = (lastTOHuman) => {    
+        console.log("lastTOHuman", lastTOHuman);
+        if(lastTOHuman){
+            // Преобразуем дату из формата DD.MM.YY в объект Date
+            const [day, month, year] = lastTOHuman?.split('.').map(Number); // Разбиваем строку на части
+            const formattedDate = new Date(`20${year}`, month - 1, day); // Создаем объект Date (добавляем "20" для года)
+
+            // Проверяем, что дата корректна
+            if (isNaN(formattedDate.getTime())) {
+            console.error("Некорректная дата:", lastTOHuman);
+            return "Некорректная дата";
+            }
+
+            const currentDate = new Date(); // текущая дата
+
+            // Вычисляем разницу в днях
+            const diffInMs = formattedDate - currentDate;
+            const diffInDays = Math.ceil(diffInMs / (1000 * 60 * 60 * 24)); // округляем до ближайшего большего числа
+            console.log("diffInDays", diffInDays);
+
+            // Определяем статус в зависимости от разницы
+            if (diffInDays === 0) {
+            return "Провести ТО"; 
+            } else if (diffInDays > 7) {
+            return "ТО проведено"; 
+            } else if (diffInDays >= 1 && diffInDays <= 7) {
+            return "Запланируйте ТО"; 
+            } else if (diffInDays < 0) {
+            return "Необходимо ТО"; 
+            }
+        }
+       
+      };
+      
     return ( 
         
         <main className={styles.EquipmentInfo}>
             <div className={styles.EquipmentInfoBlockTopButton}>
                 <button>Экспорт</button>
                 <button>Сгенерировать QR-код</button>
-                <button>Удалить оборудование</button>
+                <button onClick={() => {context.setPopUp("PopUpEditEquipment")}}>Редактировать</button>
             </div>     
             <div className={styles.EquipmentblockInfo}>
                 <section className={styles.EquipmentSectionInfoFirst}>
                     <div className={styles.EquipmentblockInfoFirst}>
                         <div className={styles.EquipmentImg}>
-                            <img src="/img/ImgEmp.svg"/>
+                            <img src={context.dataEquipment?.photo ? `${process.env.REACT_APP_API_URL}/uploads/${context.dataEquipment?.photo}` : "/img/noimage.jpg"}/>
                         </div>
                         <div className={styles.paramInfoContainer}>
                             <div className={styles.marginInfo}>
                                 <p className={styles.paramInfo}>Категория:</p>
-                                <p className={styles.DataInfo}>Компьютеры</p>
+                                <p className={styles.DataInfo}>{context.dataEquipment?.category}</p>
                             </div>
                             <div className={styles.marginInfo}>
                                 <p className={styles.paramInfo}>Название:</p>
-                                <p className={styles.DataInfo}>Пароконвектомат</p>
+                                <p className={styles.DataInfo}>{context.dataEquipment?.name}</p>
                             </div>
                             <div className={styles.marginInfo}>
                                 <p className={styles.paramInfo}>Статус:</p>
-                                <p className={styles.DataInfo}>Требуется ТО</p>
+                                <p className={styles.DataInfo}>{getBgColorlastTOHuman(context.dataEquipment?.nextTOHuman)}</p>
                             </div>
                             <div className={styles.marginInfoAll}>
-                                <p className={styles.paramInfoGray}>Объект: Аксайский проспект ТЦ МЕГА</p>
+                                <p className={styles.paramInfoGray}>Объект: {context.dataEquipment?.object}</p>
                             </div>
                             <div className={styles.marginInfoAll}>
-                                <p className={styles.paramInfoGray}>Подразделение: КЕКС</p> 
+                                <p className={styles.paramInfoGray}>Подразделение: {context.dataEquipment?.unit}</p> 
                             </div>
                             <div >
                                 <button className={styles.button} onClick={()=>   context.setPopUp("PopUpNewTO")}>Проведено ТО</button>
@@ -48,28 +101,28 @@ function EquipmentInfo() {
                     <div className={styles.EquipmentblockInfoSecond}>
                     <div className={styles.paramInfoContainer}>
                             <div className={styles.marginInfo}>
-                                <p className={styles.paramInfo}>Количество на объекте:</p>
+                                <p className={styles.paramInfo}>Количество проведенных ТО:</p>
                                 <p className={styles.paramInfoSecond}>2</p>
                             </div>
                             <div className={styles.marginInfo}>
-                                <p className={styles.paramInfo}>Цена обслуживания за единицу:</p>
-                                <p className={styles.paramInfoSecond}>1230 руб.</p>
-                            </div>
-                            <div className={styles.marginInfo}>
-                                <p className={styles.paramInfo}>Общая сумма ТО:</p>
+                                <p className={styles.paramInfo}>Общая стоимость проведенного ТО:</p>
                                 <p className={styles.paramInfoSecond}>2460 руб.</p>
                             </div>
                             <div className={styles.marginInfo}>
+                                <p className={styles.paramInfo}>Средняя стоимость проведения ТО:</p>
+                                <p className={styles.paramInfoSecond}>1230 руб.</p>
+                            </div>
+                            <div className={styles.marginInfo}>
                                 <p className={styles.paramInfo}>Период обслуживания: каждые:</p>
-                                <p className={styles.paramInfoSecond}>31 день</p>
+                                <p className={styles.paramInfoSecond}>{context.dataEquipment?.supportFrequency}</p>
                             </div>
                             <div className={styles.marginInfo}>
                                 <p className={styles.paramInfo}>Дата последнего ТО:</p>
-                                <p className={styles.paramInfoSecond}>10.10.2021</p>
+                                <p className={styles.paramInfoSecond}>{context.dataEquipment?.lastTOHuman}</p>
                             </div>
                             <div className={styles.marginInfo}>
                                 <p className={styles.paramInfo}>Дата следующего ТО:</p>
-                                <p className={styles.paramInfoSecond}>10.11.2021</p>
+                                <p className={styles.paramInfoSecond}>{context.dataEquipment?.nextTOHuman}</p>
                             </div>
                         </div>
                     </div>

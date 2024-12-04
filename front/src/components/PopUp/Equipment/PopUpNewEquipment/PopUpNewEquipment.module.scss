@@ -1,13 +1,14 @@
-@import "./../../../styles/color.scss";
-@import "./../../../styles/mixins.scss";
+@import "./../../../../styles/color.scss";
+@import "./../../../../styles/mixins.scss";
 
 .PopUpNewTOCategory{
-    width: 1000px;
+    width: 1020px;
     display: flex;
     .pupUpFirstContainer{
         display: block;
         .pupUpFirstContainerInfo {
             display: flex;
+            height: 64px;
         }
         p {
             margin: 0;
@@ -33,7 +34,7 @@
                 box-sizing: border-box;
                 margin: 10px 0px 0px 0px;
                 padding: 5px 10px;
-                height: 55px;
+                height: 75px;
                 border-radius: 6px;
             }
         }
@@ -46,6 +47,7 @@
         align-items: center;
         display: flex;
         width: 175px; /* Fixed width */
+
     }
     
     .pupUpContainerInfoSubtitle {
@@ -59,10 +61,12 @@
         margin: 0px 10px;
         width: 50%; /* Each child takes up 50% of the parent's width */
         box-sizing: border-box; /* Ensure padding and borders are included in the width */
+        
     }
     .pupUpSecondContainerInfo{
         display: flex;
-        align-items: stretch; /* Выравнивание по высоте */
+        // align-items: stretch; /* Выравнивание по высоте */
+        height: 64px;
         p{
             margin: 0;
         }

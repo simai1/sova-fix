@@ -945,23 +945,28 @@ export const GetAllEquipment = async () => {
   }
 };
 
-//!Обновление оборудования
-export const UpdateEquipment = async (id,data) => {
+//! Обновление оборудования
+export const UpdateEquipment = async (id, data) => {
+  console.log("data", data); // Для проверки структуры данных
+
   try {
     const response = await http.patch(`${server}/equipments/${id}`, data, {
       headers: {
         Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+        // Заголовок Content-Type НЕ указываем вручную — axios сделает это автоматически
       },
     });
+
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
     } else {
-      console.log("Ошибка при обновлении оборудования!");
+      console.error("Ошибка при обновлении оборудования!", error.response || error);
     }
   }
 };
+
 
 //!Получение оборудования ПО ID
 export const GetOneEquipment = async (id) => {
@@ -1020,9 +1025,27 @@ export const CreateEquipment = async (data) => {
 // BlockTo  --------------------------------------------------------------------------------------------------/Categories
 
 //!Получение списка категорий
-export const GetAllCategories = async (data) => {
+export const GetAllCategories = async () => {
   try {
-    const response = await http.get(`${server}/categories`, data, {
+    const response = await http.get(`${server}/categories`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при получении списка категорий!");
+    }
+  }
+};
+
+//!Получение одной категории
+export const GetOneCategories = async (id) => {
+  try {
+    const response = await http.get(`${server}/categories/${id}`, {
       headers: {
         Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
       },
@@ -1055,7 +1078,7 @@ export const CreateCategories = async (data) => {
   }
 };
 
-//!Обновление категории
+//!удалегиение категории
 export const DeleteCategories = async (id) => {
   try {
     const response = await http.delete(`${server}/categories/${id}`, {
@@ -1130,6 +1153,26 @@ export const CreateNomenclatures = async (data) => {
     }
   }
 };
+
+
+//!Получение одной номенклатуры
+export const GetOneNomenclatures = async (id) => {
+  try {
+    const response = await http.get(`${server}/nomenclatures/${id}`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при получении списка номенклатур!");
+    }
+  }
+};
+
 
 //!Обновление номенклатуры
 export const UpdateNomenclatures = async (id,data) => {

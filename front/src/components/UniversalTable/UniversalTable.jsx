@@ -8,6 +8,7 @@ import FilteImg from "./../../assets/images/filterColumn.svg";
 import { resetFilters } from "../../store/samplePoints/samplePoits";
 import ClearImg from "./../../assets/images/ClearFilter.svg";
 import { useRef } from "react";
+import { useNavigate } from "react-router-dom";
 
 function UniversalTable(props) {
   const store = useSelector(
@@ -25,7 +26,7 @@ function UniversalTable(props) {
   const [dropdownVisible, setDropdownVisible] = useState(null);
   const dropdownRef = useRef(null);
   const [selecedAccount, setSelecedAccount] = useState(null)
-
+  const navigate = useNavigate();
 
   useEffect(() => {
     setTableHeaderData(props?.tableHeader);
@@ -66,11 +67,6 @@ function UniversalTable(props) {
     }
   };
 
-  //! при клике на пункт li убираем его из массива данных таблицы
-  // useEffect(() => {
-  //   setTableBodyData(filterBasickData(basickData, store));
-  // }, [store]);
-
 
   //! функция фильтрации
   function filterBasickData(data, chekeds) {
@@ -104,6 +100,11 @@ function UniversalTable(props) {
     return videoExtensions.some(ext => fileName.endsWith(ext));
   };
 
+  const buttonInfoClick = (dataRow) => {
+   console.log('dataRow.id', dataRow.id)
+    navigate(`/Equipment/EquipmentInfo?idEquipment=${dataRow.id}`)
+  };
+
   const getValue = (value, key, index, row) => {
     switch (key) {
       case "itineraryOrder":
@@ -135,7 +136,7 @@ function UniversalTable(props) {
               src={value !== null ?`${process.env.REACT_APP_API_URL}/uploads/${value}` : "/img/noimage.jpg"}
               alt="Uploaded file"
               onClick={() =>
-                openModal(`${process.env.REACT_APP_API_URL}/uploads/${value}`)
+                value !== null && openModal(`${process.env.REACT_APP_API_URL}/uploads/${value}`)
               }
               style={{ cursor: "pointer" }}
               className={styles.imgTable}
@@ -145,7 +146,7 @@ function UniversalTable(props) {
           "___"
         );
         case "info":
-          return <button className={styles.buttonInfo}>Подробная информация</button>
+          return <button className={styles.buttonInfo} onClick={() => buttonInfoClick(row)}>Подробная информация</button>
       case "fileName":
         return value !== "___" ? (
           <div>

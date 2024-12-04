@@ -23,6 +23,8 @@
         }
     }
     .EquipmentblockInfo{
+        position: relative;
+        top: -20px;
         .EquipmentSectionInfoFirst{
             display: flex;
             .EquipmentblockInfoFirst, .EquipmentblockInfoSecond{
@@ -65,12 +67,19 @@
                         justify-content: center;
                     }
                 }
-                .EquipmentImg{
+                .EquipmentImg {
                     margin: 0px 20px 20px 0px;
-                    img{
-                        height: 270px;
+                    width: 270px;
+                    height: 270px;
+                  
+                    img {
+                      width: 100%; /* Растягивается до контейнера */
+                      height: 100%; /* Растягивается до контейнера */
+                      object-fit: cover; /* Масштабирование и обрезка */
+                      border-radius: 8px; /* Для скругления углов, если нужно */
                     }
-                }
+                  }
+                  
                
             }
             .button{

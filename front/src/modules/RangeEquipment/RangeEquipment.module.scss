@@ -2,13 +2,21 @@
 @import "./../../styles/color.scss";
 
 .RangeEquipment{
+   
     .RangeEquipmentButton{
         display: flex;
-        justify-content: end;
+        justify-content: space-between;
+        align-items: end;
         width: 100%;
-        button{
-            @include button(var(--turquoise-color));
-            margin-left: 15px;
+        h3{
+            margin: 0;
+        }
+        .RangeEquipmentButtonInner{
+            display: flex;
+            button{
+                @include button(var(--turquoise-color));
+                margin-left: 15px;
+            }
         }
     }
 }

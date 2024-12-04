@@ -1,7 +1,6 @@
 import React, { useContext } from "react";
 import styles from "./PopUpDeleteCategory.module.scss";
-import DataContext from "../../../context";
-import { DeleteEquipment } from "../../../API/API";
+import DataContext from "../../../../context";
 import { DeleteCategories } from "../../../../API/API";
 
 function PopUpDeleteCategory() {
@@ -12,8 +11,8 @@ function PopUpDeleteCategory() {
         DeleteCategories(context.selectedTr).then((resp) => {
             if (resp?.status === 200) {
                 context.setPopUp("PopUpGoodMessage")
-                context.setPopupGoodText("Оборудование успешно удалено!")
-                context.UpdateDataEquipment()
+                context.setPopupGoodText("Категория успешно удалено!")
+                context.UpdateDataCategory()
             }
         })
     }

@@ -15,7 +15,16 @@ function CategoryEquipment() {
 
     const deleteCategory = () => {
         if(context.selectedTr !== null){
-            context.setPopUp("PopUpDeleteEquipment")
+            context.setPopUp("PopUpDeleteCategory")
+        }else{
+            context.setPopupErrorText("Сначала выберите категорию!");
+            context.setPopUp("PopUpError")
+        }
+    }
+
+    const editCategory = () => {
+        if(context.selectedTr !== null){
+            context.setPopUp("PopUpEditTOCategory")
         }else{
             context.setPopupErrorText("Сначала выберите категорию!");
             context.setPopUp("PopUpError")
@@ -30,7 +39,7 @@ function CategoryEquipment() {
             </div>
             <div className={styles.CategoryEquipmentButtonInner}>
                 <button onClick={()=> context.setPopUp("CreateCategory")}>Добавить</button>
-                <button>Редактировать</button>
+                <button onClick={() => editCategory()}>Редактировать</button>
                 <button onClick={() => deleteCategory()}>Удалить</button>
             </div>
             

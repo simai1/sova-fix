@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import styles from "./PopUpDeleteEquipment.module.scss";
-import DataContext from "../../../context";
-import { DeleteEquipment } from "../../../API/API";
+import DataContext from "../../../../context";
+import { DeleteEquipment } from "../../../../API/API";
 
 function PopUpDeleteEquipment() {
     const { context } = useContext(DataContext);
