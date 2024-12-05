@@ -545,71 +545,38 @@ const isVideo = (fileName) => {
     });
   }
 
-
-
-  const [offset, setOffset] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true); // Указывает, есть ли еще данные
-  const [limitData, setLimitData] = useState(8);
-  const [searchTableText, setSearchTableText] = useState(context.textSearchTableData);
-  const hasActiveFilters = store.some((filter) => filter.itemKey); // Если есть активные фильтры
-
-  useEffect(() => {
-    setSearchTableText(context.textSearchTableData);
-  }, [context.textSearchTableData]);
-  
-  useEffect(() => {
-    const tableWrapper = document.querySelector(`.${styles.Table}`);
-    let lastScrollTop = 0; // Хранит предыдущее значение scrollTop
-  
-    const handleScroll = () => {
-      if (!tableWrapper || isLoading || !hasMore  || hasActiveFilters) return;
-  
-      const { scrollTop, scrollHeight, clientHeight } = tableWrapper;
-  
-      // Если вертикальная прокрутка изменилась
-      if (scrollTop !== lastScrollTop) {
-        lastScrollTop = scrollTop; // Обновляем значение scrollTop
-  
-        // Проверка на конец прокрутки
-        if (
-          Math.abs(scrollHeight - scrollTop - clientHeight) <= 1 && // Учет небольшой погрешности
-          !searchTableText // Проверка, что поиска нет
-        ) {
-  
-          setIsLoading(true); // Устанавливаем состояние загрузки
-          setLimitData((prevLimit) => {
-            const newLimit = prevLimit + 10;
-            context.UpdateTableReguest("", "", newLimit);
-            return newLimit;
-          });
-          setIsLoading(false); // После завершения устанавливаем false
-        }
-      }
-    };
-  
-    tableWrapper?.addEventListener("scroll", handleScroll);
-  
-    return () => {
-      tableWrapper?.removeEventListener("scroll", handleScroll);
-    };
-  }, [isLoading, hasMore, searchTableText, hasActiveFilters]); // Добавляем searchTableText в зависимости
-  
-  
-  const scrollToTop = () => {
-    if (containerRef.current) {
-      containerRef.current.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      });
-    }
-  };
-
   const containerRef = useRef(null);
   
+   //! при событии скролл таблицы изменим индекс первого показываемого tr
+   const handleScroll = (e) => {
+    const maxStartData =
+    dataTable.length - context.visibleData;
+      context.setStartData(
+      Math.max(
+        0,
+        Math.min(
+          Math.floor(e.target.scrollTop / context.heightTd),
+          maxStartData
+        )
+      )
+    );
+  };
 
+    //! определение верхнего отступа таблицы
+    const getTopHeight = () => {
+      return context.startData * context.heightTd;
+    };
   
-  
+    //! определение нижнего отступа таблицы
+    const getBottomHeight = () => {
+      return (
+        (dataTable.length -
+          context.startData -
+          context.visibleData) *
+          context.heightTd
+      );
+    };
+
   return (
     <div className={styles.TableWrapper}>
       <div
@@ -617,6 +584,7 @@ const isVideo = (fileName) => {
         style={{
           overflow: dataTable.length === 0 ? "hidden" : "auto",
         }}
+        onScroll={handleScroll}
       >
         <table className={styles.TableInner} ref={containerRef}>
           {context.selectedTable === "Заявки" &&
@@ -734,9 +702,18 @@ const isVideo = (fileName) => {
           <tbody id="data-table">
             {dataTable.length > 0 ? (
               <>
-                {dataTable?.map((row, index) => (
+              <tr
+                key={"tr2"}
+                className={styles.trPlug}
+                style={{ height: getTopHeight() }}
+              ></tr>
+                {dataTable?.slice(
+              context.startData,
+              context.startData + context.visibleData
+            )?.map((row, index) => (
+                  
                   <tr
-                    key={index}
+                    key={index+row.id}
                     style={{
                       backgroundColor: row.copiedRequestId !== null ? "#ffe78f" : "",
                     }}
@@ -1134,7 +1111,13 @@ const isVideo = (fileName) => {
                     ))}
                   </tr>
                 ))}
+                <tr
+              key={"tr3"}
+              className={styles.trPlug}
+              style={{ height: getBottomHeight() }}
+            ></tr>
               </>
+              
             ) : (
               <tr>
                 <td colSpan={21} className={styles.tableNotData}></td>

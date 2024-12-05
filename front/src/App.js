@@ -1,6 +1,6 @@
 import Authorization from "./pages/Login/Authorization/Authorization";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import DataContext from "./context";
 import "./styles/style.css";
 import { tableHeadAppoint, tableList, tableUser } from "./components/Table/Data";
@@ -51,6 +51,7 @@ function App() {
   const [selectRowDirectory, setSelectRowDirectory] = useState(null);
   const [checkedAll, setCheckedAll] = useState(false);
   const [textSearchTableDataPhone, setextSearchTableDataPhone] = useState("");
+  const [updatePhoneData, setUpdatePhoneData] = useState(false);
   const checkedAllFunc = () => {
     if(moreSelect.length > 0){
       setCheckedAll(true)
@@ -60,12 +61,29 @@ function App() {
   }
   const [flagFilter, setFlagFilter] = useState(false);
   const [updatedDataApointment, setUpdatedDataApointment] = useState(0);
+    //! для виртуального скролла
+    const [startData, setStartData] = useState(0); // индекс элемента с которого показывается таблица
+    let visibleData = dataTableFix.length > 10 ? 10 : dataTableFix.length; // кооличество данных которые мы видим в таблице
+    const tableRefWorkload = useRef(null); //! ссылка на таблицу
+  
+    const heightTd = 176; // высота td
+    
+    const [reloadTable, setReloadTable] = useState(false); // Флаг для перезагрузки таблицы
+
   const context = {
+    reloadTable,
+    setReloadTable,
+    setUpdatePhoneData,
+    updatePhoneData,
     setextSearchTableDataPhone,
     updatedDataApointment,
     setUpdatedDataApointment,
     textSearchTableDataPhone,
     setFlagFilter,
+    startData,
+    setStartData,
+    visibleData,
+    heightTd,
     flagFilter,
     setCheckedAll,
     checkedAll,
@@ -127,14 +145,7 @@ function App() {
     checkedAll,
   };
 
-  const dispatch = useDispatch();
-
-  // useEffect(() => {
-  //   if(filteredTableData != null){
-  //   dispatch(setTableData({tableData: 234}))
-  //   }
-  // }, [filteredTableData])
-
+  
 
   const isCheckedStore = useSelector((state) => state.isCheckedSlice.isChecked);
   useEffect(() => {
@@ -165,7 +176,7 @@ function App() {
     else if(flagFilter) {
         url = ``;
     } else{
-      url = `?&ofset=0&limit=${limitNumber}`;
+      url = ``;
     }
     
           GetAllRequests(url).then((resp) => {
