@@ -1,42 +1,31 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import Modal from "react-modal"; // Подключаем библиотеку для модального окна
+import Modal from "react-modal";
 import styles from "./PhoneDataVizulizer.module.scss";
-import { phoneHeaderData, tableHeadAppoint } from "../Table/Data";
+import { phoneHeaderData } from "../Table/Data";
 import { GetAllRequests } from "../../API/API";
 import DataContext from "../../context";
 import { funFixEducator } from "../../UI/SamplePoints/Function";
-import { use } from "echarts";
 import EditImg from "./../../assets/images/Edit.svg";
-Modal.setAppElement("#root"); // Указываем элемент для библиотеки react-modal
+
+Modal.setAppElement("#root");
 
 function PhoneDataVizulizer(props) {
-  const [dataBody, setDataBody] = useState([]); // Состояние для данных
-  const [dataHeader, setDataHeader] = useState([]); // Состояние для заголовков
+  const [dataBody, setDataBody] = useState([]); // Данные
+  const [dataHeader, setDataHeader] = useState([]); // Заголовки
   const [loading, setLoading] = useState(false); // Индикатор загрузки
-  const [error, setError] = useState(null); // Ошибка, если что-то пошло не так
+  const [error, setError] = useState(null); // Ошибка
+  const [hasMore, setHasMore] = useState(true); // Есть ли еще данные для загрузки
+  const [offset, setOffset] = useState(0); // Текущий офсет
   const [modalContent, setModalContent] = useState(null); // Контент для модального окна
   const [isModalOpen, setIsModalOpen] = useState(false); // Управление модальным окном
-  const [showScrollToTop, setShowScrollToTop] = useState(false); // Состояние для отображения кнопки
-
   const { context } = useContext(DataContext);
+  const observerRef = useRef(null); // Ссылка на наблюдатель для скролла
+  const [showScrollToTop, setShowScrollToTop] = useState(false); // Состояние для отображения кнопки
+  const PAGE_SIZE = 10; // Количество строк на одной подгрузке
 
-   // Ссылка на элемент с прокруткой
-   const containerRef = useRef(null);
-
-   // Слежение за прокруткой в контейнере
-   useEffect(() => {
-     const container = containerRef.current;
- 
-     const handleScroll = () => {
-       if (container) {
-         setShowScrollToTop(container.scrollTop > 300); // Показываем кнопку при скролле вниз
-       }
-     };
- 
-     container.addEventListener("scroll", handleScroll);
-     return () => container.removeEventListener("scroll", handleScroll);
-   }, []);
-
+  // Ссылка на элемент с прокруткой
+  const containerRef = useRef(null);
+  
   // Функция прокрутки вверх
   const scrollToTop = () => {
     if (containerRef.current) {
@@ -46,141 +35,189 @@ function PhoneDataVizulizer(props) {
       });
     }
   };
-
+  
+  // Слежение за прокруткой в контейнере
   useEffect(() => {
-    setDataHeader(tableHeadAppoint); // Устанавливаем заголовки
-    fetchData(); // Загружаем данные
-  }, [props?.tableBody, props?.tableHeader]);
-
+    const container = containerRef.current;
+  
+    const handleScroll = () => {
+      if (container) {
+        setShowScrollToTop(container.scrollTop > 300); // Показываем кнопку при скролле вниз
+      }
+    };
+  
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, []);
+  
+  
+  // Обновляем данные при изменении поиска или popUp
   useEffect(() => {
-    fetchData(context.textSearchTableDataPhone); // Загружаем данные при изменении флага
-  }, [context.textSearchTableDataPhone]);
-
-  useEffect(() => {
-    if (context.updatedDataApointment === 1) {
-      fetchData(context.textSearchTableDataPhone);
-      context.setUpdatedDataApointment(0);
+    if (context.textSearchTableDataPhone) {
+      setOffset(0); // Сбрасываем offset
+      setDataBody([]); // Очищаем текущие данные
+      fetchData(0, context.textSearchTableDataPhone); // Заново выполняем поиск
     }
-  }, [context.updatedDataApointment]);
-
-  // Асинхронная функция для загрузки данных
-  const fetchData = async (text) => {
+  }, [context.textSearchTableDataPhone]);
+  
+  useEffect(() => {
+    if (context.reloadTable) {
+      setOffset(0); // Сбрасываем offset
+      setDataBody([]); // Очищаем текущие данные
+      fetchData(0); // Перезагружаем данные
+      context.setReloadTable(false); // Сбрасываем флаг после обновления
+    }
+  }, [context.reloadTable]);
+  
+  // Функция загрузки данных
+  const fetchData = async (currentOffset, text) => {
+    if (loading) return; // Блокируем повторные запросы
     setLoading(true);
     setError(null);
+  
     try {
-      let url = text ? `?search=${text}` : "";
-      const response = await GetAllRequests(url); // Выполняем запрос
-      if (response?.data?.requestsDtos) {
-        setDataBody(funFixEducator(response.data.requestsDtos)); // Сохраняем данные
+      let url;
+      if (text) {
+        // Если есть текст поиска, игнорируем offset
+        url = `?search=${encodeURIComponent(text)}`;
       } else {
-        setDataBody([]); // Если данных нет
+        // Если поиска нет, используем пагинацию
+        url = `?offset=${currentOffset}&limit=${PAGE_SIZE}`;
       }
+  
+      const response = await GetAllRequests(url);
+      const newData = response?.data?.requestsDtos || [];
+  
+      if (text) {
+        // Если это поиск, полностью перезаписываем данные
+        setDataBody(funFixEducator(newData));
+      } else {
+        // Если это подгрузка, добавляем данные
+        setDataBody((prev) => [...prev, ...funFixEducator(newData)]);
+      }
+  
+      // Проверяем, есть ли ещё данные для подгрузки
+      setHasMore(newData.length === PAGE_SIZE);
     } catch (err) {
-      setError("Ошибка загрузки данных."); // Устанавливаем ошибку
+      setError("Ошибка загрузки данных.");
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
-
-  // Функция открытия модального окна
-  const openModal = (content) => {
-    setModalContent(content);
-    setIsModalOpen(true);
-  };
-
-  // Функция закрытия модального окна
-  const closeModal = () => {
-    setModalContent(null);
-    setIsModalOpen(false);
-    fetchData(context.textSearchTableDataPhone);
-  };
-
-  // Проверка на видео
-  const isVideo = (fileName) => {
-    if (typeof fileName !== "string") return false; // Проверяем, что fileName — строка
-    const videoExtensions = [".mp4", ".avi", ".mov", ".wmv", ".mkv"];
-    return videoExtensions.some((ext) => fileName.toLowerCase().endsWith(ext));
-  };
-
-  const getColorStatus = (statusId) => {
-    switch (statusId) {
-      case "Новая заявка":
-        return "#d69a81"; // красный
-      case "В работе":
-        return "#ffe78f"; // жёлтый
-      case "Выполнена":
-        return "#C5E384"; // зелёный
-      case "Выезд без выполнения":
-        return "#f9ab23"; // оранжевый
-      default:
-        return "#ccc"; // цвет по умолчанию
+  
+  // Callback для Intersection Observer
+  const handleObserver = (entries) => {
+    const target = entries[0];
+    if (target.isIntersecting && hasMore && !loading) {
+      fetchData(offset); // Загружаем данные с текущим offset
+      setOffset((prevOffset) => prevOffset + PAGE_SIZE); // Увеличиваем offset после загрузки
     }
   };
-
-  const getColorUrgensy = (name) => {
-    switch (name) {
-      case "В течение часа":
-        return "#d69a81"; // красный
-      case "В течение текущего дня":
-        return "#f9ab23"; // оранжевый
-      case "В течение 3-х дней":
-        return "#ffe78f"; // жёлтый
-      case "В течение недели":
-        return "#eaf45b"; // светло жёлтый
-      case "Выполнено":
-        return "#C5E384"; // зеленый
-      default:
-        return "#ccc"; // цвет по умолчанию
+  
+  // Устанавливаем Intersection Observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(handleObserver, {
+      root: null,
+      rootMargin: "20px",
+      threshold: 1.0,
+    });
+  
+    if (observerRef.current) {
+      observer.observe(observerRef.current);
     }
-  };
-  const getContractorItem = (row) => {
-    if (row?.isExternal) {
-      return "Внешний подрядчик";
-    } else {
-      if (row?.contractor !== "___") {
-        return row?.contractor;
-      } else {
-        return "Не назначен";
+  
+    return () => {
+      if (observerRef.current) observer.unobserve(observerRef.current);
+    };
+  }, [observerRef.current, hasMore, loading, offset]);
+  
+    // Функция открытия модального окна
+    const openModal = (content) => {
+      setModalContent(content);
+      setIsModalOpen(true);
+    };
+  
+    // Функция закрытия модального окна
+    const closeModal = () => {
+      setModalContent(null);
+      setIsModalOpen(false);
+      fetchData(context.textSearchTableDataPhone);
+    };
+  
+    // Проверка на видео
+    const isVideo = (fileName) => {
+      if (typeof fileName !== "string") return false; // Проверяем, что fileName — строка
+      const videoExtensions = [".mp4", ".avi", ".mov", ".wmv", ".mkv"];
+      return videoExtensions.some((ext) => fileName.toLowerCase().endsWith(ext));
+    };
+  
+    const getColorStatus = (statusId) => {
+      switch (statusId) {
+        case "Новая заявка":
+          return "#d69a81"; // красный
+        case "В работе":
+          return "#ffe78f"; // жёлтый
+        case "Выполнена":
+          return "#C5E384"; // зелёный
+        case "Выезд без выполнения":
+          return "#f9ab23"; // оранжевый
+        default:
+          return "#ccc"; // цвет по умолчанию
       }
-    }
-  };
+    };
+  
+    const getColorUrgensy = (name) => {
+      switch (name) {
+        case "В течение часа":
+          return "#d69a81"; // красный
+        case "В течение текущего дня":
+          return "#f9ab23"; // оранжевый
+        case "В течение 3-х дней":
+          return "#ffe78f"; // жёлтый
+        case "В течение недели":
+          return "#eaf45b"; // светло жёлтый
+        case "Выполнено":
+          return "#C5E384"; // зеленый
+        default:
+          return "#ccc"; // цвет по умолчанию
+      }
+    };
+    const getContractorItem = (row) => {
+      if (row?.isExternal) {
+        return "Внешний подрядчик";
+      } else {
+        if (row?.contractor !== "___") {
+          return row?.contractor;
+        } else {
+          return "Не назначен";
+        }
+      }
+    };
 
   return (
     <div className={styles.PhoneDataVizulizer} ref={containerRef}>
-      {/* Отображаем загрузку */}
-      {loading && <div className={styles.loading}>Загрузка данных...</div>}
-
-      {/* Отображаем ошибку */}
-      {error && (
-        <div className={styles.error}>
-          <p>{error}</p>
-        </div>
-      )}
-
-      {/* Если данные есть, отображаем их */}
-      {!loading && !error && dataBody?.length > 0 ? (
-        <>
-          {dataBody?.map((item, index) => (
-            <div key={item.id} className={styles.dataBlock}>
-              <div className={styles.dataBlockInner}>
-                <div
-                  className={styles.EditDataBlock}
-                  onClick={() => {
-                    context.setPopUp("PopUpEditAppoint");
-                    context.setSelectedTr(item.id);
-                  }}
-                >
-                  <img src={EditImg} />
-                </div>
-                {phoneHeaderData?.map((header) => {
+      {/* Отображаем данные */}
+      {dataBody.map((item, index) => (
+        <div key={item.id + index} className={styles.dataBlock}>
+          <div className={styles.dataBlockInner}>
+            <div
+              className={styles.EditDataBlock}
+              onClick={() => {
+                context.setPopUp("PopUpEditAppoint");
+                context.setSelectedTr(item.id);
+              }}
+            >
+              <img src={EditImg} alt="Edit" />
+            </div>
+            {phoneHeaderData?.map((header) => {
                   if (header.isActive && header.key !== "Qr") {
                     const value = item[header.key];
 
                     // Если значение — фото или видео
                     if (header.key === "fileName") {
                       return (
-                        <div key={header.key} className={styles.photoBlock}>
+                        <div key={header.key + index} className={styles.photoBlock}>
                           {isVideo(value) ? (
                             <video
                               className={styles.fileVideoTable}
@@ -226,7 +263,7 @@ function PhoneDataVizulizer(props) {
                       );
                     } else if (header.key === "status") {
                       return (
-                        <div key={header.key} className={styles.dataItemRejected}>
+                        <div key={header.key + index} className={styles.dataItemRejected}>
                           <p style={{ margin: "0px" }}>
                             Статус:{" "}
                             <span
@@ -243,7 +280,7 @@ function PhoneDataVizulizer(props) {
                       );
                     } else if (header.key === "urgency") {
                       return (
-                        <div key={header.key} className={styles.dataItemRejected}>
+                        <div key={header.key + index} className={styles.dataItemRejected}>
                           <p style={{ margin: "3px 0px" }}>
                             Статус:{" "}
                             <span
@@ -283,7 +320,7 @@ function PhoneDataVizulizer(props) {
 
                     return (
                       <div
-                        key={header.key}
+                        key={header.key + index}
                         className={`${styles.dataItem} ${
                           header.key === "conditionHuman"
                             ? styles.dataItemCondition
@@ -297,19 +334,9 @@ function PhoneDataVizulizer(props) {
                   }
                   return null;
                 })}
-              </div>
-            </div>
-          ))}
-        </>
-      ) : (
-        // Если данных нет
-        !loading && (
-          <div className={styles.dataBlockNote}>
-            <p>Нет данных</p>
           </div>
-        )
-      )}
-
+        </div>
+      ))}
       {/* Модальное окно */}
       <Modal
         isOpen={isModalOpen}
@@ -322,14 +349,18 @@ function PhoneDataVizulizer(props) {
         </button>
         <div className={styles.modalContentWrapper}>{modalContent}</div>
       </Modal>
+      {/* Индикатор загрузки */}
+      {loading && <div className={styles.loading}>Загрузка...</div>}
 
-        {showScrollToTop &&
+      {/* Ошибка */}
+      {error && <div className={styles.error}>{error}</div>}
+      {showScrollToTop &&
             <button className={styles.scrollToTop} onClick={() => scrollToTop()}>
             ↑
             </button>
         }
-
-      
+      {/* Наблюдатель для Intersection Observer */}
+      <div ref={observerRef} className={styles.observer}></div>
     </div>
   );
 }

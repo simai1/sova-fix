@@ -119,7 +119,7 @@ function UniversalTable(props) {
         ) : (
           "___"
         );
-
+        
       case "id":
         return index + 1;
    

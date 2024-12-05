@@ -75,7 +75,6 @@ function PopUpEditAppoint(props) {
 
   const planCompleteDate = dataApStart?.planCompleteDateRaw;
   const DateplanCompleteDate = planCompleteDate ? new Date(dataApStart?.planCompleteDateRaw).toISOString().split("T")[0] : '';
-  console.log("dataApStart", dataApStart)
   useEffect(() => {
     if (dataApStart) {
       setdataApointment({
@@ -130,6 +129,7 @@ function PopUpEditAppoint(props) {
         context.UpdateTableReguest(1);
         context.setUpdatedDataApointment(1)
         context.setPopUp(null);
+        context.setReloadTable(true); // Уведомляем таблицу о необходимости перезагрузки
       } else {
         alert("Заполните правльно все поля!");
       }
