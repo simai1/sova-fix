@@ -45,20 +45,29 @@ const destroy = catchAsync(async (req, res) => {
     res.json({ status: 'ok' });
 });
 
+const updatePhoto = catchAsync(async (req, res) => {
+    const { equipmentId } = req.params;
+    const fileName = req.file?.filename;
+    if (!equipmentId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing equipmentId');
+    if (!fileName) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing file');
+    await equipmentService.update(
+        equipmentId,
+        undefined,
+        undefined,
+        undefined,
+        fileName,
+        undefined,
+        undefined,
+        undefined,
+        undefined
+    );
+    res.json({ status: 'ok' });
+});
+
 const update = catchAsync(async (req, res) => {
     const { equipmentId } = req.params;
-    const photo = req.file?.filename;
     const { supportFrequency, lastTO, nextTO, objectId, contractorId, extContractorId, nomenclatureId } = req.body;
-    if (
-        !photo &&
-        !supportFrequency &&
-        !lastTO &&
-        !nextTO &&
-        !objectId &&
-        !contractorId &&
-        !extContractorId &&
-        !nomenclatureId
-    )
+    if (!supportFrequency && !lastTO && !nextTO && !objectId && !contractorId && !extContractorId && !nomenclatureId)
         throw new ApiError(httpStatus.BAD_REQUEST, 'Missing body');
     if (contractorId && extContractorId) throw new ApiError(httpStatus.BAD_REQUEST, 'Required only one contractor');
     await equipmentService.update(
@@ -66,7 +75,7 @@ const update = catchAsync(async (req, res) => {
         supportFrequency,
         lastTO,
         nextTO,
-        photo,
+        undefined,
         objectId,
         contractorId,
         extContractorId,
@@ -80,5 +89,6 @@ export default {
     getAll,
     getOne,
     destroy,
+    updatePhoto,
     update,
 };

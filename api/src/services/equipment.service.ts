@@ -87,7 +87,7 @@ const getOne = async (equipmentId: string) => {
 const destroy = async (equipmentId: string) => {
     const equipment = await Equipment.findByPk(equipmentId);
     if (!equipment) throw new ApiError(httpStatus.BAD_REQUEST, 'No equipment with id ' + equipmentId);
-    await equipment.destroy();
+    await equipment.destroy({ force: true });
 };
 
 const update = async (
