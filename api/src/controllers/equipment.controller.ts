@@ -19,7 +19,8 @@ const getOne = catchAsync(async (req, res) => {
 });
 
 const create = catchAsync(async (req, res) => {
-    const { supportFrequency, lastTO, nextTO, objectId, contractorId, extContractorId, nomenclatureId } = req.body;
+    const { supportFrequency, lastTO, nextTO, objectId, contractorId, extContractorId, nomenclatureId, count, cost } =
+        req.body;
     const photo = req.file?.filename;
     if (!objectId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing objectId');
     if (!nomenclatureId) throw new ApiError(httpStatus.BAD_REQUEST, 'missing nomenclatureId');
@@ -33,7 +34,9 @@ const create = catchAsync(async (req, res) => {
         contractorId,
         extContractorId,
         photo,
-        nomenclatureId
+        nomenclatureId,
+        count,
+        cost
     );
     res.json(equipment);
 });
@@ -59,6 +62,8 @@ const updatePhoto = catchAsync(async (req, res) => {
         undefined,
         undefined,
         undefined,
+        undefined,
+        undefined,
         undefined
     );
     res.json({ status: 'ok' });
@@ -66,8 +71,19 @@ const updatePhoto = catchAsync(async (req, res) => {
 
 const update = catchAsync(async (req, res) => {
     const { equipmentId } = req.params;
-    const { supportFrequency, lastTO, nextTO, objectId, contractorId, extContractorId, nomenclatureId } = req.body;
-    if (!supportFrequency && !lastTO && !nextTO && !objectId && !contractorId && !extContractorId && !nomenclatureId)
+    const { supportFrequency, lastTO, nextTO, objectId, contractorId, extContractorId, nomenclatureId, count, cost } =
+        req.body;
+    if (
+        !supportFrequency &&
+        !lastTO &&
+        !nextTO &&
+        !objectId &&
+        !contractorId &&
+        !extContractorId &&
+        !nomenclatureId &&
+        !count &&
+        !cost
+    )
         throw new ApiError(httpStatus.BAD_REQUEST, 'Missing body');
     if (contractorId && extContractorId) throw new ApiError(httpStatus.BAD_REQUEST, 'Required only one contractor');
     await equipmentService.update(
@@ -79,7 +95,9 @@ const update = catchAsync(async (req, res) => {
         objectId,
         contractorId,
         extContractorId,
-        nomenclatureId
+        nomenclatureId,
+        count,
+        cost
     );
     res.json({ status: 'ok' });
 });

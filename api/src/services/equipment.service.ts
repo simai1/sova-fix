@@ -17,7 +17,9 @@ const create = async (
     contractorId: string | undefined,
     extContractorId: string | undefined,
     photo: string | undefined,
-    nomenclatureId: string
+    nomenclatureId: string,
+    count: number | undefined,
+    cost: number | undefined
 ) => {
     const nomenclature = await Nomenclature.findByPk(nomenclatureId, { include: [{ model: Category }] });
     if (!nomenclature) throw new ApiError(httpStatus.BAD_REQUEST, 'No nomenclature with id ' + nomenclatureId);
@@ -48,6 +50,8 @@ const create = async (
         contractorId,
         extContractorId,
         nomenclatureId,
+        count,
+        cost,
     });
     equipment.ExtContractor = extContractor;
     equipment.Contractor = contractor;
@@ -99,7 +103,9 @@ const update = async (
     objectId: string | undefined,
     contractorId: string | undefined,
     extContractorId: string | undefined,
-    nomenclatureId: string | undefined
+    nomenclatureId: string | undefined,
+    count: number | undefined,
+    cost: number | undefined
 ) => {
     const equipment = await Equipment.findByPk(equipmentId);
     if (!equipment) throw new ApiError(httpStatus.BAD_REQUEST, 'No equipment with id ' + equipmentId);
@@ -127,6 +133,8 @@ const update = async (
         photo,
         objectId,
         nomenclatureId,
+        cost,
+        count,
         contractorId: contractorId ? contractorId : null,
         extContractorId: extContractorId ? extContractorId : null,
     });

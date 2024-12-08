@@ -12,6 +12,8 @@ export default class Equipment extends Model {
     lastTO!: Date;
     nextTO!: Date;
     photo?: string;
+    count!: number;
+    cost!: number;
     Nomenclature?: Nomenclature;
     nomenclatureId?: string;
     Unit?: Unit;
@@ -54,6 +56,16 @@ export default class Equipment extends Model {
                 photo: {
                     type: DataTypes.STRING,
                     allowNull: true,
+                },
+                count: {
+                    type: DataTypes.INTEGER,
+                    allowNull: false,
+                    defaultValue: 1,
+                },
+                cost: {
+                    type: DataTypes.REAL,
+                    allowNull: false,
+                    defaultValue: 0,
                 },
             },
             {
