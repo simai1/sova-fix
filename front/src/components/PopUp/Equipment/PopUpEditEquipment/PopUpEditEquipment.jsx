@@ -12,9 +12,6 @@ function PopUpEditEquipment() {
   const [contractors, setContractors] = useState([]);
   const [objects, setObjects] = useState([]);
   const [nomenclatures, setNomenclatures] = useState([]);
-
-  const [selectedFile, setSelectedFile] = useState(null); // Хранение выбранного файла
-
   const [formData, setFormData] = useState({
     nomenclatureId: "",
     nomenclatureName: "",
@@ -121,20 +118,6 @@ function PopUpEditEquipment() {
     }
   };
 
-  // Обработка загрузки файла
-  const handleFileUpload = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click(); // Открытие окна выбора файла
-    }
-  };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setSelectedFile(file); // Сохраняем выбранный файл
-    }
-  };
-
   // Отправка данных на сервер
 const handleSubmit = () => {
   const requiredFields = [
@@ -156,14 +139,7 @@ const handleSubmit = () => {
   const formDataToSend = new FormData();
   formDataToSend.append("data", JSON.stringify(dataToSubmit));
 
-  // Добавляем файл, если он выбран
-  if (selectedFile) {
-    formDataToSend.append("file", selectedFile);
-  }
-
-  //UpdateEquipment(context.selectEquipment.id, dataToSubmit)//так не рааботает файл
-  UpdateEquipment(context.selectEquipment.id, formDataToSend)//так работает только файл
-    .then((response) => {
+  UpdateEquipment(context.selectEquipment.id, dataToSubmit).then((response) => {
       if (response?.status === 200) {
         context.setPopUp("PopUpGoodMessage");
         context.setPopupGoodText("Оборудование успешно обновлено!");
@@ -288,21 +264,6 @@ const handleSubmit = () => {
             />
           </div>
         </div>
-      </div>
-      {/* Загрузка файла */}
-      <div className={styles.pupUpFirstContainerInfoFile}>
-            <div className={styles.pupContainerInfoTitleFile}>
-              <p>Загрузить фото: {selectedFile?.name}</p>
-            </div>
-            <button onClick={handleFileUpload} className={styles.uploadButton}>
-              {"Выбрать файл"}
-            </button>
-            <input
-              type="file"
-              ref={fileInputRef}
-              style={{ display: "none" }}
-              onChange={handleFileChange}
-            />
       </div>
       {/* Кнопка */}
       <div className={styles.buttonSubmitBlock}>

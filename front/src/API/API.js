@@ -967,6 +967,51 @@ export const UpdateEquipment = async (id, data) => {
   }
 };
 
+//! Обновление фото оборудования
+export const UpdatePhotoEquipment = async (id, data) => {
+  console.log("data", data); // Для проверки структуры данных
+
+  try {
+    const response = await http.patch(`${server}/equipments/${id}/photo`, data, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+        // Заголовок Content-Type НЕ указываем вручную — axios сделает это автоматически
+      },
+    });
+
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.error("Ошибка при обновлении оборудования!", error.response || error);
+    }
+  }
+};
+
+//! Проведение ОТ оборудования
+export const TOEquipment = async (id, data) => {
+  try {
+    const response = await http.post(`${server}/equipments/${id}/tech`, data, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+        // Заголовок Content-Type НЕ указываем вручную — axios сделает это автоматически
+      },
+    });
+
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.error("Ошибка при обновлении оборудования!", error.response || error);
+    }
+  }
+};
+
+
+
+
 
 //!Получение оборудования ПО ID
 export const GetOneEquipment = async (id) => {

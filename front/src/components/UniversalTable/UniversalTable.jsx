@@ -70,16 +70,20 @@ function UniversalTable(props) {
 
   //! функция фильтрации
   function filterBasickData(data, chekeds) {
-    let tb = [...data];
-    let mass = [];
-    tb.filter((el) => {
-      if (chekeds.find((it) => el[it.itemKey] === it.value)) {
-        return;
-      } else {
-        mass.push(el);
-      }
-    });
-    return mass;
+    if(data){
+      let tb = [...data];
+      let mass = [];
+      tb?.filter((el) => {
+        if (chekeds.find((it) => el[it.itemKey] === it?.value)) {
+          return;
+        } else {
+          mass.push(el);
+        }
+      });
+      return mass;
+    }else{
+      return []
+    }
   }
 
   const getCountList = () => {
@@ -125,6 +129,7 @@ function UniversalTable(props) {
         return index + 1;
    
       case "repairPrice":
+        case "sum":
         return value.toLocaleString().replace(",", " ") || "___";
 
      
@@ -222,7 +227,10 @@ function UniversalTable(props) {
       keys === "supportFrequency" ||
       keys === "lastTOHuman" ||
       keys === "nextTOHuman" ||
-      keys === "planCompleteDate"
+      keys === "planCompleteDate" ||
+      keys === "countEquipment" || 
+      keys === "dateHuman" ||
+      keys === "sum"
     ) {
       return "center";
     }
@@ -303,8 +311,6 @@ function UniversalTable(props) {
 
   const getBgColorlastTOHuman = (key, lastTOHuman) => {
     if (key === "nextTOHuman") {
-      console.log('lastTOHuman', lastTOHuman);
-  
       // Преобразуем дату в объект Date
       const currentDate = new Date(); // текущая дата
       const nextTODate = new Date(lastTOHuman); // дата следующего ТО
@@ -316,12 +322,14 @@ function UniversalTable(props) {
       // Определяем цвет в зависимости от разницы
       if (diffInDays === 0) {
         return "#ffa500"; // оранжевый
-      } else if (diffInDays > 7) {
+      } else if (diffInDays >= 7) {
         return "#C5E384"; // зелёный
       } else if (diffInDays >= 1 && diffInDays <= 7) {
         return "#ffe78f"; // жёлтый
       } else if (diffInDays < 0) {
         return "#d69a81"; // красный
+      }else{
+        return "#C5E384";
       }
     }
   

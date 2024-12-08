@@ -69,12 +69,12 @@
                 }
                 .EquipmentImg {
                     margin: 0px 20px 20px 0px;
-                    width: 270px;
-                    height: 270px;
+                    width: 270px!important;
+                    height: 270px!important;
                   
-                    img {
-                      width: 100%; /* Растягивается до контейнера */
-                      height: 100%; /* Растягивается до контейнера */
+                    .EquipmentImgInnerPhotoOrig {
+                        width: 270px!important;
+                        height: 270px!important;
                       object-fit: cover; /* Масштабирование и обрезка */
                       border-radius: 8px; /* Для скругления углов, если нужно */
                     }
@@ -149,4 +149,69 @@
         // overflow-y: scroll;
         border: 1px solid #b7ab9eb6;
     }
+}
+.EquipmentImgInner{
+    position: relative;
+    .EquipmentImgInnerEdit{
+        width: 25px!important;
+        height: 25px!important;
+        cursor: pointer;
+        position: absolute;
+        right: 0;
+        top: 0;
+        transition: 0.1s linear all; 
+        z-index: 2;
+        &:hover{
+            opacity: 0.6;
+        }
+    }
+    .EquipmentImgInnerEditClose{
+        width: 18px!important;
+        height: 18px!important;
+        cursor: pointer;
+        position: absolute;
+        right: 4px;
+        top: 4px;
+        transition: 0.1s linear all; 
+        z-index: 2;
+        &:hover{
+            opacity: 0.6;
+        }
+    }
+}
+.pupUpFirstContainerInfo{
+    background-color: var(--turquoise-color);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 270px;
+    height: 270px;
+    border-radius: 8px ;
+    padding: 35px 10px;
+    box-sizing: border-box;
+    .pupUpFirstContainerInfoFile{
+        position: relative;
+        height: 100%;
+        button{
+          background-color: #000;
+          border: none;
+          border-radius: 8px;
+          color: #fff;
+          padding: 10px 20px;
+          transition: 0.1s linear all;
+          cursor: pointer;
+          &:hover{
+            opacity: 0.8;
+          }
+        }
+        .savePhotoButton{
+            button{
+                width: 100%;
+                position: absolute;
+                bottom: -10px;
+                box-sizing: border-box;
+            }
+        }
+    }
+  
 }

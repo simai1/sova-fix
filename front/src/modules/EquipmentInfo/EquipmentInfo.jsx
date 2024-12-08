@@ -1,11 +1,11 @@
 import UniversalTable from "../../components/UniversalTable/UniversalTable";
-import { useContext, useEffect, useState} from "react";
+import { useContext, useEffect, useRef, useState} from "react";
 import DataContext from "../../context";
 import styles from "./EquipmentInfo.module.scss"
 import { TestDataTable, tableHeaderEquipmentInfo } from "./dataEquipmentInfo";
 import { use } from "echarts";
 import { useLocation, useNavigate } from "react-router-dom";
-import { GetOneEquipment } from "../../API/API";
+import { GetOneEquipment, UpdateEquipment, UpdatePhotoEquipment } from "../../API/API";
 
 function EquipmentInfo() {
     const { context } = useContext(DataContext);
@@ -16,6 +16,7 @@ function EquipmentInfo() {
     const getData = () =>{
         const queryParams = new URLSearchParams(location.search);
         setIdEquipment(queryParams.get("idEquipment"));
+        context.setSelectEquipment(queryParams.get("idEquipment"))
     } 
 
     useEffect(() => {
@@ -27,7 +28,6 @@ function EquipmentInfo() {
     },[idEquipment])
 
     const getBgColorlastTOHuman = (lastTOHuman) => {    
-        console.log("lastTOHuman", lastTOHuman);
         if(lastTOHuman){
             // Преобразуем дату из формата DD.MM.YY в объект Date
             const [day, month, year] = lastTOHuman?.split('.').map(Number); // Разбиваем строку на части
@@ -44,7 +44,6 @@ function EquipmentInfo() {
             // Вычисляем разницу в днях
             const diffInMs = formattedDate - currentDate;
             const diffInDays = Math.ceil(diffInMs / (1000 * 60 * 60 * 24)); // округляем до ближайшего большего числа
-            console.log("diffInDays", diffInDays);
 
             // Определяем статус в зависимости от разницы
             if (diffInDays === 0) {
@@ -59,7 +58,35 @@ function EquipmentInfo() {
         }
        
       };
-      
+        const fileInputRef = useRef(null); // Для управления выбором файла
+       // Обработка загрузки файла
+       
+        const handleFileUpload = () => {
+            if (fileInputRef.current) {
+            fileInputRef.current.click(); // Открытие окна выбора файла
+            }
+        };
+
+        const handleFileChange = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+            setSelectedFile(file); // Сохраняем выбранный файл
+            }
+        };
+        const [selectedFile, setSelectedFile] = useState(null); // Хранение выбранного файла
+        const [popUpPhoto, setPopUpPhoto] = useState(false)
+        const submitPhoto = () =>{
+            const formData = new FormData();
+            formData.append("file", selectedFile);
+            UpdatePhotoEquipment(idEquipment, formData).then((response) => {
+                if(response?.status === 200){
+                    setSelectedFile(null)
+                    setPopUpPhoto(false)
+                    context.GetDataEquipment(idEquipment);
+                }
+            })
+        }
+        console.log("context.dataEquipment?.history", context.dataEquipment)
     return ( 
         
         <main className={styles.EquipmentInfo}>
@@ -72,7 +99,30 @@ function EquipmentInfo() {
                 <section className={styles.EquipmentSectionInfoFirst}>
                     <div className={styles.EquipmentblockInfoFirst}>
                         <div className={styles.EquipmentImg}>
-                            <img src={context.dataEquipment?.photo ? `${process.env.REACT_APP_API_URL}/uploads/${context.dataEquipment?.photo}` : "/img/noimage.jpg"}/>
+                            <div className={styles.EquipmentImgInner}>
+                                {!popUpPhoto ? <img className={styles.EquipmentImgInnerEdit} onClick={() => {setPopUpPhoto(!popUpPhoto)}} src="/img/edit.svg" /> : <img className={styles.EquipmentImgInnerEditClose}  onClick={() => {setPopUpPhoto(!popUpPhoto); setSelectedFile(null)}} src="/img/x.svg" />}
+                                <img className={styles.EquipmentImgInnerPhotoOrig} src={context.dataEquipment?.photo ? `${process.env.REACT_APP_API_URL}/uploads/${context.dataEquipment?.photo}` : "/img/noimage.jpg"}/>
+                            </div>
+                            {popUpPhoto &&
+                                <div className={styles.pupUpFirstContainerInfo}>
+                                 {/* Загрузка файла */}
+                                <div className={styles.pupUpFirstContainerInfoFile}>
+                                        <div className={styles.pupContainerInfoTitleFile}>
+                                        <p>Загрузить фото: {selectedFile?.name  || "Файл не выбран" }</p>
+                                        </div>
+                                        <button onClick={handleFileUpload} className={styles.uploadButton}>Выбрать файл</button>
+                                        <input
+                                            type="file"
+                                            ref={fileInputRef}
+                                            style={{ display: "none" }}
+                                            onChange={handleFileChange}
+                                        />
+                                        <div className={styles.savePhotoButton}>
+                                            <button onClick={() => submitPhoto()}>Сохранить</button>
+                                        </div>
+                                </div>
+                            </div>
+                            }
                         </div>
                         <div className={styles.paramInfoContainer}>
                             <div className={styles.marginInfo}>
@@ -102,15 +152,15 @@ function EquipmentInfo() {
                     <div className={styles.paramInfoContainer}>
                             <div className={styles.marginInfo}>
                                 <p className={styles.paramInfo}>Количество проведенных ТО:</p>
-                                <p className={styles.paramInfoSecond}>2</p>
+                                <p className={styles.paramInfoSecond}>{context.dataEquipment?.count}</p>
                             </div>
                             <div className={styles.marginInfo}>
                                 <p className={styles.paramInfo}>Общая стоимость проведенного ТО:</p>
-                                <p className={styles.paramInfoSecond}>2460 руб.</p>
+                                <p className={styles.paramInfoSecond}>{context.dataEquipment?.totalCost}</p>
                             </div>
                             <div className={styles.marginInfo}>
                                 <p className={styles.paramInfo}>Средняя стоимость проведения ТО:</p>
-                                <p className={styles.paramInfoSecond}>1230 руб.</p>
+                                <p className={styles.paramInfoSecond}>{context.dataEquipment?.cost}</p>
                             </div>
                             <div className={styles.marginInfo}>
                                 <p className={styles.paramInfo}>Период обслуживания: каждые:</p>
@@ -136,7 +186,7 @@ function EquipmentInfo() {
                                 <UniversalTable  
                                     tableName="table10"
                                     tableHeader={tableHeaderEquipmentInfo}
-                                    tableBody={TestDataTable}
+                                    tableBody={context?.dataEquipment?.history}
                                     selectFlag={false}
                                     FilterFlag={false}
                                     heightTable={365}

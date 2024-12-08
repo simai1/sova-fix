@@ -96,6 +96,8 @@
             width: 150px;
             height: 150px;
             transition: 0.1s all linear;
+            object-fit: cover; /* Масштабирование и обрезка */
+            border-radius: 4px; /* Для скругления углов, если нужно */
             &:hover{
               opacity: 0.4;
             }
