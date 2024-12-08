@@ -13,7 +13,7 @@ const {
     Equipment,
     ExtContractor,
     Nomenclature,
-    History,
+    TechService,
 } = models;
 
 export default function () {
@@ -62,12 +62,18 @@ export default function () {
     ExtContractor.hasMany(Equipment, { foreignKey: 'extContractorId' });
     Equipment.belongsTo(ExtContractor, { foreignKey: 'extContractorId' });
 
-    Equipment.hasMany(History, { foreignKey: 'equipmentId' });
-    History.belongsTo(Equipment, { foreignKey: 'equipmentId' });
-
     Category.hasMany(Nomenclature, { foreignKey: 'categoryId' });
     Nomenclature.belongsTo(Category, { foreignKey: 'categoryId' });
 
     Nomenclature.hasMany(Equipment, { foreignKey: 'nomenclatureId' });
     Equipment.belongsTo(Nomenclature, { foreignKey: 'nomenclatureId' });
+
+    Equipment.hasMany(TechService, { foreignKey: 'equipmentId' });
+    TechService.belongsTo(Equipment, { foreignKey: 'equipmentId' });
+
+    Contractor.hasMany(TechService, { foreignKey: 'contractorId' });
+    TechService.belongsTo(Contractor, { foreignKey: 'contractorId' });
+
+    ExtContractor.hasMany(TechService, { foreignKey: 'extContractorId' });
+    TechService.belongsTo(ExtContractor, { foreignKey: 'extContractorId' });
 }
