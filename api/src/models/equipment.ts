@@ -4,6 +4,7 @@ import ObjectDir from './object';
 import Contractor from './contractor';
 import ExtContractor from './externalContractor';
 import Nomenclature from './nomenclature';
+import TechService from './techService';
 
 export default class Equipment extends Model {
     id!: string;
@@ -24,6 +25,7 @@ export default class Equipment extends Model {
     contractorId?: string;
     ExtContractor?: ExtContractor;
     extContractorId?: string;
+    TechServices?: TechService[];
 
     static initialize(sequelize: Sequelize) {
         Equipment.init(

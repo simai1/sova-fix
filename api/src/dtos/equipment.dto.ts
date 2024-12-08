@@ -1,5 +1,6 @@
 import Equipment from '../models/equipment';
 import strftime from 'strftime';
+import TechServiceDto from './techService';
 
 export default class EquipmentDto {
     id!: string;
@@ -20,6 +21,7 @@ export default class EquipmentDto {
     object?: string | undefined;
     contractor?: string;
     extContractor?: string;
+    history?: object;
 
     constructor(model: Equipment) {
         this.id = model.id;
@@ -40,5 +42,9 @@ export default class EquipmentDto {
         this.extContractor = model.ExtContractor?.name;
         this.name = model.Nomenclature?.name;
         this.comment = model.Nomenclature?.comment;
+        this.history = model.TechServices
+            ? // @ts-expect-error operands
+              model.TechServices.map(ts => new TechServiceDto(ts)).sort((a, b) => new Date(b.date) - new Date(a.date))
+            : undefined;
     }
 }

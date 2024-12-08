@@ -8,6 +8,8 @@ import EquipmentDto from '../dtos/equipment.dto';
 import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
 import Nomenclature from '../models/nomenclature';
+import TechService from '../models/techService';
+import TechServiceDto from '../dtos/techService';
 
 const create = async (
     supportFrequency: number | undefined,
@@ -82,6 +84,7 @@ const getOne = async (equipmentId: string) => {
             { model: Contractor },
             { model: ExtContractor },
             { model: ObjectDir, include: [{ model: Unit }] },
+            { model: TechService },
         ],
     });
     if (!equipment) throw new ApiError(httpStatus.BAD_REQUEST, 'No equipment with id ' + equipmentId);
@@ -140,10 +143,59 @@ const update = async (
     });
 };
 
+const techServiceDo = async (
+    equipmentId: string,
+    date: Date,
+    contractorId: string | undefined,
+    extContractorId: string | undefined
+) => {
+    const equipment = await Equipment.findByPk(equipmentId);
+    if (!equipment) throw new ApiError(httpStatus.BAD_REQUEST, 'No equipment with id ' + equipmentId);
+    let contractor;
+    let extContractor;
+    if (contractorId) {
+        contractor = await Contractor.findByPk(contractorId);
+        if (!contractor) throw new ApiError(httpStatus.BAD_REQUEST, 'No contractor with id ' + contractorId);
+    }
+    if (extContractorId) {
+        extContractor = await ExtContractor.findByPk(extContractorId);
+        if (!extContractor) throw new ApiError(httpStatus.BAD_REQUEST, 'No extContractor with id ' + extContractorId);
+    }
+    const techService = await TechService.create({
+        equipmentId,
+        date,
+        contractorId,
+        extContractorId,
+        sum: equipment.count * equipment.cost,
+        countEquipment: equipment.count,
+    });
+    date = new Date(date);
+    date.setDate(date.getDate() + equipment.supportFrequency);
+
+    await update(
+        equipmentId,
+        undefined,
+        techService.date,
+        date,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined
+    );
+
+    if (contractorId) techService.Contractor = contractor;
+    if (extContractorId) techService.ExtContractor = extContractor;
+    return new TechServiceDto(techService);
+};
+
 export default {
     create,
     getAll,
     getOne,
     destroy,
     update,
+    techServiceDo,
 };

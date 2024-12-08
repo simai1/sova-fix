@@ -102,6 +102,17 @@ const update = catchAsync(async (req, res) => {
     res.json({ status: 'ok' });
 });
 
+const techServiceDo = catchAsync(async (req, res) => {
+    const { equipmentId } = req.params;
+    const { date, contractorId, extContractorId } = req.body;
+    if (!equipmentId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing equipment');
+    if (!date) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing date');
+    if (!contractorId && !extContractorId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing (ext)contractor');
+    if (contractorId && extContractorId) throw new ApiError(httpStatus.BAD_REQUEST, 'Required only one contractor');
+    const techService = await equipmentService.techServiceDo(equipmentId, date, contractorId, extContractorId);
+    res.json(techService);
+});
+
 export default {
     create,
     getAll,
@@ -109,4 +120,5 @@ export default {
     destroy,
     updatePhoto,
     update,
+    techServiceDo,
 };
