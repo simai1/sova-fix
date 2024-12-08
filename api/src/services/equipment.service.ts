@@ -147,6 +147,7 @@ const techServiceDo = async (
     equipmentId: string,
     date: Date,
     contractorId: string | undefined,
+    cost: number,
     extContractorId: string | undefined
 ) => {
     const equipment = await Equipment.findByPk(equipmentId);
@@ -166,7 +167,7 @@ const techServiceDo = async (
         date,
         contractorId,
         extContractorId,
-        sum: equipment.count * equipment.cost,
+        sum: equipment.count * cost,
         countEquipment: equipment.count,
     });
     date = new Date(date);
