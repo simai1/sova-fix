@@ -84,7 +84,7 @@ const getOne = async (equipmentId: string) => {
             { model: Contractor },
             { model: ExtContractor },
             { model: ObjectDir, include: [{ model: Unit }] },
-            { model: TechService },
+            { model: TechService, include: [{ model: ExtContractor }, { model: Contractor }] },
         ],
     });
     if (!equipment) throw new ApiError(httpStatus.BAD_REQUEST, 'No equipment with id ' + equipmentId);
