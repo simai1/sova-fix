@@ -7,6 +7,7 @@ export default class TechService extends Model {
     date!: Date;
     sum!: number;
     countEquipment!: number;
+    comment?: string;
     contractorId?: string;
     Contractor?: Contractor;
     extContractorId?: string;
@@ -33,6 +34,10 @@ export default class TechService extends Model {
                 countEquipment: {
                     type: DataTypes.INTEGER,
                     allowNull: false,
+                },
+                comment: {
+                    type: DataTypes.STRING,
+                    allowNull: true,
                 },
             },
             {

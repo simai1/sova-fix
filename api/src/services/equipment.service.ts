@@ -148,7 +148,8 @@ const techServiceDo = async (
     date: Date,
     contractorId: string | undefined,
     cost: number,
-    extContractorId: string | undefined
+    extContractorId: string | undefined,
+    comment: string | undefined
 ) => {
     const equipment = await Equipment.findByPk(equipmentId);
     if (!equipment) throw new ApiError(httpStatus.BAD_REQUEST, 'No equipment with id ' + equipmentId);
@@ -169,6 +170,7 @@ const techServiceDo = async (
         extContractorId,
         sum: equipment.count * cost,
         countEquipment: equipment.count,
+        comment,
     });
     date = new Date(date);
     date.setDate(date.getDate() + equipment.supportFrequency);

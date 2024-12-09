@@ -9,6 +9,7 @@ export default class TechServiceDto {
     contractor?: string;
     sum!: number;
     countEquipment!: number;
+    comment?: string;
 
     constructor(model: TechService) {
         this.id = model.id;
@@ -18,5 +19,6 @@ export default class TechServiceDto {
         this.contractor = model.Contractor ? model.Contractor.name : undefined;
         this.sum = model.sum;
         this.countEquipment = model.countEquipment;
+        this.comment = model.comment;
     }
 }
