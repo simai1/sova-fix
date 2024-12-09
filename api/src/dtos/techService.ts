@@ -6,7 +6,9 @@ export default class TechServiceDto {
     date!: Date;
     dateHuman!: string;
     extContractor?: string;
+    extContractorId?: string;
     contractor?: string;
+    contractorId?: string;
     sum!: number;
     countEquipment!: number;
     comment?: string;
@@ -16,7 +18,9 @@ export default class TechServiceDto {
         this.date = model.date;
         this.dateHuman = model.date ? strftime('%d.%m.%y', model.date) : '';
         this.extContractor = model.ExtContractor ? model.ExtContractor.name : undefined;
+        this.extContractorId = model.extContractorId;
         this.contractor = model.Contractor ? model.Contractor.name : undefined;
+        this.contractorId = model.contractorId;
         this.sum = model.sum;
         this.countEquipment = model.countEquipment;
         this.comment = model.comment;
