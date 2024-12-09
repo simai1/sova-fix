@@ -18,9 +18,9 @@ export default class TechServiceDto {
         this.date = model.date;
         this.dateHuman = model.date ? strftime('%d.%m.%y', model.date) : '';
         this.extContractor = model.ExtContractor ? model.ExtContractor.name : undefined;
-        this.extContractorId = model.extContractorId;
+        this.extContractorId = model.extContractorId ? model.extContractorId : undefined;
         this.contractor = model.Contractor ? model.Contractor.name : undefined;
-        this.contractorId = model.contractorId;
+        this.contractorId = model.contractorId ? model.contractorId : undefined;
         this.sum = model.sum;
         this.countEquipment = model.countEquipment;
         this.comment = model.comment;
