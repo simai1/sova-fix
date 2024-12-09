@@ -16,11 +16,10 @@ def repair_request_text(repair_reqest: dict) -> str:
 
 <b>👨‍🔧Исполнитель</b>: 
 👤{repair_reqest['contractor']['name'] if repair_reqest['contractor'] is not None else '<i>не указан</i>'}
-
+{f"\n<b>Плановая дата выполнения:</b> <u>{repair_reqest['planCompleteDate']}</u>\n" if repair_reqest['planCompleteDate'] else ""}
 <b>▶️Статус заявки</b>: {statuses_ru_with_emoji[repair_reqest['status']]}
 {("<b>💰Цена ремонта: </b>" + str(repair_reqest['repairPrice']) + "\n") if repair_reqest['repairPrice'] is not None else ""}
 <b>❗️Срочность</b>: <i>{repair_reqest['urgency']}</i>
-
 <b>💬Комментарии</b>:
 {repair_reqest['comment'] if repair_reqest['comment'] is not None else '<i>нет</i>'}
 """
