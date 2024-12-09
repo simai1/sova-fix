@@ -15,7 +15,7 @@ export default class EquipmentDto {
     photo?: string;
     count!: number;
     cost!: number;
-    totalCost!: number;
+    avgCost!: number;
     category?: string;
     unit?: string | null;
     object?: string | undefined;
@@ -33,8 +33,8 @@ export default class EquipmentDto {
         this.nextTOHuman = strftime('%d.%m.%y', model.nextTO);
         this.photo = model.photo;
         this.count = model.count;
-        this.cost = model.cost;
-        this.totalCost = model.count * model.cost;
+        this.cost = Math.round(model.cost);
+        this.avgCost = Math.round(model.cost / model.count);
         this.category = model.Nomenclature?.Category?.name;
         this.unit = model.Object?.Unit?.name;
         this.object = model.Object?.name;

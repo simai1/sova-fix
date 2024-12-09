@@ -168,12 +168,12 @@ const techServiceDo = async (
         date,
         contractorId,
         extContractorId,
-        sum: equipment.count * cost,
+        sum: cost,
         countEquipment: equipment.count,
         comment,
     });
     date.setDate(date.getDate() + equipment.supportFrequency);
-
+    const techServices = await TechService.findAll({ where: { equipmentId: equipment.id } });
     await update(
         equipmentId,
         undefined,
@@ -184,8 +184,8 @@ const techServiceDo = async (
         undefined,
         undefined,
         undefined,
-        undefined,
-        undefined
+        techServices.length,
+        techServices.reduce((acc, ts) => acc + ts.sum, 0)
     );
 
     if (contractorId) techService.Contractor = contractor;
