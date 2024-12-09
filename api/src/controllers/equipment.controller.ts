@@ -119,6 +119,13 @@ const techServiceDo = catchAsync(async (req, res) => {
     res.json(techService);
 });
 
+const getQr = catchAsync(async (req, res) => {
+    const { equipmentId } = req.params;
+    if (!equipmentId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing equipment');
+    const qr = await equipmentService.getOrGenerateQrCode(equipmentId);
+    res.json(qr);
+});
+
 export default {
     create,
     getAll,
@@ -127,4 +134,5 @@ export default {
     updatePhoto,
     update,
     techServiceDo,
+    getQr,
 };

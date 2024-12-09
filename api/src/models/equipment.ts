@@ -13,6 +13,7 @@ export default class Equipment extends Model {
     lastTO!: Date;
     nextTO!: Date;
     photo?: string;
+    qr?: string;
     count!: number;
     cost!: number;
     Nomenclature?: Nomenclature;
@@ -56,6 +57,10 @@ export default class Equipment extends Model {
                     allowNull: false,
                 },
                 photo: {
+                    type: DataTypes.STRING,
+                    allowNull: true,
+                },
+                qr: {
                     type: DataTypes.STRING,
                     allowNull: true,
                 },

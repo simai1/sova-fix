@@ -10,6 +10,9 @@ import httpStatus from 'http-status';
 import Nomenclature from '../models/nomenclature';
 import TechService from '../models/techService';
 import TechServiceDto from '../dtos/techService';
+import QRCode from 'qrcode-generator';
+import fs from 'node:fs';
+import { v4 } from 'uuid';
 
 const create = async (
     supportFrequency: number | undefined,
@@ -193,6 +196,28 @@ const techServiceDo = async (
     return new TechServiceDto(techService);
 };
 
+const getOrGenerateQrCode = async (equipmentId: string) => {
+    const equipment = await Equipment.findByPk(equipmentId);
+    if (!equipment) throw new ApiError(httpStatus.BAD_REQUEST, 'No equipment with id ' + equipmentId);
+    if (equipment.qr) return equipment.qr;
+    else {
+        const url = `${process.env.API_URL}/Equipment/EquipmentInfo?idEquipment=${equipmentId}`;
+        const qr = QRCode(6, 'L');
+        qr.addData(url);
+        qr.make();
+        const fileName = `${v4()}.svg`;
+        fs.writeFile(`./uploads/${fileName}`, qr.createSvgTag(), err => {
+            if (err) {
+                console.error('Ошибка записи файла:', err);
+                return;
+            }
+            console.log(`SVG QR-код успешно сохранен в файл: ${fileName}`);
+        });
+        await equipment.update({ qr: fileName });
+        return equipment.qr;
+    }
+};
+
 export default {
     create,
     getAll,
@@ -200,4 +225,5 @@ export default {
     destroy,
     update,
     techServiceDo,
+    getOrGenerateQrCode,
 };

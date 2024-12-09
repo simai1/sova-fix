@@ -13,6 +13,7 @@ export default class EquipmentDto {
     nextTOHuman!: string;
     comment?: string;
     photo?: string;
+    qr?: string;
     count!: number;
     cost!: number;
     avgCost!: number;
@@ -32,6 +33,7 @@ export default class EquipmentDto {
         this.nextTO = model.nextTO;
         this.nextTOHuman = strftime('%d.%m.%y', model.nextTO);
         this.photo = model.photo;
+        this.qr = model.qr;
         this.count = model.count;
         this.cost = Math.round(model.cost);
         this.avgCost = Math.round(model.cost / model.count);

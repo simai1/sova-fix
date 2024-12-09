@@ -31,6 +31,7 @@ const uploadImage = multer({
 router.route('/').get(equipmentController.getAll).post(uploadImage.single('file'), equipmentController.create);
 router.route('/:equipmentId/photo').patch(uploadImage.single('file'), equipmentController.updatePhoto);
 router.route('/:equipmentId/tech').post(equipmentController.techServiceDo);
+router.route('/:equipmentId/qr').get(equipmentController.getQr);
 router
     .route('/:equipmentId')
     .get(equipmentController.getOne)

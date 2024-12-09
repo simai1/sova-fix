@@ -44,7 +44,7 @@ if (!fs.existsSync(dir)) {
 
 // cron section
 cronService.setDays.start();
-cronService.removeUselessFiles.start();
+// cronService.removeUselessFiles.start();
 
 // routes section
 app.use('/auth', authRoute);
