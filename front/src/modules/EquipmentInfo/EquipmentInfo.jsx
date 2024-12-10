@@ -5,7 +5,8 @@ import styles from "./EquipmentInfo.module.scss"
 import { TestDataTable, tableHeaderEquipmentInfo } from "./dataEquipmentInfo";
 import { use } from "echarts";
 import { useLocation, useNavigate } from "react-router-dom";
-import { GetOneEquipment, UpdateEquipment, UpdatePhotoEquipment } from "../../API/API";
+import { GetOneEquipment, GetQrEquipment, UpdateEquipment, UpdatePhotoEquipment } from "../../API/API";
+import { saveAs } from "file-saver";
 
 function EquipmentInfo() {
     const { context } = useContext(DataContext);
@@ -27,7 +28,8 @@ function EquipmentInfo() {
         context.GetDataEquipment(idEquipment)   
     },[idEquipment])
 
-    const getBgColorlastTOHuman = (lastTOHuman) => {    
+    const getBgColorlastTOHuman = (lastTOHuman) => {   
+        
         if(lastTOHuman){
             // Преобразуем дату из формата DD.MM.YY в объект Date
             const [day, month, year] = lastTOHuman?.split('.').map(Number); // Разбиваем строку на части
@@ -86,13 +88,30 @@ function EquipmentInfo() {
                 }
             })
         }
-        console.log("context.dataEquipment?.history", context.dataEquipment)
+
+    const getQRCodeEquipment = () => {
+        GetQrEquipment(idEquipment).then((response) => {
+            if (response?.status === 200) {
+              const imageUrl = `${process.env.REACT_APP_API_URL}/uploads/${response.data}`;
+              const fileName = `QRCode_${context.dataEquipment?.name}.svg`;
+        
+              // Скачиваем файл
+              fetch(imageUrl)
+                .then((res) => res.blob())
+                .then((blob) => {
+                  saveAs(blob, fileName);
+                })
+                .catch((error) => console.error("Ошибка скачивания изображения:", error));
+            }
+          });
+    }
+
     return ( 
         
         <main className={styles.EquipmentInfo}>
             <div className={styles.EquipmentInfoBlockTopButton}>
                 <button>Экспорт</button>
-                <button>Сгенерировать QR-код</button>
+                <button onClick={() => {getQRCodeEquipment()}}>Сгенерировать QR-код</button>
                 <button onClick={() => {context.setPopUp("PopUpEditEquipment")}}>Редактировать</button>
             </div>     
             <div className={styles.EquipmentblockInfo}>
@@ -156,7 +175,7 @@ function EquipmentInfo() {
                             </div>
                             <div className={styles.marginInfo}>
                                 <p className={styles.paramInfo}>Общая стоимость проведенного ТО:</p>
-                                <p className={styles.paramInfoSecond}>{context.dataEquipment?.totalCost}</p>
+                                <p className={styles.paramInfoSecond}>{context.dataEquipment?.avgCost}</p>
                             </div>
                             <div className={styles.marginInfo}>
                                 <p className={styles.paramInfo}>Средняя стоимость проведения ТО:</p>
@@ -193,14 +212,14 @@ function EquipmentInfo() {
                                 />
                             </div>
                     </div>
-                    <div className={styles.CommentTo}>
+                    {/* <div className={styles.CommentTo}>
                         <div className={styles.TitleSecondBlock}>
                             <p>Комментарии</p>
                         </div>
                         <div className={styles.CommentToBlock}>
 
                         </div>
-                    </div>
+                    </div> */}
                 </section>
             </div> 
         </main>  

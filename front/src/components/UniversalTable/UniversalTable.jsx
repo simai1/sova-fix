@@ -310,15 +310,17 @@ function UniversalTable(props) {
   };
 
   const getBgColorlastTOHuman = (key, lastTOHuman) => {
+    console.log("lastTO", lastTOHuman);
     if (key === "nextTOHuman") {
       // Преобразуем дату в объект Date
       const currentDate = new Date(); // текущая дата
-      const nextTODate = new Date(lastTOHuman); // дата следующего ТО
-  
+      const [day, month, year] = lastTOHuman?.split('.').map(Number); // Разбиваем строку на части
+      const formattedDate = new Date(`20${year}`, month - 1, day); // Создаем объект Date (добавляем "20" для года)
+
       // Вычисляем разницу в днях
-      const diffInMs = nextTODate - currentDate;
+      const diffInMs = formattedDate - currentDate;
       const diffInDays = Math.ceil(diffInMs / (1000 * 60 * 60 * 24)); // округляем до ближайшего большего числа
-  
+
       // Определяем цвет в зависимости от разницы
       if (diffInDays === 0) {
         return "#ffa500"; // оранжевый
@@ -328,8 +330,6 @@ function UniversalTable(props) {
         return "#ffe78f"; // жёлтый
       } else if (diffInDays < 0) {
         return "#d69a81"; // красный
-      }else{
-        return "#C5E384";
       }
     }
   
@@ -440,7 +440,9 @@ function UniversalTable(props) {
                   }
                 >
         {header.key !== "role" ? (
-          <span style={{ padding: header.key === "nextTOHuman" ? "5px 10px" : "0px", borderRadius: "5px", backgroundColor: getBgColorlastTOHuman(header.key, row[header.key])}} >{getValue(row[header.key], header.key, rowIndex, row)}</span>
+          header.key === "nextTOHuman" ?
+          <span style={{ padding: header.key === "nextTOHuman" ? "5px 10px" : "0px", borderRadius: "5px", backgroundColor: getBgColorlastTOHuman(header.key, row[header.key])}} >{getValue(row[header.key], header.key, rowIndex, row)}</span> : 
+          getValue(row[header.key], header.key, rowIndex, row)
       ) : (
             <div key={rowIndex} className={styles.RoleClick}>
               <div

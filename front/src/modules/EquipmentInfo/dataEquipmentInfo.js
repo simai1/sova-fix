@@ -1,8 +1,9 @@
 export const tableHeaderEquipmentInfo= [
-    { key: "countEquipment", value: "Номер"},
+    { key: "id", value: "Номер"},
     { key: "contractor", value: "Обслуживающий подрядчик"},
     { key: "sum", value: "сумма ТО"},
     { key: "dateHuman", value: "Дата ТО"},
+    {key: "comment", value:"Комментарий", isActive: true},
 ];
 
 export const TestDataTable = [

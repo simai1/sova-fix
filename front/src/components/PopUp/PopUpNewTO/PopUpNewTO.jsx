@@ -67,7 +67,7 @@ function PopUpNewTO() {
       };
     
   return (
-    <PopUpContainer width={true} title={"Новое техническое обслуживание"} mT={150}>
+    <PopUpContainer width={true}  title={"Новое техническое обслуживание"} mT={150} >
       <div className={styles.PopUpNewTO}>
         <div className={styles.pupUpFirstContainer}>
           <div className={styles.pupUpFirstContainerInfo}>

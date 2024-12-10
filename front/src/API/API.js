@@ -1067,6 +1067,24 @@ export const CreateEquipment = async (data) => {
   }
 };
 
+export const GetQrEquipment = async (id) => {
+  try {
+    const response = await http.get(`${server}/equipments/${id}/qr`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при удалении номенклатуры!");
+    }
+  }
+}
+
+
 // BlockTo  --------------------------------------------------------------------------------------------------/Categories
 
 //!Получение списка категорий
