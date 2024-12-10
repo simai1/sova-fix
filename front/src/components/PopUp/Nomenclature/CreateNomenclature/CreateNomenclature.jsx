@@ -87,19 +87,6 @@ function CreateNomenclature() {
                 onChange={handleInputChange}
               />
             </div>
-            {/* Поле для ввода комментария */}
-            <div className={styles.pupUpFirstContainerInfo}>
-              <div className={styles.pupContainerInfoTitle}>
-                <p>Комментарий:</p>
-              </div>
-              <input
-                name="comment"
-                placeholder="Комментарий"
-                className={styles.commentBlockInput}
-                value={formData.comment}
-                onChange={handleInputChange}
-              />
-            </div>
             {/* Выпадающий список для выбора категории */}
             <div className={styles.pupUpFirstContainerInfo}>
               <div className={styles.pupContainerInfoTitle}>
@@ -114,6 +101,19 @@ function CreateNomenclature() {
                 isActive={activeDropdown === "categoryId"}
                 toggleDropdown={() => toggleDropdown("categoryId")}
                 width="270px"
+              />
+            </div>
+             {/* Поле для ввода комментария */}
+             <div className={styles.pupUpFirstContainerInfo}>
+              <div className={styles.pupContainerInfoTitle}>
+                <p>Комментарий:</p>
+              </div>
+              <input
+                name="comment"
+                placeholder="Комментарий"
+                className={styles.commentBlockInput}
+                value={formData.comment}
+                onChange={handleInputChange}
               />
             </div>
           </div>
