@@ -78,7 +78,7 @@ function PopUpEditAppoint(props) {
   useEffect(() => {
     if (dataApStart) {
       setdataApointment({
-        contractorId: dataApStart?.builder === "Внешний подрядчик" ? "Внешний подрядчик" : dataApStart?.contractor?.id,
+        contractorId: dataApStart?.isExternal  ? "Внешний подрядчик" : dataApStart?.contractor?.id,
         builder: dataApStart?.builder === "Внешний подрядчик" ? "Не назначен" : dataApStart?.builder,
         status: dataApStart?.status,
         planCompleteDate:  DateplanCompleteDate,
@@ -122,8 +122,9 @@ function PopUpEditAppoint(props) {
   const EditAppoint = () => {
     const urgencyName = getUrgencyNameById(dataApointment.urgency);
     const newplanCompleteDate = new Date(dataApointment.planCompleteDate);
-
-    const updatedDataApointment = { ...dataApointment, urgency: urgencyName, planCompleteDate: newplanCompleteDate };
+    // const builderNew = dataBuilder.find((item) => item.name === dataApointment.builder)?.id; builder: builderNew 
+    const { contractorId, builder, ...dataToSend } = dataApointment;
+    const updatedDataApointment = { ...dataToSend, urgency: urgencyName, planCompleteDate: newplanCompleteDate};
     ReseachDataRequest(selectId, updatedDataApointment).then((resp) => {
       if (resp?.status === 200) {
         context.UpdateTableReguest(1);
@@ -190,7 +191,9 @@ function PopUpEditAppoint(props) {
     setModalImage(null);
   };
 
-  
+  useEffect(() => {
+    console.log("dataApointment.contractorId", dataApStart)
+  },[dataApStart])
  
   return (
     <PopUpContainer width={true} title={"Редактирование заявки"} mT={75}>
