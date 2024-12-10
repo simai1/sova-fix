@@ -104,7 +104,7 @@ function ListInput(props) {
             ))}
 
             {props.name === "contractorId" &&
-              <p style={{marginLeft: "8px"}} onClick={() =>setPerformersDirectory()}>Внешний подрядчик</p>
+              <p className={styles.NameForList} style={{marginLeft: "8px"}} onClick={() =>setPerformersDirectory()}>Внешний подрядчик</p>
             }
           </div>
         )}
