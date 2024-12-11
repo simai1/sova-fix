@@ -17,7 +17,6 @@ import СonfirmDelete from "./../СonfirmDelete/СonfirmDelete";
 import Contextmenu from "../../UI/Contextmenu/Contextmenu";
 import SamplePoints from "../SamplePoints/SamplePoints";
 import FilteImg from "./../../assets/images/filterColumn.svg";
-import { funFixEducator } from "../../UI/SamplePoints/Function";
 function Table() {
   const { context } = useContext(DataContext);
   const [actiwFilter, setActiwFilter] = useState(null);
@@ -124,6 +123,7 @@ function Table() {
       requestId: id,
       status: status,
     };
+    console.log("data", data)
     SetStatusRequest(data).then((resp) => {
       if (resp?.status === 200) {
         context.UpdateTableReguest(1);
@@ -219,6 +219,20 @@ function Table() {
     SetcontractorRequest(data).then((resp) => {
       if (resp?.status === 200) {
         context.UpdateTableReguest(1);
+      }
+    });
+  };
+
+  const SetCountCard = (el, idAppoint) => {
+    const idInteger = context.dataContractors.find(
+      (el) => el.name === context?.tableData[0].contractor.name
+    )?.id;
+    const data = {
+      itineraryOrder: el,
+    };
+    ReseachDataRequest(idAppoint, data).then((resp) => {
+      if (resp?.status === 200) {
+        context.UpdateTableReguest(3, idInteger);
       }
     });
   };
@@ -453,8 +467,11 @@ function Table() {
   };
 
   const getItemBuilder = (row) => {
-    if (row?.extContractor && row?.isExternal) {
-      return row?.extContractor?.name;
+    if(row?.builder === "Внешний подрядчик"){
+      return "Не назначен";
+    }
+    if (row?.builder && row?.isExternal) {
+      return row?.builder;
     } else {
       return "Не назначен";
     }
@@ -538,45 +555,14 @@ const isVideo = (fileName) => {
     const data = {
       planCompleteDate: new Date(date)
     }
+    console.log("data", data)
     ReseachDataRequest(id, data).then((resp) => {
       if (resp?.status === 200) {
         context.UpdateTableReguest(1);
       }
     });
   }
-
-  const containerRef = useRef(null);
   
-   //! при событии скролл таблицы изменим индекс первого показываемого tr
-   const handleScroll = (e) => {
-    const maxStartData =
-    dataTable.length - context.visibleData;
-      context.setStartData(
-      Math.max(
-        0,
-        Math.min(
-          Math.floor(e.target.scrollTop / context.heightTd),
-          maxStartData
-        )
-      )
-    );
-  };
-
-    //! определение верхнего отступа таблицы
-    const getTopHeight = () => {
-      return context.startData * context.heightTd;
-    };
-  
-    //! определение нижнего отступа таблицы
-    const getBottomHeight = () => {
-      return (
-        (dataTable.length -
-          context.startData -
-          context.visibleData) *
-          context.heightTd
-      );
-    };
-
   return (
     <div className={styles.TableWrapper}>
       <div
@@ -584,9 +570,8 @@ const isVideo = (fileName) => {
         style={{
           overflow: dataTable.length === 0 ? "hidden" : "auto",
         }}
-        onScroll={handleScroll}
       >
-        <table className={styles.TableInner} ref={containerRef}>
+        <table className={styles.TableInner}>
           {context.selectedTable === "Заявки" &&
           context.selectPage === "Main" ? (
             <thead>
@@ -651,14 +636,10 @@ const isVideo = (fileName) => {
                             }}
                           >
                             <SamplePoints
-                              // basickData={context.dataTableFix} // нефильтрованные данные
-                              // tableBodyData={filterBasickData(context.dataTableFix, store)} // фильтрованные данные
-                              basickData={context.dataApointment} // нефильтрованные данные
-                              tableBodyData={filterBasickData(funFixEducator(context.dataApointment), store)} // фильтрованные данные
-                              
-
+                              basickData={context.dataTableFix} // нефильтрованные данные
+                              tableBodyData={filterBasickData(context.dataTableFix, store)} // фильтрованные данные
                               punkts={[
-                                ...funFixEducator(context.dataApointment).map((it) =>
+                                ...dataTable.map((it) =>
                                   it[item.key] === null ? "___" : it[item.key]
                                 ),
                                 ...store
@@ -672,6 +653,21 @@ const isVideo = (fileName) => {
                               tableName={"table9"}
                             />
                           </div>
+                          // <SamplePoints
+                          //   index={index + 1}
+                          //   actiwFilter={actiwFilter}
+                          //   itemKey={item.key}
+                          //   isSamplePointsData={context.isSamplePointsData.map(
+                          //     (el) => (el === null ? "___" : el)
+                          //   )}
+                          //   isAllChecked={context.isAllChecked}
+                          //   isChecked={context.isChecked}
+                          //   setIsChecked={context.setIsChecked}
+                          //   workloadData={context.dataTableFix}
+                          //   setWorkloadDataFix={context.setFilteredTableData}
+                          //   setSpShow={setActiwFilter}
+                          //   sesionName={`isCheckedFilter`}
+                          // />
                         )}
                         {store.find((elem) => elem.itemKey === item.key) && (
                             <img src={FilteImg} />
@@ -699,21 +695,12 @@ const isVideo = (fileName) => {
               </tr>
             </thead>
           )}
-          <tbody id="data-table">
+          <tbody>
             {dataTable.length > 0 ? (
               <>
-              <tr
-                key={"tr2"}
-                className={styles.trPlug}
-                style={{ height: getTopHeight() }}
-              ></tr>
-                {dataTable?.slice(
-              context.startData,
-              context.startData + context.visibleData
-            )?.map((row, index) => (
-                  
+                {dataTable?.map((row, index) => (
                   <tr
-                    key={index+row.id}
+                    key={index}
                     style={{
                       backgroundColor: row.copiedRequestId !== null ? "#ffe78f" : "",
                     }}
@@ -1094,6 +1081,53 @@ const isVideo = (fileName) => {
                               </div>
                             )}
                           </div>
+                        ) : headerItem.key === "itineraryOrder" ? (
+                          <div
+                            onClick={() =>
+                              context.selectPage !== "Main" &&
+                              funSetItineraryOrder(row.id)
+                            }
+                            className={
+                              context.selectPage !== "Main"
+                                ? styles.statusClick
+                                : styles.NostatusClick
+                            }
+                            ref={ItineraryOrderPopRef}
+                          >
+                            {row[headerItem.key] !== null
+                              ? row[headerItem.key]
+                              : "___"}
+                            {itineraryOrderPop === row.id && (
+                              <div
+                                className={styles.shovStatusPop}
+                                style={
+                                  checkHeights(dataTable, index)
+                                    ? {
+                                        top: "-10%",
+                                        right: "100px",
+                                        width: "auto",
+                                      }
+                                    : { width: "auto" }
+                                }
+                              >
+                                <ul>
+                                  {arrCount?.map((el) => {
+                                    return (
+                                      <li
+                                        key={el}
+                                        onClick={(event) =>
+                                          SetCountCard(el, row.id)
+                                        }
+                                      >
+                                        {" "}
+                                        {el}
+                                      </li>
+                                    );
+                                  })}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
                         ) : (
                           <p
                             style={{
@@ -1111,13 +1145,7 @@ const isVideo = (fileName) => {
                     ))}
                   </tr>
                 ))}
-                <tr
-              key={"tr3"}
-              className={styles.trPlug}
-              style={{ height: getBottomHeight() }}
-            ></tr>
               </>
-              
             ) : (
               <tr>
                 <td colSpan={21} className={styles.tableNotData}></td>
