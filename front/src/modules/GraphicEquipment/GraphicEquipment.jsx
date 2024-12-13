@@ -23,6 +23,15 @@ function GraphicEquipment() {
         }
     }
 
+    const NewToChecker = () => {
+        if(context.selectedTr !== null){
+            context.setPopUp("PopUpNewTO")
+        }else{
+            context.setPopupErrorText("Сначала выберите оборудование!");
+            context.setPopUp("PopUpError")
+        }
+    }
+
     return ( 
        
         <div className={styles.GraphicEquipment}>
@@ -31,7 +40,7 @@ function GraphicEquipment() {
                     <h3>Графики ТО</h3>
                 </div>
                 <div className={styles.GraphicEquipmentButtonInner}>
-                    {/* <button>Проведено ТО</button> */}
+                    <button onClick={()=> {NewToChecker()}}>Проведено ТО</button>
                     <button onClick={()=> context.setPopUp("PopUpNewEquipment")}>Добавить оборудование</button>
                     <button onClick={() => {deleteEquipment()}}>Удалить оборудование</button>
                     <button onClick={() => generateAndDownloadExcel(context?.dataEquipments, "Оборудование")}>Экспорт</button>

@@ -7,6 +7,7 @@ import { use } from "echarts";
 import { useLocation, useNavigate } from "react-router-dom";
 import { GetOneEquipment, GetQrEquipment, UpdateEquipment, UpdatePhotoEquipment } from "../../API/API";
 import { saveAs } from "file-saver";
+import { generateAndDownloadExcelEquipment } from "./function";
 
 function EquipmentInfo() {
     const { context } = useContext(DataContext);
@@ -110,7 +111,7 @@ function EquipmentInfo() {
         
         <main className={styles.EquipmentInfo}>
             <div className={styles.EquipmentInfoBlockTopButton}>
-                <button>Экспорт</button>
+                <button onClick={() => {generateAndDownloadExcelEquipment(context?.dataEquipment)}}>Экспорт</button>
                 <button onClick={() => {getQRCodeEquipment()}}>Сгенерировать QR-код</button>
                 <button onClick={() => {context.setPopUp("PopUpEditEquipment")}}>Редактировать</button>
             </div>     

@@ -38,7 +38,7 @@ function PopUpNewTO() {
   // Обработчик отправки данных
   const handleSubmit = () => {
     const data = {
-        equipmentld: context?.selectEquipment?.id,
+        equipmentld: context?.selectEquipment?.id || context?.selectedTr,
         date: formData.date,
         contractorId: formData.contractorId,
         cost: formData.cost,
@@ -49,6 +49,7 @@ function PopUpNewTO() {
             context.setPopUp("PopUpGoodMessage");
             context.setPopupGoodText("Техническое обслуживание успешно создано!");
             context.GetDataEquipment(context?.selectEquipment?.id);
+            context.UpdateDataEquipment()
         }
     })
   };
