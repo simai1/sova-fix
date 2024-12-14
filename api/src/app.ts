@@ -44,6 +44,7 @@ if (!fs.existsSync(dir)) {
 
 // cron section
 cronService.setDays.start();
+cronService.autoRequests.start();
 // cronService.removeUselessFiles.start();
 
 // routes section
