@@ -3,7 +3,9 @@ import styles from "./RangeEquipment.module.scss";
 import DataContext from "../../context";
 import { headerTableNumenclature } from "./dataRange";
 import UniversalTable from "../../components/UniversalTable/UniversalTable";
-
+import ClearImg from "./../../assets/images/ClearFilter.svg";
+import { useDispatch } from "react-redux";
+import { resetFilters } from "../../store/samplePoints/samplePoits";
 function RangeEquipment() {
 
     const { context } = useContext(DataContext);
@@ -29,14 +31,20 @@ function RangeEquipment() {
             context.setPopUp("PopUpError")
         }
     }
-
+    const dispatch = useDispatch();
+    
     return ( 
         <div className={styles.RangeEquipment}>
-        
-       
             <div className={styles.RangeEquipmentButton}>
                 <div>
-                    <h3>Номенклатура</h3>
+                <div className={styles.RangeEquipmentTop}>
+                    <div>
+                        <h3>Номенклатура</h3>
+                    </div>
+                    <div className={styles.clear}>
+                        <button onClick={() => dispatch(resetFilters({tableName: "table13"}))} ><img src={ClearImg} /></button>
+                    </div>
+                </div>
                 </div>
                 <div className={styles.RangeEquipmentButtonInner}>
                     <button onClick={()=> context.setPopUp("CreateNomenclature")}>Добавить</button>
@@ -45,7 +53,7 @@ function RangeEquipment() {
                 </div>
             </div>
             <div>
-            <UniversalTable FilterFlag={false} tableName="table5" tableHeader={headerTableNumenclature} tableBody={context?.dataNomenclature} selectFlag={true}/>
+            <UniversalTable FilterFlag={true} tableName="table13" tableHeader={headerTableNumenclature} tableBody={context?.dataNomenclature} selectFlag={true}/>
 
             </div>
     </div>

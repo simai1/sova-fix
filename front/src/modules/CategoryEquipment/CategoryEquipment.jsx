@@ -4,7 +4,9 @@ import styles from "./CategoryEquipment.module.scss";
 import UniversalTable from "../../components/UniversalTable/UniversalTable";
 import { headerTableCategory } from "./dataEquipmentCategory";
 import { DeleteCategories } from "../../API/API";
-
+import ClearImg from "./../../assets/images/ClearFilter.svg";
+import { useDispatch } from "react-redux";
+import { resetFilters } from "../../store/samplePoints/samplePoits";
 function CategoryEquipment() {
     const { context } = useContext(DataContext);
 
@@ -30,12 +32,19 @@ function CategoryEquipment() {
             context.setPopUp("PopUpError")
         }
     }
-
+    const dispatch = useDispatch();
     return ( 
         <div className={styles.CategoryEquipment}>
         <div className={styles.CategoryEquipmentButton}>
             <div>
-                <h3>Категории оборудрования</h3>
+                <div className={styles.CategoryEquipmentTop}>
+                    <div>
+                        <h3>Категории оборудрования</h3>
+                    </div>
+                    <div className={styles.clear}>
+                        <button onClick={() => dispatch(resetFilters({tableName: "table12"}))} ><img src={ClearImg} /></button>
+                    </div>
+                </div>
             </div>
             <div className={styles.CategoryEquipmentButtonInner}>
                 <button onClick={()=> context.setPopUp("CreateCategory")}>Добавить</button>
@@ -45,7 +54,7 @@ function CategoryEquipment() {
             
         </div>
         <div>
-            <UniversalTable FilterFlag={false} tableName="table5" tableHeader={headerTableCategory} tableBody={context?.dataCategory} selectFlag={true}/>
+            <UniversalTable FilterFlag={true} tableName="table12" tableHeader={headerTableCategory} tableBody={context?.dataCategory} selectFlag={true}/>
 
         </div>
     </div>
