@@ -27,7 +27,7 @@ function GraphicEquipment() {
 
     const NewToChecker = () => {
         if(context.selectedTr !== null){
-            context.setPopUp("PopUpNewTO")
+            context.setPopUp("PopUpToGraphic")
         }else{
             context.setPopupErrorText("Сначала выберите оборудование!");
             context.setPopUp("PopUpError")

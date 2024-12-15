@@ -16,6 +16,7 @@ import PopUpDeleteCategory from "../../../components/PopUp/Category/PopUpDeleteC
 import PopUpNewEquipment from "../../../components/PopUp/Equipment/PopUpNewEquipment/PopUpNewEquipment";
 import PopUpDeleteEquipment from "../../../components/PopUp/Equipment/PopUpDeleteEquipment/PopUpDeleteEquipment";
 import PopUpEditEquipment from "../../../components/PopUp/Equipment/PopUpEditEquipment/PopUpEditEquipment";
+import PopUpToGraphic from "../../../components/PopUp/PopUpToGraphic/PopUpToGraphic";
 
 function Equipment() {
 
@@ -40,6 +41,7 @@ function Equipment() {
             {context.popUp === "EditNomenclature" && <EditNomenclature />}
             {context.popUp === "PopUpDeleteCategory" && <PopUpDeleteCategory />}
             {context.popUp === "PopUpEditEquipment" && <PopUpEditEquipment />}
+            {context.popUp === "PopUpToGraphic" && <PopUpToGraphic />}
         </div>
      );
 }

@@ -176,11 +176,11 @@ function EquipmentInfo() {
                             </div>
                             <div className={styles.marginInfo}>
                                 <p className={styles.paramInfo}>Общая стоимость проведенного ТО:</p>
-                                <p className={styles.paramInfoSecond}>{context.dataEquipment?.avgCost}</p>
+                                <p className={styles.paramInfoSecond}>{context.dataEquipment?.cost}</p>
                             </div>
                             <div className={styles.marginInfo}>
                                 <p className={styles.paramInfo}>Средняя стоимость проведения ТО:</p>
-                                <p className={styles.paramInfoSecond}>{context.dataEquipment?.cost}</p>
+                                <p className={styles.paramInfoSecond}>{context.dataEquipment?.avgCost}</p>
                             </div>
                             <div className={styles.marginInfo}>
                                 <p className={styles.paramInfo}>Период обслуживания: каждые:</p>
