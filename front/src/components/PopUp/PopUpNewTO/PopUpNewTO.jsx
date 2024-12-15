@@ -39,7 +39,7 @@ function PopUpNewTO() {
   const handleSubmit = () => {
     const data = {
         equipmentld: context?.selectEquipment?.id || context?.selectedTr,
-        date: formData.date,
+        date: new Date(formData.date),
         contractorId: formData.contractorId,
         cost: formData.cost,
         comment: formData.comment
