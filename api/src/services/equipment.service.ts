@@ -148,6 +148,7 @@ const update = async (
 
 const techServiceDo = async (
     equipmentId: string,
+    date: Date,
     contractorId: string | undefined,
     cost: number,
     extContractorId: string | undefined,
@@ -165,7 +166,6 @@ const techServiceDo = async (
         extContractor = await ExtContractor.findByPk(extContractorId);
         if (!extContractor) throw new ApiError(httpStatus.BAD_REQUEST, 'No extContractor with id ' + extContractorId);
     }
-    const date = new Date();
     const techService = await TechService.create({
         equipmentId,
         date,
