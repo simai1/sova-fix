@@ -51,13 +51,16 @@ function UniversalTable(props) {
       event.target.localName === "th" &&
       key !== "number" &&
       key !== "tgId" &&
+      key !== "info" &&
       key !== "login" &&
       key !== "checkPhoto" &&
       key !== "photo" &&
       key !== "fileName" &&
       key !== "problemDescription" &&
       key !== "id" && 
-      key !== "repairPrice"
+      key !== "repairPrice" &&
+      key !== "supportFrequency"
+
     ) {
       if (sampleShow === index) {
         setSampleShow(null);
@@ -337,7 +340,6 @@ function UniversalTable(props) {
     return null;
   };
 
-
   return (
     <div
       className={styles.UniversalTable}
@@ -363,6 +365,8 @@ function UniversalTable(props) {
                 el.key !== "checkPhoto" &&
                 el.key !== "id" &&
                 el.key !== "tgId" &&
+                el.key !== "info" &&
+                el.key !== "supportFrequency" &&
                 el.key !== "login" &&
                 el.key !== "photo" &&
                 el.key !== "problemDescription" &&
@@ -381,6 +385,7 @@ function UniversalTable(props) {
                   className={styles.sampleComponent}
                   ref={contextmenuRef}
                   style={{
+                    marginTop: props?.tableName==="table11" ? "50px" : "0px",
                     top: `${props?.top}px`,
                     left: `-${whatRight(el.key)}px`,
                     position: "absolute",

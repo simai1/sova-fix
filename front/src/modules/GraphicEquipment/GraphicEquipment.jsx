@@ -5,7 +5,9 @@ import { GetAllEquipment } from "../../API/API";
 import UniversalTable from "../../components/UniversalTable/UniversalTable";
 import { headerTableEquipment } from "./dataEquipment";
 import { generateAndDownloadExcel } from "../../function/function";
-
+import { useDispatch } from "react-redux";
+import { resetFilters } from "../../store/samplePoints/samplePoits";
+import ClearImg from "./../../assets/images/ClearFilter.svg";
 function GraphicEquipment() {
 
     const { context } = useContext(DataContext);
@@ -31,13 +33,19 @@ function GraphicEquipment() {
             context.setPopUp("PopUpError")
         }
     }
+    const dispatch = useDispatch();
 
     return ( 
        
         <div className={styles.GraphicEquipment}>
             <div className={styles.GraphicEquipmentButton}>
-                <div>
-                    <h3>Графики ТО</h3>
+                <div className={styles.GraphicEquipmentTop}>
+                    <div>
+                        <h3>Графики ТО</h3>
+                    </div>
+                    <div className={styles.clear}>
+                        <button onClick={() => dispatch(resetFilters({tableName: "table11"}))} ><img src={ClearImg} /></button>
+                    </div>
                 </div>
                 <div className={styles.GraphicEquipmentButtonInner}>
                     <button onClick={()=> {NewToChecker()}}>Проведено ТО</button>
@@ -47,7 +55,7 @@ function GraphicEquipment() {
                 </div>
             </div>
             <div>
-                <UniversalTable FilterFlag={false} tableName="table5" tableHeader={headerTableEquipment} tableBody={context?.dataEquipments} selectFlag={true}/>
+                <UniversalTable FilterFlag={true} tableName="table11" tableHeader={headerTableEquipment} tableBody={context?.dataEquipments} selectFlag={true}/>
 
             </div>
         </div>
