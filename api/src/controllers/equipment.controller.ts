@@ -112,7 +112,7 @@ const techServiceDo = catchAsync(async (req, res) => {
     if (contractorId && extContractorId) throw new ApiError(httpStatus.BAD_REQUEST, 'Required only one contractor');
     const techService = await equipmentService.techServiceDo(
         equipmentId,
-        date,
+        new Date(date),
         contractorId,
         Number(cost),
         extContractorId,
