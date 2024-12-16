@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
 import PopUpContainer from "../../../../UI/PopUpContainer/PopUpContainer";
 import styles from "./PopUpEditEquipment.module.scss";
-import { UpdateEquipment, GetAllNomenclatures, GetAllСontractors, GetObjectsAll } from "../../../../API/API";
+import { UpdateEquipment, GetAllNomenclatures, GetAllСontractors, GetObjectsAll, GetextContractorsAll } from "../../../../API/API";
 import ListInputTOForm from "../../../../UI/ListInputTOForm/ListInputTOForm";
 import DataContext from "../../../../context";
 
@@ -28,19 +28,17 @@ function PopUpEditEquipment() {
   useEffect(() => {
     if (context.selectEquipment && objects.length && contractors.length && nomenclatures.length) {
       const equipment = context.selectEquipment;
-
+      console.log("equipment", equipment);
       const matchedObject = objects.find((obj) => obj.name === equipment.object);
       const matchedContractor = contractors.find((cont) => cont.name === equipment.contractor);
       const matchedNomenclature = nomenclatures.find((nom) => nom.name === equipment.name);
-      console.log('matchedContractor', matchedContractor)
-      console.log("equipment", equipment)
       setFormData({
         nomenclatureId: matchedNomenclature?.id || "",
         nomenclatureName: equipment?.name || "",
         objectId: matchedObject?.id || "",
         objectName: equipment?.object || "",
         contractorId: matchedContractor?.id || "",
-        contractorName: equipment?.contractor || "",
+        contractorName: equipment?.contractor || equipment?.extContractor || "",
         comment: equipment?.comment || "",
         supportFrequency: equipment?.supportFrequency || "",
         lastTO: equipment?.lastTO?.split("T")[0] || "",
@@ -57,10 +55,16 @@ function PopUpEditEquipment() {
       }
     });
 
-    GetAllСontractors().then((response) => {
-      if (response.status === 200) {
-        setContractors(response.data);
+    Promise.all([GetAllСontractors(), GetextContractorsAll()])
+    .then(([response1, response2]) => {
+      if (response1.status === 200 && response2.status === 200) {
+        // Объединяем данные из обоих ответов
+        const combinedData = [...response1.data, ...response2.data];
+        setContractors(combinedData);
       }
+    })
+    .catch((error) => {
+      console.error("Ошибка при получении данных:", error);
     });
 
     GetAllNomenclatures().then((response) => {
@@ -123,7 +127,7 @@ const handleSubmit = () => {
   const requiredFields = [
     "nomenclatureId",
     "objectId",
-    "contractorId",
+    // "contractorId",
     "supportFrequency",
     "lastTO",
   ];
@@ -218,7 +222,7 @@ const handleSubmit = () => {
               handleListData={handleListData}
               name="contractorId"
               dataList={contractors}
-              value={formData.contractorId}
+              value={formData.contractorId || formData?.contractorName}
               placeholder="Выберите подрядчика"
               isActive={activeDropdown === "contractorId"}
               toggleDropdown={() => toggleDropdown("contractorId")}

@@ -13,7 +13,6 @@ function CardPageModule() {
     const { context } = useContext(DataContext);
     const dispatch = useDispatch();
     useEffect(() => {
-        console.log(context.selectContructor)
         getData()
     }, []);
 

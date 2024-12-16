@@ -29,7 +29,6 @@ function EditNomenclature() {
     // Загружаем данные номенклатуры для редактирования
     GetOneNomenclatures(context.selectedTr).then((res) => {
       if (res?.status === 200) {
-        console.log("res", res);
         setFormData({
           name: res.data.name || "",
           comment: res.data.comment || "",
@@ -65,13 +64,12 @@ function EditNomenclature() {
   
     // Проверяем, заполнены ли обязательные поля
     if (!name || !categoryId) {
-      console.log("Заполните обязательные поля!");
+      alert("Заполните обязательные поля!");
       return;
     }
   
     // Ищем категорию по названию и получаем её ID
     const selectedCategory = categories.find((cat) => cat.name === categoryId || cat.id === categoryId);
-    console.log("categories", categories)
     if (!selectedCategory) {
       console.log("Категория не найдена!");
       return;
