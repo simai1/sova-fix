@@ -20,7 +20,6 @@ const create = async (
     nextTO: Date | undefined,
     objectId: string,
     contractorId: string | undefined,
-    extContractorId: string | undefined,
     photo: string | undefined,
     nomenclatureId: string,
     count: number | undefined,
@@ -30,14 +29,16 @@ const create = async (
     if (!nomenclature) throw new ApiError(httpStatus.BAD_REQUEST, 'No nomenclature with id ' + nomenclatureId);
     const object = await ObjectDir.findByPk(objectId, { include: [{ model: Unit }] });
     if (!object) throw new ApiError(httpStatus.BAD_REQUEST, 'No object with id ' + objectId);
-    let contractor, extContractor;
+    let contractor, extContractor, extContractorId;
     if (contractorId) {
         contractor = await Contractor.findByPk(contractorId);
-        if (!contractor) throw new ApiError(httpStatus.BAD_REQUEST, 'No contractor with id ' + contractorId);
-    }
-    if (extContractor) {
-        extContractor = await ExtContractor.findByPk(extContractorId);
-        if (!extContractor) throw new ApiError(httpStatus.BAD_REQUEST, 'No extContractor with id ' + extContractorId);
+        if (!contractor) {
+            contractorId = undefined;
+            contractor = undefined;
+            extContractor = await ExtContractor.findByPk(contractorId);
+            if (!extContractor) throw new ApiError(httpStatus.BAD_REQUEST, 'No contractors with id ' + contractorId);
+            extContractorId = extContractor.id;
+        }
     }
     const now = new Date();
     now.setMonth(now.getMonth() + 1);
@@ -108,7 +109,6 @@ const update = async (
     photo: string | undefined,
     objectId: string | undefined,
     contractorId: string | undefined,
-    extContractorId: string | undefined,
     nomenclatureId: string | undefined,
     count: number | undefined,
     cost: number | undefined
@@ -119,13 +119,15 @@ const update = async (
         const object = await ObjectDir.findByPk(objectId);
         if (!object) throw new ApiError(httpStatus.BAD_REQUEST, 'No object with id ' + objectId);
     }
+    let contractor, extContractor, extContractorId;
     if (contractorId) {
-        const contractor = await Contractor.findByPk(contractorId);
-        if (!contractor) throw new ApiError(httpStatus.BAD_REQUEST, 'No contractor with id ' + contractorId);
-    }
-    if (extContractorId) {
-        const extContractor = await ExtContractor.findByPk(extContractorId);
-        if (!extContractor) throw new ApiError(httpStatus.BAD_REQUEST, 'No extContractor with id ' + extContractorId);
+        contractor = await Contractor.findByPk(contractorId);
+        if (!contractor) {
+            contractorId = undefined;
+            extContractor = await ExtContractor.findByPk(contractorId);
+            if (!extContractor) throw new ApiError(httpStatus.BAD_REQUEST, 'No contractors with id ' + contractorId);
+            extContractorId = extContractor.id;
+        }
     }
     if (nomenclatureId) {
         const nomenclature = await Nomenclature.findByPk(nomenclatureId);
@@ -151,20 +153,20 @@ const techServiceDo = async (
     date: Date,
     contractorId: string | undefined,
     cost: number,
-    extContractorId: string | undefined,
     comment: string | undefined
 ) => {
     const equipment = await Equipment.findByPk(equipmentId);
     if (!equipment) throw new ApiError(httpStatus.BAD_REQUEST, 'No equipment with id ' + equipmentId);
-    let contractor;
-    let extContractor;
+    let contractor, extContractor, extContractorId;
     if (contractorId) {
         contractor = await Contractor.findByPk(contractorId);
-        if (!contractor) throw new ApiError(httpStatus.BAD_REQUEST, 'No contractor with id ' + contractorId);
-    }
-    if (extContractorId) {
-        extContractor = await ExtContractor.findByPk(extContractorId);
-        if (!extContractor) throw new ApiError(httpStatus.BAD_REQUEST, 'No extContractor with id ' + extContractorId);
+        if (!contractor) {
+            contractorId = undefined;
+            contractor = undefined;
+            extContractor = await ExtContractor.findByPk(contractorId);
+            if (!extContractor) throw new ApiError(httpStatus.BAD_REQUEST, 'No contractors with id ' + contractorId);
+            extContractorId = extContractor.id;
+        }
     }
     const techService = await TechService.create({
         equipmentId,
@@ -182,7 +184,6 @@ const techServiceDo = async (
         undefined,
         techService.date,
         date,
-        undefined,
         undefined,
         undefined,
         undefined,
