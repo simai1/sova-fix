@@ -1,7 +1,7 @@
 export const tableHeaderEquipmentInfo= [
     { key: "id", value: "Номер"},
     { key: "contractor", value: "Обслуживающий подрядчик"},
-    { key: "sum", value: "сумма ТО"},
+    { key: "sum", value: "Сумма ТО"},
     { key: "dateHuman", value: "Дата ТО"},
     {key: "comment", value:"Комментарий", isActive: true},
 ];

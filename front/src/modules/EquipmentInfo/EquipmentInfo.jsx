@@ -107,6 +107,24 @@ function EquipmentInfo() {
           });
     }
 
+    function getDayWord(number) {
+        const absNumber = Math.abs(number) % 100; // Берем абсолютное значение и обрезаем до 100
+        const lastTwoDigits = absNumber % 10;
+      
+        if (absNumber > 10 && absNumber < 20) {
+          return `${number} дней`;
+        }
+      
+        if (lastTwoDigits === 1) {
+          return `${number} день`;
+        }
+      
+        if (lastTwoDigits >= 2 && lastTwoDigits <= 4) {
+          return `${number} дня`;
+        }
+      
+        return `${number} дней`;
+      }
     return ( 
         
         <main className={styles.EquipmentInfo}>
@@ -172,19 +190,19 @@ function EquipmentInfo() {
                     <div className={styles.paramInfoContainer}>
                             <div className={styles.marginInfo}>
                                 <p className={styles.paramInfo}>Количество проведенных ТО:</p>
-                                <p className={styles.paramInfoSecond}>{context.dataEquipment?.count}</p>
+                                <p className={styles.paramInfoSecond}>{context.dataEquipment?.count.toLocaleString().replace(",", " ")}</p>
                             </div>
                             <div className={styles.marginInfo}>
                                 <p className={styles.paramInfo}>Общая стоимость проведенного ТО:</p>
-                                <p className={styles.paramInfoSecond}>{context.dataEquipment?.cost}</p>
+                                <p className={styles.paramInfoSecond}>{context.dataEquipment?.cost.toLocaleString().replace(",", " ")} руб.</p>
                             </div>
                             <div className={styles.marginInfo}>
                                 <p className={styles.paramInfo}>Средняя стоимость проведения ТО:</p>
-                                <p className={styles.paramInfoSecond}>{context.dataEquipment?.avgCost}</p>
+                                <p className={styles.paramInfoSecond}>{context.dataEquipment?.avgCost.toLocaleString().replace(",", " ")} руб.</p>
                             </div>
                             <div className={styles.marginInfo}>
-                                <p className={styles.paramInfo}>Период обслуживания: каждые:</p>
-                                <p className={styles.paramInfoSecond}>{context.dataEquipment?.supportFrequency}</p>
+                                <p className={styles.paramInfo}>Период обслуживания:</p>
+                                <p className={styles.paramInfoSecond}>{getDayWord(context.dataEquipment?.supportFrequency)}</p>
                             </div>
                             <div className={styles.marginInfo}>
                                 <p className={styles.paramInfo}>Дата последнего ТО:</p>

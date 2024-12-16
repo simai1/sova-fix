@@ -99,7 +99,7 @@ export default {
             message: `[${format(new Date(), 'dd.MM.yyyy HH:mm')}] [CRON] End removeUselessFiles`,
         });
     }),
-    autoRequests: new CronJob('0 3 * * *', async () => {
+    autoRequests: new CronJob('0 11 * * *', async () => {
         logger.log({
             level: 'info',
             message: `[${format(new Date(), 'dd.MM.yyyy HH:mm')}] [CRON] Start autoRequests`,
