@@ -1,0 +1,116 @@
+@import "./../../../../styles/color.scss";
+@import "./../../../../styles/mixins.scss";
+
+.PopUpNewTOCategory{
+    width: 900px;
+    display: flex;
+    .pupUpFirstContainer{
+        display: block;
+        .pupUpFirstContainerInfo {
+            display: flex;
+        }
+        p {
+            margin: 0;
+        }
+        .commentBlock{
+            display: block;
+            width: 100%;
+            margin-top: 5px;
+            
+            .commentBlockTitle{
+                display: flex;
+                flex: 1;
+                padding: 5px 10px;
+                box-sizing: border-box;
+                background-color: var(--light-gray-color);
+                width: 100%;
+                border-radius: 6px;
+            }
+            .commentBlockInput{
+                width: 100%;
+                border: 2px solid var(--light-gray-color);
+                box-sizing: border-box;
+                margin: 10px 0px 0px 0px;
+                padding: 5px 10px;
+                height: 55px;
+                border-radius: 6px;
+            }
+        }
+    }
+    .pupContainerInfoTitle {
+        padding: 5px 10px;
+        background-color: var(--light-gray-color);
+        border-radius: 6px;
+        margin: 5px 0px;
+        width: 155px; /* Fixed width */
+    }
+    
+    .pupUpContainerInfoSubtitle {
+        padding: 5px 10px;
+        background-color: var(--Red-color);
+        border-radius: 6px;
+        margin: 5px 0px 5px 10px;
+        flex-grow: 1; /* Allow to take remaining space */
+    }
+    .pupUpFirstContainer, .pupUpSecondContainer {
+        margin: 0px 10px;
+        width: 50%; /* Each child takes up 50% of the parent's width */
+        box-sizing: border-box; /* Ensure padding and borders are included in the width */
+    }
+    .pupUpSecondContainerInfo{
+        display: flex;
+        align-items: stretch; /* Выравнивание по высоте */
+        p{
+            margin: 0;
+        }
+        .pupUpContainerInfoInput{
+            flex: 1; 
+            height: auto; 
+            box-sizing: border-box;
+            background-color: var(--turquoise-color);
+            border-radius: 6px;
+            padding: 5px 10px;
+            border: none;
+            margin: 5px 0px 5px 10px;
+            align-items: center;
+            display: flex;
+            justify-content: center;
+            &::placeholder{
+                text-align: center;
+            }
+        }
+        .pupContainerInfoTitle {
+            display: flex;
+            align-items: center; /* Центрирование текста по вертикали */
+            
+        }
+    }
+    input{
+        font-size: 16px;
+        color: #000;
+        padding-left: 10px;
+        &::placeholder{
+            color: grey;
+      
+        }
+    }
+}
+.buttonSubmitBlock{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 25px;
+    .buttonSubmit{
+        margin: 10px 0px 0px 0px;
+        padding: 15px 10px;
+        width: 400px;
+        color: #000000;
+        background-color: var(--turquoise-color)!important;
+        border-radius: 6px;
+        &:hover{
+            background-color: var(--light-gray-color)!important;
+            cursor: pointer;
+            color: #ffffff!important;
+        }
+    }
+}

@@ -8,6 +8,7 @@ import FilteImg from "./../../assets/images/filterColumn.svg";
 import { resetFilters } from "../../store/samplePoints/samplePoits";
 import ClearImg from "./../../assets/images/ClearFilter.svg";
 import { useRef } from "react";
+import { useNavigate } from "react-router-dom";
 
 function UniversalTable(props) {
   const store = useSelector(
@@ -25,7 +26,7 @@ function UniversalTable(props) {
   const [dropdownVisible, setDropdownVisible] = useState(null);
   const dropdownRef = useRef(null);
   const [selecedAccount, setSelecedAccount] = useState(null)
-
+  const navigate = useNavigate();
 
   useEffect(() => {
     setTableHeaderData(props?.tableHeader);
@@ -50,13 +51,16 @@ function UniversalTable(props) {
       event.target.localName === "th" &&
       key !== "number" &&
       key !== "tgId" &&
+      key !== "info" &&
       key !== "login" &&
       key !== "checkPhoto" &&
       key !== "photo" &&
       key !== "fileName" &&
       key !== "problemDescription" &&
       key !== "id" && 
-      key !== "repairPrice"
+      key !== "repairPrice" &&
+      key !== "supportFrequency"
+
     ) {
       if (sampleShow === index) {
         setSampleShow(null);
@@ -66,24 +70,23 @@ function UniversalTable(props) {
     }
   };
 
-  //! при клике на пункт li убираем его из массива данных таблицы
-  // useEffect(() => {
-  //   setTableBodyData(filterBasickData(basickData, store));
-  // }, [store]);
-
 
   //! функция фильтрации
   function filterBasickData(data, chekeds) {
-    let tb = [...data];
-    let mass = [];
-    tb.filter((el) => {
-      if (chekeds.find((it) => el[it.itemKey] === it.value)) {
-        return;
-      } else {
-        mass.push(el);
-      }
-    });
-    return mass;
+    if(data){
+      let tb = [...data];
+      let mass = [];
+      tb?.filter((el) => {
+        if (chekeds.find((it) => el[it.itemKey] === it?.value)) {
+          return;
+        } else {
+          mass.push(el);
+        }
+      });
+      return mass;
+    }else{
+      return []
+    }
   }
 
   const getCountList = () => {
@@ -102,6 +105,11 @@ function UniversalTable(props) {
   const isVideo = (fileName) => {
     const videoExtensions = ['.mp4', '.avi', '.mov', '.wmv', '.mkv'];
     return videoExtensions.some(ext => fileName.endsWith(ext));
+  };
+
+  const buttonInfoClick = (dataRow) => {
+   console.log('dataRow.id', dataRow.id)
+    navigate(`/Equipment/EquipmentInfo?idEquipment=${dataRow.id}`)
   };
 
   const getValue = (value, key, index, row) => {
@@ -124,17 +132,19 @@ function UniversalTable(props) {
         return index + 1;
    
       case "repairPrice":
+        case "sum":
         return value.toLocaleString().replace(",", " ") || "___";
 
      
       case "checkPhoto":
+        case "photo":
         return value !== "___" ? (
           <div>
             <img
-              src={`${process.env.REACT_APP_API_URL}/uploads/${value}`}
+              src={value !== null ?`${process.env.REACT_APP_API_URL}/uploads/${value}` : "/img/noimage.jpg"}
               alt="Uploaded file"
               onClick={() =>
-                openModal(`${process.env.REACT_APP_API_URL}/uploads/${value}`)
+                value !== null && openModal(`${process.env.REACT_APP_API_URL}/uploads/${value}`)
               }
               style={{ cursor: "pointer" }}
               className={styles.imgTable}
@@ -143,6 +153,8 @@ function UniversalTable(props) {
         ) : (
           "___"
         );
+        case "info":
+          return <button className={styles.buttonInfo} onClick={() => buttonInfoClick(row)}>Подробная информация</button>
       case "fileName":
         return value !== "___" ? (
           <div>
@@ -191,6 +203,7 @@ function UniversalTable(props) {
     const handleClickOutside = (event) => {
       if (!event.target.closest("tr") && !event.target.closest("button")) {
         context.setSelectRowDirectory(null);
+        context.setSelectedTr(null);
       }
     };
 
@@ -214,7 +227,13 @@ function UniversalTable(props) {
       keys === "startCoop" ||
       keys === "tgId" ||
       keys === "id" ||
-      keys === "planCompleteDate"
+      keys === "supportFrequency" ||
+      keys === "lastTOHuman" ||
+      keys === "nextTOHuman" ||
+      keys === "planCompleteDate" ||
+      keys === "countEquipment" || 
+      keys === "dateHuman" ||
+      keys === "sum"
     ) {
       return "center";
     }
@@ -224,6 +243,7 @@ function UniversalTable(props) {
       return "left";
     }
   };
+
   const clickTh = (key) => {
     if (key !== "number") {
       setActiwFilter(key);
@@ -291,6 +311,35 @@ function UniversalTable(props) {
   const checkHeights = (arr, index) => {
     return arr?.length - 1 === index && index === arr?.length - 1 && arr?.length !== 1;
   };
+
+  const getBgColorlastTOHuman = (key, lastTOHuman) => {
+    console.log("lastTO", lastTOHuman);
+    if (key === "nextTOHuman") {
+      // Преобразуем дату в объект Date
+      const currentDate = new Date(); // текущая дата
+      const [day, month, year] = lastTOHuman?.split('.').map(Number); // Разбиваем строку на части
+      const formattedDate = new Date(`20${year}`, month - 1, day); // Создаем объект Date (добавляем "20" для года)
+
+      // Вычисляем разницу в днях
+      const diffInMs = formattedDate - currentDate;
+      const diffInDays = Math.ceil(diffInMs / (1000 * 60 * 60 * 24)); // округляем до ближайшего большего числа
+
+      // Определяем цвет в зависимости от разницы
+      if (diffInDays === 0) {
+        return "#ffa500"; // оранжевый
+      } else if (diffInDays >= 7) {
+        return "#C5E384"; // зелёный
+      } else if (diffInDays >= 1 && diffInDays <= 7) {
+        return "#ffe78f"; // жёлтый
+      } else if (diffInDays < 0) {
+        return "#d69a81"; // красный
+      }
+    }
+  
+    // Если ключ не соответствует "lastTOHuman", возвращаем null
+    return null;
+  };
+
   return (
     <div
       className={styles.UniversalTable}
@@ -298,10 +347,10 @@ function UniversalTable(props) {
         maxHeight:
           document.location.pathname === "/CardPage/CardPageModule"
             ? "73vh"
-            : "auto",
+            : `${props?.heightTable}px` || "auto",
       }}
     >
-      <table>
+     <table>
         <thead>
           {tableHeaderData?.map((el, index) => (
             <th
@@ -316,6 +365,8 @@ function UniversalTable(props) {
                 el.key !== "checkPhoto" &&
                 el.key !== "id" &&
                 el.key !== "tgId" &&
+                el.key !== "info" &&
+                el.key !== "supportFrequency" &&
                 el.key !== "login" &&
                 el.key !== "photo" &&
                 el.key !== "problemDescription" &&
@@ -334,6 +385,7 @@ function UniversalTable(props) {
                   className={styles.sampleComponent}
                   ref={contextmenuRef}
                   style={{
+                    marginTop: props?.tableName==="table11" ? "50px" : "0px",
                     top: `${props?.top}px`,
                     left: `-${whatRight(el.key)}px`,
                     position: "absolute",
@@ -380,17 +432,22 @@ function UniversalTable(props) {
                   key={header.key}
                   name={header.key}
                   className={header.key}
+
                   style={
                     context.selectRowDirectory === row.id
                       ? {
                           backgroundColor: "#D8CDC1FF",
                           textAlign: textAlign(header.key, row[header.key]),
                         }
-                      : { textAlign: textAlign(header.key, row[header.key]) }
+                      : { textAlign: textAlign(header.key, row[header.key]),
+                         
+                       }
                   }
                 >
-                   {header.key !== "role" ? (
-        getValue(row[header.key], header.key, rowIndex, row)
+        {header.key !== "role" ? (
+          header.key === "nextTOHuman" ?
+          <span style={{ padding: header.key === "nextTOHuman" ? "5px 10px" : "0px", borderRadius: "5px", backgroundColor: getBgColorlastTOHuman(header.key, row[header.key])}} >{getValue(row[header.key], header.key, rowIndex, row)}</span> : 
+          getValue(row[header.key], header.key, rowIndex, row)
       ) : (
             <div key={rowIndex} className={styles.RoleClick}>
               <div
@@ -415,9 +472,9 @@ function UniversalTable(props) {
                   }
                 >
                   <ul>
-                    <li onClick={() => {props.ClickRole("Администратор", row.id); setDropdownVisible(null);}}>Администратор</li>
-                    <li onClick={() => {props.ClickRole("Пользователь", row.id); setDropdownVisible(null);}}>Пользователь</li>
-                    <li onClick={() => {props.ClickRole("Наблюдатель", row.id); setDropdownVisible(null);}}>Наблюдатель</li>
+                    <li onClick={() => {props?.ClickRole("Администратор", row.id); setDropdownVisible(null);}}>Администратор</li>
+                    <li onClick={() => {props?.ClickRole("Пользователь", row.id); setDropdownVisible(null);}}>Пользователь</li>
+                    <li onClick={() => {props?.ClickRole("Наблюдатель", row.id); setDropdownVisible(null);}}>Наблюдатель</li>
                   </ul>
                 </div>
                 )}

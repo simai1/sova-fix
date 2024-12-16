@@ -1,0 +1,212 @@
+@import "./../../styles/mixins.scss";
+@import "./../../styles/color.scss";
+
+.EquipmentInfo{
+    .EquipmentInfoBlockTopButton{
+        display: flex;
+        justify-content: end;
+        align-items: center;
+        position: relative;
+        top: -35px;
+        button{
+            @include button(var(--turquoise-color));
+            width: 210px!important;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            &:nth-child(1){
+                width: 136px!important;
+            }
+            &:nth-child(2){
+                margin: 0px 15px;
+            }
+        }
+    }
+    .EquipmentblockInfo{
+        position: relative;
+        top: -20px;
+        .EquipmentSectionInfoFirst{
+            display: flex;
+            .EquipmentblockInfoFirst, .EquipmentblockInfoSecond{
+                display: flex;
+                .paramInfoContainer{
+                    width: 500px;
+                    margin-left: 20px;
+                    p{
+                        padding: 5px 10px;
+                    }
+                    .marginInfo{
+                        margin-bottom: 15px;
+                        display: flex;
+                        align-items: center;
+                        p{
+                            margin: 0;
+                        }
+                        .DataInfo{
+                            background-color: var(--Red-color);
+                            border-radius: 6px;
+                            margin-left: 15px;
+                            width: 300px;
+                            align-items: center;
+                        }
+                    }
+                    .marginInfoAll{
+                          margin-bottom: 15px;
+                    }
+                    .paramInfo{
+                        width: 200px;
+                    }
+                    .paramInfo, .paramInfoGray{
+                        background-color: var(--light-gray-color);
+                        border-radius: 6px;
+                    }
+                  
+                    .paramInfoGray{
+                        align-items: center;
+                        display: flex;
+                        justify-content: center;
+                    }
+                }
+                .EquipmentImg {
+                    margin: 0px 20px 20px 0px;
+                    width: 270px!important;
+                    height: 270px!important;
+                  
+                    .EquipmentImgInnerPhotoOrig {
+                        width: 270px!important;
+                        height: 270px!important;
+                      object-fit: cover; /* Масштабирование и обрезка */
+                      border-radius: 8px; /* Для скругления углов, если нужно */
+                    }
+                  }
+                  
+               
+            }
+            .button{
+                @include button(var(--turquoise-color));
+                width: 100%!important;
+                padding: 5px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+        }
+    }
+    .EquipmentblockInfoSecond{
+        margin-left: 50px;
+        .paramInfoContainer{
+            width: 650px!important;
+            .paramInfo{
+                width: 435px!important;
+            }
+        }
+       
+        .paramInfoSecond{
+            background-color: var(--light-gray-color);
+            border-radius: 6px;
+            width: 100px;
+            align-items: start;
+            margin-left: 15px!important;
+            display: flex;
+            justify-content: start;
+        }
+    }
+}
+.InfoSecodSection{
+    display: flex;
+    justify-content: space-between;
+    .TitleSecondBlock{
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        background-color: var(--light-gray-color);
+        border-radius: 6px;
+        padding: 5px 10px;
+        box-sizing: border-box;
+        p{
+            margin: 0;
+        };
+    }
+    .HistoryTo{
+        width: 100%;
+        height: 325px;
+        
+    }
+    .CommentToBlock{
+        width: 100%;
+        background-color: #b7ab9e4f;
+        border-radius: 8px;
+        padding: 10px;
+        box-sizing: border-box;
+        min-height: 365px;
+        max-height: 365px;
+        margin-top: 20px;
+        // overflow-y: scroll;
+        border: 1px solid #b7ab9eb6;
+    }
+}
+.EquipmentImgInner{
+    position: relative;
+    .EquipmentImgInnerEdit{
+        width: 25px!important;
+        height: 25px!important;
+        cursor: pointer;
+        position: absolute;
+        right: 0;
+        top: 0;
+        transition: 0.1s linear all; 
+        z-index: 2;
+        &:hover{
+            opacity: 0.6;
+        }
+    }
+    .EquipmentImgInnerEditClose{
+        width: 18px!important;
+        height: 18px!important;
+        cursor: pointer;
+        position: absolute;
+        right: 4px;
+        top: 4px;
+        transition: 0.1s linear all; 
+        z-index: 2;
+        &:hover{
+            opacity: 0.6;
+        }
+    }
+}
+.pupUpFirstContainerInfo{
+    background-color: var(--turquoise-color);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 270px;
+    height: 270px;
+    border-radius: 8px ;
+    padding: 35px 10px;
+    box-sizing: border-box;
+    .pupUpFirstContainerInfoFile{
+        position: relative;
+        height: 100%;
+        button{
+          background-color: #000;
+          border: none;
+          border-radius: 8px;
+          color: #fff;
+          padding: 10px 20px;
+          transition: 0.1s linear all;
+          cursor: pointer;
+          &:hover{
+            opacity: 0.8;
+          }
+        }
+        .savePhotoButton{
+            button{
+                width: 100%;
+                position: absolute;
+                bottom: -10px;
+                box-sizing: border-box;
+            }
+        }
+    }
+  
+}

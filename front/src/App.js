@@ -1,11 +1,11 @@
 import Authorization from "./pages/Login/Authorization/Authorization";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import DataContext from "./context";
 import "./styles/style.css";
 import { tableHeadAppoint, tableList, tableUser } from "./components/Table/Data";
 import HomePageAdmin from "./pages/AdminPages/HomePageAdmin/HomePageAdmin";
-import { GetAllRequests, GetAllUsers, GetAllСontractors, GetContractorsItenerarity } from "./API/API";
+import { GetAllCategories, GetAllEquipment, GetAllNomenclatures, GetAllRequests, GetAllUsers, GetAllСontractors, GetContractorsItenerarity, GetOneEquipment } from "./API/API";
 import Activate from "./pages/Login/Activate/Activate";
 import { useDispatch, useSelector } from "react-redux";
 import { FilteredSample, funFixEducator } from "./UI/SamplePoints/Function";
@@ -19,6 +19,11 @@ import Directory from "./pages/AdminPages/Directory/Directory";
 import UsersDirectory from "./modules/UsersDirectory/UsersDirectory";
 import CardPage from "./pages/AdminPages/CardPageTable/CardPage";
 import CardPageModule from "./modules/CardPageModule/CardPageModule";
+import CategoryEquipment from "./modules/CategoryEquipment/CategoryEquipment";
+import Equipment from "./pages/AdminPages/Equipment/Equipment";
+import RangeEquipment from "./modules/RangeEquipment/RangeEquipment";
+import GraphicEquipment from "./modules/GraphicEquipment/GraphicEquipment";
+import EquipmentInfo from "./modules/EquipmentInfo/EquipmentInfo";
 
 function App() {
   const [selectContructor, setSelectContractor] = useState("")
@@ -32,8 +37,9 @@ function App() {
   const [dataUsers, setDataUsers] = useState(null);
   const [dataContractors, setDataContractors] = useState([]);
   const [moreSelect, setMoreSelect] = useState([]);
-  const [textSearchTableData, setextSearchTableData] = useState(null);
+  const [textSearchTableData, setextSearchTableData] = useState("");
   const [popUp, setPopUp] = useState("");
+  const [popUpEquipment, setPopUpEquipment] = useState("asddsa");
   const [popupGoodText, setPopupGoodText] = useState("")
   const [selectPage, setSelectPage] = useState("Main")
   const [Dataitinerary, setDataitinerary] = useState([])
@@ -50,8 +56,12 @@ function App() {
   const [sortStateParam, setSortStateParam] = useState("");
   const [selectRowDirectory, setSelectRowDirectory] = useState(null);
   const [checkedAll, setCheckedAll] = useState(false);
-  const [textSearchTableDataPhone, setextSearchTableDataPhone] = useState("");
-  const [updatePhoneData, setUpdatePhoneData] = useState(false);
+  const [dataEquipments, setDataEquipments] = useState([]);
+  const [dataCategory, setDataCategory] = useState([]);
+  const [dataNomenclature, setDataNomenclature] = useState([]);
+  const [selectEquipment, setSelectEquipment] = useState(null);
+  const [dataEquipment, setDataEquipment] = useState(null);
+
   const checkedAllFunc = () => {
     if(moreSelect.length > 0){
       setCheckedAll(true)
@@ -59,33 +69,54 @@ function App() {
       setCheckedAll(false)
     }
   }
-  const [flagFilter, setFlagFilter] = useState(false);
-  const [updatedDataApointment, setUpdatedDataApointment] = useState(0);
-    //! для виртуального скролла
-    const [startData, setStartData] = useState(0); // индекс элемента с которого показывается таблица
-    let visibleData = dataTableFix.length > 10 ? 10 : dataTableFix.length; // кооличество данных которые мы видим в таблице
-    const tableRefWorkload = useRef(null); //! ссылка на таблицу
-  
-    const heightTd = 176; // высота td
-    
-    const [reloadTable, setReloadTable] = useState(false); // Флаг для перезагрузки таблицы
 
+  const UpdateDataEquipment = () => {
+    GetAllEquipment().then((res) => {
+        if (res?.status === 200) {
+         setDataEquipments(res.data)
+        }
+    });
+}
+
+const UpdateDataCategory = () => {
+  GetAllCategories().then((res) => {
+      if (res?.status === 200) {
+       setDataCategory(res.data)
+      }
+  });
+}
+
+const UpdateDataNomenclature = () => {
+  GetAllNomenclatures().then((res) => {
+      if (res?.status === 200) {
+       setDataNomenclature(res.data)
+      }
+  });
+}
+
+const GetDataEquipment = (id) =>{
+  GetOneEquipment(id).then((res) => {
+      setDataEquipment(res?.data)
+      setSelectEquipment(res?.data)
+  })
+}
+
+  
   const context = {
-    reloadTable,
-    setReloadTable,
-    setUpdatePhoneData,
-    updatePhoneData,
-    setextSearchTableDataPhone,
-    updatedDataApointment,
-    setUpdatedDataApointment,
-    textSearchTableDataPhone,
-    setFlagFilter,
-    startData,
-    setStartData,
-    visibleData,
-    heightTd,
-    flagFilter,
+    dataEquipment,
+    setDataEquipment,
+    GetDataEquipment,
+    setSelectEquipment,
+    selectEquipment,
+    UpdateDataNomenclature,
+    dataNomenclature,
+    setDataNomenclature,
+    UpdateDataCategory,
     setCheckedAll,
+    dataCategory,
+    setDataCategory,
+    popUpEquipment,
+    setPopUpEquipment,
     checkedAll,
     editListOpen,
     setMoreSelect,
@@ -143,10 +174,11 @@ function App() {
     selectRowDirectory,
     checkedAllFunc,
     checkedAll,
+    setDataEquipments,
+    dataEquipments,
+    UpdateDataEquipment
   };
-
   
-
   const isCheckedStore = useSelector((state) => state.isCheckedSlice.isChecked);
   useEffect(() => {
     if(selectedTable === "Заявки" && selectPage === "Main"){
@@ -161,24 +193,20 @@ function App() {
   },[textSearchTableData, selectedTable, selectContructor] )
 
 
-  function UpdateTableReguest(param, par = sortStateParam, limit)  {
-    let url = '';
-    let limitNumber = limit ? limit : 8
-    
-    if (par || textSearchTableData) {
-      if(par != "" && !textSearchTableData){
-        url = `?${par}`;
+  function UpdateTableReguest(param, par = sortStateParam) {
+    if(param === 1){
+      let url = '';
+      if (par || textSearchTableData) {
+        if(par != "" && !textSearchTableData){
+          url = `?${par}`;
+        }
+       else{
+          url = `?search=${textSearchTableData}&${par}`
+        }
       }
-      else{
-        url = `?search=${textSearchTableData}&${par}`
-      }
-    }
-    else if(flagFilter) {
-        url = ``;
-    } else{
-      url = ``;
-    }
-    
+    else {
+        url = '';
+    } 
           GetAllRequests(url).then((resp) => {
             if(resp) {
               const checks = isCheckedStore || [];
@@ -192,6 +220,7 @@ function App() {
         GetAllRequests("").then((resp) => {
           setDataAppointment(resp?.data.requestsDtos)
         })
+    }
   }
 
   useEffect(() => {
@@ -217,6 +246,8 @@ function App() {
             <Route path="/Authorization" element={<Authorization />}></Route>
             <Route path="/ReportFinansing" element={<ReportFinansing />}></Route>
             <Route path="/RepotYour" element={<RepotYour />}></Route>
+
+
             <Route path="/Directory/*" element={<Directory />}>
               <Route path="BusinessUnitReference" element={<BusinessUnitReference />}></Route>
               <Route path="DirectoryLegalEntities" element={<DirectoryLegalEntities />}></Route>
@@ -224,8 +255,15 @@ function App() {
               <Route path="ThePerformersDirectory" element={<ThePerformersDirectory />}></Route>
               <Route path="UsersDirectory" element={<UsersDirectory />}></Route>
             </Route>
+
             <Route path="/CardPage/*" element={<CardPage />}>
               <Route path="CardPageModule" element={<CardPageModule />}></Route>
+            </Route>
+            <Route path="/Equipment/*" element={<Equipment />}>
+              <Route path="GraphicEquipment" element={<GraphicEquipment />}></Route>
+              <Route path="CategoryEquipment" element={<CategoryEquipment />}></Route>
+              <Route path="RangeEquipment" element={<RangeEquipment />}></Route>
+              <Route path="EquipmentInfo" element={<EquipmentInfo />}></Route>
             </Route>
           </Routes>
         </main>

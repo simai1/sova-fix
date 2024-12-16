@@ -3,6 +3,7 @@ import { DataTypes, Model, Sequelize } from 'sequelize';
 export default class Category extends Model {
     id!: string;
     name!: string;
+    comment?: string;
 
     static initialize(sequelize: Sequelize) {
         Category.init(
@@ -17,6 +18,10 @@ export default class Category extends Model {
                     type: DataTypes.STRING,
                     allowNull: false,
                     unique: true,
+                },
+                comment: {
+                    type: DataTypes.STRING,
+                    allowNull: true,
                 },
             },
             {

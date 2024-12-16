@@ -1,9 +1,10 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
-import Category from './category';
 import Unit from './unit';
 import ObjectDir from './object';
 import Contractor from './contractor';
 import ExtContractor from './externalContractor';
+import Nomenclature from './nomenclature';
+import TechService from './techService';
 
 export default class Equipment extends Model {
     id!: string;
@@ -11,18 +12,21 @@ export default class Equipment extends Model {
     supportFrequency!: number;
     lastTO!: Date;
     nextTO!: Date;
-    comment?: string;
     photo?: string;
-    Category!: Category;
-    categoryId!: string;
+    qr?: string;
+    count!: number;
+    cost!: number;
+    Nomenclature?: Nomenclature;
+    nomenclatureId?: string;
     Unit?: Unit;
     unitId?: string;
-    Object!: ObjectDir;
-    objectId!: string;
+    Object?: ObjectDir;
+    objectId?: string;
     Contractor?: Contractor;
     contractorId?: string;
     ExtContractor?: ExtContractor;
     extContractorId?: string;
+    TechServices?: TechService[];
 
     static initialize(sequelize: Sequelize) {
         Equipment.init(
@@ -52,13 +56,23 @@ export default class Equipment extends Model {
                     type: DataTypes.DATE,
                     allowNull: false,
                 },
-                comment: {
-                    type: DataTypes.STRING,
-                    allowNull: true,
-                },
                 photo: {
                     type: DataTypes.STRING,
                     allowNull: true,
+                },
+                qr: {
+                    type: DataTypes.STRING,
+                    allowNull: true,
+                },
+                count: {
+                    type: DataTypes.INTEGER,
+                    allowNull: false,
+                    defaultValue: 1,
+                },
+                cost: {
+                    type: DataTypes.REAL,
+                    allowNull: false,
+                    defaultValue: 0,
                 },
             },
             {
