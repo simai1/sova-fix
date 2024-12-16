@@ -17,7 +17,7 @@ function SamplePoints(props) {
 
   const funLiCkick = (el) => {
     context.UpdateTableReguest()
-    context.setFlagFilter(true)
+    // context.setFlagFilter(true)
     if (
       store?.find((elem) => elem.value === el && elem.itemKey === props.itemKey)
     ) {
