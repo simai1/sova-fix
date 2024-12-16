@@ -141,8 +141,8 @@ const update = async (
         nomenclatureId,
         cost,
         count,
-        contractorId: contractorId ? contractorId : null,
-        extContractorId: extContractorId ? extContractorId : null,
+        contractorId: contractorId || extContractorId ? (contractorId ? contractorId : null) : undefined,
+        extContractorId: contractorId || extContractorId ? (extContractorId ? extContractorId : null) : undefined,
     });
 };
 
