@@ -14,6 +14,7 @@
     @include input-text(420px, 8px);
     font-size: 16px;
     color: #000;
+    padding-right: 30px;
     &:hover {
       cursor: pointer;
     }
@@ -36,6 +37,8 @@
   }
   .ListData {
     width: 273px;
+    max-height: 300px;
+    overflow-y: scroll;
     flex: 1;
     margin-left: 10px;
     position: absolute;
@@ -48,7 +51,7 @@
     background-color: #ffffff;
     .NameForList {
       font-size: 16px;
-      margin-left: 7px;
+      margin: 4px 7px;
       transition: 0.1s linear all;
       cursor: pointer;
       &:first-child{

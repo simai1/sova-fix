@@ -38,8 +38,6 @@ function ListInput(props) {
       requestId: props?.idRequest,
       contractorId: id,
     };
-    console.log("data", data)
-
     SetcontractorRequest(data).then((resp) => {
       if (resp?.status === 200) {
         props.updGetData(props?.idRequest);
@@ -49,12 +47,10 @@ function ListInput(props) {
   };
 
   const SetExp = (ExpId) => {
-    console.log("builder", ExpId)
     const data = {
       requestId: props?.idRequest,
       extContractorId: ExpId,
     };
-    console.log("data", data)
     SetExtContractorsRequest(data).then((resp) => {
       if (resp?.status === 200) {
         props.updGetData(props?.idRequest);

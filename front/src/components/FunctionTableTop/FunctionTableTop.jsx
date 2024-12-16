@@ -19,7 +19,7 @@ import { resetFilters } from "../../store/samplePoints/samplePoits";
 function FunctionTableTop(props) {
   const defaultValue = "Заявки";
   const { context } = React.useContext(DataContext);
-
+  const [dataTable, setDataTable] = useState([]);
   //!удаление заявки
   const deleteRequestFunc = () =>{
     if(context.moreSelect.length === 1){
@@ -38,20 +38,14 @@ const editAppoint = ()=>{
       context.setPopUp("PopUpError")
   }
 }
-
+const store = useSelector(
+  (state) => state.isSamplePoints["table9"].isChecked
+);
+useEffect(() => {
+  setDataTable(filterBasickData(context.dataTableFix, store));
+}, [store, context?.filteredTableData]);
 
   const dispatch = useDispatch();
- //!функция сброса фильтров
- const refreshFilters = () => {
-  console.log("вызвал")
-  context.setSortState("");
-  context.setSortStateParam("");
-  context.setIsChecked([]);
-  context.setAllChecked([]);
-  dispatch(removeTableCheckeds());
-  // UpdateTableReguest();
-  context.setFilteredTableData(FilteredSample(funFixEducator(context.tableData)), []);
-};
 
 const goBackCurd = () =>{
   context.setSelectPage("Card");
@@ -62,9 +56,6 @@ const goBackCurd = () =>{
   context.setSelectedTable("Card");
 }
 
-const store = useSelector(
-  (state) => state.isSamplePoints["table9"].isChecked
-);
 
 //! функция фильтрации
 function filterBasickData(data, chekeds) {
@@ -139,9 +130,9 @@ function filterBasickData(data, chekeds) {
         </div>
         { context.selectedTable === "Заявки" && context.selectPage === "Main" &&
           <div className={styles.countInfo}>
-            <CountInfoBlock dataCount={filterRequestsWithoutCopiedId(filterBasickData(context?.dataApointment, store))} keys="status" value="1" color="#d69a81" name="Новых"/>
-            <CountInfoBlock dataCount={filterRequestsWithoutCopiedId(filterBasickData(context?.dataApointment, store))} keys="status" value="2" color="#ffe78f" name="В работе"/>
-            <CountInfoBlock dataCount={filterRequestsWithoutCopiedId(filterBasickData(context?.dataApointment, store))} keys="status" value="3" color="#C5E384" name="Выполнены"/>
+            <CountInfoBlock dataCount={filterRequestsWithoutCopiedId(dataTable)} keys="status" value="Новая заявка" color="#d69a81" name="Новых"/>
+            <CountInfoBlock dataCount={filterRequestsWithoutCopiedId(dataTable)} keys="status" value="В работе" color="#ffe78f" name="В работе"/>
+            <CountInfoBlock dataCount={filterRequestsWithoutCopiedId(dataTable)} keys="status" value="Выполнена" color="#C5E384" name="Выполнены"/>
           </div>
         }
       </div>
