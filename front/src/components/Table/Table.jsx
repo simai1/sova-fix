@@ -17,6 +17,7 @@ import СonfirmDelete from "./../СonfirmDelete/СonfirmDelete";
 import Contextmenu from "../../UI/Contextmenu/Contextmenu";
 import SamplePoints from "../SamplePoints/SamplePoints";
 import FilteImg from "./../../assets/images/filterColumn.svg";
+import CountInfoBlock from "../../UI/CountInfoBlock/CountInfoBlock";
 function Table() {
   const { context } = useContext(DataContext);
   const [actiwFilter, setActiwFilter] = useState(null);
@@ -123,7 +124,6 @@ function Table() {
       requestId: id,
       status: status,
     };
-    console.log("data", data)
     SetStatusRequest(data).then((resp) => {
       if (resp?.status === 200) {
         context.UpdateTableReguest(1);
@@ -555,7 +555,6 @@ const isVideo = (fileName) => {
     const data = {
       planCompleteDate: new Date(date)
     }
-    console.log("data", data)
     ReseachDataRequest(id, data).then((resp) => {
       if (resp?.status === 200) {
         context.UpdateTableReguest(1);

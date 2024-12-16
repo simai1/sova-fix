@@ -59,6 +59,7 @@ function UniversalTable(props) {
       key !== "problemDescription" &&
       key !== "id" && 
       key !== "repairPrice" &&
+      key !== "comment" &&
       key !== "supportFrequency"
 
     ) {
@@ -108,7 +109,6 @@ function UniversalTable(props) {
   };
 
   const buttonInfoClick = (dataRow) => {
-   console.log('dataRow.id', dataRow.id)
     navigate(`/Equipment/EquipmentInfo?idEquipment=${dataRow.id}`)
   };
 
@@ -313,7 +313,6 @@ function UniversalTable(props) {
   };
 
   const getBgColorlastTOHuman = (key, lastTOHuman) => {
-    console.log("lastTO", lastTOHuman);
     if (key === "nextTOHuman") {
       // Преобразуем дату в объект Date
       const currentDate = new Date(); // текущая дата
@@ -371,6 +370,7 @@ function UniversalTable(props) {
                 el.key !== "photo" &&
                 el.key !== "problemDescription" &&
                 el.key !== "fileName" &&
+                el.key !== "comment" &&
                 el.key !== "repairPrice"
                   ? { cursor: "pointer" }
                   : { cursor: "default" }

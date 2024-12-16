@@ -37,7 +37,6 @@ function UsersDirectory() {
       }
 
     function funFixRole(value){
-      console.log("value", value)
       if(value === 2){
         return "Администратор"
       }else if(value === 1){
@@ -67,13 +66,6 @@ function UsersDirectory() {
 
     const ActivateUser = () => {
         if(context.selectRowDirectory != null){
-            // let idUser = "";
-            // tableDataObject.map((item) => {
-            //     if(item.id === context.selectRowDirectory){
-            //         idUser = item.id
-            //     }
-            // })
-          console.log("ActivateUser", context.selectRowDirectory)
             RejectActiveAccount(context.selectRowDirectory).then((resp)=>{
               if(resp?.status === 200){
                getData();
@@ -117,7 +109,6 @@ function UsersDirectory() {
           }
         })
     }else{
-      console.log("Вы не можете изменить свою роль!");
       context.setPopUp("PopUpError");
       context.setPopupErrorText("Вы не можете изменить свою роль!");
     }

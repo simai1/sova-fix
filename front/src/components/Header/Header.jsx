@@ -116,14 +116,21 @@ function Header() {
     }
     return null; 
   };
-
-
+  const getLinkPatchname = () =>{
+    const pathname = window.location.pathname;
+    if(pathname === '/Equipment/EquipmentInfo'){
+      return true
+    }else{
+      return false
+    }
+  }
 return (
   <div className={styles.Header}>
   <div className={styles.headerButton}>
   
     {process.env?.REACT_APP_PICTURE_NAME &&  <img src={getLinkImg()} /> }
-    <button className={styles.buttonMenu} onClick={toggleMenu}>Меню</button>
+    {!getLinkPatchname() ?  <button className={styles.buttonMenu} onClick={toggleMenu}>Меню</button> : <button className={styles.buttonMenu} onClick={() => navigate(-1)}> Назад</button>}
+   
   </div>
     
       <div className={`menu ${isOpen ? 'open' : ''}`} ref={menuRef}>
