@@ -114,6 +114,8 @@ function UniversalTable(props) {
 
   const getValue = (value, key, index, row) => {
     switch (key) {
+      case "contractor":
+        return value || row.extContractor;
       case "itineraryOrder":
         return;
       case "tgId":

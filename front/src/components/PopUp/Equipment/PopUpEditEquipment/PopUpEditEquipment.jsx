@@ -28,7 +28,7 @@ function PopUpEditEquipment() {
   useEffect(() => {
     if (context.selectEquipment && objects.length && contractors.length && nomenclatures.length) {
       const equipment = context.selectEquipment;
-
+      console.log("equipment", equipment);
       const matchedObject = objects.find((obj) => obj.name === equipment.object);
       const matchedContractor = contractors.find((cont) => cont.name === equipment.contractor);
       const matchedNomenclature = nomenclatures.find((nom) => nom.name === equipment.name);
@@ -38,7 +38,7 @@ function PopUpEditEquipment() {
         objectId: matchedObject?.id || "",
         objectName: equipment?.object || "",
         contractorId: matchedContractor?.id || "",
-        contractorName: equipment?.contractor || "",
+        contractorName: equipment?.contractor || equipment?.extContractor || "",
         comment: equipment?.comment || "",
         supportFrequency: equipment?.supportFrequency || "",
         lastTO: equipment?.lastTO?.split("T")[0] || "",
@@ -127,7 +127,7 @@ const handleSubmit = () => {
   const requiredFields = [
     "nomenclatureId",
     "objectId",
-    "contractorId",
+    // "contractorId",
     "supportFrequency",
     "lastTO",
   ];
@@ -222,7 +222,7 @@ const handleSubmit = () => {
               handleListData={handleListData}
               name="contractorId"
               dataList={contractors}
-              value={formData.contractorId}
+              value={formData.contractorId || formData?.contractorName}
               placeholder="Выберите подрядчика"
               isActive={activeDropdown === "contractorId"}
               toggleDropdown={() => toggleDropdown("contractorId")}
