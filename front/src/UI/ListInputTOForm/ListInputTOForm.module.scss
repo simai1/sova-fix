@@ -14,6 +14,7 @@
     @include input-text(420px, 8px);
     font-size: 16px;
     color: #000;
+    padding-right: 30px;
     &:hover {
       cursor: pointer;
     }
