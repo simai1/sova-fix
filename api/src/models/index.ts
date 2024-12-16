@@ -11,7 +11,8 @@ import LegalEntity from './legalEntity';
 import ExtContractor from './externalContractor';
 import Equipment from './equipment';
 import Category from './category';
-import History from './history';
+import Nomenclature from './nomenclature';
+import TechService from './techService';
 
 const { DB_USER, DB_PWD, DB_HOST, DB_PORT, DB_NAME } = process.env;
 export const models = {
@@ -25,9 +26,10 @@ export const models = {
     ObjectDir,
     RepairRequest,
     ApiKey,
+    Nomenclature,
     Category,
     Equipment,
-    History,
+    TechService,
 };
 
 export const sequelize = new Sequelize(`${DB_NAME}`, `${DB_USER}`, `${DB_PWD}`, {

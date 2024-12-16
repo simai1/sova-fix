@@ -1,0 +1,40 @@
+@import "./../../styles/mixins.scss";
+@import "./../../styles/color.scss";
+
+.CategoryEquipment{
+    .CategoryEquipmentButton{
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        align-items: end;
+       h3{
+        margin: 0;
+       }
+        .CategoryEquipmentButtonInner{
+            display: flex;
+            button{
+                @include button(var(--turquoise-color));
+                margin-left: 15px;
+            }
+        }
+    }
+    .CategoryEquipmentTop{
+        display: flex;
+        align-items: center;
+        .clear{
+            margin-left: 15px;
+            button{
+              border-radius: 8px;
+              background-color: var(--turquoise-color);
+              height: 44px;
+              width: 40px;
+              transition: 0.1s linear all;
+              border: none;
+              &:hover{
+                opacity: 0.8;
+                cursor: pointer;
+              }
+            }  
+        }
+    }
+}

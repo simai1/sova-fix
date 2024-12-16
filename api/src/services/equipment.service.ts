@@ -7,22 +7,29 @@ import Unit from '../models/unit';
 import EquipmentDto from '../dtos/equipment.dto';
 import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
+import Nomenclature from '../models/nomenclature';
+import TechService from '../models/techService';
+import TechServiceDto from '../dtos/techService';
+import QRCode from 'qrcode-generator';
+import fs from 'node:fs';
+import { v4 } from 'uuid';
 
 const create = async (
     supportFrequency: number | undefined,
     lastTO: Date | undefined,
-    nextTO: Date,
-    comment: string | undefined,
-    categoryName: string | undefined,
+    nextTO: Date | undefined,
     objectId: string,
     contractorId: string | undefined,
     extContractorId: string | undefined,
-    photo: string | undefined
+    photo: string | undefined,
+    nomenclatureId: string,
+    count: number | undefined,
+    cost: number | undefined
 ) => {
+    const nomenclature = await Nomenclature.findByPk(nomenclatureId, { include: [{ model: Category }] });
+    if (!nomenclature) throw new ApiError(httpStatus.BAD_REQUEST, 'No nomenclature with id ' + nomenclatureId);
     const object = await ObjectDir.findByPk(objectId, { include: [{ model: Unit }] });
     if (!object) throw new ApiError(httpStatus.BAD_REQUEST, 'No object with id ' + objectId);
-    let category = await Category.findOne({ where: { name: categoryName } });
-    if (!category) category = await Category.create({ name: categoryName });
     let contractor, extContractor;
     if (contractorId) {
         contractor = await Contractor.findByPk(contractorId);
@@ -32,45 +39,65 @@ const create = async (
         extContractor = await ExtContractor.findByPk(extContractorId);
         if (!extContractor) throw new ApiError(httpStatus.BAD_REQUEST, 'No extContractor with id ' + extContractorId);
     }
+    const now = new Date();
+    now.setMonth(now.getMonth() + 1);
     const equipment = await Equipment.create({
         number: 0,
+        name: nomenclature.name,
         supportFrequency,
         lastTO,
-        nextTO,
-        comment,
+        nextTO: nextTO || now,
+        comment: nomenclature.comment,
         photo,
-        categoryId: category.id,
+        categoryId: nomenclature.Category?.id,
         unitId: object.Unit?.id,
         objectId,
         contractorId,
         extContractorId,
+        nomenclatureId,
+        count,
+        cost,
     });
-    equipment.Category = category;
-    equipment.Unit = object.Unit;
     equipment.ExtContractor = extContractor;
     equipment.Contractor = contractor;
     equipment.Object = object;
+    equipment.Nomenclature = nomenclature;
     return new EquipmentDto(equipment);
 };
 
 const getAll = async (pagination: any) => {
     const equipment = await Equipment.findAll({
         include: [
-            { model: Category },
+            { model: Nomenclature, include: [{ model: Category }] },
             { model: Contractor },
             { model: ExtContractor },
             { model: ObjectDir, include: [{ model: Unit }] },
         ],
         limit: pagination.limit,
         offset: pagination.offset,
+        order: [['number', 'ASC']],
     });
     return equipment.map(e => new EquipmentDto(e));
+};
+
+const getOne = async (equipmentId: string) => {
+    const equipment = await Equipment.findByPk(equipmentId, {
+        include: [
+            { model: Nomenclature, include: [{ model: Category }] },
+            { model: Contractor },
+            { model: ExtContractor },
+            { model: ObjectDir, include: [{ model: Unit }] },
+            { model: TechService, include: [{ model: ExtContractor }, { model: Contractor }] },
+        ],
+    });
+    if (!equipment) throw new ApiError(httpStatus.BAD_REQUEST, 'No equipment with id ' + equipmentId);
+    return new EquipmentDto(equipment);
 };
 
 const destroy = async (equipmentId: string) => {
     const equipment = await Equipment.findByPk(equipmentId);
     if (!equipment) throw new ApiError(httpStatus.BAD_REQUEST, 'No equipment with id ' + equipmentId);
-    await equipment.destroy();
+    await equipment.destroy({ force: true });
 };
 
 const update = async (
@@ -78,20 +105,16 @@ const update = async (
     supportFrequency: number | undefined,
     lastTO: Date | undefined,
     nextTO: Date | undefined,
-    comment: string | undefined,
     photo: string | undefined,
-    categoryName: string | undefined,
     objectId: string | undefined,
     contractorId: string | undefined,
-    extContractorId: string | undefined
+    extContractorId: string | undefined,
+    nomenclatureId: string | undefined,
+    count: number | undefined,
+    cost: number | undefined
 ) => {
     const equipment = await Equipment.findByPk(equipmentId);
     if (!equipment) throw new ApiError(httpStatus.BAD_REQUEST, 'No equipment with id ' + equipmentId);
-    let category;
-    if (categoryName) {
-        category = await Category.findOne({ where: { name: categoryName } });
-        if (!category) category = await Category.create({ name: categoryName });
-    }
     if (objectId) {
         const object = await ObjectDir.findByPk(objectId);
         if (!object) throw new ApiError(httpStatus.BAD_REQUEST, 'No object with id ' + objectId);
@@ -104,22 +127,103 @@ const update = async (
         const extContractor = await ExtContractor.findByPk(extContractorId);
         if (!extContractor) throw new ApiError(httpStatus.BAD_REQUEST, 'No extContractor with id ' + extContractorId);
     }
+    if (nomenclatureId) {
+        const nomenclature = await Nomenclature.findByPk(nomenclatureId);
+        if (!nomenclature) throw new ApiError(httpStatus.BAD_REQUEST, 'No nomenclature with id ' + nomenclatureId);
+    }
+
     await equipment.update({
         supportFrequency,
         lastTO,
         nextTO,
-        comment,
         photo,
-        categoryId: category ? category.id : undefined,
         objectId,
-        contractorId: contractorId ? contractorId : null,
-        extContractorId: extContractorId ? extContractorId : null,
+        nomenclatureId,
+        cost,
+        count,
+        contractorId: contractorId || extContractorId ? (contractorId ? contractorId : null) : undefined,
+        extContractorId: contractorId || extContractorId ? (extContractorId ? extContractorId : null) : undefined,
     });
+};
+
+const techServiceDo = async (
+    equipmentId: string,
+    date: Date,
+    contractorId: string | undefined,
+    cost: number,
+    extContractorId: string | undefined,
+    comment: string | undefined
+) => {
+    const equipment = await Equipment.findByPk(equipmentId);
+    if (!equipment) throw new ApiError(httpStatus.BAD_REQUEST, 'No equipment with id ' + equipmentId);
+    let contractor;
+    let extContractor;
+    if (contractorId) {
+        contractor = await Contractor.findByPk(contractorId);
+        if (!contractor) throw new ApiError(httpStatus.BAD_REQUEST, 'No contractor with id ' + contractorId);
+    }
+    if (extContractorId) {
+        extContractor = await ExtContractor.findByPk(extContractorId);
+        if (!extContractor) throw new ApiError(httpStatus.BAD_REQUEST, 'No extContractor with id ' + extContractorId);
+    }
+    const techService = await TechService.create({
+        equipmentId,
+        date,
+        contractorId,
+        extContractorId,
+        sum: cost,
+        countEquipment: equipment.count,
+        comment,
+    });
+    date.setDate(date.getDate() + equipment.supportFrequency);
+    const techServices = await TechService.findAll({ where: { equipmentId: equipment.id } });
+    await update(
+        equipmentId,
+        undefined,
+        techService.date,
+        date,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        techServices.length,
+        techServices.reduce((acc, ts) => acc + ts.sum, 0)
+    );
+
+    if (contractorId) techService.Contractor = contractor;
+    if (extContractorId) techService.ExtContractor = extContractor;
+    return new TechServiceDto(techService);
+};
+
+const getOrGenerateQrCode = async (equipmentId: string) => {
+    const equipment = await Equipment.findByPk(equipmentId);
+    if (!equipment) throw new ApiError(httpStatus.BAD_REQUEST, 'No equipment with id ' + equipmentId);
+    if (equipment.qr) return equipment.qr;
+    else {
+        const url = `${process.env.API_URL}/Equipment/EquipmentInfo?idEquipment=${equipmentId}`;
+        const qr = QRCode(6, 'L');
+        qr.addData(url);
+        qr.make();
+        const fileName = `${v4()}.svg`;
+        fs.writeFile(`./uploads/${fileName}`, qr.createSvgTag(), err => {
+            if (err) {
+                console.error('Ошибка записи файла:', err);
+                return;
+            }
+            console.log(`SVG QR-код успешно сохранен в файл: ${fileName}`);
+        });
+        await equipment.update({ qr: fileName });
+        return equipment.qr;
+    }
 };
 
 export default {
     create,
     getAll,
+    getOne,
     destroy,
     update,
+    techServiceDo,
+    getOrGenerateQrCode,
 };

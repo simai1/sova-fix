@@ -17,6 +17,8 @@ import unitRoute from './routes/unit.route';
 import legalEntityRoute from './routes/legalEntity.route';
 import extContractorRoute from './routes/extContractor.route';
 import equipmentRoute from './routes/equipment.route';
+import categoryRoute from './routes/category.route';
+import nomenclatureRoute from './routes/nomenclature.route';
 
 import logger from './utils/logger';
 import winston from 'winston';
@@ -42,7 +44,8 @@ if (!fs.existsSync(dir)) {
 
 // cron section
 cronService.setDays.start();
-cronService.removeUselessFiles.start();
+cronService.autoRequests.start();
+// cronService.removeUselessFiles.start();
 
 // routes section
 app.use('/auth', authRoute);
@@ -56,6 +59,8 @@ app.use('/units', unitRoute);
 app.use('/legalEntities', legalEntityRoute);
 app.use('/extContractors', extContractorRoute);
 app.use('/equipments', equipmentRoute);
+app.use('/categories', categoryRoute);
+app.use('/nomenclatures', nomenclatureRoute);
 
 // websocket section
 app.ws('/', () => {

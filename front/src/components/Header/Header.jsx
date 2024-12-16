@@ -21,10 +21,11 @@ function Header() {
     const [isOpenSprav, setIsOpenSprav] = useState(false);
     const [isOpenFinans, setIsOpenFinans] = useState(false);
     const [isOpenSystem, setIsOpenSystem] = useState(false);
+    const [isOpenTo, setIsOpenTo] = useState(false);
     const spravRef = useRef(null);
     const finansRef = useRef(null);
     const systemRef = useRef(null);
-
+    const ToRef = useRef(null);
   useEffect(()=>{
     if(!sessionStorage.getItem("userData")){navigate("/Authorization")}else{
       const userData = JSON.parse(sessionStorage.getItem("userData"))?.user?.name;
@@ -49,6 +50,7 @@ function Header() {
         setIsOpenSprav(false);
         setIsOpenFinans(false);
         setIsOpenSystem(false)
+        setIsOpenTo(false)
     };
 
     useEffect(() => {
@@ -132,6 +134,24 @@ return (
           <ul className={styles.menuUl}>
               <li onClick={() => LinkPage()} className={styles.menuLi}>Главная</li>
               <li onClick={() => LinkPage("Card")} className={styles.menuLi}>Маршрутный лист</li>
+              <li onClick={() => setIsOpenTo(!isOpenTo)} className={styles.menuLi} style={isOpenTo ? { backgroundColor: "#FFE20D" } : { backgroundColor: "#e3dfda" }}>
+                  Техническое обслуживание
+                  <img style={isOpenTo ? { transform: "rotate(0deg)" } : { transform: "rotate(-90deg)" }} src={arrowBottom} />
+              </li>
+              <ul
+                  ref={ToRef}
+                  className={styles.menuUlSecond}
+                  style={{
+                      maxHeight: isOpenTo ? `${ToRef.current.scrollHeight}px` : '0',
+                      overflow: 'hidden',
+                      transition: 'max-height 0.3s ease'
+                  }}
+              >
+                  <li className={styles.menuLi} onClick={() => LinkPage("Equipment/GraphicEquipment")}>Графики ТО</li>
+                  <li className={styles.menuLi} onClick={() => LinkPage("Equipment/RangeEquipment")}>Номенклатура оборудования</li>
+                  <li className={styles.menuLi} onClick={() => LinkPage("Equipment/CategoryEquipment")}>Категории оборудования</li>
+              </ul>
+              
               <li onClick={() => setIsOpenSprav(!isOpenSprav)} className={styles.menuLi} style={isOpenSprav ? { backgroundColor: "#FFE20D" } : { backgroundColor: "#e3dfda" }}>
                   Справочники
                   <img style={isOpenSprav ? { transform: "rotate(0deg)" } : { transform: "rotate(-90deg)" }} src={arrowBottom} />
