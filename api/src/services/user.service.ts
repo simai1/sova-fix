@@ -6,6 +6,7 @@ import roles from '../config/roles';
 import UserDto from '../dtos/user.dto';
 import TgUser from '../models/tgUser';
 import { sendMsg, WsMsgData } from '../utils/ws';
+import Contractor from '../models/contractor';
 
 type userDir = {
     id: string;
@@ -83,8 +84,11 @@ const deleteUser = async (userId: string): Promise<void> => {
 const deleteDirUser = async (userId: string): Promise<void> => {
     let user;
     user = await getUserById(userId);
-    if (!user) user = await TgUser.findByPk(userId);
-    if (!user) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found user/tgUser with id ' + userId);
+    if (!user) {
+        user = await TgUser.findByPk(userId, { include: [{ model: Contractor }] });
+        if (!user) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found user/tgUser with id ' + userId);
+        if (user.role === 4) await Contractor.destroy({ where: { id: user.Contractor?.id }, force: true });
+    }
     await user.destroy({ force: true });
 };
 
