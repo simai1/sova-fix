@@ -33,10 +33,10 @@ const create = async (
     if (contractorId) {
         contractor = await Contractor.findByPk(contractorId);
         if (!contractor) {
-            contractorId = undefined;
             contractor = undefined;
             extContractor = await ExtContractor.findByPk(contractorId);
             if (!extContractor) throw new ApiError(httpStatus.BAD_REQUEST, 'No contractors with id ' + contractorId);
+            contractorId = undefined;
             extContractorId = extContractor.id;
         }
     }
@@ -123,9 +123,9 @@ const update = async (
     if (contractorId) {
         contractor = await Contractor.findByPk(contractorId);
         if (!contractor) {
-            contractorId = undefined;
             extContractor = await ExtContractor.findByPk(contractorId);
             if (!extContractor) throw new ApiError(httpStatus.BAD_REQUEST, 'No contractors with id ' + contractorId);
+            contractorId = undefined;
             extContractorId = extContractor.id;
         }
     }
@@ -161,10 +161,10 @@ const techServiceDo = async (
     if (contractorId) {
         contractor = await Contractor.findByPk(contractorId);
         if (!contractor) {
-            contractorId = undefined;
             contractor = undefined;
             extContractor = await ExtContractor.findByPk(contractorId);
             if (!extContractor) throw new ApiError(httpStatus.BAD_REQUEST, 'No contractors with id ' + contractorId);
+            contractorId = undefined;
             extContractorId = extContractor.id;
         }
     }
