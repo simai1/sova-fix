@@ -3,7 +3,7 @@ import React, { useContext, useEffect, useState } from "react";
 import styles from "./PopUpToGraphic.module.scss";
 import DataContext from "../../../context";
 import ListInputTOForm from "../../../UI/ListInputTOForm/ListInputTOForm";
-import { GetAllСontractors, GetOneEquipment, TOEquipment } from "../../../API/API";
+import { GetAllСontractors, GetOneEquipment, GetextContractorsAll, TOEquipment } from "../../../API/API";
 
 function PopUpToGraphic() {
   const { context } = useContext(DataContext);
@@ -32,11 +32,17 @@ function PopUpToGraphic() {
 
     // Загрузка данных из API
     useEffect(() => {
-    GetAllСontractors().then((response) => {
-        if (response.status === 200) {
-            setContractors(response.data);
+      Promise.all([GetAllСontractors(), GetextContractorsAll()])
+      .then(([response1, response2]) => {
+        if (response1.status === 200 && response2.status === 200) {
+          // Объединяем данные из обоих ответов
+          const combinedData = [...response1.data, ...response2.data];
+          setContractors(combinedData);
         }
-    });
+      })
+      .catch((error) => {
+        console.error("Ошибка при получении данных:", error);
+      });
     }, []);
 
 

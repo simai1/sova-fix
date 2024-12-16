@@ -13,9 +13,6 @@ function PageCardContractors() {
   const [contId, setContId] = useState("");
   useEffect(() => {
     const matchingNames = context?.dataApointment.filter(appointment => context?.dataContractors.some(contractor => contractor?.id === appointment.contractor?.id && appointment?.urgency === "Маршрут" && appointment?.status !== 4 && appointment?.status !== 3 )).map(appointment => appointment.contractor?.name);
-    console.log('matchingNames', matchingNames)
-    console.log("context?.dataContractors", context?.dataContractors)
-    console.log(' context?.dataApointment',  context?.dataApointment)
    
     const uniqueMatchingNames = [...new Set(matchingNames)];
     setNamePodr(uniqueMatchingNames);

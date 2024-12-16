@@ -146,7 +146,6 @@ function Contextmenu(props) {
         props.setOpenConextMenu(false);
     }
     const copyRequest = () => {     
-        console.log("copy",  context.moreSelect[0])
         CreateCopyRequest(context.moreSelect[0]).then((resp) => {
             if(resp?.status === 200){
               setConfirmCopy(false);

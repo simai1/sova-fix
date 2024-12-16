@@ -100,7 +100,6 @@ function PhoneDataVizulizer(props) {
       setHasMore(newData.length === PAGE_SIZE);
     } catch (err) {
       setError("Ошибка загрузки данных.");
-      console.error(err);
     } finally {
       setLoading(false);
     }

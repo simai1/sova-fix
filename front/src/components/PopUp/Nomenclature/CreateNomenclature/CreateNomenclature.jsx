@@ -46,13 +46,11 @@ function CreateNomenclature() {
     const { name, comment, categoryId } = formData;
 
     if (!name || !categoryId) {
-      console.log("Заполните обязательные поля!");
+      alert("Заполните обязательные поля!");
       return;
     }
 
     const dataToSubmit = { name, comment, categoryId };
-    console.log("Отправка данных на сервер:", dataToSubmit);
-
     CreateNomenclatures(dataToSubmit).then((res) => {
       if (res?.status === 200) {
         context.UpdateDataNomenclature(); // Обновляем данные после успешного добавления

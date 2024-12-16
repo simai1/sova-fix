@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import PopUpContainer from "../../../../UI/PopUpContainer/PopUpContainer";
 import styles from "./PopUpNewEquipment.module.scss";
-import { CreateEquipment, GetAllNomenclatures, GetAllСontractors, GetObjectsAll } from "../../../../API/API";
+import { CreateEquipment, GetAllNomenclatures, GetAllСontractors, GetObjectsAll, GetextContractorsAll } from "../../../../API/API";
 import ListInputTOForm from "../../../../UI/ListInputTOForm/ListInputTOForm";
 import { useContext } from "react";
 import DataContext from "../../../../context";
@@ -17,7 +17,7 @@ function PopUpNewEquipment() {
     objectId: "",
     objectName: "",
     contractorId: "",
-    contractorName: "",
+    extContractorName: "",
     comment: "",
     supportFrequency: "",
     lastTO: "",
@@ -32,10 +32,16 @@ function PopUpNewEquipment() {
       }
     });
 
-    GetAllСontractors().then((response) => {
-      if (response.status === 200) {
-        setContractors(response.data);
+    Promise.all([GetAllСontractors(), GetextContractorsAll()])
+    .then(([response1, response2]) => {
+      if (response1.status === 200 && response2.status === 200) {
+        // Объединяем данные из обоих ответов
+        const combinedData = [...response1.data, ...response2.data];
+        setContractors(combinedData);
       }
+    })
+    .catch((error) => {
+      console.error("Ошибка при получении данных:", error);
     });
 
     GetAllNomenclatures().then((response) => {
@@ -43,6 +49,8 @@ function PopUpNewEquipment() {
         setNomenclatures(response.data);
       }
     });
+
+   
   };
 
   useEffect(() => {

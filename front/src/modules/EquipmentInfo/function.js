@@ -5,22 +5,20 @@ import * as XLSX from "xlsx";
 export const generateAndDownloadExcelEquipment = (equipmentData) => {
   const server = process.env.REACT_APP_API_URL;
 
-  // Формируем данные для блока "Информация об оборудовании"
+  // Формируем данные для блока "Информация об оборудовании" в виде двух столбцов
   const equipmentInfo = [
-    {
-      "Номер": equipmentData.number,
-      "Название": equipmentData.name,
-      "Категория": equipmentData.category,
-      "Объект": equipmentData.object,
-      "Подразделение": equipmentData.unit,
-      "Исполнитель": equipmentData.contractor,
-      "Частота ТО (дни)": equipmentData.supportFrequency,
-      "Дата последнего ТО": equipmentData.lastTOHuman,
-      "Дата следующего ТО": equipmentData.nextTOHuman,
-      "Комментарий": equipmentData.comment,
-      "Фото": `${server}/uploads/${equipmentData.photo}`,
-      "QR-код": `${server}/uploads/${equipmentData.qr}`,
-    },
+    ["Номер", String(equipmentData.number)],
+    ["Название", equipmentData.name],
+    ["Категория", equipmentData.category],
+    ["Объект", equipmentData.object],
+    ["Подразделение", equipmentData.unit],
+    ["Исполнитель", equipmentData.contractor],
+    ["Частота ТО (дни)", String(equipmentData.supportFrequency)],
+    ["Дата последнего ТО", equipmentData.lastTOHuman],
+    ["Дата следующего ТО", equipmentData.nextTOHuman],
+    ["Комментарий", equipmentData.comment],
+    ["Фото", `${server}/uploads/${equipmentData.photo}`],
+    ["QR-код", `${server}/uploads/${equipmentData.qr}`],
   ];
 
   // Формируем данные для блока "История обслуживания ТО"
@@ -32,17 +30,22 @@ export const generateAndDownloadExcelEquipment = (equipmentData) => {
     "Комментарий": entry.comment,
   }));
 
-  // Создаем два листа для Excel
+  // Создаем книгу Excel
   const workbook = XLSX.utils.book_new();
 
   // Лист с информацией об оборудовании
-  const equipmentSheet = XLSX.utils.json_to_sheet(equipmentInfo);
-  equipmentSheet["!cols"] = Object.keys(equipmentInfo[0]).map((key) => ({ wch: key.length + 15 }));
+  const equipmentSheet = XLSX.utils.aoa_to_sheet(equipmentInfo);
+  equipmentSheet["!cols"] = [
+    { wch: 25 }, // Ширина колонки с названиями полей
+    { wch: 70 }, // Ширина колонки со значениями
+  ];
   XLSX.utils.book_append_sheet(workbook, equipmentSheet, "Оборудование");
 
   // Лист с историей обслуживания ТО
   const historySheet = XLSX.utils.json_to_sheet(maintenanceHistory);
-  historySheet["!cols"] = Object.keys(maintenanceHistory[0]).map((key) => ({ wch: key.length + 15 }));
+  historySheet["!cols"] = Object.keys(maintenanceHistory[0]).map((key) => ({
+    wch: key.length + 15,
+  }));
   XLSX.utils.book_append_sheet(workbook, historySheet, "История ТО");
 
   // Генерация текущей даты для имени файла

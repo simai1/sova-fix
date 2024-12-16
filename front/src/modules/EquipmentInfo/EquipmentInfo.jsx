@@ -8,6 +8,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { GetOneEquipment, GetQrEquipment, UpdateEquipment, UpdatePhotoEquipment } from "../../API/API";
 import { saveAs } from "file-saver";
 import { generateAndDownloadExcelEquipment } from "./function";
+import EditImg from "./../../assets/images/Edit.svg"
+import DeleteImg from "./../../assets/images/x.svg"
 
 function EquipmentInfo() {
     const { context } = useContext(DataContext);
@@ -38,7 +40,6 @@ function EquipmentInfo() {
 
             // Проверяем, что дата корректна
             if (isNaN(formattedDate.getTime())) {
-            console.error("Некорректная дата:", lastTOHuman);
             return "Некорректная дата";
             }
 
@@ -138,7 +139,7 @@ function EquipmentInfo() {
                     <div className={styles.EquipmentblockInfoFirst}>
                         <div className={styles.EquipmentImg}>
                             <div className={styles.EquipmentImgInner}>
-                                {!popUpPhoto ? <img className={styles.EquipmentImgInnerEdit} onClick={() => {setPopUpPhoto(!popUpPhoto)}} src="/img/edit.svg" /> : <img className={styles.EquipmentImgInnerEditClose}  onClick={() => {setPopUpPhoto(!popUpPhoto); setSelectedFile(null)}} src="/img/x.svg" />}
+                                {!popUpPhoto ? <img className={styles.EquipmentImgInnerEdit} onClick={() => {setPopUpPhoto(!popUpPhoto)}} src={EditImg} /> : <img className={styles.EquipmentImgInnerEditClose}  onClick={() => {setPopUpPhoto(!popUpPhoto); setSelectedFile(null)}} src={DeleteImg} />}
                                 <img className={styles.EquipmentImgInnerPhotoOrig} src={context.dataEquipment?.photo ? `${process.env.REACT_APP_API_URL}/uploads/${context.dataEquipment?.photo}` : "/img/noimage.jpg"}/>
                             </div>
                             {popUpPhoto &&

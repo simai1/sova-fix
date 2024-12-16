@@ -3,7 +3,7 @@ import React, { useContext, useEffect, useState } from "react";
 import styles from "./PopUpNewTO.module.scss";
 import DataContext from "../../../context";
 import ListInputTOForm from "../../../UI/ListInputTOForm/ListInputTOForm";
-import { GetAllСontractors, TOEquipment } from "../../../API/API";
+import { GetAllСontractors, GetextContractorsAll, TOEquipment } from "../../../API/API";
 
 function PopUpNewTO() {
   const { context } = useContext(DataContext);
@@ -18,11 +18,17 @@ function PopUpNewTO() {
 
     // Загрузка данных из API
     useEffect(() => {
-    GetAllСontractors().then((response) => {
-        if (response.status === 200) {
-            setContractors(response.data);
+      Promise.all([GetAllСontractors(), GetextContractorsAll()])
+      .then(([response1, response2]) => {
+        if (response1.status === 200 && response2.status === 200) {
+          // Объединяем данные из обоих ответов
+          const combinedData = [...response1.data, ...response2.data];
+          setContractors(combinedData);
         }
-    });
+      })
+      .catch((error) => {
+        console.error("Ошибка при получении данных:", error);
+      });
     }, []);
 
 
