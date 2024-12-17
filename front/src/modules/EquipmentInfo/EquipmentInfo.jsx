@@ -21,15 +21,14 @@ function EquipmentInfo() {
         const queryParams = new URLSearchParams(location.search);
         setIdEquipment(queryParams.get("idEquipment"));
         context.setSelectEquipment(queryParams.get("idEquipment"))
+        context.GetDataEquipment(queryParams.get("idEquipment")) 
     } 
 
     useEffect(() => {
         getData()
     },[])
 
-    useEffect(() => {
-        context.GetDataEquipment(idEquipment)   
-    },[idEquipment])
+    
 
     const getBgColorlastTOHuman = (lastTOHuman) => {   
         
