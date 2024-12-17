@@ -43,7 +43,7 @@ export default class EquipmentDto {
         this.contractor = model.Contractor?.name;
         this.extContractor = model.ExtContractor?.name;
         this.name = model.Nomenclature?.name;
-        this.comment = model.Nomenclature?.comment;
+        this.comment = model.comment;
         this.history = model.TechServices
             ? // @ts-expect-error operands
               model.TechServices.map(ts => new TechServiceDto(ts)).sort((a, b) => new Date(b.date) - new Date(a.date))

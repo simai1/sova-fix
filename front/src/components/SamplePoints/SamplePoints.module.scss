@@ -1,7 +1,8 @@
 .SamplePoints {
-  width: 450px;
+  width: -webkit-fill-available;
   padding: 18px 16px;
   max-height: 55vh;
+  // max-height: 185px;
   .search {
     // width: 350px;
     display: flex;

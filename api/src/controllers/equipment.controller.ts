@@ -19,7 +19,7 @@ const getOne = catchAsync(async (req, res) => {
 });
 
 const create = catchAsync(async (req, res) => {
-    const { supportFrequency, lastTO, nextTO, objectId, contractorId, nomenclatureId, count, cost } = req.body;
+    const { supportFrequency, lastTO, nextTO, objectId, contractorId, nomenclatureId, count, cost, comment } = req.body;
     const photo = req.file?.filename;
     if (!objectId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing objectId');
     if (!nomenclatureId) throw new ApiError(httpStatus.BAD_REQUEST, 'missing nomenclatureId');
@@ -33,7 +33,8 @@ const create = catchAsync(async (req, res) => {
         photo,
         nomenclatureId,
         count,
-        cost
+        cost,
+        comment
     );
     res.json(equipment);
 });
@@ -60,6 +61,7 @@ const updatePhoto = catchAsync(async (req, res) => {
         undefined,
         undefined,
         undefined,
+        undefined,
         undefined
     );
     res.json({ status: 'ok' });
@@ -67,8 +69,18 @@ const updatePhoto = catchAsync(async (req, res) => {
 
 const update = catchAsync(async (req, res) => {
     const { equipmentId } = req.params;
-    const { supportFrequency, lastTO, nextTO, objectId, contractorId, nomenclatureId, count, cost } = req.body;
-    if (!supportFrequency && !lastTO && !nextTO && !objectId && !contractorId && !nomenclatureId && !count && !cost)
+    const { supportFrequency, lastTO, nextTO, objectId, contractorId, nomenclatureId, count, cost, comment } = req.body;
+    if (
+        !supportFrequency &&
+        !lastTO &&
+        !nextTO &&
+        !objectId &&
+        !contractorId &&
+        !nomenclatureId &&
+        !count &&
+        !cost &&
+        !comment
+    )
         throw new ApiError(httpStatus.BAD_REQUEST, 'Missing body');
     await equipmentService.update(
         equipmentId,
@@ -80,7 +92,8 @@ const update = catchAsync(async (req, res) => {
         contractorId,
         nomenclatureId,
         count,
-        cost
+        cost,
+        comment
     );
     res.json({ status: 'ok' });
 });

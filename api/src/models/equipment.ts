@@ -16,6 +16,7 @@ export default class Equipment extends Model {
     qr?: string;
     count!: number;
     cost!: number;
+    comment?: string;
     Nomenclature?: Nomenclature;
     nomenclatureId?: string;
     Unit?: Unit;
@@ -73,6 +74,10 @@ export default class Equipment extends Model {
                     type: DataTypes.REAL,
                     allowNull: false,
                     defaultValue: 0,
+                },
+                comment: {
+                    type: DataTypes.STRING,
+                    allowNull: true,
                 },
             },
             {

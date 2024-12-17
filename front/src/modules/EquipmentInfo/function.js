@@ -8,17 +8,16 @@ export const generateAndDownloadExcelEquipment = (equipmentData) => {
   // Формируем данные для блока "Информация об оборудовании" в виде двух столбцов
   const equipmentInfo = [
     ["Номер", String(equipmentData.number)],
-    ["Название", equipmentData.name],
-    ["Категория", equipmentData.category],
-    ["Объект", equipmentData.object],
     ["Подразделение", equipmentData.unit],
-    ["Исполнитель", equipmentData.contractor],
-    ["Частота ТО (дни)", String(equipmentData.supportFrequency)],
+    ["Объект", equipmentData.object],
+    ["Категория", equipmentData.category],
+    ["Название оборудования", equipmentData.name],
     ["Дата последнего ТО", equipmentData.lastTOHuman],
     ["Дата следующего ТО", equipmentData.nextTOHuman],
-    ["Комментарий", equipmentData.comment],
     ["Фото", `${server}/uploads/${equipmentData.photo}`],
-    ["QR-код", `${server}/uploads/${equipmentData.qr}`],
+    ["Подрядчик", equipmentData.contractor || equipmentData.extContractor],
+    ["Частота ТО (дни)", String(equipmentData.supportFrequency)],
+    ["Комментарий", equipmentData.comment],
   ];
 
   // Формируем данные для блока "История обслуживания ТО"
