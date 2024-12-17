@@ -6,17 +6,10 @@
     max-height: 65vh;
     overflow-y: scroll;
     border-radius: 8px;  
-  //   position: relative;
-  //  &::after {
-  //       content: "";
-  //       background-color: red;
-  //       width: 10px;
-  //       height: 10px;
-  //       position: absolute;
-  //       z-index: 100;
-  //       right: 0px;
-  //       bottom: 0px;
-  //     }
+    min-height: 65vh;
+    &::-webkit-scrollbar-track {
+      background: inherit; /* делаем фон прозрачным */
+    }
   th[name="tgId"], th[name="login"], th[name="repairPrice"], th[name="comment"], th[name="checkPhoto"], th[name="problemDescription"],th[name="supportFrequency"], th[name="photo"], th[name="fileName"], th[name="info"], th[name="id"], th[name="number"]{
     &:hover {
      background-color: inherit  ;
@@ -146,6 +139,7 @@
         text-align: center;
         font-size: 24px;
         padding: 50px 0px;
+        height: 65vh;
       }
 }
 .statusClick {

@@ -341,6 +341,19 @@ function UniversalTable(props) {
     return null;
   };
 
+  const chectHeights = () => {
+      const url = window.location.pathname;
+      switch (url) {
+        case '/Equipment/EquipmentInfo':
+          return 'auto';
+        case '/RepotYour':
+          return '20vh';
+        default:
+          return '65vh'
+      }
+  }
+  
+
   return (
     <div
       className={styles.UniversalTable}
@@ -349,6 +362,8 @@ function UniversalTable(props) {
           document.location.pathname === "/CardPage/CardPageModule"
             ? "73vh"
             : `${props?.heightTable}px` || "auto",
+            minHeight: chectHeights(),
+            
       }}
     >
      <table>
