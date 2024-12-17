@@ -43,8 +43,11 @@ if (!fs.existsSync(dir)) {
 }
 
 // cron section
+console.log('Starting cron jobs...');
 cronService.setDays.start();
+console.log('setDays started');
 cronService.autoRequests.start();
+console.log('autoRequests started');
 // cronService.removeUselessFiles.start();
 
 // routes section
