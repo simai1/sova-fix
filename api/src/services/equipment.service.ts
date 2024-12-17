@@ -202,7 +202,7 @@ const getOrGenerateQrCode = async (equipmentId: string) => {
     if (!equipment) throw new ApiError(httpStatus.BAD_REQUEST, 'No equipment with id ' + equipmentId);
     if (equipment.qr) return equipment.qr;
     else {
-        const url = `${process.env.API_URL}/Equipment/EquipmentInfo?idEquipment=${equipmentId}`;
+        const url = `${process.env.WEB_URL}/Equipment/EquipmentInfo?idEquipment=${equipmentId}`;
         const qr = QRCode(6, 'L');
         qr.addData(url);
         qr.make();
