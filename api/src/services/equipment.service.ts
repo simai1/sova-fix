@@ -23,7 +23,8 @@ const create = async (
     photo: string | undefined,
     nomenclatureId: string,
     count: number | undefined,
-    cost: number | undefined
+    cost: number | undefined,
+    comment: string | undefined
 ) => {
     const nomenclature = await Nomenclature.findByPk(nomenclatureId, { include: [{ model: Category }] });
     if (!nomenclature) throw new ApiError(httpStatus.BAD_REQUEST, 'No nomenclature with id ' + nomenclatureId);
@@ -48,7 +49,6 @@ const create = async (
         supportFrequency,
         lastTO,
         nextTO: nextTO || now,
-        comment: nomenclature.comment,
         photo,
         categoryId: nomenclature.Category?.id,
         unitId: object.Unit?.id,
@@ -58,6 +58,7 @@ const create = async (
         nomenclatureId,
         count,
         cost,
+        comment,
     });
     equipment.ExtContractor = extContractor;
     equipment.Contractor = contractor;
@@ -111,7 +112,8 @@ const update = async (
     contractorId: string | undefined,
     nomenclatureId: string | undefined,
     count: number | undefined,
-    cost: number | undefined
+    cost: number | undefined,
+    comment: string | undefined
 ) => {
     const equipment = await Equipment.findByPk(equipmentId);
     if (!equipment) throw new ApiError(httpStatus.BAD_REQUEST, 'No equipment with id ' + equipmentId);
@@ -143,6 +145,7 @@ const update = async (
         nomenclatureId,
         cost,
         count,
+        comment,
         contractorId: contractorId || extContractorId ? (contractorId ? contractorId : null) : undefined,
         extContractorId: contractorId || extContractorId ? (extContractorId ? extContractorId : null) : undefined,
     });
@@ -189,7 +192,8 @@ const techServiceDo = async (
         undefined,
         undefined,
         techServices.length,
-        techServices.reduce((acc, ts) => acc + ts.sum, 0)
+        techServices.reduce((acc, ts) => acc + ts.sum, 0),
+        undefined
     );
 
     if (contractorId) techService.Contractor = contractor;
@@ -202,7 +206,7 @@ const getOrGenerateQrCode = async (equipmentId: string) => {
     if (!equipment) throw new ApiError(httpStatus.BAD_REQUEST, 'No equipment with id ' + equipmentId);
     if (equipment.qr) return equipment.qr;
     else {
-        const url = `${process.env.API_URL}/Equipment/EquipmentInfo?idEquipment=${equipmentId}`;
+        const url = `${process.env.WEB_URL}/Equipment/EquipmentInfo?idEquipment=${equipmentId}`;
         const qr = QRCode(6, 'L');
         qr.addData(url);
         qr.make();
