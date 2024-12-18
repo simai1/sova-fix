@@ -21,16 +21,17 @@ export const generateAndDownloadExcel = (data, nameTable, expenseSum) => {
 
     case "Оборудование":
       transformedData = data.map(({ ...item }) => ({
-        Категория: item?.category,
-        Комментарий: item?.comment,
-        Исполнитель: item?.contractor,
-        Дата_последнего_ТО: item?.lastTOHuman,
-        Дата_следующего_ТО: item?.nextTOHuman,
-        Номер: item?.number,
-        Объект: item?.object,
-        Частота_ТО: item?.supportFrequency,
-        Подразделение: item?.unit,
+        Номер: String(item?.number) || "___",
+        Подразделение: item?.unit || "___",
+        Объект: item?.object || "___",
+        Категория: item?.category || "___",
+        Название_оборудования: item?.name || "___",
+        Дата_последнего_ТО: item?.lastTOHuman || "___",
+        Дата_следующего_ТО: item?.nextTOHuman || "___",
         Фото: `${server}/uploads/${item?.photo}`,
+        Подрядчик: item?.contractor || item?.extContractor || "___",
+        Частота_ТО: String(item?.supportFrequency) || "___",
+        Комментарий: item?.comment || "___",
       }));
       break;
     case "Заявки":
