@@ -23,7 +23,7 @@ function isDifferenceGreaterThan7Days(date2: Date) {
 
         const differenceInDays = differenceInMs / (1000 * 60 * 60 * 24);
 
-        return differenceInDays > 7;
+        return differenceInDays < 7;
     } catch (error) {
         console.error(`Ошибка: ${error}`);
         return false;
@@ -106,7 +106,7 @@ export default {
         });
     }),
     autoRequests: new CronJob(
-        '0 13 * * *',
+        '0 8 * * *',
         async () => {
             logger.log({
                 level: 'info',
@@ -122,7 +122,10 @@ export default {
                 ],
             });
             const needTO = equipments.filter(eq => isDifferenceGreaterThan7Days(eq.lastTO));
-            const tgUser = await TgUser.findOne({ where: { role: 2 } });
+            const tgUser = await TgUser.findOne({
+                where: { role: 2 },
+                order: [['createdAt', 'ASC']],
+            });
             for (const e of needTO) {
                 try {
                     if (!(e.Contractor || e.ExtContractor)) continue;
@@ -152,13 +155,17 @@ export default {
                         },
                     });
                     if (created)
-                        sendMsg({
-                            msg: {
-                                requestId: request.id,
-                                customer: request.createdBy,
-                            },
-                            event: 'REQUEST_CREATE',
-                        } as WsMsgData);
+                        logger.log({
+                            level: 'info',
+                            message: `[${format(new Date(), 'dd.MM.yyyy HH:mm')}] [CRON autoRequests]: ${request.number}, ${request.createdBy}] `,
+                        });
+                    sendMsg({
+                        msg: {
+                            requestId: request.id,
+                            customer: request.createdBy,
+                        },
+                        event: 'REQUEST_CREATE',
+                    } as WsMsgData);
                 } catch (e) {
                     console.log(e);
                 }
