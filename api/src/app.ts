@@ -19,6 +19,7 @@ import extContractorRoute from './routes/extContractor.route';
 import equipmentRoute from './routes/equipment.route';
 import categoryRoute from './routes/category.route';
 import nomenclatureRoute from './routes/nomenclature.route';
+import testRoute from './routes/test.route';
 
 import logger from './utils/logger';
 import winston from 'winston';
@@ -43,11 +44,8 @@ if (!fs.existsSync(dir)) {
 }
 
 // cron section
-console.log('Starting cron jobs...');
 cronService.setDays.start();
-console.log('setDays started');
 cronService.autoRequests.start();
-console.log('autoRequests started');
 // cronService.removeUselessFiles.start();
 
 // routes section
@@ -64,6 +62,7 @@ app.use('/extContractors', extContractorRoute);
 app.use('/equipments', equipmentRoute);
 app.use('/categories', categoryRoute);
 app.use('/nomenclatures', nomenclatureRoute);
+app.use('/test', testRoute);
 
 // websocket section
 app.ws('/', () => {
