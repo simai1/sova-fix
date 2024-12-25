@@ -1,4 +1,5 @@
 export const headerTableEquipment = [
+    { key: "info", value: "Информация", isActive: true },
     { key: "number", value: "Номер", isActive: true },
     { key: "unit", value: "Подразделение", isActive: true },
     { key: "object", value: "Объект", isActive: true },
@@ -10,5 +11,4 @@ export const headerTableEquipment = [
     { key: "contractor", value: "Подрядчик", isActive: true },
     { key: "supportFrequency", value: "Частота ТО", isActive: true },
     { key: "comment", value: "Комментарий", isActive: true },
-    { key: "info", value: "Информация", isActive: true },
   ]

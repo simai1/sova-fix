@@ -65,6 +65,7 @@
     }
     .pupUpSecondContainerInfo{
         display: flex;
+        position: relative;
         // align-items: stretch; /* Выравнивание по высоте */
         height: 64px;
         p{
@@ -137,3 +138,9 @@
         text-align: center;
     }
 }
+
+    .dayWord{
+        position: absolute;
+        // right: 70px;
+        top: 20px;
+    }

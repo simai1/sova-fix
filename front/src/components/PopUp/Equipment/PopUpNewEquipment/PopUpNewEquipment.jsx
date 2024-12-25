@@ -57,26 +57,6 @@ function PopUpNewEquipment() {
     getData();
   }, []);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-
-    setFormData((prevData) => {
-      const updatedData = { ...prevData, [name]: value };
-
-      // Автоматически вычисляем дату следующего ТО
-      if (name === "lastTO" || name === "supportFrequency") {
-        if (updatedData.lastTO && updatedData.supportFrequency) {
-          const nextDate = new Date(updatedData.lastTO);
-          nextDate.setDate(nextDate.getDate() + parseInt(updatedData.supportFrequency, 10));
-          updatedData.nextTO = nextDate.toISOString().split("T")[0];
-        } else {
-          updatedData.nextTO = "";
-        }
-      }
-
-      return updatedData;
-    });
-  };
 
   const handleListData = (name, value) => {
     if (name === "objectId") {
@@ -136,6 +116,95 @@ function PopUpNewEquipment() {
   const toggleDropdown = (name) => {
     setActiveDropdown(activeDropdown === name ? null : name);
   };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+
+    setFormData((prevData) => {
+      const updatedData = { ...prevData, [name]: value };
+
+      // Автоматически вычисляем дату следующего ТО
+      if (name === "lastTO" || name === "supportFrequency") {
+        if (updatedData.lastTO && updatedData.supportFrequency) {
+          const nextDate = new Date(updatedData.lastTO);
+          nextDate.setDate(nextDate.getDate() + parseInt(updatedData.supportFrequency, 10));
+          updatedData.nextTO = nextDate.toISOString().split("T")[0];
+        } else {
+          updatedData.nextTO = "";
+        }
+      }
+
+      return updatedData;
+    });
+  };
+
+  // Функция для определения правильного падежа
+  function getDayWord(number) {
+    if (!number || isNaN(number)) return "";
+    const absNumber = Math.abs(number) % 100; // Берем абсолютное значение и обрезаем до 100
+    const lastTwoDigits = absNumber % 10;
+
+    if (absNumber > 10 && absNumber < 20) {
+      return `дней`;
+    }
+    if (lastTwoDigits === 1) {
+      return `день`;
+    }
+    if (lastTwoDigits >= 2 && lastTwoDigits <= 4) {
+      return `дня`;
+    }
+    return `дней`;
+  }
+  const getRight = (value) =>{
+    switch (value.length) {
+      case(1):
+        return "110px";
+        case (2):
+          return "105px";
+        case (3):
+          return "100px";
+        case (4):
+          return "95px";
+        case (5):
+          return "90px";
+        case (6):
+          return "85px";
+        case (7):
+          return "80px";
+        case (8):
+          return "75px";
+        case (9):
+          return "70px";
+        case (10):
+          return "65px";
+        case (11):
+          return "60px";
+        case (12):
+          return "55px";
+        case (13):
+          return "50px";
+        case (14):
+          return "45px";
+        case (15):
+          return "40px";
+        case (16):
+          return "35px";
+        case (17):
+          return "30px";
+        case (18):
+          return "25px";
+        case (19):
+          return "20px";
+        case (20):
+          return "15px";
+        case (21):
+          return "10px";
+        case (22):
+          return "5px";
+        default:
+          return "0px";
+    }
+  }
 
   return (
     <PopUpContainer width={true} title={"Новое оборудование"} mT={150}>
@@ -201,14 +270,19 @@ function PopUpNewEquipment() {
             <div className={styles.pupContainerInfoTitle}>
               <p>Период обслуживания:</p>
             </div>
-            <input
-              name="supportFrequency"
-              className={styles.pupUpContainerInfoInput}
-              placeholder="Укажите количество дней"
-              value={formData.supportFrequency}
-              onChange={handleInputChange}
-              style={{ textAlign: "center", paddingLeft: "0px" }}
-            />
+              <input
+                  name="supportFrequency"
+                  className={styles.pupUpContainerInfoInput}
+                  placeholder="Укажите количество дней"
+                  value={formData.supportFrequency}
+                  onChange={handleInputChange}
+                  type="number"
+                  style={{ textAlign: "center", paddingLeft: "0px" }}
+                />
+                <span className={styles.dayWord} style={{right:getRight(formData.supportFrequency)}}>
+                  {formData.supportFrequency && getDayWord(parseInt(formData.supportFrequency, 10))}
+                </span>
+             
           </div>
           <div className={styles.pupUpSecondContainerInfo}>
             <div className={styles.pupContainerInfoTitle}>

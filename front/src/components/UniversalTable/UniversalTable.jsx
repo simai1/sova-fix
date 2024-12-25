@@ -112,6 +112,25 @@ function UniversalTable(props) {
     navigate(`/Equipment/EquipmentInfo?idEquipment=${dataRow.id}`)
   };
 
+  function getDayWord(number) {
+    const absNumber = Math.abs(number) % 100; // Берем абсолютное значение и обрезаем до 100
+    const lastTwoDigits = absNumber % 10;
+  
+    if (absNumber > 10 && absNumber < 20) {
+      return `${number} дней`;
+    }
+  
+    if (lastTwoDigits === 1) {
+      return `${number} день`;
+    }
+  
+    if (lastTwoDigits >= 2 && lastTwoDigits <= 4) {
+      return `${number} дня`;
+    }
+  
+    return `${number} дней`;
+  }
+
   const getValue = (value, key, index, row) => {
     switch (key) {
       case "contractor":
@@ -156,7 +175,10 @@ function UniversalTable(props) {
           "___"
         );
         case "info":
-          return <button className={styles.buttonInfo} onClick={() => buttonInfoClick(row)}>Подробная информация</button>
+          return <button className={styles.buttonInfo} onClick={() => buttonInfoClick(row)}>Карточка оборудования</button>
+        case "supportFrequency":
+        return <p>{value ? getDayWord(value) : "___"} </p>
+        
       case "fileName":
         return value !== "___" ? (
           <div>
