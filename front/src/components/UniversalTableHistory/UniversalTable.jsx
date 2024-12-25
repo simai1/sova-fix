@@ -26,7 +26,7 @@ function UniversalTableHistory(props) {
         return rowIndex + 1 || "___";   
       case "repairPrice":
         case "sum":
-        return value.toLocaleString().replace(",", " ") + " руб." || "___";  
+        return value?.toLocaleString().replace(",", " ") + " руб." || "___";  
       default:
         return value || "___";
     }

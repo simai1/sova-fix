@@ -154,7 +154,7 @@ function UniversalTable(props) {
    
       case "repairPrice":
         case "sum":
-        return value.toLocaleString().replace(",", " ") || "___";
+        return value?.toLocaleString().replace(",", " ") || "___";
 
      
       case "checkPhoto":
