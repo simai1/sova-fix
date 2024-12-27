@@ -178,7 +178,6 @@ function UniversalTable(props) {
           return <button className={styles.buttonInfo} onClick={() => buttonInfoClick(row)}>Карточка оборудования</button>
         case "supportFrequency":
         return <p>{value ? getDayWord(value) : "___"} </p>
-        
       case "fileName":
         return value !== "___" ? (
           <div>
