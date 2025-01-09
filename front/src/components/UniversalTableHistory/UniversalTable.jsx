@@ -53,7 +53,17 @@ function UniversalTableHistory(props) {
           ))}
         </thead>
         <tbody>
-          {tableBodyData?.map((row, rowIndex) => (
+          {tableBodyData?.length === 0 ? (
+            <tr>
+              <td
+                colSpan={tableHeaderData.length}
+                className={styles.tableNotData}
+              >
+                Нет данных
+              </td>
+            </tr>
+          ) : (
+            tableBodyData?.map((row, rowIndex) => (
             <tr
               key={rowIndex}
               className={context?.selectedRows === row?.id && styles.setectedTr}
@@ -68,17 +78,10 @@ function UniversalTableHistory(props) {
                 </td>
               ))}
             </tr>
-          ))}
-          {tableBodyData.length === 0 && (
-            <tr>
-              <td
-                colSpan={tableHeaderData.length}
-                className={styles.tableNotData}
-              >
-                Нет данных
-              </td>
-            </tr>
-          )}
+          ))
+          )
+          
+          }
         </tbody>
       </table>
     </div>
