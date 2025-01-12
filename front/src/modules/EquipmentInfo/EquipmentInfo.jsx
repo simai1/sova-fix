@@ -10,6 +10,7 @@ import { saveAs } from "file-saver";
 import { generateAndDownloadExcelEquipment } from "./function";
 import EditImg from "./../../assets/images/Edit.svg"
 import DeleteImg from "./../../assets/images/x.svg"
+import UniversalTableHistory from "../../components/UniversalTableHistory/UniversalTable";
 
 function EquipmentInfo() {
     const { context } = useContext(DataContext);
@@ -221,6 +222,12 @@ function EquipmentInfo() {
                                 <p>История ТО</p>
                             </div>
                             <div>
+                                <UniversalTableHistory
+                                    tableHeader={tableHeaderEquipmentInfo}
+                                    tableBody={context?.dataEquipment?.history}
+                                />
+                            </div>
+                            {/* <div>
                                 <UniversalTable  
                                     tableName="table10"
                                     tableHeader={tableHeaderEquipmentInfo}
@@ -229,7 +236,7 @@ function EquipmentInfo() {
                                     FilterFlag={false}
                                     heightTable={365}
                                 />
-                            </div>
+                            </div> */}
                     </div>
                     {/* <div className={styles.CommentTo}>
                         <div className={styles.TitleSecondBlock}>

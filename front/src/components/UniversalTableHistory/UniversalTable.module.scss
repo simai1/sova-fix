@@ -1,0 +1,234 @@
+@import "../../styles/mixins.scss";
+@import "../../styles/color.scss";
+
+.UniversalTable{
+    margin-top: 18px;
+    overflow-y: scroll;
+    border-radius: 8px;  
+    height: 350px;
+    &::-webkit-scrollbar-track {
+      background: inherit; /* делаем фон прозрачным */
+    }
+  th[name="tgId"], th[name="login"], th[name="repairPrice"], th[name="comment"], th[name="checkPhoto"], th[name="problemDescription"],th[name="supportFrequency"], th[name="photo"], th[name="fileName"], th[name="info"], th[name="id"], th[name="number"]{
+    &:hover {
+     background-color: inherit  ;
+    }
+  }
+  th[name="CountEquipment"]{
+    width: 150px;
+  }
+ 
+  th[name="status"]{
+    width: 210px;
+  }
+    table{
+   
+        width: 100%;
+        min-height: auto;
+        border-radius: 8px;
+        min-height: 115px;
+        thead {
+          position: sticky;
+          top: 0;
+          z-index: 1;
+          background-color: var(--tableTh); // Ensure this background color is set, otherwise it will be transparent.
+            th{
+              position: relative;
+                align-items: center;
+              
+                padding: 10px;
+                text-align: center;
+                font-weight: 300;
+                &:nth-child(1) {
+                  border-radius: 8px 0 0 0;
+                }
+                &:last-child{
+                  border-radius: 0 8px 0 0;
+                }
+              
+                img{
+                  margin-left: 5px;
+                }
+                
+                
+
+        .sampleComponent {
+          display: flex;
+          position: absolute;
+          max-width: 225px;
+          min-width: 225px;
+          // height: 200px;
+          background-color: #ffffff;
+          left: 0;
+          top: 45px;
+          border-radius: 8px;
+          box-shadow: 9px 3px 18px rgba(0, 0, 0, 0.2);
+        }
+            }     
+          
+        }
+        tbody{
+          
+            td{
+                padding: 10px;
+                align-items: center;
+                text-align: center;
+                background-color:#f7f7f7;
+                
+            }
+        }
+        .imgTable{
+            width: 150px;
+            height: 150px;
+            transition: 0.1s all linear;
+            object-fit: cover; /* Масштабирование и обрезка */
+            border-radius: 4px; /* Для скругления углов, если нужно */
+            &:hover{
+              opacity: 0.4;
+            }
+          }
+        
+    }
+    .modal {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgb(0, 0, 0);
+        background-color: rgba(0, 0, 0, 0.9);
+      }
+      
+      .modalContent {
+        margin: auto;
+        display: block;
+        max-width: 80%;
+        max-height: 80%;
+      }
+      
+      .close {
+        position: absolute;
+        top: 15px;
+        right: 35px;
+        color: #f1f1f1;
+        font-size: 40px;
+        font-weight: bold;
+        transition: 0.3s;
+      }
+      
+      .close:hover,
+      .close:focus {
+        color: #bbb;
+        text-decoration: none;
+        cursor: pointer;
+      }
+      .tableNotData{
+        text-align: center;
+        font-size: 24px;
+        padding: 50px 0px;
+        height: 200px;
+      }
+}
+.statusClick {
+  padding: 4px 8px;
+  border-radius: 8px;
+  background-color: var(--dark-grey-color);
+  text-align: center;
+  position: relative;
+  &:hover {
+    background-color: var(--Active-gray-color);
+  }
+}
+.tgIdLink{
+  text-decoration: none;
+  color: rgb(189, 150, 108);
+  &:hover{
+    color: var(--ActiveText-color);
+  }
+}
+.shovStatusPop {
+  max-height: 150px ;
+  overflow-y: scroll;
+  transform: translateY(20px);
+  position: absolute;
+  top: -20px;
+  right: -65px;
+  background-color: #fff;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 1px 0px 8px var(--dark-grey-color);
+  z-index: 100;
+  ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    li {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      text-align: start;
+      &:hover {
+        background-color: var(--Active-gray-color);
+        border-radius: 8px;
+      }
+    }
+  }
+  
+}
+.FileVideo video{
+  width: 150px;
+  height: 150px;
+}
+
+.RoleClick {
+  position: relative;
+}
+.shovStatusPopRole {
+  max-height: 150px;
+  overflow-y: scroll;
+  transform: translateY(20px);
+  position: absolute;
+  background-color: #fff;
+  padding: 10px;
+  border-radius: 8px!important;
+  box-shadow: 1px 0px 8px var(--dark-grey-color);
+  z-index: 100;
+  left: -190px;
+  top: -20px;
+  ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    li {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      text-align: start;
+      &:hover {
+        background-color: var(--Active-gray-color);
+        border-radius: 8px;
+      }
+    }
+  }
+}
+.buttonInfo{
+  background-color: inherit;
+  border: none;
+  border: 2px solid var(--turquoise-color);
+  border-radius: 5px;
+  padding: 5px;
+  cursor: pointer;
+  &:hover{
+    background-color: var(--turquoise-color);
+  }
+  &:active{
+    background-color: #ffd30d;
+    border: 2px solid #ffd30d;
+  }
+  
+}
