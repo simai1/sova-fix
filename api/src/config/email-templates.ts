@@ -16,7 +16,7 @@ export default {
                 <p>С уважением,<br>Команда поддержки</p>
             </div>
             <div class="footer">
-                <p>©2024 SOVA-fix. Все права защищены.</p>
+                <p>©2025 SOVA-fix. Все права защищены.</p>
             </div>`,
     },
 };
