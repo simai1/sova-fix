@@ -26,8 +26,8 @@ export const models = {
     ObjectDir,
     RepairRequest,
     ApiKey,
-    Nomenclature,
     Category,
+    Nomenclature,
     Equipment,
     TechService,
 };
