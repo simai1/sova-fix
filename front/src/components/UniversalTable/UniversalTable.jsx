@@ -35,8 +35,6 @@ function UniversalTable(props) {
     context.setSelectRowDirectory(null);
   }, [props?.tableHeader, props?.tableBody, store]);
 
-
-
   const openModal = (src) => {
     if (modalImage) {
       setModalImage(null);
@@ -47,30 +45,17 @@ function UniversalTable(props) {
 
   //! открываем или закрываем модальное окно samplePoints
   const funClickTh = (event, index, key) => {
-    if (
-      event.target.localName === "th" &&
-      key !== "number" &&
-      key !== "tgId" &&
-      key !== "info" &&
-      key !== "login" &&
-      key !== "checkPhoto" &&
-      key !== "photo" &&
-      key !== "fileName" &&
-      key !== "problemDescription" &&
-      key !== "id" && 
-      key !== "repairPrice" &&
-      key !== "comment" &&
-      key !== "supportFrequency"
+    const nonSelectableKeys = new Set([
+      "number", "tgId", "info", "login", 
+      "checkPhoto", "photo", "fileName", 
+      "problemDescription", "id", "repairPrice", 
+      "comment", "supportFrequency"
+    ]);
 
-    ) {
-      if (sampleShow === index) {
-        setSampleShow(null);
-      } else {
-        setSampleShow(index);
-      }
+    if (event.target.localName === "th" && !nonSelectableKeys.has(key)) {
+      setSampleShow(sampleShow === index ? null : index);
     }
   };
-
 
   //! функция фильтрации
   function filterBasickData(data, chekeds) {
@@ -113,76 +98,61 @@ function UniversalTable(props) {
   };
 
   function getDayWord(number) {
-    const absNumber = Math.abs(number) % 100; // Берем абсолютное значение и обрезаем до 100
-    const lastTwoDigits = absNumber % 10;
-  
-    if (absNumber > 10 && absNumber < 20) {
-      return `${number} дней`;
-    }
-  
-    if (lastTwoDigits === 1) {
+  const absNumber = Math.abs(number) % 100;
+  if (absNumber > 10 && absNumber < 20) return `${number} дней`;
+
+  switch (absNumber % 10) {
+    case 1:
       return `${number} день`;
-    }
-  
-    if (lastTwoDigits >= 2 && lastTwoDigits <= 4) {
+    case 2:
+    case 3:
+    case 4:
       return `${number} дня`;
-    }
-  
-    return `${number} дней`;
+    default:
+      return `${number} дней`;
   }
+}
 
   const getValue = (value, key, index, row) => {
     switch (key) {
       case "contractor":
-        return value || row.extContractor;
+        return value ?? row.extContractor;
       case "itineraryOrder":
-        return;
+        return null;
       case "tgId":
         return value ? (
-          <a
-            className={styles.tgIdLink}
-            href={`https://t.me/${row[index]?.linkId}`}
-          >
+          <a className={styles.tgIdLink} href={`https://t.me/${row[index]?.linkId}`}>
             {value}
           </a>
         ) : (
           "___"
         );
-        
       case "id":
         return index + 1;
-   
       case "repairPrice":
-        case "sum":
-        return value?.toLocaleString().replace(",", " ") || "___";
-
-     
+      case "sum":
+        return value ? value.toLocaleString().replace(",", " ") : "___";
       case "checkPhoto":
-        case "photo":
+      case "photo":
         return value !== "___" ? (
-          <div>
-            <img
-              src={value !== null ?`${process.env.REACT_APP_API_URL}/uploads/${value}` : "/img/noimage.jpg"}
-              alt="Uploaded file"
-              onClick={() =>
-                value !== null && openModal(`${process.env.REACT_APP_API_URL}/uploads/${value}`)
-              }
-              style={{ cursor: "pointer" }}
-              className={styles.imgTable}
-            />
-          </div>
+          <img
+            src={value !== null ? `${process.env.REACT_APP_API_URL}/uploads/${value}` : "/img/noimage.jpg"}
+            alt="Uploaded file"
+            onClick={() => value !== null && openModal(`${process.env.REACT_APP_API_URL}/uploads/${value}`)}
+            style={{ cursor: "pointer" }}
+            className={styles.imgTable}
+          />
         ) : (
           "___"
         );
-        case "info":
-          return <button className={styles.buttonInfo} onClick={() => buttonInfoClick(row)}>Карточка оборудования</button>
-        case "supportFrequency":
-        return <p>{value ? getDayWord(value) : "___"} </p>
+      case "info":
+        return <button className={styles.buttonInfo} onClick={() => buttonInfoClick(row)}>Карточка оборудования</button>;
+      case "supportFrequency":
+        return <p>{value ? getDayWord(value) : "___"} </p>;
       case "fileName":
         return value !== "___" ? (
           <div>
-          {
-            isVideo(value) ? (
+            {isVideo(value) ? (
               <div className={styles.FileVideo}>
                 <video
                   onClick={(e) => {
@@ -205,15 +175,13 @@ function UniversalTable(props) {
                 style={{ cursor: "pointer" }}
                 className={styles.imgTable}
               />
-            )
-          }
+            )}
           </div>
-         
         ) : (
           "___"
         );
       default:
-        return value || "___";
+        return value ?? "___";
     }
   };
 
@@ -237,58 +205,44 @@ function UniversalTable(props) {
     };
   }, [context]);
 
-  const textAlign = (keys, item) => {
-    if (
-      keys === "number" ||
-      keys === "count" ||
-      keys === "itineraryOrder" ||
-      keys === "startCoop" ||
-      keys === "daysAtWork" ||
-      keys === "completeDate" ||
-      keys === "createdAt" ||
-      keys === "repairPrice" ||
-      keys === "startCoop" ||
-      keys === "tgId" ||
-      keys === "id" ||
-      keys === "supportFrequency" ||
-      keys === "lastTOHuman" ||
-      keys === "nextTOHuman" ||
-      keys === "planCompleteDate" ||
-      keys === "countEquipment" || 
-      keys === "dateHuman" ||
-      keys === "sum"
-    ) {
-      return "center";
-    }
-    if (item === "___") {
-      return "center";
-    } else {
-      return "left";
-    }
-  };
-
-  const clickTh = (key) => {
-    if (key !== "number") {
-      setActiwFilter(key);
-    }
+  const textAlign = (key) => {
+    const centerKeys = [
+      "number",
+      "count",
+      "itineraryOrder",
+      "startCoop",
+      "daysAtWork",
+      "completeDate",
+      "createdAt",
+      "repairPrice",
+      "startCoop",
+      "tgId",
+      "id",
+      "supportFrequency",
+      "lastTOHuman",
+      "nextTOHuman",
+      "planCompleteDate",
+      "countEquipment",
+      "dateHuman",
+      "sum",
+    ];
+    return centerKeys.includes(key) ? "center" : "left";
   };
 
   const SetCountCard = (el, idAppoint) => {
-    const idInteger = context.dataContractors.find(
-      (el) => el.name === context?.tableData[0].contractor.name
-    )?.id;
-    const data = {
-      itineraryOrder: el,
-    };
-    ReseachDataRequest(idAppoint, data).then((resp) => {
-      if (resp?.status === 200) {
-        props.updateTable();
-        setItineraryOrderPop("");
-      }
-    });
+    const contractorId = context?.tableData[0].contractor?.id;
+    if (contractorId) {
+      const data = {
+        itineraryOrder: el,
+      };
+      ReseachDataRequest(idAppoint, data).then((resp) => {
+        if (resp?.status === 200) {
+          props.updateTable();
+          setItineraryOrderPop("");
+        }
+      });
+    }
   };
-
-  const dispatch = useDispatch();
 
   const contextmenuRef = useRef(null);
 
@@ -312,67 +266,46 @@ function UniversalTable(props) {
   }, []);
 
   const whatRight = (key) => {
-    if (key === "legalEntity" && props?.top) {
-      return 175;
+    if (props?.top) {
+      switch (key) {
+        case "legalEntity":
+        case "itineraryOrder":
+          return 175;
+        case "comment":
+          return 50;
+        default:
+          return 0;
+      }
     }
-    if (key === "itineraryOrder" && props?.top) {
-      return 175;
-    } else if (key === "comment" && props?.top) {
-      return 50;
-    } else {
-      return 0;
-    }
+    return 0;
   };
-
 
   const handleRoleClick = (rowIndex, role) => {
     (role === "Пользователь" || role === "Администратор" || role === "Наблюдатель") && JSON.parse(localStorage.getItem("userData"))?.user?.role === "ADMIN" && setDropdownVisible(dropdownVisible === rowIndex ? null : rowIndex);
   };
-
- 
 
   const checkHeights = (arr, index) => {
     return arr?.length - 1 === index && index === arr?.length - 1 && arr?.length !== 1;
   };
 
   const getBgColorlastTOHuman = (key, lastTOHuman) => {
-    if (key === "nextTOHuman") {
-      // Преобразуем дату в объект Date
-      const currentDate = new Date(); // текущая дата
-      const [day, month, year] = lastTOHuman?.split('.').map(Number); // Разбиваем строку на части
-      const formattedDate = new Date(`20${year}`, month - 1, day); // Создаем объект Date (добавляем "20" для года)
+    if (key !== "nextTOHuman" || !lastTOHuman) return null;
 
-      // Вычисляем разницу в днях
-      const diffInMs = formattedDate - currentDate;
-      const diffInDays = Math.ceil(diffInMs / (1000 * 60 * 60 * 24)); // округляем до ближайшего большего числа
+    const currentDate = new Date();
+    const [day, month, year] = lastTOHuman.split('.').map(Number);
+    const formattedDate = new Date(`20${year}`, month - 1, day);
+    const diffInDays = Math.ceil((formattedDate - currentDate) / (1000 * 60 * 60 * 24));
 
-      // Определяем цвет в зависимости от разницы
-      if (diffInDays === 0) {
-        return "#ffa500"; // оранжевый
-      } else if (diffInDays >= 7) {
-        return "#C5E384"; // зелёный
-      } else if (diffInDays >= 1 && diffInDays <= 7) {
-        return "#ffe78f"; // жёлтый
-      } else if (diffInDays < 0) {
-        return "#d69a81"; // красный
-      }
-    }
-  
-    // Если ключ не соответствует "lastTOHuman", возвращаем null
-    return null;
+    if (diffInDays === 0) return "#ffa500"; // оранжевый
+    if (diffInDays >= 7) return "#C5E384"; // зелёный
+    if (diffInDays > 0) return "#ffe78f"; // жёлтый
+    return "#d69a81"; // красный
   };
 
-  const chectHeights = () => {
-      const url = window.location.pathname;
-      switch (url) {
-        case '/Equipment/EquipmentInfo':
-          return 'auto';
-        case '/RepotYour':
-          return '20vh';
-        default:
-          return '65vh'
-      }
-  }
+  const chectHeights = () => ({
+    "/Equipment/EquipmentInfo": "auto",
+    "/RepotYour": "20vh",
+  }[window.location.pathname] || "65vh");
   
 
   return (

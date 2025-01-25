@@ -6,7 +6,7 @@ export const tableHeadAppoint = [
   { key: "builder", value: "Подрядчик", isActive: true  },
   { key: "status", value: "Статус заявки", isActive: true  },
   { key: "problemDescription", value: "Описание проблемы", isActive: true  },
-  { key: "photo", value: "Фото/Видео проблемы", isActive: true  },
+  { key: "fileName", value: "Фото/Видео проблемы", isActive: true  },
   { key: "itineraryOrder", value: "Порядок маршрута", isActive: true  },
   { key: "urgency", value: "Срочность", isActive: true  },
   { key: "createdAt", value: "Дата создания заявки", isActive: true  },
@@ -60,3 +60,19 @@ export const tableList = [
   { key: "legalEntity", value: "Юр. Лицо", isActive: true  },
 ]
 
+export const status = {
+  1: "Новая заявка",
+  2: "В работе",
+  3: "Выполнена",
+  4: "Неактуальна",
+  5: "Выезд без выполнения",
+};
+
+export const DataUrgency = [
+  { id: 1, name: "В течение часа" },
+  { id: 2, name: "В течение текущего дня" },
+  { id: 3, name: "В течение 3-х дней" },
+  { id: 4, name: "В течение недели" },
+  { id: 5, name: "Маршрут" },
+  { id: 6, name: "Выполнено" },
+];
