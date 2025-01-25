@@ -124,6 +124,7 @@ function Table() {
     setDataTable(filterBasickData(context.dataTableFix, store));
   }, [store, context?.filteredTableData]);
 
+
   //!функция смены статуса
   const editStatus = (status, id) => {
     const data = {
@@ -172,14 +173,6 @@ function Table() {
     setshovBulderPop("");
     setItineraryOrderPop("");
   };
-  
-    //!функция смены срочности
-  const funSetItineraryOrder = (data) => {
-    togglePopupState(setItineraryOrderPop, data);
-    setshovStatusPop("");
-    setshovBulderPop("");
-    setshovUrgencyPop("");
-  };
 
   //!функция смены подрядчика
   const funSetExp = (data) => {
@@ -211,19 +204,6 @@ function Table() {
     RemoveContractor(data).then((resp) => {
       if (resp?.status === 200) {
         context.UpdateTableReguest(1);
-      }
-    });
-  };
-
-  const SetCountCard = (el, idAppoint) => {
-    const idInteger = context.dataContractors.find(
-      (el) => el.name === context?.tableData[0].contractor.name
-    )?.id;
-    const data = { itineraryOrder: el };
-  
-    ReseachDataRequest(idAppoint, data).then((resp) => {
-      if (resp?.status === 200) {
-        context.UpdateTableReguest(3, idInteger);
       }
     });
   };
@@ -314,15 +294,6 @@ function Table() {
 
   //!Провека на последний элемент
   const checkHeights = (arr, index) => index === arr.length - 1 && arr.length !== 1;
-
-  //!Разделение по три знака 
-  const getItem = (item, key) => {
-    if (key === "repairPrice" && key !== "isConfirmed") {
-      return item?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-    } else {
-      return item;
-    }
-  };
 
   //!Если внешний отображать 
   const getContractorItem = (row) => {
@@ -435,11 +406,12 @@ function Table() {
     if (context?.moreSelect?.length > 0) {
       context.setMoreSelect([]);
     } else {
-      const ids = context.filteredTableData?.map((el) => el.id) || [];
+      const ids = dataTable?.map((el) => el.id) || [];
       context.setMoreSelect(ids);
     }
   };
-
+  
+  //! Функция разрешения фильтрации
   const filterAndNote = (key) => {
       const arrayNotFilter = [
         "number", "fileName", "checkPhoto", "problemDescription", "repairPrice", "commentAttachment"
@@ -451,6 +423,7 @@ function Table() {
       }
   }
 
+   //! Функция Получения цвета Urgensy
   const getColorUrgensy = (value) =>{
     switch (value) {
       case "В течение часа":
@@ -467,6 +440,22 @@ function Table() {
         return ""
     }
   }
+
+ //! Функция Получения цвета Status
+  const getStatusColor = (statusValue) => {
+    switch (statusValue) {
+      case "Новая заявка":
+        return "#d69a81";
+      case "В работе":
+        return "#ffe78f";
+      case "Выполнена":
+        return "#C5E384";
+      case "Выезд без выполнения":
+        return "#f9ab23";
+      default:
+        return "";
+    }
+  };
 
   const getValue = (value, key, index, row) => {
     switch (key) {
@@ -510,64 +499,6 @@ function Table() {
             {row.copiedRequestId !== null ? `(${value})` : value}
           </div>
         );
-      case "planCompleteDate":
-        return (
-          <>
-            {value === "___" || value === null ? (
-              "___"
-            ) : (
-              JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" ? (
-                <div className={styles.planCompleteDate}>
-                  <input
-                    type="date"
-                    value={row["planCompleteDateRaw"].split('T')[0]} // Extracting date part from ISO string
-                    onChange={(e) => {
-                      selectadNewPlanDateFunction(row.id, e.target.value);
-                    }}
-                  />
-                </div>
-              ) : (
-                value
-              )
-            )}
-          </>
-        );
-        case "fileName":
-          case "commentAttachment":
-            case "checkPhoto" :
-            console.log("value", value)
-              return (value !== null && value !== "___") ? (
-                <div>
-                { isVideo(value) ? (
-                  <div className={styles.fileVideoTable}>
-                    <video
-                      onClick={(e) => {
-                        e.preventDefault(); // Prevent the default action
-                        e.stopPropagation(); // Prevent the modal from closing
-                        openModal(`${process.env.REACT_APP_API_URL}/uploads/${value}`);
-                      }}
-                      style={{ cursor: "pointer" }}
-                      className={styles.videoTable}
-                    >
-                      <source src={`${process.env.REACT_APP_API_URL}/uploads/${value}`} />
-                      Your browser does not support the video tag.
-                    </video>
-                  </div>
-                ) : (
-                  <img
-                    src={`${process.env.REACT_APP_API_URL}/uploads/${value}`}
-                    alt="Uploaded file"
-                    onClick={() =>
-                      openModal(`${process.env.REACT_APP_API_URL}/uploads/${value}`)
-                    }
-                    style={{ cursor: "pointer" }}
-                    className={styles.imgTable}
-                  />
-                )}
-              </div>
-              ) : (
-                "___"
-              );
       case "contractor": 
               return (
                 <div
@@ -683,25 +614,124 @@ function Table() {
             )}
           </div>
         );
+      case "repairPrice":
+        return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") || "___";
+      case "planCompleteDate":
+        return (
+          <>
+            {value === "___" || value === null ? (
+              "___"
+            ) : (
+              JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" ? (
+                <div className={styles.planCompleteDate}>
+                  <input
+                    type="date"
+                    value={row["planCompleteDateRaw"].split('T')[0]} // Extracting date part from ISO string
+                    onChange={(e) => {
+                      selectadNewPlanDateFunction(row.id, e.target.value);
+                    }}
+                  />
+                </div>
+              ) : (
+                value
+              )
+            )}
+          </>
+        );
+      case "fileName":
+        case "commentAttachment":
+          case "checkPhoto" :
+              return (value !== null && value !== "___") ? (
+                <div>
+                { isVideo(value) ? (
+                  <div className={styles.fileVideoTable}>
+                    <video
+                      onClick={(e) => {
+                        e.preventDefault(); // Prevent the default action
+                        e.stopPropagation(); // Prevent the modal from closing
+                        openModal(`${process.env.REACT_APP_API_URL}/uploads/${value}`);
+                      }}
+                      style={{ cursor: "pointer" }}
+                      className={styles.videoTable}
+                    >
+                      <source src={`${process.env.REACT_APP_API_URL}/uploads/${value}`} />
+                      Your browser does not support the video tag.
+                    </video>
+                  </div>
+                ) : (
+                  <img
+                    src={`${process.env.REACT_APP_API_URL}/uploads/${value}`}
+                    alt="Uploaded file"
+                    onClick={() =>
+                      openModal(`${process.env.REACT_APP_API_URL}/uploads/${value}`)
+                    }
+                    style={{ cursor: "pointer" }}
+                    className={styles.imgTable}
+                  />
+                )}
+              </div>
+              ) : (
+                "___"
+              );
+      case "createdAt":
+        case "completeDate":
+          return <p style={{ whiteSpace: "nowrap" }}>{value || "___"}</p>
       default:
-        return value || "___";
+        return <p style={{ whiteSpace: "wrap" }}>{value || "___"}</p>
     }
   };
 
-  const getStatusColor = (statusValue) => {
-    switch (statusValue) {
-      case "Новая заявка":
-        return "#d69a81";
-      case "В работе":
-        return "#ffe78f";
-      case "Выполнена":
-        return "#C5E384";
-      case "Выезд без выполнения":
-        return "#f9ab23";
-      default:
-        return "";
+  // setOfset,
+  // ofset,
+  // limit,
+  // setLimit,
+  // scrollPosition,
+  // setScrollPosition
+  const tableRef = useRef(null); // Ссылка на таблицу для отслеживания скролла
+  const isFetchingRef = useRef(false); // Чтобы избежать нескольких вызовов подряд
+  const [ofsetTable, setOfsetTable] = useState(0);
+  const [limitTable, setLimitTable] = useState(context.limit);
+  const handleScroll = () => {
+    const container = tableRef.current?.parentElement;
+    if (container) {
+      const { scrollTop, scrollHeight, clientHeight } = container;
+      const maxScrollTop = scrollHeight - clientHeight;
+
+      if (scrollTop >= maxScrollTop - 5) {
+        console.log("вызвал")
+        context.setLimit(limitTable + 10);
+        context.UpdateTableReguest("","", 0, limitTable);
+      }
     }
   };
+
+  useEffect(() => {
+    setLimitTable(context.limit);
+  }, [context.limit]);
+
+  // Слежение за прокруткой в контейнере
+  useEffect(() => {
+    const container = tableRef.current?.parentElement;
+
+    if (container) {
+      container.addEventListener("scroll", handleScroll);
+      console.log("Добавил обработчик события на:", container);
+    }
+
+    return () => {
+      if (container) {
+        container.removeEventListener("scroll", handleScroll);
+        console.log("Удалил обработчик события с:", container);
+      }
+    };
+  }, [context.loader]); // Следим за состоянием loader
+
+  // Для проверки обновления limit и ofset
+  useEffect(() => {
+    console.log("limit", limitTable);
+  }, [limitTable]);
+  
+  
   
   return (
     <div className={styles.TableWrapper}>
@@ -711,7 +741,7 @@ function Table() {
           overflow: dataTable.length === 0 ? "hidden" : "auto",
         }}
       >
-        <table className={styles.TableInner}>
+        <table className={styles.TableInner} ref={tableRef}>
           <thead>
             <tr>
               <th name="checkAll" className={styles.MainTh}>
@@ -798,158 +828,107 @@ function Table() {
             </tr>
           </thead>
           <tbody>
-            {dataTable.length > 0 ? (
+            {!context.loader ? (
+              <tr>
+                <td colSpan="21" className={styles.tableNotDataSpinner}>
+                  <div className={styles.tableNotDataSpinnerInner}>
+                      <div className={styles.spinnerContainer}>
+                        <div className={styles.spinner}></div>
+                      </div>
+                      <div className={styles.notDataSpinner}>Загрузка данных</div>
+                  </div>
+                </td>
+              </tr>
+            ):(
+              <>
+              {dataTable.length > 0 ? (
               <>
                 {dataTable?.map((row, index) => (
-                  <tr
-                    key={index}
-                    style={{backgroundColor: row.copiedRequestId !== null ? "#ffe78f" : "",}}
-                    onClick={(e) => {trClick(row, e.target)}}
-                    onContextMenu={(e) => {trClickRight(row, e.target); contextmenuClick(e)}}
-                    className={context.moreSelect.some((el) => el === row.id) &&styles.setectedTr}
-                  >
-                  
-                      <td
-                        name="checkAll"
-                        style={{textAlign: "center", backgroundColor: whatPageBgTd(row.id)}}
-                        className={styles.MainTd}
-                        id={row.copiedRequestId !== null && "copiedRequestId"}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={context.moreSelect.some((el) => el === row.id)}
-                          key={index}
+                    <tr
+                      key={index}
+                      style={{backgroundColor: row.copiedRequestId !== null ? "#ffe78f" : ""}}
+                      onClick={(e) => {trClick(row, e.target)}}
+                      onContextMenu={(e) => {trClickRight(row, e.target); contextmenuClick(e)}}
+                      className={context.moreSelect.some((el) => el === row.id) &&styles.setectedTr}
+                    >
+                        <td
                           name="checkAll"
-                          className={styles.checkbox}
-                          readOnly
-                        />
-                      </td>
-                 
-                   
-                      {storeTableHeader?.filter((el) => el.isActive === true)?.map((headerItem) => (
-                      <td
-                        key={headerItem.key}
-                        name={headerItem.key}
-                        className={styles.MainTd}
-                        id={row.copiedRequestId !== null && "copiedRequestId"}
-                        style={{
-                          textAlign: textAlign(
-                            headerItem.key,
-                            row[headerItem.key]
-                          ),
-                          backgroundColor: whatPageBgTd(row.id),
-                        }}
-                      >
-                      {getValue(row[headerItem.key], headerItem.key, index, row)}
-                      
-                        {headerItem.key === "itineraryOrder" ? (
-                          <div
-                            onClick={() =>
-                              context.selectPage !== "Main" &&
-                              funSetItineraryOrder(row.id)
-                            }
-                            className={
-                              context.selectPage !== "Main"
-                                ? styles.statusClick
-                                : styles.NostatusClick
-                            }
-                            ref={ItineraryOrderPopRef}
+                          style={{textAlign: "center", backgroundColor: whatPageBgTd(row.id)}}
+                          className={styles.MainTd}
+                          id={row.copiedRequestId !== null && "copiedRequestId"}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={context.moreSelect.some((el) => el === row.id)}
+                            key={index}
+                            name="checkAll"
+                            className={styles.checkbox}
+                            readOnly
+                          />
+                        </td>
+                        {storeTableHeader?.filter((el) => el.isActive === true)?.map((headerItem) => (
+                          <td
+                            key={headerItem.key}
+                            name={headerItem.key}
+                            className={styles.MainTd}
+                            id={row.copiedRequestId !== null && "copiedRequestId"}
+                            style={{textAlign: textAlign(headerItem.key,row[headerItem.key]), backgroundColor: whatPageBgTd(row.id)}}
                           >
-                            {row[headerItem.key] !== null
-                              ? row[headerItem.key]
-                              : "___"}
-                            {itineraryOrderPop === row.id && (
-                              <div
-                                className={styles.shovStatusPop}
-                                style={
-                                  checkHeights(dataTable, index)
-                                    ? {
-                                        top: "-10%",
-                                        right: "100px",
-                                        width: "auto",
-                                      }
-                                    : { width: "auto" }
-                                }
-                              >
-                                <ul>
-                                  {arrCount?.map((el) => {
-                                    return (
-                                      <li
-                                        key={el}
-                                        onClick={(event) =>
-                                          SetCountCard(el, row.id)
-                                        }
-                                      >
-                                        {" "}
-                                        {el}
-                                      </li>
-                                    );
-                                  })}
-                                </ul>
-                              </div>
-                            )}
-                          </div>
-                        ) : (
-                          <p
-                            style={{
-                              whiteSpace:
-                                headerItem.key === "createdAt" ||
-                                headerItem.key === "completeDate"
-                                  ? "nowrap"
-                                  : "wrap",
-                            }}
-                          >
-                            {/* {getItem(row[headerItem.key], headerItem.key)} */}
-                          </p>
-                        )}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
+                            {getValue(row[headerItem.key], headerItem.key, index, row)}
+                          </td>
+                      ))}
+                    </tr>
+                  ))}
+                </>
+              ) : (
+                <tr>
+                  <td colSpan={21} className={styles.tableNotData}></td>
+                  <div className={styles.notData}> Нет данных</div>
+                </tr>
+              )}
               </>
-            ) : (
-              <tr>
-                <td colSpan={21} className={styles.tableNotData}></td>
-                <div className={styles.notData}> Нет данных</div>
-              </tr>
-            )}
+            )
+            
+            }
           </tbody>
         </table>
       </div>
-      {context.selectedTable === "Заявки" && (
-        <div>
-          <p style={{ margin: "10px 0 0 0px" }}>
-            Кол-во выбранных заявок: {context.moreSelect.length}
-          </p>
-        </div>
-      )}
+      {
+      context.loader && <div>
+        <p style={{ margin: "10px 0 0 0px" }}>
+          Кол-во выбранных заявок: {context.moreSelect.length}
+        </p>
+      </div>
+      }
+  
+      
 
       {modalImage && (
-    <div className={styles.modal}>
-      <span className={styles.close} onClick={closeModal}>&times;</span>
-      {isVideo(modalImage) ? (
-        <video
-          controls
-          className={styles.modalContent}
-          src={modalImage}
-          alt="Full size video"
-        >
-          Your browser does not support the video tag.
-        </video>
-      ) : (
-        <div onClick={closeModal}>
+        <div className={styles.modal}>
+          <span className={styles.close} onClick={closeModal}>&times;</span>
+            {isVideo(modalImage) ? (
+              <video
+                controls
+                className={styles.modalContent}
+                src={modalImage}
+                alt="Full size video"
+              >
+                Your browser does not support the video tag.
+              </video>
+            ) : (
+              <div onClick={closeModal}>
 
-        <img
-          className={styles.modalContent}
-          src={modalImage}
-          alt="Full size"
-        />
+              <img
+                className={styles.modalContent}
+                src={modalImage}
+                alt="Full size"
+              />
+              </div>
+            )}
         </div>
       )}
-    </div>
-  )}
-      {context.popUp === "СonfirmDelete" && <СonfirmDelete />}
 
+      {context.popUp === "СonfirmDelete" && <СonfirmDelete />}
       {openConextMenu && (
         <div
           ref={contextmenuRef}

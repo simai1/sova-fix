@@ -55,7 +55,7 @@ function GraphicEquipment() {
                 </div>
             </div>
             <div>
-                <UniversalTable FilterFlag={true} tableName="table11" tableHeader={headerTableEquipment} tableBody={context?.dataEquipments} selectFlag={true}/>
+                <UniversalTable FilterFlag={true} tableName="table11" tableHeader={headerTableEquipment} tableBody={context?.dataEquipments} selectFlag={true} heightTable="calc(100vh - 288px)"/>
 
             </div>
         </div>

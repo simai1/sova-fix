@@ -304,7 +304,7 @@ function RepotIndicators() {
               tableBody={filterRequestsWithoutCopiedId(tableDataIndicatorsSort)}
               FilterFlag={true}
               top="95"
-
+              heightTable="calc(100vh - 385px)"
             />
           ) : (
             <div className={styles.ReportIndicatorsDashbord}>

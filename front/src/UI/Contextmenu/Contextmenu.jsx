@@ -47,6 +47,7 @@ function Contextmenu(props) {
         2: "В работе",
         3: "Выполнена",
         4: "Неактуальна",
+        5: "Выезд без выполнения",
     };
 
     const DataUrgency = [

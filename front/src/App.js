@@ -61,7 +61,10 @@ function App() {
   const [dataNomenclature, setDataNomenclature] = useState([]);
   const [selectEquipment, setSelectEquipment] = useState(null);
   const [dataEquipment, setDataEquipment] = useState(null);
-
+  const [ofset, setOfset] = useState(0);
+  const [limit, setLimit] = useState(10);
+  const [scrollPosition, setScrollPosition] = useState(0);
+  const [loader, setLoader] = useState(false);
   const checkedAllFunc = () => {
     if(moreSelect.length > 0){
       setCheckedAll(true)
@@ -176,51 +179,53 @@ const GetDataEquipment = (id) =>{
     checkedAll,
     setDataEquipments,
     dataEquipments,
-    UpdateDataEquipment
+    UpdateDataEquipment,
+    setOfset,
+    ofset,
+    limit,
+    setLimit,
+    scrollPosition,
+    setScrollPosition,
+    loader,
+    setLoader
   };
   
   const isCheckedStore = useSelector((state) => state.isCheckedSlice.isChecked);
   useEffect(() => {
-    if(selectedTable === "Заявки" && selectPage === "Main"){
-      UpdateTableReguest(1)
-    }else if(selectedTable === "Пользователи" && selectPage === "Main"){
-      UpdateTableReguest(2)
-    }else if(selectPage === "Card"){
-      if(selectContructor !== ""){
-        UpdateTableReguest(3)
-      }
-    }
+    UpdateTableReguest(1, "", 0, 10)
   },[textSearchTableData, selectedTable, selectContructor] )
 
 
-  function UpdateTableReguest(param, par = sortStateParam) {
-    if(param === 1){
-      let url = '';
-      if (par || textSearchTableData) {
-        if(par != "" && !textSearchTableData){
-          url = `?${par}`;
-        }
-       else{
-          url = `?search=${textSearchTableData}&${par}`
-        }
+  function UpdateTableReguest(param, par = sortStateParam, ofset, limit) {
+    let url = '';
+    if (par || textSearchTableData) {
+      if(par != "" && !textSearchTableData){
+        url = `?${par}`;
       }
-    else {
-        url = '';
-    } 
-          GetAllRequests(url).then((resp) => {
-            if(resp) {
-              const checks = isCheckedStore || [];
-              setIsChecked(checks);
-              setTableData(resp?.data.requestsDtos)
-              setDataTableFix(funFixEducator(resp?.data.requestsDtos))
-              setFilteredTableData(FilteredSample(funFixEducator(resp?.data.requestsDtos), checks ))
-              settableHeader(tableHeadAppoint);
-            }
-          })
-        GetAllRequests("").then((resp) => {
-          setDataAppointment(resp?.data.requestsDtos)
-        })
+      else{
+        url = `?search=${textSearchTableData}&${par}`
+      }
     }
+    else {
+        url = `?ofset=${ofset}&limit=${limit}`;
+    } 
+
+
+    GetAllRequests(url).then((resp) => {
+      if(resp) {
+        const checks = isCheckedStore || [];
+        setIsChecked(checks);
+        setTableData(resp?.data.requestsDtos)
+        setDataTableFix(funFixEducator(resp?.data.requestsDtos))
+        setFilteredTableData(FilteredSample(funFixEducator(resp?.data.requestsDtos), checks ))
+        settableHeader(tableHeadAppoint);
+        setLoader(true);
+      }
+    })
+
+    GetAllRequests("").then((resp) => {
+      setDataAppointment(resp?.data.requestsDtos)
+    })
   }
 
   useEffect(() => {

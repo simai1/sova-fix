@@ -165,7 +165,7 @@ function UsersDirectory() {
               </div>
             }
         </div>
-        <UniversalTable FilterFlag={true} tableName="table5" tableHeader={tableUser} tableBody={tableDataObject} selectFlag={true} ClickRole={ClickRole}/>
+        <UniversalTable FilterFlag={true} tableName="table5" tableHeader={tableUser} tableBody={tableDataObject} selectFlag={true} ClickRole={ClickRole} heightTable="calc(100vh - 285px)"/>
         {popUpCreate && (
                 <div className={styles.PupUpCreate}>
                     <PopUpContainer mT={300} title="Добавление пользователя" closePopUpFunc={setPopUpCreate}>

@@ -54,7 +54,7 @@ function CategoryEquipment() {
             
         </div>
         <div>
-            <UniversalTable FilterFlag={true} tableName="table12" tableHeader={headerTableCategory} tableBody={context?.dataCategory} selectFlag={true}/>
+            <UniversalTable FilterFlag={true} tableName="table12" tableHeader={headerTableCategory} tableBody={context?.dataCategory} selectFlag={true} heightTable="calc(100vh - 285px)"/>
 
         </div>
     </div>

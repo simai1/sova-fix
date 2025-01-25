@@ -193,6 +193,7 @@ function ReferenceObjects() {
         tableBody={tableDataObject}
         selectFlag={true}
         FilterFlag={true}
+        heightTable="calc(100vh - 285px)"
       />
       {deleteUnitFlag && (
         <UneversalDelete

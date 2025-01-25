@@ -18,14 +18,12 @@ function UniversalTable(props) {
   const [tableHeaderData, setTableHeaderData] = useState([]);
   const [tableBodyData, setTableBodyData] = useState([filterBasickData(props?.tableBody, store)]);
   const [modalImage, setModalImage] = useState(null);
-  const [actiwFilter, setActiwFilter] = useState(null);
   const [itineraryOrderPop, setItineraryOrderPop] = useState("");
   const [arrCount, setArrCount] = useState([]);
   const [sampleShow, setSampleShow] = useState(null);
   const [basickData, setBasickData] = useState([]);
   const [dropdownVisible, setDropdownVisible] = useState(null);
   const dropdownRef = useRef(null);
-  const [selecedAccount, setSelecedAccount] = useState(null)
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -302,23 +300,22 @@ function UniversalTable(props) {
     return "#d69a81"; // красный
   };
 
-  const chectHeights = () => ({
-    "/Equipment/EquipmentInfo": "auto",
-    "/RepotYour": "20vh",
-  }[window.location.pathname] || "65vh");
-  
+  const chectHeights = () => {
+    const url = window.location.pathname;
+    switch (url) {
+      case '/Equipment/EquipmentInfo':
+        return 'auto';
+      case '/RepotYour':
+        return '20vh';
+      default:
+        return 'auto'
+    }
+}
 
   return (
     <div
       className={styles.UniversalTable}
-      style={{
-        maxHeight:
-          document.location.pathname === "/CardPage/CardPageModule"
-            ? "73vh"
-            : `${props?.heightTable}px` || "auto",
-            minHeight: chectHeights(),
-            
-      }}
+      style={{ maxHeight: `${props?.heightTable}` || "auto", minHeight: chectHeights()}}
     >
      <table>
         <thead>

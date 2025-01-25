@@ -53,7 +53,7 @@ function RangeEquipment() {
                 </div>
             </div>
             <div>
-            <UniversalTable FilterFlag={true} tableName="table13" tableHeader={headerTableNumenclature} tableBody={context?.dataNomenclature} selectFlag={true}/>
+            <UniversalTable FilterFlag={true} tableName="table13" tableHeader={headerTableNumenclature} tableBody={context?.dataNomenclature} selectFlag={true} heightTable="calc(100vh - 285px)"/>
 
             </div>
     </div>

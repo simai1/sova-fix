@@ -152,7 +152,7 @@ function DirectoryLegalEntities() {
                     </div>
                 }
             </div>
-            <UniversalTable FilterFlag={true} tableName="table1" tableHeader={tableLagealEntries} tableBody={tableDataEntries} selectFlag={true} setData={setTableDataEntries}/>
+            <UniversalTable FilterFlag={true} tableName="table1" tableHeader={tableLagealEntries} tableBody={tableDataEntries} selectFlag={true} setData={setTableDataEntries} heightTable="calc(100vh - 285px)"/>
             {deleteUnitFlag && <UneversalDelete text="Юр. лицо" ClosePopUp={ClosePopUp} FunctionDelete={FunctionDelete} />}
             {context.popUp === "PopUpError" && <PopUpError />}
             {popUpCreate && (

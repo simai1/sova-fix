@@ -286,6 +286,7 @@ function ReportFinansing() {
               tableHeader={TableHeader}
               tableBody={filterRequestsWithoutCopiedId(tableDataFinansingSort)}
               FilterFlag={true}
+              heightTable="calc(100vh - 385px)"
             />
           ) : (
             <div className={styles.ReportFinansingDiagram}>
