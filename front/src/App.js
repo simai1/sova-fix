@@ -65,6 +65,7 @@ function App() {
   const [limit, setLimit] = useState(10);
   const [scrollPosition, setScrollPosition] = useState(0);
   const [loader, setLoader] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
   const checkedAllFunc = () => {
     if(moreSelect.length > 0){
       setCheckedAll(true)
@@ -187,44 +188,56 @@ const GetDataEquipment = (id) =>{
     scrollPosition,
     setScrollPosition,
     loader,
-    setLoader
+    setLoader,
+    totalCount
   };
+
+  const store = useSelector((state) => state.isSamplePoints["table9"].isChecked);
   
+  useEffect(()=>{
+    console.log(store.length)
+  },[store])
+
+
   const isCheckedStore = useSelector((state) => state.isCheckedSlice.isChecked);
   useEffect(() => {
-    UpdateTableReguest(1, "", 0, 10)
-  },[textSearchTableData, selectedTable, selectContructor] )
+    UpdateTableReguest(1, "")
+  },[textSearchTableData, selectedTable, selectContructor, loader] )
 
 
-  function UpdateTableReguest(param, par = sortStateParam, ofset, limit) {
+  function UpdateTableReguest(param, par = sortStateParam) {
     let url = '';
+    if(store.length !== 0){
+      url = ''
+    }
     if (par || textSearchTableData) {
       if(par != "" && !textSearchTableData){
-        url = `?${par}`;
+        url = `?${par}?ofset=${ofset}&limit=${limit}`;
       }
       else{
-        url = `?search=${textSearchTableData}&${par}`
+        url = `?search=${textSearchTableData}&${par}?ofset=${ofset}&limit=${limit}`
       }
-    }
-    else {
-        url = `?ofset=${ofset}&limit=${limit}`;
-    } 
-
-
+    }  else {
+      url = `?ofset=${ofset}&limit=${limit}`;
+    }  
+  
+    
     GetAllRequests(url).then((resp) => {
       if(resp) {
         const checks = isCheckedStore || [];
+        console.log("checks", checks)
         setIsChecked(checks);
         setTableData(resp?.data.requestsDtos)
         setDataTableFix(funFixEducator(resp?.data.requestsDtos))
-        setFilteredTableData(FilteredSample(funFixEducator(resp?.data.requestsDtos), checks ))
+        setFilteredTableData(FilteredSample(funFixEducator(resp?.data.requestsDtos), checks ))//setFilteredTableData - это идет в таблицу 
         settableHeader(tableHeadAppoint);
         setLoader(true);
+        setTotalCount(resp?.data.requestsDtos.length);
       }
     })
 
     GetAllRequests("").then((resp) => {
-      setDataAppointment(resp?.data.requestsDtos)
+      setDataAppointment(funFixEducator(resp?.data.requestsDtos))
     })
   }
 

@@ -681,38 +681,27 @@ function Table() {
     }
   };
 
-  // setOfset,
-  // ofset,
-  // limit,
-  // setLimit,
-  // scrollPosition,
-  // setScrollPosition
   const tableRef = useRef(null); // Ссылка на таблицу для отслеживания скролла
-  const isFetchingRef = useRef(false); // Чтобы избежать нескольких вызовов подряд
-  const [ofsetTable, setOfsetTable] = useState(0);
-  const [limitTable, setLimitTable] = useState(context.limit);
+
   const handleScroll = () => {
     const container = tableRef.current?.parentElement;
     if (container) {
       const { scrollTop, scrollHeight, clientHeight } = container;
       const maxScrollTop = scrollHeight - clientHeight;
-
-      if (scrollTop >= maxScrollTop - 5) {
+      // context.dataApointment.length !== dataTable.lengt)
+      console.log(context.textSearchTableData)
+      // console.log("context", context.totalCount)
+      if (scrollTop >= maxScrollTop - 5 && context.loader && !context.textSearchTableData && context.totalCount > dataTable.length) {
         console.log("вызвал")
-        context.setLimit(limitTable + 10);
-        context.UpdateTableReguest("","", 0, limitTable);
+        context.setLimit(prev => prev + 5);
+        context.setLoader(false);
       }
     }
   };
 
-  useEffect(() => {
-    setLimitTable(context.limit);
-  }, [context.limit]);
-
   // Слежение за прокруткой в контейнере
   useEffect(() => {
     const container = tableRef.current?.parentElement;
-
     if (container) {
       container.addEventListener("scroll", handleScroll);
       console.log("Добавил обработчик события на:", container);
@@ -726,10 +715,6 @@ function Table() {
     };
   }, [context.loader]); // Следим за состоянием loader
 
-  // Для проверки обновления limit и ofset
-  useEffect(() => {
-    console.log("limit", limitTable);
-  }, [limitTable]);
   
   
   
@@ -927,7 +912,6 @@ function Table() {
             )}
         </div>
       )}
-
       {context.popUp === "СonfirmDelete" && <СonfirmDelete />}
       {openConextMenu && (
         <div

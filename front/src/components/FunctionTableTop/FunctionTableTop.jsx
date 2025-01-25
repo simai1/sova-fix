@@ -42,7 +42,7 @@ const store = useSelector(
   (state) => state.isSamplePoints["table9"].isChecked
 );
 useEffect(() => {
-  setDataTable(filterBasickData(context.dataTableFix, store));
+  setDataTable(filterBasickData(context.dataApointment, store));
 }, [store, context?.filteredTableData]);
 
   const dispatch = useDispatch();
