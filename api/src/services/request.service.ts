@@ -17,16 +17,23 @@ import ExtContractor from '../models/externalContractor';
 
 const getAllRequests = async (filter: any, order: any, pagination: any): Promise<RequestDto[]> => {
     let requests;
-    const whereParams = {};
-    Object.keys(filter).forEach((k: any) =>
-        k === 'search'
-            ? null
-            : k !== 'contractor'
-              ? // @ts-expect-error skip
-                (whereParams[k] = { [Op.in]: filter[k] })
-              : // @ts-expect-error skip
-                (whereParams['$Contractor.name$'] = { [Op.in]: filter[k] })
-    );
+    const whereParams: any = {};
+    Object.keys(filter).forEach((key: string) => {
+        if (key === 'search') {
+            return; // Пропускаем search, он обрабатывается отдельно
+        }
+        const isExclusion = key.startsWith('exclude_'); // Проверяем, является ли это исключением
+        const fieldName = isExclusion ? key.replace('exclude_', '') : key; // Убираем префикс exclude_
+
+        // Преобразуем значение в массив, если это не массив
+        const value = Array.isArray(filter[key]) ? filter[key] : [filter[key]];
+
+        if (fieldName === 'contractor') {
+            whereParams['$Contractor.name$'] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
+        } else {
+            whereParams[fieldName] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
+        }
+    });
     if (Object.keys(filter).length !== 0 && typeof filter.search !== 'undefined') {
         const searchParams = [
             {
