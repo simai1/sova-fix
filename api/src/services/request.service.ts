@@ -23,9 +23,9 @@ const getAllRequests = async (filter: any, order: any, pagination: any): Promise
             ? null
             : k !== 'contractor'
               ? // @ts-expect-error skip
-                (whereParams[k] = filter[k])
+                (whereParams[k] = { [Op.in]: filter[k] })
               : // @ts-expect-error skip
-                (whereParams['$Contractor.name$'] = filter[k])
+                (whereParams['$Contractor.name$'] = { [Op.in]: filter[k] })
     );
     if (Object.keys(filter).length !== 0 && typeof filter.search !== 'undefined') {
         const searchParams = [
