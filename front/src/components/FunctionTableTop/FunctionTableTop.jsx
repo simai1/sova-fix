@@ -42,12 +42,15 @@ const store = useSelector(
   (state) => state.isSamplePoints["table9"].isChecked
 );
 useEffect(() => {
-  if(context?.textSearchTableData){
+  console.log("я зашел сюда")
+  if(context?.textSearchTableData || store.length !== 0){
     setDataTable(context?.dataTableHomePage);
+    console.log("я зашел сюда 1")
   }else{
+    console.log("я зашел сюда 2")
     setDataTable(filterBasickData(context?.dataApointment, store));
   }
-}, [store, context?.dataApointment, context?.textSearchTableData]);
+}, [store, context?.dataApointment, context?.textSearchTableData, context?.dataTableHomePage]);
 
   const dispatch = useDispatch();
 
@@ -159,4 +162,22 @@ const DropFilter = () =>{
   );
 }
 
+{/* <div className={styles.countInfo}>
+<div>
+  <div className={styles.CountInfoBlock} style={{backgroundColor: "#d69a81"}}>
+      <div className={styles.contNew}><p>Новых: {12}</p></div>
+  </div>    
+</div> 
+<div>
+    <div className={styles.CountInfoBlock} style={{backgroundColor:  "#ffe78f"}}>
+        <div className={styles.contNew}><p>В работе: {12}</p></div>
+    </div>    
+</div> 
+<div>
+    <div className={styles.CountInfoBlock} style={{backgroundColor:  "#C5E384"}}>
+        <div className={styles.contNew}><p>Выполнены: {12}</p></div>
+    </div>    
+</div> 
+
+</div> */}
 export default FunctionTableTop;

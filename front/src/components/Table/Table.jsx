@@ -210,6 +210,10 @@ function Table() {
       item.id === editAppoint.id ? editAppoint : item
     );
     context.setDataTableHomePage(updatedDataTable);
+    const updateDataAppoint = context.dataApointment.map((item) =>
+      item.id === editAppoint.id ? editAppoint : item
+    );
+    context.setDataAppointment(updateDataAppoint)
   };
   
 

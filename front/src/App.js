@@ -152,6 +152,7 @@ const UpdateForse = () =>{
     isAllChecked,
     isSamplePointsData,
     setSamplePointsData,
+    setDataAppointment,
     SetDataFilter,
     dataFilter,
     popupErrorText,
