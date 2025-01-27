@@ -152,6 +152,7 @@ const UpdateForse = () =>{
     isAllChecked,
     isSamplePointsData,
     setSamplePointsData,
+    setDataAppointment,
     SetDataFilter,
     dataFilter,
     popupErrorText,
@@ -233,13 +234,21 @@ const UpdateForse = () =>{
     UpdateTableReguest();
   },[textSearchTableData, storeFilter] )
 
+  const getParam = (value, key) =>{
+    switch (key) {
+      case "status":
+        return String(value).toLowerCase();
+      default:
+        return value
+    }
+  }
   function UpdateTableReguest() {
     let url = `?offset=${ofset}&limit=${limit}`;
-  
+    
     const uniqueData = getUniqueItems(storeFilter.isChecked);
     if (uniqueData.length !== 0) {
       const filterParams = uniqueData
-        .map((item) => `exclude_${item.itemKey}=${item.value}`)
+        .map((item) => `exclude_${item.itemKey}=${getParam(item.value, item.itemKey)}`)
         .join("&");
       url += `&${filterParams}`;
     }
