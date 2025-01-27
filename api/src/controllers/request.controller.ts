@@ -265,6 +265,19 @@ const copy = catchAsync(async (req, res) => {
     res.json({ status: 'OK' });
 });
 
+const getStat = catchAsync(async (req, res) => {
+    const [requests] = await requestService.getAllRequests({}, {}, {});
+    const data = {
+        // @ts-expect-error error
+        NEW_REQUEST: requests.reduce((acc: number, r: any) => (r.status === 1 ? acc + 1 : acc), 0),
+        // @ts-expect-error error
+        AT_WORK: requests.reduce((acc: number, r: any) => (r.status === 2 ? acc + 1 : acc), 0),
+        // @ts-expect-error error
+        DONE: requests.reduce((acc: number, r: any) => (r.status === 3 ? acc + 1 : acc), 0),
+    };
+    res.json(data);
+});
+
 export default {
     getAll,
     getOne,
@@ -285,4 +298,5 @@ export default {
     bulkUrgency,
     bulkContractor,
     copy,
+    getStat,
 };
