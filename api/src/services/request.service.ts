@@ -15,7 +15,7 @@ import Unit from '../models/unit';
 import LegalEntity from '../models/legalEntity';
 import ExtContractor from '../models/externalContractor';
 
-const getAllRequests = async (filter: any, order: any, pagination: any): Promise<RequestDto[]> => {
+const getAllRequests = async (filter: any, order: any, pagination: any) => {
     let requests;
     const whereParams: any = {};
     Object.keys(filter).forEach((key: string) => {
@@ -41,6 +41,7 @@ const getAllRequests = async (filter: any, order: any, pagination: any): Promise
             whereParams[fieldName] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
         }
     });
+    let totalCount;
     if (Object.keys(filter).length !== 0 && typeof filter.search !== 'undefined') {
         const searchParams = [
             {
@@ -110,6 +111,33 @@ const getAllRequests = async (filter: any, order: any, pagination: any): Promise
             limit: pagination.limit,
             offset: pagination.offset,
         });
+        totalCount = await RepairRequest.count({
+            where: {
+                [Op.and]: [
+                    {
+                        [Op.or]: searchParams,
+                    },
+                    whereParams,
+                ],
+            },
+            include: [
+                {
+                    model: Contractor,
+                },
+                {
+                    model: ObjectDir,
+                },
+                {
+                    model: Unit,
+                },
+                {
+                    model: LegalEntity,
+                },
+                {
+                    model: ExtContractor,
+                },
+            ],
+        });
     } else {
         requests = await RepairRequest.findAll({
             where: whereParams,
@@ -129,6 +157,16 @@ const getAllRequests = async (filter: any, order: any, pagination: any): Promise
             limit: pagination.limit,
             offset: pagination.offset,
         });
+        totalCount = await RepairRequest.count({
+            where: whereParams,
+            include: [
+                { model: Contractor },
+                { model: ObjectDir },
+                { model: Unit },
+                { model: LegalEntity },
+                { model: ExtContractor },
+            ],
+        });
     }
 
     // sort copied
@@ -142,7 +180,7 @@ const getAllRequests = async (filter: any, order: any, pagination: any): Promise
         sortedRequests.splice(targetIndex + 1, 0, r);
     }
 
-    return sortedRequests.map(request => new RequestDto(request));
+    return [sortedRequests.map(request => new RequestDto(request)), totalCount];
 };
 
 const getRequestById = async (requestId: string): Promise<RequestDto> => {
