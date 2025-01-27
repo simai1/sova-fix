@@ -113,5 +113,5 @@ export const generateAndDownloadExcel = (data, nameTable, expenseSum) => {
 };
 
 export const filterRequestsWithoutCopiedId = (data) => {
-  return data.filter(row => row.copiedRequestId === null);
+  return data.filter(row => row?.copiedRequestId === null);
 };

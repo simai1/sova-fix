@@ -1,8 +1,9 @@
 import React, { useContext, useEffect, useState } from 'react';
 import styles from './Contextmenu.module.scss';
 import arrowBottom from "./../../assets/images/arrow_bottom.svg";
-import {CreateCopyRequest, DeleteMoreRequest, EditMoreContractorRequest, EditMoreStatusRequest, EditMoreUrgencyRequest, GetAllСontractors} from "./../../API/API";
+import {CreateCopyRequest, DeleteMoreRequest, EditMoreContractorRequest, EditMoreStatusRequest, EditMoreUrgencyRequest, GetAllСontractors, GetOneRequests} from "./../../API/API";
 import DataContext from '../../context';
+import { funFixEducator } from '../SamplePoints/Function';
 function Contextmenu(props) {
     const [cordX, setCordX] = useState(props?.X);
     const [cordY, setCordY] = useState(props?.Y);
@@ -86,6 +87,18 @@ function Contextmenu(props) {
         }    
     };
 
+    const UpdateRequests = (updatedRequests) => {
+        // Обновляем каждую заявку в массиве
+        const fixedRequests = funFixEducator(updatedRequests);
+        const updatedDataTable = context.dataTableHomePage.map((item) => {
+          const updatedRequest = fixedRequests.find((req) => req.id === item.id); // Ищем заявку по id
+          return updatedRequest ? updatedRequest : item; // Заменяем, если есть обновление
+        });
+      
+        // Обновляем состояние таблицы
+        context.setDataTableHomePage(updatedDataTable);
+      };
+
     const setStatus = (value) => {  
         const data = {
             ids: [],
@@ -93,26 +106,48 @@ function Contextmenu(props) {
        }
        context.moreSelect.map((el) => data.ids.push(el));
         EditMoreStatusRequest(data).then((resp) => {
-                if(resp?.status === 200){
-                  context.UpdateTableReguest(1);
+            if (resp?.status === 200) {
+                // Запрашиваем обновлённые данные для всех указанных ID
+                Promise.all(data.ids.map((id) => GetOneRequests(id))).then((responses) => {
+                  const updatedRequests = responses
+                    .filter((resp) => resp?.status === 200) // Оставляем только успешные ответы
+                    .map((resp) => resp.data); // Получаем данные заявок
+          
+                  // Обновляем записи в массиве локально
+                  UpdateRequests(updatedRequests);
+          
+                  // Закрываем контекстное меню
                   closeContextMenu();
-                }
+                });
+              }
         })
     }
 
-    const setUrgensy = (value) => {
+      
+      const setUrgensy = (value) => {
         const data = {
-            ids: [],
-            urgency: value.name,
-       }
-       context.moreSelect.map((el) => data.ids.push(el));
-       EditMoreUrgencyRequest(data).then((resp) => {
-                if(resp?.status === 200){
-                  context.UpdateTableReguest(1);
-                  closeContextMenu();
-                }
-       })
-    }
+          ids: [...context.moreSelect], // Передаём массив ID
+          urgency: value.name,
+        };
+      
+        EditMoreUrgencyRequest(data).then((resp) => {
+          if (resp?.status === 200) {
+            // Запрашиваем обновлённые данные для всех указанных ID
+            Promise.all(data.ids.map((id) => GetOneRequests(id))).then((responses) => {
+              const updatedRequests = responses
+                .filter((resp) => resp?.status === 200) // Оставляем только успешные ответы
+                .map((resp) => resp.data); // Получаем данные заявок
+      
+              // Обновляем записи в массиве локально
+              UpdateRequests(updatedRequests);
+      
+              // Закрываем контекстное меню
+              closeContextMenu();
+            });
+          }
+        });
+      };
+      
 
     const setExecutor = (value) => {
         const data = {
@@ -121,10 +156,20 @@ function Contextmenu(props) {
        }
        context.moreSelect.map((el) => data.ids.push(el));
        EditMoreContractorRequest(data).then((resp) => {
-                if(resp?.status === 200){
-                  context.UpdateTableReguest(1);
-                  closeContextMenu();
-                }
+        if (resp?.status === 200) {
+            // Запрашиваем обновлённые данные для всех указанных ID
+            Promise.all(data.ids.map((id) => GetOneRequests(id))).then((responses) => {
+              const updatedRequests = responses
+                .filter((resp) => resp?.status === 200) // Оставляем только успешные ответы
+                .map((resp) => resp.data); // Получаем данные заявок
+      
+              // Обновляем записи в массиве локально
+              UpdateRequests(updatedRequests);
+      
+              // Закрываем контекстное меню
+              closeContextMenu();
+            });
+          }
        })
     }
 
@@ -150,20 +195,23 @@ function Contextmenu(props) {
         CreateCopyRequest(context.moreSelect[0]).then((resp) => {
             if(resp?.status === 200){
               setConfirmCopy(false);
-              context.UpdateTableReguest(1);
               closeContextMenu();
+              context.setLoader(false);
+              context.UpdateForse();
+              context.setSelectedTr(null);
+              context.setMoreSelect([]);
             }
         })
     }
 
     const checkCloneRequest = () => {
         let rowData = null
-        context.dataTableFix.map((el) => {
-            if(el.id === context.moreSelect[0]){
+        context.dataTableHomePage.map((el) => {
+            if(el?.id === context.moreSelect[0]){
                 rowData = el
             }
         })
-        if(rowData.copiedRequestId !== null){
+        if(rowData?.copiedRequestId !== null){
             return false
         }else{
             return true

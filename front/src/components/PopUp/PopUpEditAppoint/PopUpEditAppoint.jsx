@@ -15,6 +15,7 @@ import {
 import List from "../../../UI/List/List";
 import ListInput from "../../../UI/ListInput/ListInput";
 import notPhoto from "./../../../assets/images/notPhoto.png";
+import { funFixEducator } from "../../../UI/SamplePoints/Function";
 function PopUpEditAppoint(props) {
   const { context } = React.useContext(DataContext);
   const [dataApStart, setDataApStart] = useState(null);
@@ -123,16 +124,30 @@ function PopUpEditAppoint(props) {
     return urgencyItem ? urgencyItem.name : id;
   };
 
+   //!При обновлении обновляет только 1 запись 
+   const UpdateRequest = (updatedRequest) => {
+    const editAppoint = funFixEducator(updatedRequest)
+    const updatedDataTable = context.dataTableHomePage.map((item) =>
+      item.id === editAppoint.id ? editAppoint : item
+    );
+    context.setDataTableHomePage(updatedDataTable);
+  };
+
   const EditAppoint = () => {
     const urgencyName = getUrgencyNameById(dataApointment.urgency);
     const newplanCompleteDate = new Date(dataApointment.planCompleteDate);
 
     const updatedDataApointment = { ...dataApointment, urgency: urgencyName, planCompleteDate: newplanCompleteDate };
     ReseachDataRequest(selectId, updatedDataApointment).then((resp) => {
-      if (resp?.status === 200) {
-        context.UpdateTableReguest(1);
-        context.setPopUp(null);
-      } else {
+      if(resp?.status === 200){
+        GetOneRequests(selectId).then((resp) => {
+          if(resp?.status === 200){
+              UpdateRequest(resp?.data)
+              context.setPopUp(null);
+            }
+          })
+        }
+      else {
         alert("Заполните правльно все поля!");
       }
     });

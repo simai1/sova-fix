@@ -3,6 +3,7 @@ import styles from "./Table.module.scss";
 import DataContext from "../../context";
 import {
   DeleteExtContractorsRequest,
+  GetOneRequests,
   GetextContractorsAll,
   RemoveContractor,
   ReseachDataRequest,
@@ -18,6 +19,7 @@ import Contextmenu from "../../UI/Contextmenu/Contextmenu";
 import SamplePoints from "../SamplePoints/SamplePoints";
 import FilteImg from "./../../assets/images/filterColumn.svg";
 import { status, DataUrgency } from "./Data";
+import { funFixEducator } from "../../UI/SamplePoints/Function";
 function Table() {
   const { context } = useContext(DataContext);
   const [actiwFilter, setActiwFilter] = useState(null);
@@ -104,18 +106,6 @@ function Table() {
     };
   }, [context]);
 
-  //!функция смены статуса
-  const editStatus = (status, id) => {
-    const data = {
-      requestId: id,
-      status: status,
-    };
-    SetStatusRequest(data).then((resp) => {
-      if (resp?.status === 200) {
-        context.UpdateTableReguest();
-      }
-    });
-  };
 
   const togglePopupState = (setter, data) => {
     const userRole = JSON.parse(localStorage.getItem("userData"))?.user?.role;
@@ -169,43 +159,89 @@ function Table() {
   const SetBilder = (contractorId, idAppoint) => {
     const data = { requestId: idAppoint, contractorId };
     SetcontractorRequest(data).then((resp) => {
-      if (resp?.status === 200) {
-        context.UpdateTableReguest();
-      }
+      if(resp?.status === 200){
+        GetOneRequests(idAppoint).then((resp) => {
+            if(resp?.status === 200){
+              UpdateRequest(resp?.data)
+            }
+          })
+        }
+    });
+  };
+
+
+  //!Запрос смены статуса
+  const editStatus = (status, requestId) => {
+    const data = {
+      requestId: requestId,
+      status: status,
+    };
+    SetStatusRequest(data).then((resp) => {
+      if(resp?.status === 200){
+        GetOneRequests(requestId).then((resp) => {
+            if(resp?.status === 200){
+              UpdateRequest(resp?.data)
+            }
+          })
+        }
     });
   };
   
    //!Запрос на удаление билдера
-  const deleteBilder = (id) => {
+  const deleteBilder = (requestId) => {
     const data = {
-      requestId: id,
+      requestId: requestId,
     };
     RemoveContractor(data).then((resp) => {
-      if (resp?.status === 200) {
-        context.UpdateTableReguest();
-      }
+      if(resp?.status === 200){
+        GetOneRequests(requestId).then((resp) => {
+            if(resp?.status === 200){
+              UpdateRequest(resp?.data)
+            }
+          })
+        }
     });
   };
   
+  //!При обновлении обновляет только 1 запись 
+  const UpdateRequest = (updatedRequest) => {
+    const editAppoint = funFixEducator(updatedRequest)
+    const updatedDataTable = context.dataTableHomePage.map((item) =>
+      item.id === editAppoint.id ? editAppoint : item
+    );
+    context.setDataTableHomePage(updatedDataTable);
+  };
+  
+
   //!Запрос на смену срочности
   const SetUrgency = (name, idAppoint) => {
     const data = { urgency: name };
     ReseachDataRequest(idAppoint, data).then((resp) => {
-      context.UpdateTableReguest();
+      if(resp?.status === 200){
+      GetOneRequests(idAppoint).then((resp) => {
+          if(resp?.status === 200){
+            UpdateRequest(resp?.data)
+          }
+        })
+      }
     });
   };
   
   //!Запрос на внешнего подрядчика
-  const setPerformersDirectory = (el) => {
+  const setPerformersDirectory = (requestId) => {
     const data = {
-      requestId: el,
+      requestId: requestId,
       contractorId: "Внешний подрядчик",
     };
 
     SetcontractorRequest(data).then((resp) => {
-      if (resp?.status === 200) {
-        context.UpdateTableReguest();
-      }
+      if(resp?.status === 200){
+        GetOneRequests(requestId).then((resp) => {
+            if(resp?.status === 200){
+              UpdateRequest(resp?.data)
+            }
+          })
+        }
     });
   };
 
@@ -216,10 +252,14 @@ function Table() {
       extContractorId: ExpId,
     };
     SetExtContractorsRequest(data).then((resp) => {
-      if (resp?.status === 200) {
-        context.UpdateTableReguest();
-        setshovExtPop("");
-      }
+      if(resp?.status === 200){
+        GetOneRequests(requestId).then((resp) => {
+            if(resp?.status === 200){
+              UpdateRequest(resp?.data)
+              setshovExtPop("");
+            }
+          })
+        }
     });
   };
 
@@ -229,9 +269,13 @@ function Table() {
       planCompleteDate: new Date(date)
     }
     ReseachDataRequest(id, data).then((resp) => {
-      if (resp?.status === 200) {
-        context.UpdateTableReguest();
-      }
+      if(resp?.status === 200){
+        GetOneRequests(id).then((resp) => {
+            if(resp?.status === 200){
+              UpdateRequest(resp?.data)
+            }
+          })
+        }
     });
   }
    //!Запрос на удаление extContractor
@@ -240,9 +284,13 @@ function Table() {
       requestId: id,
     };
     DeleteExtContractorsRequest(data).then((resp) => {
-      if (resp?.status === 200) {
-        context.UpdateTableReguest();
-      }
+      if(resp?.status === 200){
+        GetOneRequests(id).then((resp) => {
+            if(resp?.status === 200){
+              UpdateRequest(resp?.data)
+            }
+          })
+        }
     });
   };
 
@@ -304,6 +352,46 @@ function Table() {
     }
   };
 
+  const sortDataTable = () => {
+    if (!context.sortStateParam) {
+      // Если параметр сортировки отсутствует, сортируем по `number` по возрастанию
+      const sortedData = [...context?.dataTableHomePage].sort((a, b) => b.number - a.number);
+      context.setDataTableHomePage(sortedData);
+      return;
+    }
+  
+    const [colPart, typePart] = context.sortStateParam.split("&");
+    const col = colPart.split("=")[1]; // Извлекаем имя столбца
+    const type = typePart.split("=")[1]; // Извлекаем тип сортировки (asc/desc)
+  
+    const sortedData = [...context?.dataTableHomePage].sort((a, b) => {
+      if (a[col] === null || a[col] === undefined) return 1; // Сортируем null/undefined в конец
+      if (b[col] === null || b[col] === undefined) return -1;
+  
+      if (typeof a[col] === "string") {
+        // Сортируем строки
+        return type === "asc"
+          ? a[col].localeCompare(b[col])
+          : b[col].localeCompare(a[col]);
+      }
+  
+      if (typeof a[col] === "number" || a[col] instanceof Date) {
+        // Сортируем числа и даты
+        return type === "asc" ? a[col] - b[col] : b[col] - a[col];
+      }
+  
+      return 0; // Для остальных типов данных
+    });
+  
+    context.setDataTableHomePage(sortedData); // Обновляем состояние с отсортированными данными
+  };
+
+  useEffect(() => {
+    sortDataTable(); // Выполняем сортировку при изменении параметров сортировки
+  }, [context.sortStateParam]);
+  
+
+  
   //! Function to handle sorting
   const funSortByColumn = (key) => {
     let par = "";
@@ -328,7 +416,6 @@ function Table() {
 
     context.setSortState(newSortState); 
     context.setSortStateParam(par);
-    context.UpdateTableReguest();
   };
 
   const storeTableHeader = useSelector(
@@ -476,7 +563,7 @@ function Table() {
       case "number":
         return (
           <div key={index + row.id}>
-            {row.copiedRequestId !== null ? `(${value})` : value}
+            {row?.copiedRequestId !== null ? `(${value})` : value}
           </div>
         );
       case "contractor": 
@@ -665,33 +752,37 @@ function Table() {
   };
 
   const tableRef = useRef(null); // Ссылка на таблицу для отслеживания скролла
-
   const handleScroll = () => {
     const container = tableRef.current?.parentElement;
     if (container) {
       const { scrollTop, scrollHeight, clientHeight } = container;
       const maxScrollTop = scrollHeight - clientHeight;
-      if (scrollTop >= maxScrollTop - 5 && context.loader) {
-        // context.setLimit(prev => prev + 10);
-        context.setOfset(prev => prev + 10);
-        context.setLoader(false);
-        context.UpdateTableReguest();
+  
+      // Проверяем, что мы достигли конца и есть еще данные для загрузки
+     
+      if (scrollTop >= maxScrollTop - 1 && context.loader && context.totalCount > context?.dataTableHomePage.length) {
+        context.setLoader(false); // Отключаем загрузку, чтобы предотвратить повторные запросы
+        context.setOfset((prev) => prev + 10); // Обновляем offset для запроса
       }
     }
   };
 
   useEffect(() => {
+    context.UpdateTableReguest(); // Загружаем данные, когда offset изменился
+  }, [context.ofset]);
+  
+  useEffect(() => {
     const container = tableRef.current?.parentElement;
     if (container) {
       container.addEventListener("scroll", handleScroll);
     }
-
+  
     return () => {
       if (container) {
         container.removeEventListener("scroll", handleScroll);
       }
     };
-  }, [context.loader]);
+  }, [context.loader]); // Следим за состоянием loader
 
   
   
@@ -809,7 +900,7 @@ function Table() {
                 {context?.dataTableHomePage?.map((row, index) => (
                     <tr
                       key={index}
-                      style={{backgroundColor: row.copiedRequestId !== null ? "#ffe78f" : ""}}
+                      style={{backgroundColor: row?.copiedRequestId !== null ? "#ffe78f" : ""}}
                       onClick={(e) => {trClick(row, e.target)}}
                       onContextMenu={(e) => {trClickRight(row, e.target); contextmenuClick(e)}}
                       className={context.moreSelect.some((el) => el === row.id) ? styles.setectedTr : ""}
@@ -818,7 +909,7 @@ function Table() {
                           name="checkAll"
                           style={{textAlign: "center", backgroundColor: whatPageBgTd(row.id)}}
                           className={styles.MainTd}
-                          id={row.copiedRequestId !== null && "copiedRequestId"}
+                          id={row?.copiedRequestId !== null && "copiedRequestId"}
                         >
                           <input
                             type="checkbox"
@@ -834,7 +925,7 @@ function Table() {
                             key={headerItem.key}
                             name={headerItem.key}
                             className={styles.MainTd}
-                            id={row.copiedRequestId !== null && "copiedRequestId"}
+                            id={row?.copiedRequestId !== null && "copiedRequestId"}
                             style={{textAlign: textAlign(headerItem.key,row[headerItem.key]), backgroundColor: whatPageBgTd(row.id)}}
                           >
                             {getValue(row[headerItem.key], headerItem.key, index, row)}

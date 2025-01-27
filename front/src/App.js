@@ -65,7 +65,7 @@ function App() {
   const [limit, setLimit] = useState(10);
   const [scrollPosition, setScrollPosition] = useState(0);
   const [loader, setLoader] = useState(false);
-  const [totalCount, setTotalCount] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
   const [dataTableHomePage, setDataTableHomePage] = useState([]);
   const checkedAllFunc = () => {
     if(moreSelect.length > 0){
@@ -106,7 +106,18 @@ const GetDataEquipment = (id) =>{
   })
 }
 
+const UpdateForse = () =>{
+  let url = `?offset=${ofset}&limit=${limit}`;
   
+  GetAllRequests(url).then((resp) => {
+    if (resp) {
+      setTotalCount(resp?.data?.maxCount);
+      setDataTableHomePage(funFixEducator(resp?.data?.data));
+      setLoader(true); // Разрешаем загрузку следующих данных
+    }
+  });
+}
+
   const context = {
     dataEquipment,
     setDataEquipment,
@@ -191,7 +202,10 @@ const GetDataEquipment = (id) =>{
     loader,
     setLoader,
     totalCount,
-    dataTableHomePage
+    dataTableHomePage,
+    setDataTableHomePage,
+    setTotalCount,
+    UpdateForse
   };
 
   const isCheckedStore = useSelector((state) => state.isCheckedSlice.isChecked);
@@ -212,48 +226,49 @@ const GetDataEquipment = (id) =>{
 
   
   useEffect(() => {
+    context.setLoader(false);
+    setDataTableHomePage([]);
     setTotalCount(0);
     setOfset(0);
-    setLimit(10);
-    UpdateTableReguest()
-  },[storeFilter, textSearchTableData] )
+    UpdateTableReguest();
+  },[textSearchTableData, storeFilter] )
 
-
-
-
-  function UpdateTableReguest() { 
+  function UpdateTableReguest() {
     let url = `?offset=${ofset}&limit=${limit}`;
+  
     const uniqueData = getUniqueItems(storeFilter.isChecked);
     if (uniqueData.length !== 0) {
-      // Формируем строку из параметров и убираем лишнюю запятую
       const filterParams = uniqueData
         .map((item) => `exclude_${item.itemKey}=${item.value}`)
         .join("&");
       url += `&${filterParams}`;
     }
-    if(sortStateParam){
-      url += `&${sortStateParam}`
-    }if(textSearchTableData){
-      url += `&search=${textSearchTableData}`
+    if (textSearchTableData) {
+      url += `&search=${textSearchTableData}`;
     }
   
     GetAllRequests(url).then((resp) => {
-      if(resp) {
-        const checks = isCheckedStore || [];
-        // if(resp?.data.requestsDtos.length > 0) {
-        //   filteredTableData.length === resp?.data.requestsDtos.length &&  setTotalCount(true);
-        // }
-        setIsChecked(checks);
-        setDataTableHomePage(funFixEducator([...dataTableHomePage, ...resp?.data.requestsDtos]));
-        settableHeader(tableHeadAppoint);
-        setLoader(true);
+      if (resp) {
+        setTotalCount(resp?.data?.maxCount);
+  
+        // Удаляем дублирующиеся данные с помощью Set
+        const newData = funFixEducator(resp?.data?.data);
+  
+        setDataTableHomePage((prev) => {
+          const combinedData = [...prev, ...newData];
+          const uniqueDataSet = new Map(combinedData.map((item) => [item.id, item])); // Сохраняем только уникальные записи по id
+          return Array.from(uniqueDataSet.values());
+        });
+  
+        setLoader(true); // Разрешаем загрузку следующих данных
       }
-    })
-
-    GetAllRequests("").then((resp) => {
-      setDataAppointment(funFixEducator(resp?.data.requestsDtos))
-    })
+    });
   }
+
+ 
+
+
+  
 
   useEffect(() => {
     GetAllСontractors().then((resp) => {
@@ -261,6 +276,9 @@ const GetDataEquipment = (id) =>{
         setDataContractors(resp?.data);
       }
     })
+    GetAllRequests("").then((resp) => {
+      setDataAppointment(funFixEducator(resp?.data?.data));
+    });
   }, [dataUsers]);
 
   return (

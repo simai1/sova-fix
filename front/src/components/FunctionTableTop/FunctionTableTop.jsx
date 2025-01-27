@@ -74,8 +74,23 @@ function filterBasickData(data, chekeds) {
   });
   return mass;
 }
+const DropFilter = () =>{
+  context.setTotalCount(0);
+  context.setOfset(0);
+  context.setLoader(false);
+  context.setDataTableHomePage([]);
+  context.UpdateTableReguest();
+  dispatch(resetFilters({tableName: "table9"}))
+  dispatch(dropFilters({tableName: "table9"}))
+}
 
-
+// //!При обновлении обновляет только 1 запись 
+// const UpdateRequest = (updatedRequest) => {
+//   const updatedDataTable = context.dataTableHomePage.map((item) =>
+//     item.id === updatedRequest.id ? updatedRequest : item
+//   );
+//   context.setDataTableHomePage(funFixEducator(updatedDataTable));
+// };
 
   return (
     <>
@@ -91,7 +106,7 @@ function filterBasickData(data, chekeds) {
                 settextSearchTableData={context.setextSearchTableData}
               />
               <img src="./img/Search_light.png" />
-              { (context.selectedTable === "Заявки" && context.selectPage === "Main") && <div className={styles.dropFilter}  onClick={() => {dispatch(resetFilters({tableName: "table9"})); dispatch(dropFilters({tableName: "table9"}))}} title="нажмите для сброса фильтров"><img src="./img/ClearFilter.svg"/></div>}
+              { (context.selectedTable === "Заявки" && context.selectPage === "Main") && <div className={styles.dropFilter}  onClick={() => DropFilter()} title="нажмите для сброса фильтров"><img src="./img/ClearFilter.svg"/></div>}
 
               </>
               }
