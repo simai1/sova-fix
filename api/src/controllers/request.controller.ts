@@ -26,6 +26,22 @@ const getAll = catchAsync(async (req, res) => {
             'createdAt',
             'contractor',
             'checkPhoto',
+            'exclude_search',
+            'exclude_number',
+            'exclude_status',
+            'exclude_unit',
+            'exclude_builder',
+            'exclude_object',
+            'exclude_problemDescription',
+            'exclude_urgency',
+            'exclude_itineraryOrder',
+            'exclude_repairPrice',
+            'exclude_comment',
+            'exclude_legalEntity',
+            'exclude_daysAtWork',
+            'exclude_createdAt',
+            'exclude_contractor',
+            'exclude_checkPhoto',
         ])
     );
     const order = prepare(pick(req.query, ['col', 'type']));
