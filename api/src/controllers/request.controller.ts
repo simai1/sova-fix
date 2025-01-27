@@ -48,8 +48,8 @@ const getAll = catchAsync(async (req, res) => {
     const pagination = prepare(pick(req.query, ['limit', 'offset']));
     if (order.type && ['asc', 'desc'].indexOf(order.type) === -1)
         throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid order type');
-    const requestsDtos = await requestService.getAllRequests(filter, order, pagination);
-    res.json({ count: requestsDtos.length, requestsDtos });
+    const [requestsDtos, maxCount] = await requestService.getAllRequests(filter, order, pagination);
+    res.json({ maxCount, data: requestsDtos });
 });
 
 const getOne = catchAsync(async (req, res) => {
