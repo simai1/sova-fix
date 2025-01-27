@@ -538,7 +538,7 @@ function Table() {
             className={styles.statusClick}
             style={{ backgroundColor: getStatusColor(value) }}
             ref={statusPopRef}
-            key={index + row.id}
+            key={new Date().getTime() + row.id}
           >
             {value}
             {shovStatusPop === row.id && (
@@ -566,7 +566,7 @@ function Table() {
         );
       case "number":
         return (
-          <div key={index + row.id}>
+          <div key={new Date().getTime() + row.id}>
             {row?.copiedRequestId !== null ? `(${value})` : value}
           </div>
         );
@@ -576,7 +576,7 @@ function Table() {
                 onClick={() => funSetBulder(row.id)}
                 className={styles.statusClick}
                 ref={builderPopRef}
-                key={index + row.id}
+                key={new Date().getTime() + row.id}
               >
                 {getContractorItem(row)}
                 {shovBulderPop === row.id && (
@@ -620,7 +620,7 @@ function Table() {
               onClick={() => funSetExp(row.id)}
               className={styles.statusClick}
               ref={extPopRef}
-              key={index + row.id}
+              key={new Date().getTime() + row.id}
             >
               {getItemBuilder(row)}
               {shovExtPop === row.id && (
@@ -660,7 +660,7 @@ function Table() {
               backgroundColor: getColorUrgensy(value)
             }}
             ref={urgencyPopRef}
-            key={index + row.id}
+            key={new Date().getTime() + row.id}
           >
             {value || "___"}
             {shovUrgencyPop === row.id && (
@@ -697,7 +697,7 @@ function Table() {
               "___"
             ) : (
               JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" ? (
-                <div className={styles.planCompleteDate}     key={index + row.id}>
+                <div className={styles.planCompleteDate} key={new Date().getTime() + row.id}>
                   <input
                     type="date"
                     value={row["planCompleteDateRaw"].split('T')[0]} // Extracting date part from ISO string
@@ -716,7 +716,7 @@ function Table() {
         case "commentAttachment":
           case "checkPhoto" :
               return (value !== null && value !== "___") ? (
-                <div     key={index + row.id}>
+                <div  key={new Date().getTime() + row.id}>
                 { isVideo(value) ? (
                   <div className={styles.fileVideoTable}>
                     <video
@@ -749,9 +749,9 @@ function Table() {
               );
       case "createdAt":
         case "completeDate":
-          return <p key={index + row.id} style={{ whiteSpace: "nowrap" }}>{value || "___"}</p>
+          return <p key={new Date().getTime() + row.id} style={{ whiteSpace: "nowrap" }}>{value || "___"}</p>
       default:
-        return <p style={{ whiteSpace: "wrap" }} key={index + row.id} >{value || "___"}</p>
+        return <p style={{ whiteSpace: "wrap" }} key={new Date().getTime() + row.id} >{value || "___"}</p>
     }
   };
 
@@ -761,13 +761,10 @@ function Table() {
     if (container) {
       const { scrollTop, scrollHeight, clientHeight } = container;
       const maxScrollTop = scrollHeight - clientHeight;
-      // Проверяем, что мы достигли конца и есть еще данные для загрузки
-      console.log("context.totalCount", context.totalCount)
-      console.log('context?.dataTableHomePage.length', context?.dataTableHomePage.length)
       if (scrollTop >= maxScrollTop - 1 && context.loader && context.totalCount > context?.dataTableHomePage.length) {
         context.setLoader(false); // Отключаем загрузку, чтобы предотвратить повторные запросы
         context.setOfset((prev) => prev + 10); // Обновляем offset для запросаё
-        
+
       }
     }
   };
@@ -911,6 +908,7 @@ function Table() {
                       className={context.moreSelect.some((el) => el === row.id) ? styles.setectedTr : ""}
                     >
                         <td
+                        key={new Date().getTime() + row.id}
                           name="checkAll"
                           style={{textAlign: "center", backgroundColor: whatPageBgTd(row.id)}}
                           className={styles.MainTd}

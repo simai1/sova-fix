@@ -12,7 +12,6 @@ let refreshTokensTimeout;
 export const refreshTokens = async () => {
   try {
     const response = await http.get(`${server}/auth/refresh`);
-    console.log("response", response);
     sessionStorage.removeItem("accessToken");
     sessionStorage.removeItem("refreshToken");
 

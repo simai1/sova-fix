@@ -206,7 +206,8 @@ const UpdateForse = () =>{
     dataTableHomePage,
     setDataTableHomePage,
     setTotalCount,
-    UpdateForse
+    UpdateForse,
+    SortDataTable
   };
 
   const storeFilter = useSelector((state) => state.isSamplePoints["table9"]);
@@ -239,6 +240,38 @@ const UpdateForse = () =>{
         return value === "___" ? null : value;
     }
   }
+
+  function SortDataTable(data) {
+    if (!context.sortStateParam) {
+      // Если параметр сортировки отсутствует, сортируем по `number` по убыванию
+      return [...data].sort((a, b) => b.number - a.number);
+    }
+  
+    const [colPart, typePart] = context.sortStateParam.split("&");
+    const col = colPart.split("=")[1]; // Извлекаем имя столбца
+    const type = typePart.split("=")[1]; // Извлекаем тип сортировки (asc/desc)
+  
+    return [...data].sort((a, b) => {
+      if (a[col] === null || a[col] === undefined) return 1; // Сортируем null/undefined в конец
+      if (b[col] === null || b[col] === undefined) return -1;
+  
+      if (typeof a[col] === "string") {
+        // Сортируем строки
+        return type === "asc"
+          ? a[col].localeCompare(b[col])
+          : b[col].localeCompare(a[col]);
+      }
+  
+      if (typeof a[col] === "number" || a[col] instanceof Date) {
+        // Сортируем числа и даты
+        return type === "asc" ? a[col] - b[col] : b[col] - a[col];
+      }
+  
+      return 0; // Для остальных типов данных
+    });
+  }
+
+  
   function UpdateTableReguest() {
     let url = `?offset=${ofset}&limit=${limit}`;
     
@@ -257,19 +290,23 @@ const UpdateForse = () =>{
       if (resp) {
         setTotalCount(resp?.data?.maxCount);
   
-        // Удаляем дублирующиеся данные с помощью Set
+        // Обрабатываем и объединяем новые данные
         const newData = funFixEducator(resp?.data?.data);
-        
+  
         setDataTableHomePage((prev) => {
           const combinedData = [...prev, ...newData];
-          const uniqueDataSet = new Map(combinedData.map((item) => [item.id, item])); // Сохраняем только уникальные записи по id
-          return Array.from(uniqueDataSet.values());
+          const uniqueDataSet = new Map(combinedData.map((item) => [item.id, item])); // Удаляем дубликаты по id
+          const uniqueDataArray = Array.from(uniqueDataSet.values());
+          
+          // Сортируем объединенные данные перед возвратом
+          return SortDataTable(uniqueDataArray);
         });
   
         setLoader(true); // Разрешаем загрузку следующих данных
       }
     });
   }
+  
 
  
 
