@@ -49,7 +49,7 @@ const getAll = catchAsync(async (req, res) => {
     if (order.type && ['asc', 'desc'].indexOf(order.type) === -1)
         throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid order type');
     const requestsDtos = await requestService.getAllRequests(filter, order, pagination);
-    res.json({ requestsDtos });
+    res.json({ count: requestsDtos.length, requestsDtos });
 });
 
 const getOne = catchAsync(async (req, res) => {
