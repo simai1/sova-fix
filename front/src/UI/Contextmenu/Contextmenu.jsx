@@ -175,19 +175,35 @@ function Contextmenu(props) {
 
     const deletetRequest = () => {
         const data = {
-            ids: []
-       }
-       context.moreSelect.map((el) => data.ids.push(el));
-       DeleteMoreRequest(data).then((resp) => {
-                if(resp?.status === 200){
-                  context.UpdateTableReguest(1);
-                  context.setMoreSelect([]);
-                  closeContextMenu();
-                  context.checkedAllFunc();
-                }
-            }
-        );
-    }
+          ids: []
+        };
+      
+        // Собираем ids, которые нужно удалить
+        context.moreSelect.forEach((el) => data.ids.push(el));
+      
+        // Отправляем запрос на удаление
+        DeleteMoreRequest(data).then((resp) => {
+          if (resp?.status === 200) {
+            // Обновляем локальные данные в таблице, удаляя записи с указанными ID
+            context.setDataTableHomePage((prevData) => {
+              const updatedData = prevData.filter(
+                (item) => !data.ids.includes(item.id) // Убираем все записи, чьи id в массиве ids
+              );
+              return updatedData;
+            });
+      
+            // Очищаем выбранные записи, закрываем контекстное меню и выполняем дополнительные действия
+            context.setMoreSelect([]);
+            closeContextMenu();
+            context.checkedAllFunc();
+            context.setPopUp("PopUpGoodMessage");
+            context.setPopupGoodText("Выбранные заявки успешно удалены!");
+          }
+        }).catch((error) => {
+          console.error("Ошибка при удалении записей:", error);
+        });
+      };
+      
     const closeContextMenu = () => {
         props.setOpenConextMenu(false);
     }

@@ -42,12 +42,9 @@ const store = useSelector(
   (state) => state.isSamplePoints["table9"].isChecked
 );
 useEffect(() => {
-  console.log("я зашел сюда")
   if(context?.textSearchTableData || store.length !== 0){
     setDataTable(context?.dataTableHomePage);
-    console.log("я зашел сюда 1")
   }else{
-    console.log("я зашел сюда 2")
     setDataTable(filterBasickData(context?.dataApointment, store));
   }
 }, [store, context?.dataApointment, context?.textSearchTableData, context?.dataTableHomePage]);
