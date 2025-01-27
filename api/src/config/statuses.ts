@@ -19,3 +19,4 @@ export const statusesRuLocale = {
 };
 
 export const mapStatuses = mapObjectKeys(statuses);
+export const mapStatusesRuLocale = mapObjectKeys(statusesRuLocale);

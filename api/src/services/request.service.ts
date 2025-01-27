@@ -5,7 +5,7 @@ import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
 import contractorService from './contractor.service';
 import { Op } from 'sequelize';
-import { statusesRuLocale } from '../config/statuses';
+import { mapStatusesRuLocale, statusesRuLocale } from '../config/statuses';
 import sequelize from 'sequelize';
 import { sendMsg, WsMsgData } from '../utils/ws';
 import TgUser from '../models/tgUser';
@@ -26,10 +26,17 @@ const getAllRequests = async (filter: any, order: any, pagination: any): Promise
         const fieldName = isExclusion ? key.replace('exclude_', '') : key; // Убираем префикс exclude_
 
         // Преобразуем значение в массив, если это не массив
-        const value = Array.isArray(filter[key]) ? filter[key] : [filter[key]];
+        let value = Array.isArray(filter[key]) ? filter[key] : [filter[key]];
 
         if (fieldName === 'contractor') {
             whereParams['$Contractor.name$'] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
+        } else if (fieldName === 'status') {
+            console.log(mapStatusesRuLocale);
+            value = value.map((v: any) => {
+                // @ts-expect-error any type
+                return Number(mapStatusesRuLocale[v.trim()]);
+            });
+            whereParams[fieldName] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
         } else {
             whereParams[fieldName] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
         }
