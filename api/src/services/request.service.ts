@@ -20,16 +20,42 @@ const getAllRequests = async (filter: any, order: any, pagination: any) => {
     const whereParams: any = {};
     Object.keys(filter).forEach((key: string) => {
         if (key === 'search') {
-            return; // Пропускаем search, он обрабатывается отдельно
+            return;
         }
-        const isExclusion = key.startsWith('exclude_'); // Проверяем, является ли это исключением
-        const fieldName = isExclusion ? key.replace('exclude_', '') : key; // Убираем префикс exclude_
+        const isExclusion = key.startsWith('exclude_');
+        const fieldName = isExclusion ? key.replace('exclude_', '') : key;
 
-        // Преобразуем значение в массив, если это не массив
         let value = Array.isArray(filter[key]) ? filter[key] : [filter[key]];
 
         if (fieldName === 'contractor') {
-            whereParams['$Contractor.name$'] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
+            value = value.map((v: any) => (v === null ? 'null' : v));
+            if (value.includes('null')) {
+                whereParams[Op.and] = [
+                    {
+                        contractorId: value.includes('null')
+                            ? isExclusion
+                                ? { [Op.not]: null }
+                                : { [Op.is]: null }
+                            : isExclusion
+                              ? { [Op.is]: null }
+                              : { [Op.not]: null },
+                    },
+                    { '$Contractor.name$': isExclusion ? { [Op.notIn]: value } : { [Op.in]: value } },
+                ];
+            } else {
+                whereParams[Op.or] = [
+                    {
+                        contractorId: value.includes('null')
+                            ? isExclusion
+                                ? { [Op.not]: null }
+                                : { [Op.is]: null }
+                            : isExclusion
+                              ? { [Op.is]: null }
+                              : { [Op.not]: null },
+                    },
+                    { '$Contractor.name$': isExclusion ? { [Op.notIn]: value } : { [Op.in]: value } },
+                ];
+            }
         } else if (fieldName === 'object') {
             whereParams['$Object.name$'] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
         } else if (fieldName === 'unit') {
@@ -45,7 +71,6 @@ const getAllRequests = async (filter: any, order: any, pagination: any) => {
         }
     });
     let totalCount;
-    console.log(whereParams);
     if (Object.keys(filter).length !== 0 && typeof filter.search !== 'undefined') {
         const searchParams = [
             {
@@ -90,21 +115,11 @@ const getAllRequests = async (filter: any, order: any, pagination: any) => {
                 ],
             },
             include: [
-                {
-                    model: Contractor,
-                },
-                {
-                    model: ObjectDir,
-                },
-                {
-                    model: Unit,
-                },
-                {
-                    model: LegalEntity,
-                },
-                {
-                    model: ExtContractor,
-                },
+                { model: Contractor },
+                { model: ObjectDir },
+                { model: Unit },
+                { model: LegalEntity },
+                { model: ExtContractor },
             ],
             order:
                 order.col && order.type
