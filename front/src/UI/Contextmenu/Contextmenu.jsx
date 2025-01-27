@@ -94,9 +94,14 @@ function Contextmenu(props) {
           const updatedRequest = fixedRequests.find((req) => req.id === item.id); // Ищем заявку по id
           return updatedRequest ? updatedRequest : item; // Заменяем, если есть обновление
         });
+        const updatedDataTableAppoint = context.dataApointment.map((item) => {
+            const updatedRequest = fixedRequests.find((req) => req.id === item.id); // Ищем заявку по id
+            return updatedRequest ? updatedRequest : item; // Заменяем, если есть обновление
+          });
       
         // Обновляем состояние таблицы
         context.setDataTableHomePage(updatedDataTable);
+        context.setDataAppointment(updatedDataTableAppoint);
       };
 
     const setStatus = (value) => {  
@@ -193,10 +198,10 @@ function Contextmenu(props) {
             });
             context.setDataAppointment((prevDataAppointment) => {
                 const updatedDataAppointment = prevDataAppointment.filter(
-                  (item) => !data.ids.includes(item.id) // Убираем все записи, чьи id в массиве ids
+                    (item) => !data.ids.includes(item.id) // Убираем все записи, чьи id в массиве ids
                 );
                 return updatedDataAppointment;
-              });
+            });
           
       
             context.UpdateTableReguest()
