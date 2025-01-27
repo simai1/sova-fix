@@ -689,11 +689,12 @@ function Table() {
       const { scrollTop, scrollHeight, clientHeight } = container;
       const maxScrollTop = scrollHeight - clientHeight;
       // context.dataApointment.length !== dataTable.lengt)
-      console.log(context.textSearchTableData)
-      // console.log("context", context.totalCount)
-      if (scrollTop >= maxScrollTop - 5 && context.loader && !context.textSearchTableData && context.totalCount > dataTable.length) {
+      // console.log('context.totalCount', context.totalCount)
+      // console.log('dataTable.length', dataTable.length)
+      // console.log("context", context.totalCount) //context.totalCount > dataTable.length
+      if (scrollTop >= maxScrollTop - 5 && context.loader) {
         console.log("вызвал")
-        context.setLimit(prev => prev + 5);
+        context.setLimit(prev => prev + 10);
         context.setLoader(false);
       }
     }

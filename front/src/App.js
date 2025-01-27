@@ -202,12 +202,18 @@ const GetDataEquipment = (id) =>{
   const isCheckedStore = useSelector((state) => state.isCheckedSlice.isChecked);
   useEffect(() => {
     UpdateTableReguest()
-  },[textSearchTableData, selectedTable, selectContructor, loader] )
+  },[loader] )
+//},[textSearchTableData, selectedTable, selectContructor, loader] )
 
+useEffect(() => {
+  setLimit(10);
+setTotalCount(0);
+  UpdateTableReguest()
+},[textSearchTableData] )
 
-  function UpdateTableReguest(par = sortStateParam) {
+  function UpdateTableReguest() {
     
-    let  url = `?ofset=${ofset}&limit=${limit}?search=${textSearchTableData}?${par}`;
+    let  url = `?search=${textSearchTableData}&ofset=${ofset}&limit=${limit}&${sortStateParam}`;
 
     GetAllRequests(url).then((resp) => {
       if(resp) {

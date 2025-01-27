@@ -46,11 +46,15 @@ function RangeEquipment() {
                     </div>
                 </div>
                 </div>
-                <div className={styles.RangeEquipmentButtonInner}>
-                    <button onClick={()=> context.setPopUp("CreateNomenclature")}>Добавить</button>
-                    <button onClick={() => EditNomenclature()} >Редактировать</button>
-                    <button onClick={() => deleteNomenclature()}>Удалить</button>
-                </div>
+                {
+                    JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" &&
+                    <div className={styles.RangeEquipmentButtonInner}>
+                        <button onClick={()=> context.setPopUp("CreateNomenclature")}>Добавить</button>
+                        <button onClick={() => EditNomenclature()} >Редактировать</button>
+                        <button onClick={() => deleteNomenclature()}>Удалить</button>
+                    </div>
+                }
+              
             </div>
             <div>
             <UniversalTable FilterFlag={true} tableName="table13" tableHeader={headerTableNumenclature} tableBody={context?.dataNomenclature} selectFlag={true} heightTable="calc(100vh - 285px)"/>

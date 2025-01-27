@@ -46,11 +46,15 @@ function CategoryEquipment() {
                     </div>
                 </div>
             </div>
-            <div className={styles.CategoryEquipmentButtonInner}>
-                <button onClick={()=> context.setPopUp("CreateCategory")}>Добавить</button>
-                <button onClick={() => editCategory()}>Редактировать</button>
-                <button onClick={() => deleteCategory()}>Удалить</button>
-            </div>
+            {
+                JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" &&
+                <div className={styles.CategoryEquipmentButtonInner}>
+                    <button onClick={()=> context.setPopUp("CreateCategory")}>Добавить</button>
+                    <button onClick={() => editCategory()}>Редактировать</button>
+                    <button onClick={() => deleteCategory()}>Удалить</button>
+                </div>
+            }
+          
             
         </div>
         <div>

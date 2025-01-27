@@ -132,14 +132,18 @@ function EquipmentInfo() {
             <div className={styles.EquipmentInfoBlockTopButton}>
                 <button onClick={() => {generateAndDownloadExcelEquipment(context?.dataEquipment)}}>Экспорт</button>
                 <button onClick={() => {getQRCodeEquipment()}}>Сгенерировать QR-код</button>
-                <button onClick={() => {context.setPopUp("PopUpEditEquipment")}}>Редактировать</button>
+                {JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" && <button onClick={() => {context.setPopUp("PopUpEditEquipment")}}>Редактировать</button>}
             </div>     
             <div className={styles.EquipmentblockInfo}>
                 <section className={styles.EquipmentSectionInfoFirst}>
                     <div className={styles.EquipmentblockInfoFirst}>
                         <div className={styles.EquipmentImg}>
                             <div className={styles.EquipmentImgInner}>
-                                {!popUpPhoto ? <img className={styles.EquipmentImgInnerEdit} onClick={() => {setPopUpPhoto(!popUpPhoto)}} src={EditImg} /> : <img className={styles.EquipmentImgInnerEditClose}  onClick={() => {setPopUpPhoto(!popUpPhoto); setSelectedFile(null)}} src={DeleteImg} />}
+                            {JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" &&
+                                <>
+                                    {!popUpPhoto ? <img className={styles.EquipmentImgInnerEdit} onClick={() => {setPopUpPhoto(!popUpPhoto)}} src={EditImg} /> : <img className={styles.EquipmentImgInnerEditClose}  onClick={() => {setPopUpPhoto(!popUpPhoto); setSelectedFile(null)}} src={DeleteImg} />}
+                                </> 
+                            }
                                 <img className={styles.EquipmentImgInnerPhotoOrig} src={context.dataEquipment?.photo ? `${process.env.REACT_APP_API_URL}/uploads/${context.dataEquipment?.photo}` : "/img/noimage.jpg"}/>
                             </div>
                             {popUpPhoto &&
@@ -183,7 +187,7 @@ function EquipmentInfo() {
                                 <p className={styles.paramInfoGray}>Подразделение: {context.dataEquipment?.unit}</p> 
                             </div>
                             <div >
-                                <button className={styles.button} onClick={()=>   context.setPopUp("PopUpNewTO")}>Проведено ТО</button>
+                                {JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" && <button className={styles.button} onClick={()=>   context.setPopUp("PopUpNewTO")}>Проведено ТО</button>}
                             </div>
                         </div>
                     </div>
