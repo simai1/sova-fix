@@ -104,26 +104,6 @@ function Table() {
     };
   }, [context]);
 
-  //! функция фильтрации
-  function filterBasickData(data, chekeds) {
-    let tb = [...data];
-    let mass = [];
-    tb.filter((el) => {
-      if (chekeds.find((it) => el[it.itemKey] === it.value)) {
-        return;
-      } else {
-        mass.push(el);
-      }
-    });
-    return mass;
-  }
-
-  //! при клике на пункт li убираем его из массива данных таблицы
-  // useEffect(() => {
-  //   setDataTable(filterBasickData(context.dataTableFix, store));
-  // }, [store, context?.filteredTableData]);
-
-
   //!функция смены статуса
   const editStatus = (status, id) => {
     const data = {
@@ -132,7 +112,7 @@ function Table() {
     };
     SetStatusRequest(data).then((resp) => {
       if (resp?.status === 200) {
-        context.UpdateTableReguest(1);
+        context.UpdateTableReguest();
       }
     });
   };
@@ -190,7 +170,7 @@ function Table() {
     const data = { requestId: idAppoint, contractorId };
     SetcontractorRequest(data).then((resp) => {
       if (resp?.status === 200) {
-        context.UpdateTableReguest(1);
+        context.UpdateTableReguest();
       }
     });
   };
@@ -202,7 +182,7 @@ function Table() {
     };
     RemoveContractor(data).then((resp) => {
       if (resp?.status === 200) {
-        context.UpdateTableReguest(1);
+        context.UpdateTableReguest();
       }
     });
   };
@@ -211,7 +191,7 @@ function Table() {
   const SetUrgency = (name, idAppoint) => {
     const data = { urgency: name };
     ReseachDataRequest(idAppoint, data).then((resp) => {
-      context.UpdateTableReguest(1);
+      context.UpdateTableReguest();
     });
   };
   
@@ -224,7 +204,7 @@ function Table() {
 
     SetcontractorRequest(data).then((resp) => {
       if (resp?.status === 200) {
-        context.UpdateTableReguest(1);
+        context.UpdateTableReguest();
       }
     });
   };
@@ -237,7 +217,7 @@ function Table() {
     };
     SetExtContractorsRequest(data).then((resp) => {
       if (resp?.status === 200) {
-        context.UpdateTableReguest(1);
+        context.UpdateTableReguest();
         setshovExtPop("");
       }
     });
@@ -250,7 +230,7 @@ function Table() {
     }
     ReseachDataRequest(id, data).then((resp) => {
       if (resp?.status === 200) {
-        context.UpdateTableReguest(1);
+        context.UpdateTableReguest();
       }
     });
   }
@@ -261,7 +241,7 @@ function Table() {
     };
     DeleteExtContractorsRequest(data).then((resp) => {
       if (resp?.status === 200) {
-        context.UpdateTableReguest(1);
+        context.UpdateTableReguest();
       }
     });
   };
@@ -348,7 +328,7 @@ function Table() {
 
     context.setSortState(newSortState); 
     context.setSortStateParam(par);
-    context.UpdateTableReguest(1, par);
+    context.UpdateTableReguest();
   };
 
   const storeTableHeader = useSelector(
@@ -695,6 +675,7 @@ function Table() {
         context.setLimit(prev => prev + 10);
         context.setOfset(prev => prev + 10);
         context.setLoader(false);
+        context.UpdateTableReguest();
       }
     }
   };

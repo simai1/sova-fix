@@ -212,20 +212,18 @@ const GetDataEquipment = (id) =>{
 
   
   useEffect(() => {
-    // setTotalCount(0);
-    // setOfset(0);
-    // setLimit(10);
+    setTotalCount(0);
+    setOfset(0);
+    setLimit(10);
     UpdateTableReguest()
-  },[loader, storeFilter, textSearchTableData] )
+  },[storeFilter, textSearchTableData] )
 
 
 
 
   function UpdateTableReguest() { 
-    
     let url = `?ofset=${ofset}&limit=${limit}`;
     const uniqueData = getUniqueItems(storeFilter.isChecked);
-    console.log('uniqueData', uniqueData)
     if (uniqueData.length !== 0) {
       // Формируем строку из параметров и убираем лишнюю запятую
       const filterParams = uniqueData
