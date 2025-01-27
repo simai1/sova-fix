@@ -5,21 +5,27 @@ import styles from './СonfirmDelete.module.scss';
 import React from 'react';
 function СonfirmDelete() {
     const { context } = React.useContext(DataContext);
-
+    const idToDelete = context.moreSelect[0]; // Получаем id записи для удаления
 
     const DeletedRequest = () => {
-    const idToDelete = context.moreSelect[0]; // Получаем id записи для удаления
-    DeleteRequest(idToDelete).then((resp) => {
-        if (resp?.status === 200) {
-        // Удаляем запись из таблицы локально
-        context.setDataTableHomePage((prevData) => prevData.filter((item) => item.id !== idToDelete));
-        // Очищаем выбранные записи и показываем сообщение
-        context.setSelectedTr(null);
-        context.setMoreSelect([]);
-        context.setPopUp("PopUpGoodMessage");
-        context.setPopupGoodText("Заявка успешно удалена!");
+      DeleteRequest(idToDelete).then((resp) => {
+        if (resp) {
+          // Удаляем запись из таблицы локально
+          context.setDataTableHomePage((prevData) => {
+            // Фильтруем записи, чтобы удалить по id
+            return prevData.filter((item) => item.id !== idToDelete);
+          });
+          
+          // Очищаем выбранные записи и показываем сообщение
+          context.setSelectedTr(null);
+          context.setMoreSelect([]);
+          context.setPopUp("PopUpGoodMessage");
+          context.setPopupGoodText("Заявка успешно удалена!");
         }
-    });
+      }).catch(error => {
+        console.error("Ошибка при удалении заявки:", error);
+        // Вы можете добавить обработку ошибок
+      });
     };
       
      const ClosePopUp = () => {

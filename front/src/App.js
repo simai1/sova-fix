@@ -239,7 +239,7 @@ const UpdateForse = () =>{
       case "status":
         return String(value).toLowerCase();
       default:
-        return value
+        return value === "___" ? null : value;
     }
   }
   function UpdateTableReguest() {
