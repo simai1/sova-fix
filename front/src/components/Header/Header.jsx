@@ -76,27 +76,10 @@ function Header() {
   const dispatch = useDispatch();
 
   const LinkPage = (Link) => {
-    if(Link !== undefined && Link !==  "Card" && Link !==  "Polzovateli"){
+    if(Link !== undefined && Link !==  "Polzovateli"){
       setIsOpen(false)
       navigate(`/${Link}`);
-    }else if(Link ===  "Card"){
-      setIsOpen(false)
-      navigate("/")
-      context.setSelectPage("Card");
-      context.setSelectContractor("");
-      context.setextSearchTableData("");
-      context.settableHeader(tableList);
-      context.setSelectedTable("Card");
     }
-    // else if(Link ===  "Polzovateli"){
-    //   setIsOpen(false)
-    //   navigate("/")
-    //   context.setSelectPage("Main");
-    //   context.settableHeader(tableUser);
-    //   context.UpdateTableReguest(2)
-    //   context.setnameClient("Пользователи");
-    //   context.setSelectedTable("Пользователи");
-    // }
     else{
       setIsOpen(false)
       navigate("/")
@@ -119,10 +102,13 @@ function Header() {
   };
   const getLinkPatchname = () =>{
     const pathname = window.location.pathname;
-    if(pathname === '/Equipment/EquipmentInfo'){
-      return true
-    }else{
-      return false
+    switch (pathname) {
+      case '/CardPage/CardPageModule':
+        return true;
+      case '/Equipment/EquipmentInfo':
+        return true;
+      default:
+        return false;
     }
   }
 
@@ -142,7 +128,7 @@ return (
           </div>
           <ul className={styles.menuUl}>
               <li onClick={() => LinkPage()} className={styles.menuLi}>Главная</li>
-              <li onClick={() => LinkPage("Card")} className={styles.menuLi}>Маршрутный лист</li>
+              <li onClick={() => LinkPage("CardPage/Card")} className={styles.menuLi}>Маршрутный лист</li>
               {process.env?.REACT_APP_GLOBAL_OPEN_TO_BLOCK === "open" &&
               <>
                 <li onClick={() => setIsOpenTo(!isOpenTo)} className={styles.menuLi} style={isOpenTo ? { backgroundColor: "#FFE20D" } : { backgroundColor: "#e3dfda" }}>

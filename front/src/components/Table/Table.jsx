@@ -349,7 +349,7 @@ function Table() {
 
   //! открытие модального окна фильтрации столбца
   const clickTh = (key, index, el) => {
-    if (el?.target?.tagName !== "IMG" && key !== "fileName" && key !== "number" && key !== "problemDescription" && key !== "repairPrice" && key !== "commentAttachment" && key !== "checkPhoto") {
+    if (el?.target?.tagName !== "IMG" && key !== "fileName" && key !== "number" && key !== "problemDescription" && key !== "repairPrice" && key !== "commentAttachment" && key !== "checkPhoto" && key !== "itineraryOrder") {
       const modalData = key === "status" ? context.tableData.map((item) => status[item[key]]) : context.tableData.map((item) => item[key]?.name || item[key]);
       context.setSamplePointsData(modalData);
       setActiwFilter(key);
@@ -484,7 +484,7 @@ function Table() {
   //! Функция разрешения фильтрации
   const filterAndNote = (key) => {
       const arrayNotFilter = [
-        "number", "fileName", "checkPhoto", "problemDescription", "repairPrice", "commentAttachment"
+        "number", "fileName", "checkPhoto", "problemDescription", "repairPrice", "commentAttachment", "itineraryOrder"
       ]
       if (arrayNotFilter.includes(key)) {
         return false

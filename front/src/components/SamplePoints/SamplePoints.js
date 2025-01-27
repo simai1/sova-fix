@@ -74,7 +74,6 @@ function SamplePoints(props) {
 
   const getCheckedAll = () => {
     const flag = store?.find((ell) => ell.itemKey === props.itemKey);
-    console.log("flag", flag)
     return !flag;
   };
 

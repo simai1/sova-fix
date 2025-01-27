@@ -28,7 +28,6 @@ function PopUpEditEquipment() {
   useEffect(() => {
     if (context.selectEquipment && objects.length && contractors.length && nomenclatures.length) {
       const equipment = context.selectEquipment;
-      console.log("equipment", equipment);
       const matchedObject = objects.find((obj) => obj.name === equipment.object);
       const matchedContractor = contractors.find((cont) => cont.name === equipment.contractor);
       const matchedNomenclature = nomenclatures.find((nom) => nom.name === equipment.name);

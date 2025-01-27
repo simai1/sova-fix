@@ -228,18 +228,16 @@ function UniversalTable(props) {
   };
 
   const SetCountCard = (el, idAppoint) => {
-    const contractorId = context?.tableData[0].contractor?.id;
-    if (contractorId) {
-      const data = {
-        itineraryOrder: el,
-      };
-      ReseachDataRequest(idAppoint, data).then((resp) => {
-        if (resp?.status === 200) {
-          props.updateTable();
-          setItineraryOrderPop("");
-        }
-      });
-    }
+    const data = {
+      itineraryOrder: el,
+    };
+    ReseachDataRequest(idAppoint, data).then((resp) => {
+      if (resp?.status === 200) {
+        props.updateTable();
+        setItineraryOrderPop("");
+      }
+    });
+    
   };
 
   const contextmenuRef = useRef(null);
@@ -452,12 +450,7 @@ function UniversalTable(props) {
                   {header.key === "itineraryOrder" && (
                     <div
                       onClick={() => JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" && setItineraryOrderPop(row.id)}
-                      className={
-                        document.location.pathname ===
-                        "/CardPage/CardPageModule"
-                          ? styles.statusClick
-                          : styles.statusNotClick
-                      }
+                      className={ document.location.pathname === "/CardPage/CardPageModule" ? styles.statusClick : styles.statusNotClick }
                       // ref={ItineraryOrderPopRef}
                     >
                       {row[header.key] !== null ? row[header.key] : "___"}

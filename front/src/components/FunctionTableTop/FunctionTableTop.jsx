@@ -79,7 +79,7 @@ const DropFilter = () =>{
   context.setOfset(0);
   context.setLoader(false);
   context.setDataTableHomePage([]);
-  context.UpdateTableReguest();
+  context.UpdateForse();
   dispatch(resetFilters({tableName: "table9"}))
   dispatch(dropFilters({tableName: "table9"}))
 }
@@ -132,15 +132,15 @@ const DropFilter = () =>{
             </div>
           ) : sessionStorage.getItem("userData").user?.id === 1 ? 
           <div className={styles.ButtonBack}>
-                  <div>
-                    <button onClick={()=>goBackCurd()}>Назад</button>
-                  </div>
-                  <div>
-                    <button onClick={() => generateAndDownloadExcel(context?.filteredTableData, "Маршрутный_лист")}>Экспорт</button>
-                  </div>
+              <div>
+                <button onClick={()=>goBackCurd()}>Назад</button>
+              </div>
+              <div>
+                <button onClick={() => generateAndDownloadExcel(context?.filteredTableData, "Маршрутный_лист")}>Экспорт</button>
+              </div>
 
-                </div>
-                :
+            </div>
+            :
           (
             <>              
             </>

@@ -24,6 +24,7 @@ import Equipment from "./pages/AdminPages/Equipment/Equipment";
 import RangeEquipment from "./modules/RangeEquipment/RangeEquipment";
 import GraphicEquipment from "./modules/GraphicEquipment/GraphicEquipment";
 import EquipmentInfo from "./modules/EquipmentInfo/EquipmentInfo";
+import PageCardContractors from "./pages/AdminPages/PageCardContractors/PageCardContractors";
 
 function App() {
   const [selectContructor, setSelectContractor] = useState("")
@@ -225,11 +226,13 @@ const UpdateForse = () =>{
   };
   
   useEffect(() => {
-    context.setLoader(false);
-    setDataTableHomePage([]);
-    setTotalCount(0);
-    setOfset(0);
-    UpdateTableReguest();
+    if(loader){
+      context.setLoader(false);
+      setDataTableHomePage([]);
+      setTotalCount(0);
+      setOfset(0);
+      UpdateTableReguest();
+    }
   },[textSearchTableData, storeFilter] )
 
   const getParam = (value, key) =>{
@@ -338,6 +341,7 @@ const UpdateForse = () =>{
             <Route path="/Authorization" element={<Authorization />}></Route>
             <Route path="/ReportFinansing" element={<ReportFinansing />}></Route>
             <Route path="/RepotYour" element={<RepotYour />}></Route>
+            
             <Route path="/Directory/*" element={<Directory />}>
               <Route path="BusinessUnitReference" element={<BusinessUnitReference />}></Route>
               <Route path="DirectoryLegalEntities" element={<DirectoryLegalEntities />}></Route>
@@ -347,6 +351,7 @@ const UpdateForse = () =>{
             </Route>
 
             <Route path="/CardPage/*" element={<CardPage />}>
+              <Route path="Card" element={<PageCardContractors />}></Route>
               <Route path="CardPageModule" element={<CardPageModule />}></Route>
             </Route>
             <Route path="/Equipment/*" element={<Equipment />}>
