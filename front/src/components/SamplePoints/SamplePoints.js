@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import styles from "./SamplePoints.module.scss";
 import { useDispatch, useSelector } from "react-redux";
-import { setChecked } from "../../store/samplePoints/samplePoits";
+import { dropFilters, setChecked, setFilters } from "../../store/samplePoints/samplePoits";
 import DataContext from "../../context";
 
 function SamplePoints(props) {
@@ -16,30 +16,39 @@ function SamplePoints(props) {
   );
 
   const funLiCkick = (el) => {
-    context.UpdateTableReguest()
-    // context.setFlagFilter(true)
-    if (
-      store?.find((elem) => elem.value === el && elem.itemKey === props.itemKey)
-    ) {
-      let c = [...store];
-      c = c.filter(
-        (elem) => elem.itemKey !== props.itemKey || elem.value !== el
-      );
-      dispatch(setChecked({ tableName: props.tableName, checked: c }));
-    } else {
-      dispatch(
-        setChecked({
-          tableName: props.tableName,
-          checked: [...store, { itemKey: props.itemKey, value: el }],
-        })
-      );
+ 
+    if(props.tableName === "table9"){
+        dispatch(setFilters({ tableName: props.tableName, filter: el, key: props.itemKey }))
     }
+    if(props.tableName !== "table9"){
+      context.UpdateTableReguest()
+    }
+      if (
+        store?.find((elem) => elem.value === el && elem.itemKey === props.itemKey)
+      ) {
+        let c = [...store];
+        c = c.filter(
+          (elem) => elem.itemKey !== props.itemKey || elem.value !== el
+        );
+        dispatch(setChecked({ tableName: props.tableName, checked: c }));
+       
+      } else {
+        dispatch(
+          setChecked({
+            tableName: props.tableName,
+            checked: [...store, { itemKey: props.itemKey, value: el }],
+          })
+        );
+      }
+    
+   
   };
 
   const funLiCkickAll = () => {
     if (store?.find((elem) => elem.itemKey === props.itemKey)) {
       const checked = store.filter((elem) => elem.itemKey !== props.itemKey);
       dispatch(setChecked({ tableName: props.tableName, checked: checked }));
+      dispatch(dropFilters({ tableName: props.tableName }));
     } else {
       const bd = [...props.tableBodyData].map((el) => ({
         itemKey: props.itemKey,
@@ -65,6 +74,7 @@ function SamplePoints(props) {
 
   const getCheckedAll = () => {
     const flag = store?.find((ell) => ell.itemKey === props.itemKey);
+    console.log("flag", flag)
     return !flag;
   };
 

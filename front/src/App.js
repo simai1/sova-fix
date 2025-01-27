@@ -65,7 +65,8 @@ function App() {
   const [limit, setLimit] = useState(10);
   const [scrollPosition, setScrollPosition] = useState(0);
   const [loader, setLoader] = useState(false);
-  const [totalCount, setTotalCount] = useState(0);
+  const [totalCount, setTotalCount] = useState(false);
+  const [dataTableHomePage, setDataTableHomePage] = useState([]);
   const checkedAllFunc = () => {
     if(moreSelect.length > 0){
       setCheckedAll(true)
@@ -189,42 +190,66 @@ const GetDataEquipment = (id) =>{
     setScrollPosition,
     loader,
     setLoader,
-    totalCount
+    totalCount,
+    dataTableHomePage
   };
 
-  const store = useSelector((state) => state.isSamplePoints["table9"].isChecked);
-  
-  useEffect(()=>{
-    console.log(store.length)
-  },[store])
-
-
   const isCheckedStore = useSelector((state) => state.isCheckedSlice.isChecked);
+  const storeFilter = useSelector((state) => state.isSamplePoints["table9"]);
+
+  const getUniqueItems = (array) => {
+    const seen = new Set();
+    return array.filter((item) => {
+      const serialized = JSON.stringify(item); // Преобразуем объект в строку для проверки уникальности
+      if (seen.has(serialized)) {
+        return false; // Пропускаем дубликаты
+      }
+      seen.add(serialized);
+      return true; // Оставляем уникальные
+    });
+  };
+  
+
+  
   useEffect(() => {
+    // setTotalCount(0);
+    // setOfset(0);
+    // setLimit(10);
     UpdateTableReguest()
-  },[loader] )
-//},[textSearchTableData, selectedTable, selectContructor, loader] )
+  },[loader, storeFilter, textSearchTableData] )
 
-useEffect(() => {
-  setLimit(10);
-setTotalCount(0);
-  UpdateTableReguest()
-},[textSearchTableData] )
 
-  function UpdateTableReguest() {
+
+
+  function UpdateTableReguest() { 
     
-    let  url = `?search=${textSearchTableData}&ofset=${ofset}&limit=${limit}&${sortStateParam}`;
-
+    let url = `?ofset=${ofset}&limit=${limit}`;
+    const uniqueData = getUniqueItems(storeFilter.isChecked);
+    console.log('uniqueData', uniqueData)
+    if (uniqueData.length !== 0) {
+      // Формируем строку из параметров и убираем лишнюю запятую
+      const filterParams = uniqueData
+        .map((item) => `exclude_${item.itemKey}=${item.value}`)
+        .join("&");
+      url += `&${filterParams}`;
+    }
+    if(sortStateParam){
+      url += `&${sortStateParam}`
+    }if(textSearchTableData){
+      url += `&search=${textSearchTableData}`
+    }
+  
     GetAllRequests(url).then((resp) => {
       if(resp) {
         const checks = isCheckedStore || [];
+        // if(resp?.data.requestsDtos.length > 0) {
+        //   filteredTableData.length === resp?.data.requestsDtos.length &&  setTotalCount(true);
+        // }
         setIsChecked(checks);
-        setTableData(resp?.data.requestsDtos)
-        setDataTableFix(funFixEducator(resp?.data.requestsDtos))
-        setFilteredTableData(FilteredSample(funFixEducator(resp?.data.requestsDtos), checks ))//setFilteredTableData - это идет в таблицу 
+        setDataTableHomePage(funFixEducator([...resp?.data.requestsDtos]))
         settableHeader(tableHeadAppoint);
         setLoader(true);
-        setTotalCount(resp?.data.requestsDtos.length);
+       
       }
     })
 
@@ -239,7 +264,6 @@ setTotalCount(0);
         setDataContractors(resp?.data);
       }
     })
-    UpdateTableReguest(1)
   }, [dataUsers]);
 
   return (
@@ -256,8 +280,6 @@ setTotalCount(0);
             <Route path="/Authorization" element={<Authorization />}></Route>
             <Route path="/ReportFinansing" element={<ReportFinansing />}></Route>
             <Route path="/RepotYour" element={<RepotYour />}></Route>
-
-
             <Route path="/Directory/*" element={<Directory />}>
               <Route path="BusinessUnitReference" element={<BusinessUnitReference />}></Route>
               <Route path="DirectoryLegalEntities" element={<DirectoryLegalEntities />}></Route>

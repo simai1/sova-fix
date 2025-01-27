@@ -4,11 +4,12 @@
   display: block;
   width: 100%;
   height: 64vh;
+ 
 }
 .Table {
   width: 100%;
   display: flex;
-  overflow: scroll;
+  overflow-y: scroll;
   max-height: calc(100vh - 335px);
   height: calc(100vh - 335px);
   min-height: 375px;

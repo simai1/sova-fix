@@ -78,7 +78,6 @@ function Table() {
   const [arrCount, setArrCount] = useState([]);
   const [dataBuilder, setDataBuilder] = useState({});
   const contextmenuRef = useRef(null);
-  const [dataTable, setDataTable] = useState(context?.filteredTableData);
 
   //! Юз эффект при загрузке страницы
   useEffect(() => {
@@ -120,9 +119,9 @@ function Table() {
   }
 
   //! при клике на пункт li убираем его из массива данных таблицы
-  useEffect(() => {
-    setDataTable(filterBasickData(context.dataTableFix, store));
-  }, [store, context?.filteredTableData]);
+  // useEffect(() => {
+  //   setDataTable(filterBasickData(context.dataTableFix, store));
+  // }, [store, context?.filteredTableData]);
 
 
   //!функция смены статуса
@@ -406,7 +405,7 @@ function Table() {
     if (context?.moreSelect?.length > 0) {
       context.setMoreSelect([]);
     } else {
-      const ids = dataTable?.map((el) => el.id) || [];
+      const ids = context?.dataTableHomePage?.map((el) => el.id) || [];
       context.setMoreSelect(ids);
     }
   };
@@ -468,13 +467,14 @@ function Table() {
             className={styles.statusClick}
             style={{ backgroundColor: getStatusColor(value) }}
             ref={statusPopRef}
+            key={index + row.id}
           >
             {value}
             {shovStatusPop === row.id && (
               <div
                 className={styles.shovStatusPop}
                 style={
-                  checkHeights(dataTable, index)
+                  checkHeights(context?.dataTableHomePage, index)
                     ? { top: "-70%", width: "250px" }
                     : { width: "250px" }
                 }
@@ -495,7 +495,7 @@ function Table() {
         );
       case "number":
         return (
-          <div>
+          <div key={index + row.id}>
             {row.copiedRequestId !== null ? `(${value})` : value}
           </div>
         );
@@ -505,13 +505,14 @@ function Table() {
                 onClick={() => funSetBulder(row.id)}
                 className={styles.statusClick}
                 ref={builderPopRef}
+                key={index + row.id}
               >
                 {getContractorItem(row)}
                 {shovBulderPop === row.id && (
                   <div
                     className={styles.shovStatusPop}
                     style={
-                      checkHeights(dataTable, index)
+                      checkHeights(context?.dataTableHomePage, index)
                         ? { top: "-70%", width: "200%" }
                         : {
                             width: "200%",
@@ -548,13 +549,14 @@ function Table() {
               onClick={() => funSetExp(row.id)}
               className={styles.statusClick}
               ref={extPopRef}
+              key={index + row.id}
             >
               {getItemBuilder(row)}
               {shovExtPop === row.id && (
                 <div
                   className={styles.shovStatusPop}
                   style={
-                    checkHeights(dataTable, index)
+                    checkHeights(context?.dataTableHomePage, index)
                       ? { top: "-70%", width: "200%" }
                       : { width: "200%" }
                   }
@@ -587,13 +589,14 @@ function Table() {
               backgroundColor: getColorUrgensy(value)
             }}
             ref={urgencyPopRef}
+            key={index + row.id}
           >
             {value || "___"}
             {shovUrgencyPop === row.id && (
               <div
                 className={styles.shovStatusPop}
                 style={
-                  checkHeights(dataTable, index)
+                  checkHeights(context?.dataTableHomePage, index)
                     ? { top: "-70%", width: "200%" }
                     : { width: "200%" }
                 }
@@ -623,7 +626,7 @@ function Table() {
               "___"
             ) : (
               JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" ? (
-                <div className={styles.planCompleteDate}>
+                <div className={styles.planCompleteDate}     key={index + row.id}>
                   <input
                     type="date"
                     value={row["planCompleteDateRaw"].split('T')[0]} // Extracting date part from ISO string
@@ -642,7 +645,7 @@ function Table() {
         case "commentAttachment":
           case "checkPhoto" :
               return (value !== null && value !== "___") ? (
-                <div>
+                <div     key={index + row.id}>
                 { isVideo(value) ? (
                   <div className={styles.fileVideoTable}>
                     <video
@@ -675,9 +678,9 @@ function Table() {
               );
       case "createdAt":
         case "completeDate":
-          return <p style={{ whiteSpace: "nowrap" }}>{value || "___"}</p>
+          return <p key={index + row.id} style={{ whiteSpace: "nowrap" }}>{value || "___"}</p>
       default:
-        return <p style={{ whiteSpace: "wrap" }}>{value || "___"}</p>
+        return <p style={{ whiteSpace: "wrap" }} key={index + row.id} >{value || "___"}</p>
     }
   };
 
@@ -688,33 +691,26 @@ function Table() {
     if (container) {
       const { scrollTop, scrollHeight, clientHeight } = container;
       const maxScrollTop = scrollHeight - clientHeight;
-      // context.dataApointment.length !== dataTable.lengt)
-      // console.log('context.totalCount', context.totalCount)
-      // console.log('dataTable.length', dataTable.length)
-      // console.log("context", context.totalCount) //context.totalCount > dataTable.length
       if (scrollTop >= maxScrollTop - 5 && context.loader) {
-        console.log("вызвал")
         context.setLimit(prev => prev + 10);
+        context.setOfset(prev => prev + 10);
         context.setLoader(false);
       }
     }
   };
 
-  // Слежение за прокруткой в контейнере
   useEffect(() => {
     const container = tableRef.current?.parentElement;
     if (container) {
       container.addEventListener("scroll", handleScroll);
-      console.log("Добавил обработчик события на:", container);
     }
 
     return () => {
       if (container) {
         container.removeEventListener("scroll", handleScroll);
-        console.log("Удалил обработчик события с:", container);
       }
     };
-  }, [context.loader]); // Следим за состоянием loader
+  }, [context.loader]);
 
   
   
@@ -724,7 +720,7 @@ function Table() {
       <div
         className={styles.Table}
         style={{
-          overflow: dataTable.length === 0 ? "hidden" : "auto",
+          overflow: context?.dataTableHomePage.length === 0 ? "hidden" : "auto",
         }}
       >
         <table className={styles.TableInner} ref={tableRef}>
@@ -788,10 +784,10 @@ function Table() {
                           }}
                         >
                           <SamplePoints
-                            basickData={context.dataTableFix} // нефильтрованные данные
-                            tableBodyData={filterBasickData(context.dataTableFix, store)} // фильтрованные данные
+                            basickData={context.dataApointment} // нефильтрованные данные
+                            tableBodyData={context.dataApointment} // фильтрованные данные
                             punkts={[
-                              ...dataTable.map((it) =>
+                              ...context.dataApointment.map((it) =>
                                 it[item.key] === null ? "___" : it[item.key]
                               ),
                               ...store
@@ -827,15 +823,15 @@ function Table() {
               </tr>
             ):(
               <>
-              {dataTable.length > 0 ? (
+              {context?.dataTableHomePage.length > 0 ? (
               <>
-                {dataTable?.map((row, index) => (
+                {context?.dataTableHomePage?.map((row, index) => (
                     <tr
                       key={index}
                       style={{backgroundColor: row.copiedRequestId !== null ? "#ffe78f" : ""}}
                       onClick={(e) => {trClick(row, e.target)}}
                       onContextMenu={(e) => {trClickRight(row, e.target); contextmenuClick(e)}}
-                      className={context.moreSelect.some((el) => el === row.id) &&styles.setectedTr}
+                      className={context.moreSelect.some((el) => el === row.id) ? styles.setectedTr : ""}
                     >
                         <td
                           name="checkAll"

@@ -29,6 +29,7 @@ const isSamplePoints = createSlice({
     },
     table9: {
       isChecked: [],
+      filters: [],
     },
     table10: {
       isChecked: [],
@@ -55,9 +56,25 @@ const isSamplePoints = createSlice({
       const { tableName } = action.payload;
       state[tableName].isChecked = [];
     },
+
+    //TODO мне нуждно добавлять запись в массив filters если такая запись там уже есть удалять ее из него при этом мне нужно так же проверять что этой записи нет в массиве isChecked
+    setFilters(state, action) {
+      const { tableName, filter, key } = action.payload;
+      const idx = state[tableName].filters.findIndex((item) => item.key === key && item.value === filter);
+      if (idx !== -1) {
+        state[tableName].filters.splice(idx, 1);
+      } else {
+        state[tableName].filters.push({key, value: filter});    
+      }
+    },
+
+    dropFilters(state, action) {
+      const { tableName } = action.payload;
+      state[tableName].filters = [];
+    },
   },
 });
 
-export const { setChecked, resetFilters } = isSamplePoints.actions;
+export const { setChecked, resetFilters, setFilters, dropFilters } = isSamplePoints.actions;
 
 export default isSamplePoints.reducer;

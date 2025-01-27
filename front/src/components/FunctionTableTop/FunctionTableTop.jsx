@@ -12,7 +12,7 @@ import EditColum from "../../UI/EditColum/EditColum";
 import { filterRequestsWithoutCopiedId, generateAndDownloadExcel } from "../../function/function";
 import { tableList } from "../Table/Data";
 import { useNavigate } from "react-router-dom";
-import { resetFilters } from "../../store/samplePoints/samplePoits";
+import { dropFilters, resetFilters } from "../../store/samplePoints/samplePoits";
 
 
 
@@ -82,12 +82,12 @@ function filterBasickData(data, chekeds) {
               { context.selectedTable === "Заявки" && 
               <>
               <Input
-            
+          
                 placeholder={"Поиск..."}
                 settextSearchTableData={context.setextSearchTableData}
               />
               <img src="./img/Search_light.png" />
-              { (context.selectedTable === "Заявки" && context.selectPage === "Main") && <div className={styles.dropFilter}  onClick={() => dispatch(resetFilters({tableName: "table9"}))} title="нажмите для сброса фильтров"><img src="./img/ClearFilter.svg"/></div>}
+              { (context.selectedTable === "Заявки" && context.selectPage === "Main") && <div className={styles.dropFilter}  onClick={() => {dispatch(resetFilters({tableName: "table9"})); dispatch(dropFilters({tableName: "table9"}))}} title="нажмите для сброса фильтров"><img src="./img/ClearFilter.svg"/></div>}
 
               </>
               }
