@@ -30,6 +30,10 @@ const getAllRequests = async (filter: any, order: any, pagination: any) => {
 
         if (fieldName === 'contractor') {
             whereParams['$Contractor.name$'] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
+        } else if (fieldName === 'object') {
+            whereParams['$Object.name$'] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
+        } else if (fieldName === 'unit') {
+            whereParams['$Unit.name$'] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
         } else if (fieldName === 'status') {
             value = value.map((v: any) => {
                 // @ts-expect-error any type
@@ -41,6 +45,7 @@ const getAllRequests = async (filter: any, order: any, pagination: any) => {
         }
     });
     let totalCount;
+    console.log(whereParams);
     if (Object.keys(filter).length !== 0 && typeof filter.search !== 'undefined') {
         const searchParams = [
             {
