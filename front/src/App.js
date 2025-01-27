@@ -209,7 +209,6 @@ const UpdateForse = () =>{
     UpdateForse
   };
 
-  const isCheckedStore = useSelector((state) => state.isCheckedSlice.isChecked);
   const storeFilter = useSelector((state) => state.isSamplePoints["table9"]);
 
   const getUniqueItems = (array) => {
@@ -223,8 +222,6 @@ const UpdateForse = () =>{
       return true; // Оставляем уникальные
     });
   };
-  
-
   
   useEffect(() => {
     context.setLoader(false);
@@ -262,7 +259,7 @@ const UpdateForse = () =>{
   
         // Удаляем дублирующиеся данные с помощью Set
         const newData = funFixEducator(resp?.data?.data);
-  
+        
         setDataTableHomePage((prev) => {
           const combinedData = [...prev, ...newData];
           const uniqueDataSet = new Map(combinedData.map((item) => [item.id, item])); // Сохраняем только уникальные записи по id

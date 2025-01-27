@@ -1,4 +1,4 @@
-import { DeleteRequest } from '../../API/API';
+import { DeleteRequest, GetAllRequests } from '../../API/API';
 import { funFixEducator } from '../../UI/SamplePoints/Function';
 import DataContext from '../../context';
 import styles from './СonfirmDelete.module.scss';
@@ -14,9 +14,14 @@ function СonfirmDelete() {
           context.setDataTableHomePage((prevData) => {
             // Фильтруем записи, чтобы удалить по id
             return prevData.filter((item) => item.id !== idToDelete);
-          });
+          }); 
+        context.setDataAppointment((prevDataAppointment) => {
+            return prevDataAppointment.filter((item) => item.id !== idToDelete);
+          })
           
+            //   context.UpdateForse()
           // Очищаем выбранные записи и показываем сообщение
+          context.UpdateTableReguest()
           context.setSelectedTr(null);
           context.setMoreSelect([]);
           context.setPopUp("PopUpGoodMessage");

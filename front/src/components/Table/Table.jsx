@@ -761,12 +761,13 @@ function Table() {
     if (container) {
       const { scrollTop, scrollHeight, clientHeight } = container;
       const maxScrollTop = scrollHeight - clientHeight;
-  
       // Проверяем, что мы достигли конца и есть еще данные для загрузки
-     
+      console.log("context.totalCount", context.totalCount)
+      console.log('context?.dataTableHomePage.length', context?.dataTableHomePage.length)
       if (scrollTop >= maxScrollTop - 1 && context.loader && context.totalCount > context?.dataTableHomePage.length) {
         context.setLoader(false); // Отключаем загрузку, чтобы предотвратить повторные запросы
-        context.setOfset((prev) => prev + 10); // Обновляем offset для запроса
+        context.setOfset((prev) => prev + 10); // Обновляем offset для запросаё
+        
       }
     }
   };

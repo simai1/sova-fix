@@ -191,8 +191,15 @@ function Contextmenu(props) {
               );
               return updatedData;
             });
+            context.setDataAppointment((prevDataAppointment) => {
+                const updatedDataAppointment = prevDataAppointment.filter(
+                  (item) => !data.ids.includes(item.id) // Убираем все записи, чьи id в массиве ids
+                );
+                return updatedDataAppointment;
+              });
+          
       
-            // Очищаем выбранные записи, закрываем контекстное меню и выполняем дополнительные действия
+            context.UpdateTableReguest()
             context.setMoreSelect([]);
             closeContextMenu();
             context.checkedAllFunc();
