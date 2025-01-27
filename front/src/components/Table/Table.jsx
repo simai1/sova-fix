@@ -672,7 +672,7 @@ function Table() {
       const { scrollTop, scrollHeight, clientHeight } = container;
       const maxScrollTop = scrollHeight - clientHeight;
       if (scrollTop >= maxScrollTop - 5 && context.loader) {
-        context.setLimit(prev => prev + 10);
+        // context.setLimit(prev => prev + 10);
         context.setOfset(prev => prev + 10);
         context.setLoader(false);
         context.UpdateTableReguest();

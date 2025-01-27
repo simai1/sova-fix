@@ -222,7 +222,7 @@ const GetDataEquipment = (id) =>{
 
 
   function UpdateTableReguest() { 
-    let url = `?ofset=${ofset}&limit=${limit}`;
+    let url = `?offset=${ofset}&limit=${limit}`;
     const uniqueData = getUniqueItems(storeFilter.isChecked);
     if (uniqueData.length !== 0) {
       // Формируем строку из параметров и убираем лишнюю запятую
@@ -244,10 +244,9 @@ const GetDataEquipment = (id) =>{
         //   filteredTableData.length === resp?.data.requestsDtos.length &&  setTotalCount(true);
         // }
         setIsChecked(checks);
-        setDataTableHomePage(funFixEducator([...resp?.data.requestsDtos]))
+        setDataTableHomePage(funFixEducator([...dataTableHomePage, ...resp?.data.requestsDtos]));
         settableHeader(tableHeadAppoint);
         setLoader(true);
-       
       }
     })
 
