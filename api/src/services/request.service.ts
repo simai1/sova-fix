@@ -14,22 +14,59 @@ import objectService from './object.service';
 import Unit from '../models/unit';
 import LegalEntity from '../models/legalEntity';
 import ExtContractor from '../models/externalContractor';
+import * as util from 'node:util';
 
 const getAllRequests = async (filter: any, order: any, pagination: any) => {
     let requests;
     const whereParams: any = {};
     Object.keys(filter).forEach((key: string) => {
         if (key === 'search') {
-            return; // Пропускаем search, он обрабатывается отдельно
+            return;
         }
-        const isExclusion = key.startsWith('exclude_'); // Проверяем, является ли это исключением
-        const fieldName = isExclusion ? key.replace('exclude_', '') : key; // Убираем префикс exclude_
+        const isExclusion = key.startsWith('exclude_');
+        const fieldName = isExclusion ? key.replace('exclude_', '') : key;
 
-        // Преобразуем значение в массив, если это не массив
         let value = Array.isArray(filter[key]) ? filter[key] : [filter[key]];
 
         if (fieldName === 'contractor') {
-            whereParams['$Contractor.name$'] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
+            value = value.map((v: any) => (v === null ? 'null' : v));
+            if (isExclusion) {
+                if (value.includes('null')) {
+                    whereParams[Op.and] = [
+                        {
+                            contractorId: value.includes('null') ? { [Op.not]: null } : { [Op.is]: null },
+                        },
+                        { '$Contractor.name$': { [Op.notIn]: value } },
+                    ];
+                } else {
+                    whereParams[Op.or] = [
+                        {
+                            contractorId: value.includes('null') ? { [Op.not]: null } : { [Op.is]: null },
+                        },
+                        { '$Contractor.name$': { [Op.notIn]: value } },
+                    ];
+                }
+            } else {
+                if (value.includes('null')) {
+                    whereParams[Op.or] = [
+                        {
+                            contractorId: value.includes('null') ? { [Op.is]: null } : { [Op.not]: null },
+                        },
+                        { '$Contractor.name$': { [Op.in]: value } },
+                    ];
+                } else {
+                    whereParams[Op.and] = [
+                        {
+                            contractorId: value.includes('null') ? { [Op.is]: null } : { [Op.not]: null },
+                        },
+                        { '$Contractor.name$': { [Op.in]: value } },
+                    ];
+                }
+            }
+        } else if (fieldName === 'object') {
+            whereParams['$Object.name$'] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
+        } else if (fieldName === 'unit') {
+            whereParams['$Unit.name$'] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
         } else if (fieldName === 'status') {
             value = value.map((v: any) => {
                 // @ts-expect-error any type
@@ -40,6 +77,7 @@ const getAllRequests = async (filter: any, order: any, pagination: any) => {
             whereParams[fieldName] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
         }
     });
+    console.log(util.inspect(whereParams, { showHidden: true, depth: null, colors: true }));
     let totalCount;
     if (Object.keys(filter).length !== 0 && typeof filter.search !== 'undefined') {
         const searchParams = [
@@ -85,21 +123,11 @@ const getAllRequests = async (filter: any, order: any, pagination: any) => {
                 ],
             },
             include: [
-                {
-                    model: Contractor,
-                },
-                {
-                    model: ObjectDir,
-                },
-                {
-                    model: Unit,
-                },
-                {
-                    model: LegalEntity,
-                },
-                {
-                    model: ExtContractor,
-                },
+                { model: Contractor },
+                { model: ObjectDir },
+                { model: Unit },
+                { model: LegalEntity },
+                { model: ExtContractor },
             ],
             order:
                 order.col && order.type

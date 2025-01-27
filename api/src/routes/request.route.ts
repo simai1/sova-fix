@@ -41,6 +41,7 @@ const uploadImage = multer({
     },
 });
 
+router.route('/stats').get(requestController.getStat);
 router.route('/').get(requestController.getAll).post(uploadImageOrVideo.single('file'), requestController.create);
 router.route('/:requestId').get(requestController.getOne);
 router.route('/:requestId/delete').delete(requestController.deleteRequest);
@@ -64,4 +65,5 @@ router.route('/customer/:tgUserId').get(requestController.getCustomersRequests);
 router.route('/add/check/:requestId').patch(uploadImage.single('file'), requestController.addCheck);
 
 router.route('/copy/:requestId').post(requestController.copy);
+
 export default router;
