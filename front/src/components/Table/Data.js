@@ -33,7 +33,7 @@ export const phoneHeaderData = [
   { key: "urgency", value: "Срочность", isActive: true  },
   { key: "createdAt", value: "Дата создания заявки", isActive: true  },
   { key: "daysAtWork", value: "Дней в работе", isActive: true  },
-  { key: "planCompleteDate", value: "Плановая дата выполнения", isActive: true  },
+  { key: "planCompleteDate ", value: "Плановая дата выполнения", isActive: true  },
   { key: "completeDate", value: "Дата выполнения (факт)", isActive: true  },
   { key: "repairPrice", value: "Бюджет ремонта", isActive: true  },
   { key: "comment", value: "Комментарий", isActive: true  },

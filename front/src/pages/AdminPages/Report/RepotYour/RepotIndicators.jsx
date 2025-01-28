@@ -33,8 +33,8 @@ function RepotIndicators() {
   const [dateTo, setDateTo] = useState(new Date().toISOString().slice(0, 10));
 
   useEffect(() => {
-    setTableDataIndicators(funFixEducator(context.dataApointment));
-    setTableDataIndicatorsSort(funFixEducator(context.dataApointment));
+    setTableDataIndicators(context.dataApointment);
+    setTableDataIndicatorsSort(context.dataApointment);
   }, [context.dataApointment]);
   
   useEffect(() => {

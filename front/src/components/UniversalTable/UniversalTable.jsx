@@ -30,8 +30,12 @@ function UniversalTable(props) {
     setTableHeaderData(props?.tableHeader);
     setTableBodyData(filterBasickData(props?.tableBody, store));
     setBasickData(props?.tableBody);
-    context.setSelectRowDirectory(null);
+   
   }, [props?.tableHeader, props?.tableBody, store]);
+
+  useEffect(() => {
+    context.setSelectRowDirectory(null);
+  }, []);
 
   const openModal = (src) => {
     if (modalImage) {
@@ -191,7 +195,7 @@ function UniversalTable(props) {
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (!event.target.closest("tr") && !event.target.closest("button")) {
-        context.setSelectRowDirectory(null);
+        // context.setSelectRowDirectory(null);
         context.setSelectedTr(null);
       }
     };
@@ -405,9 +409,7 @@ function UniversalTable(props) {
                           backgroundColor: "#D8CDC1FF",
                           textAlign: textAlign(header.key, row[header.key]),
                         }
-                      : { textAlign: textAlign(header.key, row[header.key]),
-                         
-                       }
+                      : { textAlign: textAlign(header.key, row[header.key])}
                   }
                 >
         {header.key !== "role" ? (

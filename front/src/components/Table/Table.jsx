@@ -31,7 +31,7 @@ function Table() {
     context.setSelectedTr(row.id);
     if (
       target.className !== "Table_statusClick__QSptV" &&
-      target.tagName !== "LI" && target.className !== "planCompleteDate"
+      target.tagName !== "LI" && target.className !== "planCompleteDate"  && target.tagName !== "INPUT"
     ) {
       if (context.moreSelect.includes(row.id)) {
         context.setMoreSelect(
@@ -269,6 +269,7 @@ function Table() {
 
    //!Запрос на установку новой планорвой даты выполнения  
   const selectadNewPlanDateFunction = (id, date) => {
+    console.log("Вызвался selectadNewPlanDateFunction");
     const data = {
       planCompleteDate: new Date(date)
     }
@@ -349,7 +350,7 @@ function Table() {
 
   //! открытие модального окна фильтрации столбца
   const clickTh = (key, index, el) => {
-    if (el?.target?.tagName !== "IMG" && key !== "fileName" && key !== "number" && key !== "problemDescription" && key !== "repairPrice" && key !== "commentAttachment" && key !== "checkPhoto" && key !== "itineraryOrder") {
+    if (el?.target?.tagName !== "IMG" && key !== "fileName" && key !== "number" && key !== "problemDescription" && key !== "repairPrice" && key !== "commentAttachment" && key !== "checkPhoto" && key !== "itineraryOrder" && key !== "daysAtWork" && key !== "planCompleteDate" && key !== "completeDate" && key !== "createdAt") {
       const modalData = key === "status" ? context.tableData.map((item) => status[item[key]]) : context.tableData.map((item) => item[key]?.name || item[key]);
       context.setSamplePointsData(modalData);
       setActiwFilter(key);
@@ -481,10 +482,10 @@ function Table() {
     }
   };
   
-  //! Функция разрешения фильтрации
+  //! Функция разрешения сортировки
   const filterAndNote = (key) => {
       const arrayNotFilter = [
-        "number", "fileName", "checkPhoto", "problemDescription", "repairPrice", "commentAttachment", "itineraryOrder"
+        "number", "fileName", "checkPhoto", "commentAttachment",
       ]
       if (arrayNotFilter.includes(key)) {
         return false
@@ -538,7 +539,7 @@ function Table() {
             className={styles.statusClick}
             style={{ backgroundColor: getStatusColor(value) }}
             ref={statusPopRef}
-            key={new Date().getTime() + row.id}
+            key={key + row.id}
           >
             {value}
             {shovStatusPop === row.id && (
@@ -566,7 +567,7 @@ function Table() {
         );
       case "number":
         return (
-          <div key={new Date().getTime() + row.id}>
+          <div key={key + row.id}>
             {row?.copiedRequestId !== null ? `(${value})` : value}
           </div>
         );
@@ -576,7 +577,7 @@ function Table() {
                 onClick={() => funSetBulder(row.id)}
                 className={styles.statusClick}
                 ref={builderPopRef}
-                key={new Date().getTime() + row.id}
+                key={key + row.id}
               >
                 {getContractorItem(row)}
                 {shovBulderPop === row.id && (
@@ -620,7 +621,7 @@ function Table() {
               onClick={() => funSetExp(row.id)}
               className={styles.statusClick}
               ref={extPopRef}
-              key={new Date().getTime() + row.id}
+              key={key + row.id}
             >
               {getItemBuilder(row)}
               {shovExtPop === row.id && (
@@ -660,7 +661,7 @@ function Table() {
               backgroundColor: getColorUrgensy(value)
             }}
             ref={urgencyPopRef}
-            key={new Date().getTime() + row.id}
+            key={key + row.id}
           >
             {value || "___"}
             {shovUrgencyPop === row.id && (
@@ -697,18 +698,19 @@ function Table() {
               "___"
             ) : (
               JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" ? (
-                <div className={styles.planCompleteDate} key={new Date().getTime() + row.id}>
-                  <input
-                    type="date"
-                    value={row["planCompleteDateRaw"].split('T')[0]} // Extracting date part from ISO string
-                    onChange={(e) => {
-                      selectadNewPlanDateFunction(row.id, e.target.value);
-                    }}
-                  />
+                <div className={styles.planCompleteDate} key={row.id}>
+                <input
+                      type="date"
+                      value={row["planCompleteDateRaw"].split('T')[0]} // Extracting date part from ISO string
+                      onChange={(e) => {
+                       
+                        selectadNewPlanDateFunction(row.id, e.target.value);
+                      }}
+                    />
                 </div>
-              ) : (
+              ) :{
                 value
-              )
+              }
             )}
           </>
         );
@@ -716,7 +718,7 @@ function Table() {
         case "commentAttachment":
           case "checkPhoto" :
               return (value !== null && value !== "___") ? (
-                <div  key={new Date().getTime() + row.id}>
+                <div  key={key + row.id}>
                 { isVideo(value) ? (
                   <div className={styles.fileVideoTable}>
                     <video
@@ -749,9 +751,9 @@ function Table() {
               );
       case "createdAt":
         case "completeDate":
-          return <p key={new Date().getTime() + row.id} style={{ whiteSpace: "nowrap" }}>{value || "___"}</p>
+          return <p key={key + row.id} style={{ whiteSpace: "nowrap" }}>{value || "___"}</p>
       default:
-        return <p style={{ whiteSpace: "wrap" }} key={new Date().getTime() + row.id} >{value || "___"}</p>
+        return <p style={{ whiteSpace: "wrap" }} key={key + row.id} >{value || "___"}</p>
     }
   };
 
@@ -761,7 +763,7 @@ function Table() {
     if (container) {
       const { scrollTop, scrollHeight, clientHeight } = container;
       const maxScrollTop = scrollHeight - clientHeight;
-      if (scrollTop >= maxScrollTop - 1 && context.loader && context.totalCount > context?.dataTableHomePage.length) {
+      if (scrollTop >= maxScrollTop - 50 && context.loader && context.totalCount > context?.dataTableHomePage.length) {
         context.setLoader(false); // Отключаем загрузку, чтобы предотвратить повторные запросы
         context.setOfset((prev) => prev + 10); // Обновляем offset для запросаё
 
@@ -884,19 +886,7 @@ function Table() {
             </tr>
           </thead>
           <tbody>
-            {!context.loader ? (
-              <tr>
-                <td colSpan="21" className={styles.tableNotDataSpinner}>
-                  <div className={styles.tableNotDataSpinnerInner}>
-                      <div className={styles.spinnerContainer}>
-                        <div className={styles.spinner}></div>
-                      </div>
-                      <div className={styles.notDataSpinner}>Загрузка данных</div>
-                  </div>
-                </td>
-              </tr>
-            ):(
-              <>
+            
               {context?.dataTableHomePage.length > 0 ? (
               <>
                 {context?.dataTableHomePage?.map((row, index) => (
@@ -943,10 +933,6 @@ function Table() {
                   <div className={styles.notData}> Нет данных</div>
                 </tr>
               )}
-              </>
-            )
-            
-            }
           </tbody>
         </table>
       </div>
@@ -1002,3 +988,17 @@ function Table() {
 }
 
 export default Table;
+
+{/* {!context.loader ? (
+    <tr>
+      <td colSpan="21" className={styles.tableNotDataSpinner}>
+        <div className={styles.tableNotDataSpinnerInner}>
+            <div className={styles.spinnerContainer}>
+              <div className={styles.spinner}></div>
+            </div>
+            <div className={styles.notDataSpinner}>Загрузка данных</div>
+        </div>
+      </td>
+    </tr>
+  ):( 
+    <>*/}

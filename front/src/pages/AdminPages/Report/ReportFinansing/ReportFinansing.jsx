@@ -40,12 +40,12 @@ function ReportFinansing() {
   }, []);
 
   useEffect(() => {
-    const fixedData = funFixEducator(context.dataApointment);
+    const fixedData = context?.dataApointment;
     setTableDataFinansing(fixedData);
     setTableDataFinansingSort(
       sortDataTable(valueName, fixedData, dateFrom, dateTo)
     ); // Ensure initial sort
-  }, [context.dataApointment]); // Add valueName to dependencies
+  }, [context?.dataApointment]); // Add valueName to dependencies
 
   useEffect(() => {
     setTableDataFinansingSort(
