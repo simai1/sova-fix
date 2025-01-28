@@ -63,6 +63,41 @@ const getAllRequests = async (filter: any, order: any, pagination: any) => {
                     ];
                 }
             }
+        } else if (fieldName === 'legalEntity') {
+            value = value.map((v: any) => (v === null ? 'null' : v));
+            if (isExclusion) {
+                if (value.includes('null')) {
+                    whereParams[Op.and] = [
+                        {
+                            legalEntityId: value.includes('null') ? { [Op.not]: null } : { [Op.is]: null },
+                        },
+                        { '$LegalEntity.name$': { [Op.notIn]: value } },
+                    ];
+                } else {
+                    whereParams[Op.or] = [
+                        {
+                            legalEntityId: value.includes('null') ? { [Op.not]: null } : { [Op.is]: null },
+                        },
+                        { '$LegalEntity.name$': { [Op.notIn]: value } },
+                    ];
+                }
+            } else {
+                if (value.includes('null')) {
+                    whereParams[Op.or] = [
+                        {
+                            legalEntityId: value.includes('null') ? { [Op.is]: null } : { [Op.not]: null },
+                        },
+                        { '$LegalEntity.name$': { [Op.in]: value } },
+                    ];
+                } else {
+                    whereParams[Op.and] = [
+                        {
+                            legalEntityId: value.includes('null') ? { [Op.is]: null } : { [Op.not]: null },
+                        },
+                        { '$CLegalEntity.name$': { [Op.in]: value } },
+                    ];
+                }
+            }
         } else if (fieldName === 'object') {
             whereParams['$Object.name$'] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
         } else if (fieldName === 'unit') {
