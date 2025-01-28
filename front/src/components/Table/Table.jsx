@@ -717,7 +717,6 @@ function Table() {
       case "fileName":
         case "commentAttachment":
           case "checkPhoto" :
-            case "photo" :
               return (value !== null && value !== "___") ? (
                 <div  key={key + row.id}>
                 { isVideo(value) ? (
