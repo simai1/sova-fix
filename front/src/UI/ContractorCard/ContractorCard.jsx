@@ -23,20 +23,8 @@ const ContractorCard = (props) => {
   }
 
   const getColor = (count) => {
-    let SqrCounut = 0;
-    context?.dataApointment.forEach((el) => {
-      if (el.status === 2 && el.urgency === "Маршрут") {
-        SqrCounut++;
-      }
-    })
-    const znach = SqrCounut/context.dataContractors.length
-    if (count < znach * 0.7) {
-      return "#C5E384";
-    } else if (count >= znach * 0.7 && count <= znach) {
-      return "#ffe78f";
-    } else{
-      return "#d69a81";
-    }
+    const znach = context?.dataApointment.filter(el => el.status === "В работе" && el.urgency === "Маршрут").length / context.dataContractors.length;
+    return count < znach * 0.7 ? "#C5E384" : count <= znach ? "#ffe78f" : "#d69a81";
   };
 
   return (
