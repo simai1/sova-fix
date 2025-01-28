@@ -33,7 +33,7 @@ function CardPageModule() {
             <button onClick={() => dispatch(resetFilters({tableName: "table8"}))} ><img src={ClearImg} /></button>
           </div>
         </div>
-            <UniversalTable FilterFlag={true} top={90} tableName="table8"  tableHeader={tableList} tableBody={tableDataEntries} selectFlag={false} updateTable={getData}/>
+            <UniversalTable FilterFlag={true} top={90} tableName="table8"  tableHeader={tableList} tableBody={tableDataEntries} selectFlag={false} updateTable={getData}  heightTable="calc(100vh - 285px)"/>
        </div>
      );
 }

@@ -24,6 +24,7 @@ import Equipment from "./pages/AdminPages/Equipment/Equipment";
 import RangeEquipment from "./modules/RangeEquipment/RangeEquipment";
 import GraphicEquipment from "./modules/GraphicEquipment/GraphicEquipment";
 import EquipmentInfo from "./modules/EquipmentInfo/EquipmentInfo";
+import PageCardContractors from "./pages/AdminPages/PageCardContractors/PageCardContractors";
 
 function App() {
   const [selectContructor, setSelectContractor] = useState("")
@@ -61,7 +62,12 @@ function App() {
   const [dataNomenclature, setDataNomenclature] = useState([]);
   const [selectEquipment, setSelectEquipment] = useState(null);
   const [dataEquipment, setDataEquipment] = useState(null);
-
+  const [ofset, setOfset] = useState(0);
+  const [limit, setLimit] = useState(10);
+  const [scrollPosition, setScrollPosition] = useState(0);
+  const [loader, setLoader] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
+  const [dataTableHomePage, setDataTableHomePage] = useState([]);
   const checkedAllFunc = () => {
     if(moreSelect.length > 0){
       setCheckedAll(true)
@@ -101,7 +107,18 @@ const GetDataEquipment = (id) =>{
   })
 }
 
+const UpdateForse = () =>{
+  let url = `?offset=${ofset}&limit=${limit}`;
   
+  GetAllRequests(url).then((resp) => {
+    if (resp) {
+      setTotalCount(resp?.data?.maxCount);
+      setDataTableHomePage(funFixEducator(resp?.data?.data));
+      setLoader(true); // Разрешаем загрузку следующих данных
+    }
+  });
+}
+
   const context = {
     dataEquipment,
     setDataEquipment,
@@ -136,6 +153,7 @@ const GetDataEquipment = (id) =>{
     isAllChecked,
     isSamplePointsData,
     setSamplePointsData,
+    setDataAppointment,
     SetDataFilter,
     dataFilter,
     popupErrorText,
@@ -176,52 +194,127 @@ const GetDataEquipment = (id) =>{
     checkedAll,
     setDataEquipments,
     dataEquipments,
-    UpdateDataEquipment
+    UpdateDataEquipment,
+    setOfset,
+    ofset,
+    limit,
+    setLimit,
+    scrollPosition,
+    setScrollPosition,
+    loader,
+    setLoader,
+    totalCount,
+    dataTableHomePage,
+    setDataTableHomePage,
+    setTotalCount,
+    UpdateForse,
+    SortDataTable
+  };
+
+  const storeFilter = useSelector((state) => state.isSamplePoints["table9"]);
+
+  const getUniqueItems = (array) => {
+    const seen = new Set();
+    return array.filter((item) => {
+      const serialized = JSON.stringify(item); // Преобразуем объект в строку для проверки уникальности
+      if (seen.has(serialized)) {
+        return false; // Пропускаем дубликаты
+      }
+      seen.add(serialized);
+      return true; // Оставляем уникальные
+    });
   };
   
-  const isCheckedStore = useSelector((state) => state.isCheckedSlice.isChecked);
   useEffect(() => {
-    if(selectedTable === "Заявки" && selectPage === "Main"){
-      UpdateTableReguest(1)
-    }else if(selectedTable === "Пользователи" && selectPage === "Main"){
-      UpdateTableReguest(2)
-    }else if(selectPage === "Card"){
-      if(selectContructor !== ""){
-        UpdateTableReguest(3)
-      }
+    if(loader){
+      context.setLoader(false);
+      setDataTableHomePage([]);
+      setTotalCount(0);
+      setOfset(0);
+      UpdateTableReguest();
     }
-  },[textSearchTableData, selectedTable, selectContructor] )
+  },[textSearchTableData, storeFilter] )
 
-
-  function UpdateTableReguest(param, par = sortStateParam) {
-    if(param === 1){
-      let url = '';
-      if (par || textSearchTableData) {
-        if(par != "" && !textSearchTableData){
-          url = `?${par}`;
-        }
-       else{
-          url = `?search=${textSearchTableData}&${par}`
-        }
-      }
-    else {
-        url = '';
-    } 
-          GetAllRequests(url).then((resp) => {
-            if(resp) {
-              const checks = isCheckedStore || [];
-              setIsChecked(checks);
-              setTableData(resp?.data.requestsDtos)
-              setDataTableFix(funFixEducator(resp?.data.requestsDtos))
-              setFilteredTableData(FilteredSample(funFixEducator(resp?.data.requestsDtos), checks ))
-              settableHeader(tableHeadAppoint);
-            }
-          })
-        GetAllRequests("").then((resp) => {
-          setDataAppointment(resp?.data.requestsDtos)
-        })
+  const getParam = (value, key) =>{
+    switch (key) {
+      case "status":
+        return String(value).toLowerCase();
+      default:
+        return value === "___" ? null : value;
     }
   }
+
+  function SortDataTable(data) {
+    if (!context.sortStateParam) {
+      // Если параметр сортировки отсутствует, сортируем по `number` по убыванию
+      return [...data].sort((a, b) => b.number - a.number);
+    }
+  
+    const [colPart, typePart] = context.sortStateParam.split("&");
+    const col = colPart.split("=")[1]; // Извлекаем имя столбца
+    const type = typePart.split("=")[1]; // Извлекаем тип сортировки (asc/desc)
+  
+    return [...data].sort((a, b) => {
+      if (a[col] === null || a[col] === undefined) return 1; // Сортируем null/undefined в конец
+      if (b[col] === null || b[col] === undefined) return -1;
+  
+      if (typeof a[col] === "string") {
+        // Сортируем строки
+        return type === "asc"
+          ? a[col].localeCompare(b[col])
+          : b[col].localeCompare(a[col]);
+      }
+  
+      if (typeof a[col] === "number" || a[col] instanceof Date) {
+        // Сортируем числа и даты
+        return type === "asc" ? a[col] - b[col] : b[col] - a[col];
+      }
+  
+      return 0; // Для остальных типов данных
+    });
+  }
+
+  
+  function UpdateTableReguest() {
+    let url = `?offset=${ofset}&limit=${limit}`;
+    
+    const uniqueData = getUniqueItems(storeFilter.isChecked);
+    if (uniqueData.length !== 0) {
+      const filterParams = uniqueData
+        .map((item) => `exclude_${item.itemKey}=${getParam(item.value, item.itemKey)}`)
+        .join("&");
+      url += `&${filterParams}`;
+    }
+    if (textSearchTableData) {
+      url += `&search=${textSearchTableData}`;
+    }
+  
+    GetAllRequests(url).then((resp) => {
+      if (resp) {
+        setTotalCount(resp?.data?.maxCount);
+  
+        // Обрабатываем и объединяем новые данные
+        const newData = funFixEducator(resp?.data?.data);
+  
+        setDataTableHomePage((prev) => {
+          const combinedData = [...prev, ...newData];
+          const uniqueDataSet = new Map(combinedData.map((item) => [item.id, item])); // Удаляем дубликаты по id
+          const uniqueDataArray = Array.from(uniqueDataSet.values());
+          
+          // Сортируем объединенные данные перед возвратом
+          return SortDataTable(uniqueDataArray);
+        });
+  
+        setLoader(true); // Разрешаем загрузку следующих данных
+      }
+    });
+  }
+  
+
+ 
+
+
+  
 
   useEffect(() => {
     GetAllСontractors().then((resp) => {
@@ -229,7 +322,9 @@ const GetDataEquipment = (id) =>{
         setDataContractors(resp?.data);
       }
     })
-    UpdateTableReguest(1)
+    GetAllRequests("").then((resp) => {
+      setDataAppointment(funFixEducator(resp?.data?.data));
+    });
   }, [dataUsers]);
 
   return (
@@ -246,8 +341,7 @@ const GetDataEquipment = (id) =>{
             <Route path="/Authorization" element={<Authorization />}></Route>
             <Route path="/ReportFinansing" element={<ReportFinansing />}></Route>
             <Route path="/RepotYour" element={<RepotYour />}></Route>
-
-
+            
             <Route path="/Directory/*" element={<Directory />}>
               <Route path="BusinessUnitReference" element={<BusinessUnitReference />}></Route>
               <Route path="DirectoryLegalEntities" element={<DirectoryLegalEntities />}></Route>
@@ -257,6 +351,7 @@ const GetDataEquipment = (id) =>{
             </Route>
 
             <Route path="/CardPage/*" element={<CardPage />}>
+              <Route path="Card" element={<PageCardContractors />}></Route>
               <Route path="CardPageModule" element={<CardPageModule />}></Route>
             </Route>
             <Route path="/Equipment/*" element={<Equipment />}>

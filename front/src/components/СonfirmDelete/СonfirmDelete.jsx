@@ -1,21 +1,38 @@
-import { DeleteRequest } from '../../API/API';
+import { DeleteRequest, GetAllRequests } from '../../API/API';
+import { funFixEducator } from '../../UI/SamplePoints/Function';
 import DataContext from '../../context';
 import styles from './СonfirmDelete.module.scss';
 import React from 'react';
 function СonfirmDelete() {
     const { context } = React.useContext(DataContext);
-
+    const idToDelete = context.moreSelect[0]; // Получаем id записи для удаления
 
     const DeletedRequest = () => {
-         DeleteRequest(context.moreSelect[0]).then((resp)=>{
-        if(resp?.status === 200){
-          context.UpdateTableReguest(1);
-          context.setSelectedTr(null)
-          context.setPopUp("PopUpGoodMessage")
-          context.setPopupGoodText("Заявка успешно удалена!")
+      DeleteRequest(idToDelete).then((resp) => {
+        if (resp) {
+          // Удаляем запись из таблицы локально
+          context.setDataTableHomePage((prevData) => {
+            // Фильтруем записи, чтобы удалить по id
+            return prevData.filter((item) => item.id !== idToDelete);
+          }); 
+        context.setDataAppointment((prevDataAppointment) => {
+            return prevDataAppointment.filter((item) => item.id !== idToDelete);
+          })
+          
+            //   context.UpdateForse()
+          // Очищаем выбранные записи и показываем сообщение
+          context.UpdateTableReguest()
+          context.setSelectedTr(null);
+          context.setMoreSelect([]);
+          context.setPopUp("PopUpGoodMessage");
+          context.setPopupGoodText("Заявка успешно удалена!");
         }
-      })
-    }
+      }).catch(error => {
+        console.error("Ошибка при удалении заявки:", error);
+        // Вы можете добавить обработку ошибок
+      });
+    };
+      
      const ClosePopUp = () => {
         context.setPopUp("");
         context.setSelectedTr(null)

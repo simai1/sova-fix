@@ -138,6 +138,7 @@ function BusinessUnitReference() {
         tableBody={tableDataUnit}
         selectFlag={true}
         FilterFlag={true}
+        heightTable="calc(100vh - 285px)"
       />
       {deleteUnitFlag && (
         <UneversalDelete

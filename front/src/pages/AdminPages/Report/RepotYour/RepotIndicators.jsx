@@ -33,8 +33,8 @@ function RepotIndicators() {
   const [dateTo, setDateTo] = useState(new Date().toISOString().slice(0, 10));
 
   useEffect(() => {
-    setTableDataIndicators(funFixEducator(context.dataApointment));
-    setTableDataIndicatorsSort(funFixEducator(context.dataApointment));
+    setTableDataIndicators(context.dataApointment);
+    setTableDataIndicatorsSort(context.dataApointment);
   }, [context.dataApointment]);
   
   useEffect(() => {
@@ -304,7 +304,7 @@ function RepotIndicators() {
               tableBody={filterRequestsWithoutCopiedId(tableDataIndicatorsSort)}
               FilterFlag={true}
               top="95"
-
+              heightTable="calc(100vh - 385px)"
             />
           ) : (
             <div className={styles.ReportIndicatorsDashbord}>

@@ -71,7 +71,6 @@ function EditNomenclature() {
     // Ищем категорию по названию и получаем её ID
     const selectedCategory = categories.find((cat) => cat.name === categoryId || cat.id === categoryId);
     if (!selectedCategory) {
-      console.log("Категория не найдена!");
       return;
     }
   

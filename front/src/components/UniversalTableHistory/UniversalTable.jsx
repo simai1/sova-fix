@@ -9,14 +9,10 @@ function UniversalTableHistory(props) {
   const [tableHeaderData, setTableHeaderData] = useState([]);
   const [tableBodyData, setTableBodyData] = useState([]);
 
-  useEffect(() => {
-    console.log("context?.searchTableText", context?.searchTableText)
-  }, [context?.searchTableText]);
  
   useEffect(() => {
     setTableHeaderData(props?.tableHeader);
     setTableBodyData(props?.tableBody);
-    console.log("context?.selectedRows", context?.selectedRows)
   }, [props?.tableHeader, props?.tableBody]);
 
 
@@ -32,10 +28,7 @@ function UniversalTableHistory(props) {
     }
   };
 
-  const trClick = (row) => {
-    console.log("row", row)
-    context.setSelectedRows(row.id)
-  }
+
 
 
  

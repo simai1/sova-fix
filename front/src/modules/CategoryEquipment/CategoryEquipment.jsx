@@ -46,15 +46,19 @@ function CategoryEquipment() {
                     </div>
                 </div>
             </div>
-            <div className={styles.CategoryEquipmentButtonInner}>
-                <button onClick={()=> context.setPopUp("CreateCategory")}>Добавить</button>
-                <button onClick={() => editCategory()}>Редактировать</button>
-                <button onClick={() => deleteCategory()}>Удалить</button>
-            </div>
+            {
+                JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" &&
+                <div className={styles.CategoryEquipmentButtonInner}>
+                    <button onClick={()=> context.setPopUp("CreateCategory")}>Добавить</button>
+                    <button onClick={() => editCategory()}>Редактировать</button>
+                    <button onClick={() => deleteCategory()}>Удалить</button>
+                </div>
+            }
+          
             
         </div>
         <div>
-            <UniversalTable FilterFlag={true} tableName="table12" tableHeader={headerTableCategory} tableBody={context?.dataCategory} selectFlag={true}/>
+            <UniversalTable FilterFlag={true} tableName="table12" tableHeader={headerTableCategory} tableBody={context?.dataCategory} selectFlag={true} heightTable="calc(100vh - 285px)"/>
 
         </div>
     </div>

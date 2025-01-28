@@ -5,7 +5,7 @@ import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
 import contractorService from './contractor.service';
 import { Op } from 'sequelize';
-import { statusesRuLocale } from '../config/statuses';
+import { mapStatusesRuLocale, statusesRuLocale } from '../config/statuses';
 import sequelize from 'sequelize';
 import { sendMsg, WsMsgData } from '../utils/ws';
 import TgUser from '../models/tgUser';
@@ -14,19 +14,106 @@ import objectService from './object.service';
 import Unit from '../models/unit';
 import LegalEntity from '../models/legalEntity';
 import ExtContractor from '../models/externalContractor';
+import * as util from 'node:util';
 
-const getAllRequests = async (filter: any, order: any, pagination: any): Promise<RequestDto[]> => {
+const getAllRequests = async (filter: any, order: any, pagination: any) => {
     let requests;
-    const whereParams = {};
-    Object.keys(filter).forEach((k: any) =>
-        k === 'search'
-            ? null
-            : k !== 'contractor'
-              ? // @ts-expect-error skip
-                (whereParams[k] = filter[k])
-              : // @ts-expect-error skip
-                (whereParams['$Contractor.name$'] = filter[k])
-    );
+    const whereParams: any = {};
+    Object.keys(filter).forEach((key: string) => {
+        if (key === 'search') {
+            return;
+        }
+        const isExclusion = key.startsWith('exclude_');
+        const fieldName = isExclusion ? key.replace('exclude_', '') : key;
+
+        let value = Array.isArray(filter[key]) ? filter[key] : [filter[key]];
+
+        if (fieldName === 'contractor') {
+            value = value.map((v: any) => (v === null ? 'null' : v));
+            if (isExclusion) {
+                if (value.includes('null')) {
+                    whereParams[Op.and] = [
+                        {
+                            contractorId: value.includes('null') ? { [Op.not]: null } : { [Op.is]: null },
+                        },
+                        { '$Contractor.name$': { [Op.notIn]: value } },
+                    ];
+                } else {
+                    whereParams[Op.or] = [
+                        {
+                            contractorId: value.includes('null') ? { [Op.not]: null } : { [Op.is]: null },
+                        },
+                        { '$Contractor.name$': { [Op.notIn]: value } },
+                    ];
+                }
+            } else {
+                if (value.includes('null')) {
+                    whereParams[Op.or] = [
+                        {
+                            contractorId: value.includes('null') ? { [Op.is]: null } : { [Op.not]: null },
+                        },
+                        { '$Contractor.name$': { [Op.in]: value } },
+                    ];
+                } else {
+                    whereParams[Op.and] = [
+                        {
+                            contractorId: value.includes('null') ? { [Op.is]: null } : { [Op.not]: null },
+                        },
+                        { '$Contractor.name$': { [Op.in]: value } },
+                    ];
+                }
+            }
+        } else if (fieldName === 'legalEntity') {
+            value = value.map((v: any) => (v === null ? 'null' : v));
+            if (isExclusion) {
+                if (value.includes('null')) {
+                    whereParams[Op.and] = [
+                        {
+                            legalEntityId: value.includes('null') ? { [Op.not]: null } : { [Op.is]: null },
+                        },
+                        { '$LegalEntity.name$': { [Op.notIn]: value } },
+                    ];
+                } else {
+                    whereParams[Op.or] = [
+                        {
+                            legalEntityId: value.includes('null') ? { [Op.not]: null } : { [Op.is]: null },
+                        },
+                        { '$LegalEntity.name$': { [Op.notIn]: value } },
+                    ];
+                }
+            } else {
+                if (value.includes('null')) {
+                    whereParams[Op.or] = [
+                        {
+                            legalEntityId: value.includes('null') ? { [Op.is]: null } : { [Op.not]: null },
+                        },
+                        { '$LegalEntity.name$': { [Op.in]: value } },
+                    ];
+                } else {
+                    whereParams[Op.and] = [
+                        {
+                            legalEntityId: value.includes('null') ? { [Op.is]: null } : { [Op.not]: null },
+                        },
+                        { '$CLegalEntity.name$': { [Op.in]: value } },
+                    ];
+                }
+            }
+        } else if (fieldName === 'object') {
+            whereParams['$Object.name$'] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
+        } else if (fieldName === 'unit') {
+            whereParams['$Unit.name$'] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
+        } else if (fieldName === 'status') {
+            value = value.map((v: any) => {
+                // @ts-expect-error any type
+                return Number(mapStatusesRuLocale[v.trim()]);
+            });
+            whereParams[fieldName] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
+        } else {
+            whereParams[fieldName] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
+        }
+    });
+    console.log(util.inspect(whereParams, { showHidden: true, depth: null, colors: true }));
+    let totalCount;
     if (Object.keys(filter).length !== 0 && typeof filter.search !== 'undefined') {
         const searchParams = [
             {
@@ -71,6 +158,31 @@ const getAllRequests = async (filter: any, order: any, pagination: any): Promise
                 ],
             },
             include: [
+                { model: Contractor },
+                { model: ObjectDir },
+                { model: Unit },
+                { model: LegalEntity },
+                { model: ExtContractor },
+            ],
+            order:
+                order.col && order.type
+                    ? order.col === 'contractor'
+                        ? [['Contractor', 'name', order.type]]
+                        : [[order.col, order.type]]
+                    : [['number', 'desc']],
+            limit: pagination.limit,
+            offset: pagination.offset,
+        });
+        totalCount = await RepairRequest.count({
+            where: {
+                [Op.and]: [
+                    {
+                        [Op.or]: searchParams,
+                    },
+                    whereParams,
+                ],
+            },
+            include: [
                 {
                     model: Contractor,
                 },
@@ -87,14 +199,6 @@ const getAllRequests = async (filter: any, order: any, pagination: any): Promise
                     model: ExtContractor,
                 },
             ],
-            order:
-                order.col && order.type
-                    ? order.col === 'contractor'
-                        ? [['Contractor', 'name', order.type]]
-                        : [[order.col, order.type]]
-                    : [['number', 'desc']],
-            limit: pagination.limit,
-            offset: pagination.offset,
         });
     } else {
         requests = await RepairRequest.findAll({
@@ -115,6 +219,16 @@ const getAllRequests = async (filter: any, order: any, pagination: any): Promise
             limit: pagination.limit,
             offset: pagination.offset,
         });
+        totalCount = await RepairRequest.count({
+            where: whereParams,
+            include: [
+                { model: Contractor },
+                { model: ObjectDir },
+                { model: Unit },
+                { model: LegalEntity },
+                { model: ExtContractor },
+            ],
+        });
     }
 
     // sort copied
@@ -128,7 +242,7 @@ const getAllRequests = async (filter: any, order: any, pagination: any): Promise
         sortedRequests.splice(targetIndex + 1, 0, r);
     }
 
-    return sortedRequests.map(request => new RequestDto(request));
+    return [sortedRequests.map(request => new RequestDto(request)), totalCount];
 };
 
 const getRequestById = async (requestId: string): Promise<RequestDto> => {

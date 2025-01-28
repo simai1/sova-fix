@@ -26,14 +26,15 @@ function Header() {
     const finansRef = useRef(null);
     const systemRef = useRef(null);
     const ToRef = useRef(null);
-  useEffect(()=>{
-    if(!sessionStorage.getItem("userData")){navigate("/Authorization")}else{
-      const userData = JSON.parse(sessionStorage.getItem("userData"))?.user?.name;
-      if(userData){
-        setShortName(userData)
+
+    useEffect(()=>{
+      if(!sessionStorage.getItem("userData")){navigate("/Authorization")}else{
+        const userData = JSON.parse(sessionStorage.getItem("userData"))?.user?.name;
+        if(userData){
+          setShortName(userData)
+        }
       }
-    }
-  },[]);
+    },[]);
 
     const toggleMenu = () => {
         setIsOpen(!isOpen);
@@ -75,27 +76,10 @@ function Header() {
   const dispatch = useDispatch();
 
   const LinkPage = (Link) => {
-    if(Link !== undefined && Link !==  "Card" && Link !==  "Polzovateli"){
+    if(Link !== undefined && Link !==  "Polzovateli"){
       setIsOpen(false)
       navigate(`/${Link}`);
-    }else if(Link ===  "Card"){
-      setIsOpen(false)
-      navigate("/")
-      context.setSelectPage("Card");
-      context.setSelectContractor("");
-      context.setextSearchTableData("");
-      context.settableHeader(tableList);
-      context.setSelectedTable("Card");
     }
-    // else if(Link ===  "Polzovateli"){
-    //   setIsOpen(false)
-    //   navigate("/")
-    //   context.setSelectPage("Main");
-    //   context.settableHeader(tableUser);
-    //   context.UpdateTableReguest(2)
-    //   context.setnameClient("Пользователи");
-    //   context.setSelectedTable("Пользователи");
-    // }
     else{
       setIsOpen(false)
       navigate("/")
@@ -118,12 +102,16 @@ function Header() {
   };
   const getLinkPatchname = () =>{
     const pathname = window.location.pathname;
-    if(pathname === '/Equipment/EquipmentInfo'){
-      return true
-    }else{
-      return false
+    switch (pathname) {
+      case '/CardPage/CardPageModule':
+        return true;
+      case '/Equipment/EquipmentInfo':
+        return true;
+      default:
+        return false;
     }
   }
+
 return (
   <div className={styles.Header}>
   <div className={styles.headerButton}>
@@ -140,25 +128,27 @@ return (
           </div>
           <ul className={styles.menuUl}>
               <li onClick={() => LinkPage()} className={styles.menuLi}>Главная</li>
-              <li onClick={() => LinkPage("Card")} className={styles.menuLi}>Маршрутный лист</li>
-              <li onClick={() => setIsOpenTo(!isOpenTo)} className={styles.menuLi} style={isOpenTo ? { backgroundColor: "#FFE20D" } : { backgroundColor: "#e3dfda" }}>
-                  Техническое обслуживание
-                  <img style={isOpenTo ? { transform: "rotate(0deg)" } : { transform: "rotate(-90deg)" }} src={arrowBottom} />
-              </li>
-              <ul
-                  ref={ToRef}
-                  className={styles.menuUlSecond}
-                  style={{
-                      maxHeight: isOpenTo ? `${ToRef.current.scrollHeight}px` : '0',
-                      overflow: 'hidden',
-                      transition: 'max-height 0.3s ease'
-                  }}
-              >
-                  <li className={styles.menuLi} onClick={() => LinkPage("Equipment/GraphicEquipment")}>Графики ТО</li>
-                  <li className={styles.menuLi} onClick={() => LinkPage("Equipment/RangeEquipment")}>Номенклатура оборудования</li>
-                  <li className={styles.menuLi} onClick={() => LinkPage("Equipment/CategoryEquipment")}>Категории оборудования</li>
-              </ul>
-              
+              <li onClick={() => LinkPage("CardPage/Card")} className={styles.menuLi}>Маршрутный лист</li>
+              {process.env?.REACT_APP_GLOBAL_OPEN_TO_BLOCK === "open" &&
+              <>
+                <li onClick={() => setIsOpenTo(!isOpenTo)} className={styles.menuLi} style={isOpenTo ? { backgroundColor: "#FFE20D" } : { backgroundColor: "#e3dfda" }}>
+                    Техническое обслуживание
+                    <img style={isOpenTo ? { transform: "rotate(0deg)" } : { transform: "rotate(-90deg)" }} src={arrowBottom} />
+                </li>
+                <ul
+                    ref={ToRef}
+                    className={styles.menuUlSecond}
+                    style={{
+                        maxHeight: isOpenTo ? `${ToRef.current.scrollHeight}px` : '0',
+                        overflow: 'hidden',
+                        transition: 'max-height 0.3s ease'
+                    }}
+                >
+                    <li className={styles.menuLi} onClick={() => LinkPage("Equipment/GraphicEquipment")}>Графики ТО</li>
+                    <li className={styles.menuLi} onClick={() => LinkPage("Equipment/RangeEquipment")}>Номенклатура оборудования</li>
+                    <li className={styles.menuLi} onClick={() => LinkPage("Equipment/CategoryEquipment")}>Категории оборудования</li>
+                </ul>
+              </>}
               <li onClick={() => setIsOpenSprav(!isOpenSprav)} className={styles.menuLi} style={isOpenSprav ? { backgroundColor: "#FFE20D" } : { backgroundColor: "#e3dfda" }}>
                   Справочники
                   <img style={isOpenSprav ? { transform: "rotate(0deg)" } : { transform: "rotate(-90deg)" }} src={arrowBottom} />
@@ -178,22 +168,26 @@ return (
                   <li className={styles.menuLi} onClick={() => LinkPage("Directory/ThePerformersDirectory")}>Внешние подрядчики</li>
                   <li className={styles.menuLi} onClick={() => LinkPage("Directory/UsersDirectory")}>Пользователи</li>
               </ul>
-              <li onClick={() => setIsOpenFinans(!isOpenFinans)} className={styles.menuLi} style={isOpenFinans ? { backgroundColor: "#FFE20D" } : { backgroundColor: "#e3dfda" }}>
-                  Отчеты
-                  <img style={isOpenFinans ? { transform: "rotate(0deg)" } : { transform: "rotate(-90deg)" }} src={arrowBottom} />
-              </li>
-              <ul
-                  ref={finansRef}
-                  className={styles.menuUlSecond}
-                  style={{
-                      maxHeight: isOpenFinans ? `${finansRef.current.scrollHeight}px` : '0',
-                      overflow: 'hidden',
-                      transition: 'max-height 0.3s ease'
-                  }}
-              >
-                  <li className={styles.menuLi} onClick={() => LinkPage("RepotYour")}>Показатели</li>
-                  <li className={styles.menuLi} onClick={() => LinkPage("ReportFinansing")}>Финансы</li>
-              </ul>
+              {process.env?.REACT_APP_GLOBAL_OPEN_REPORT_BLOCK === "open" &&
+              <>
+                <li onClick={() => setIsOpenFinans(!isOpenFinans)} className={styles.menuLi} style={isOpenFinans ? { backgroundColor: "#FFE20D" } : { backgroundColor: "#e3dfda" }}>
+                    Отчеты
+                    <img style={isOpenFinans ? { transform: "rotate(0deg)" } : { transform: "rotate(-90deg)" }} src={arrowBottom} />
+                </li>
+                <ul
+                    ref={finansRef}
+                    className={styles.menuUlSecond}
+                    style={{
+                        maxHeight: isOpenFinans ? `${finansRef.current.scrollHeight}px` : '0',
+                        overflow: 'hidden',
+                        transition: 'max-height 0.3s ease'
+                    }}
+                >
+                    <li className={styles.menuLi} onClick={() => LinkPage("RepotYour")}>Показатели</li>
+                    <li className={styles.menuLi} onClick={() => LinkPage("ReportFinansing")}>Финансы</li>
+                </ul>
+                </>
+              }
               <li onClick={() => setIsOpenSystem(!isOpenSystem)} className={styles.menuLi} style={isOpenSystem ? { backgroundColor: "#FFE20D" } : { backgroundColor: "#e3dfda" }}>
               Системы управления
                   <img style={isOpenSystem ? { transform: "rotate(0deg)" } : { transform: "rotate(-90deg)" }} src={arrowBottom} />

@@ -48,14 +48,19 @@ function GraphicEquipment() {
                     </div>
                 </div>
                 <div className={styles.GraphicEquipmentButtonInner}>
-                    <button onClick={()=> {NewToChecker()}}>Проведено ТО</button>
-                    <button onClick={()=> context.setPopUp("PopUpNewEquipment")}>Добавить оборудование</button>
-                    <button onClick={() => {deleteEquipment()}}>Удалить оборудование</button>
+                {JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" && 
+                    <>
+                        <button onClick={()=> {NewToChecker()}}>Проведено ТО</button>
+                        <button onClick={()=> context.setPopUp("PopUpNewEquipment")}>Добавить оборудование</button>
+                        <button onClick={() => {deleteEquipment()}}>Удалить оборудование</button>
+                    </>
+                }
+                    
                     <button onClick={() => generateAndDownloadExcel(context?.dataEquipments, "Оборудование")}>Экспорт</button>
                 </div>
             </div>
             <div>
-                <UniversalTable FilterFlag={true} tableName="table11" tableHeader={headerTableEquipment} tableBody={context?.dataEquipments} selectFlag={true}/>
+                <UniversalTable FilterFlag={true} tableName="table11" tableHeader={headerTableEquipment} tableBody={context?.dataEquipments} selectFlag={true} heightTable="calc(100vh - 288px)"/>
 
             </div>
         </div>

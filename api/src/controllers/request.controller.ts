@@ -26,14 +26,30 @@ const getAll = catchAsync(async (req, res) => {
             'createdAt',
             'contractor',
             'checkPhoto',
+            'exclude_search',
+            'exclude_number',
+            'exclude_status',
+            'exclude_unit',
+            'exclude_builder',
+            'exclude_object',
+            'exclude_problemDescription',
+            'exclude_urgency',
+            'exclude_itineraryOrder',
+            'exclude_repairPrice',
+            'exclude_comment',
+            'exclude_legalEntity',
+            'exclude_daysAtWork',
+            'exclude_createdAt',
+            'exclude_contractor',
+            'exclude_checkPhoto',
         ])
     );
     const order = prepare(pick(req.query, ['col', 'type']));
     const pagination = prepare(pick(req.query, ['limit', 'offset']));
     if (order.type && ['asc', 'desc'].indexOf(order.type) === -1)
         throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid order type');
-    const requestsDtos = await requestService.getAllRequests(filter, order, pagination);
-    res.json({ requestsDtos });
+    const [requestsDtos, maxCount] = await requestService.getAllRequests(filter, order, pagination);
+    res.json({ maxCount, data: requestsDtos });
 });
 
 const getOne = catchAsync(async (req, res) => {
@@ -249,6 +265,19 @@ const copy = catchAsync(async (req, res) => {
     res.json({ status: 'OK' });
 });
 
+const getStat = catchAsync(async (req, res) => {
+    const [requests] = await requestService.getAllRequests({}, {}, {});
+    const data = {
+        // @ts-expect-error error
+        NEW_REQUEST: requests.reduce((acc: number, r: any) => (r.status === 1 ? acc + 1 : acc), 0),
+        // @ts-expect-error error
+        AT_WORK: requests.reduce((acc: number, r: any) => (r.status === 2 ? acc + 1 : acc), 0),
+        // @ts-expect-error error
+        DONE: requests.reduce((acc: number, r: any) => (r.status === 3 ? acc + 1 : acc), 0),
+    };
+    res.json(data);
+});
+
 export default {
     getAll,
     getOne,
@@ -269,4 +298,5 @@ export default {
     bulkUrgency,
     bulkContractor,
     copy,
+    getStat,
 };

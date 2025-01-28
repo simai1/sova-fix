@@ -8,9 +8,8 @@
 .Table {
   width: 100%;
   display: flex;
-  overflow: auto;
-  max-height: 64vh;
-  // height: 62vh;
+  overflow-y: scroll;
+  max-height: calc(100vh - 335px);
   min-height: 375px;
   margin-bottom: 0;
   border-radius: 8px;
@@ -88,7 +87,7 @@
       border-left: 1px solid #e3dfda;
       @include font(14px, 500);
     }
-    th[name="photo"], th[name="checkPhoto"], th[name="problemDescription"] , th[name="number"], th[name="repairPrice"], th[name="commentAttachment"]  {
+    th[name="fileName"], th[name="checkPhoto"], th[name="problemDescription"] , th[name="number"], th[name="repairPrice"], th[name="commentAttachment"], th[name="itineraryOrder"], th[name="daysAtWork"], th[name="planCompleteDate"] , th[name="completeDate"], th[name="createdAt"] {
       &:hover {
         background-color: var(--tableTh);
         cursor: auto;
@@ -385,5 +384,47 @@ input[type="checkbox"]:checked:before {
     padding: 8px 5px;
     border-radius: 8px;
     border: none;
+  }
+}
+
+.tableNotDataSpinner{
+  position: relative;
+  height: calc(100vh - 325px);
+  width: 100%;
+  .tableNotDataSpinnerInner{
+    position: fixed;
+    top: calc(100vh - 325px);
+    left: calc(48vw);
+    transform: translate(-50%, -50%);
+    display: block;
+  }
+  .spinnerContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+  }
+  .notDataSpinner{
+    position: relative;
+    top: 10px;
+    font-size: 22px;
+  }
+  .spinner {
+    border: 5px solid transparent;
+    border-top: 5px solid var(--turquoise-color);
+    border-right: 5px solid var(--turquoise-color);
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }

@@ -12,7 +12,7 @@ import EditColum from "../../UI/EditColum/EditColum";
 import { filterRequestsWithoutCopiedId, generateAndDownloadExcel } from "../../function/function";
 import { tableList } from "../Table/Data";
 import { useNavigate } from "react-router-dom";
-import { resetFilters } from "../../store/samplePoints/samplePoits";
+import { dropFilters, resetFilters } from "../../store/samplePoints/samplePoits";
 
 
 
@@ -42,8 +42,12 @@ const store = useSelector(
   (state) => state.isSamplePoints["table9"].isChecked
 );
 useEffect(() => {
-  setDataTable(filterBasickData(context.dataTableFix, store));
-}, [store, context?.filteredTableData]);
+  if(context?.textSearchTableData || store.length !== 0){
+    setDataTable(context?.dataTableHomePage);
+  }else{
+    setDataTable(filterBasickData(context?.dataApointment, store));
+  }
+}, [store, context?.dataApointment, context?.textSearchTableData, context?.dataTableHomePage]);
 
   const dispatch = useDispatch();
 
@@ -70,8 +74,23 @@ function filterBasickData(data, chekeds) {
   });
   return mass;
 }
+const DropFilter = () =>{
+  context.setTotalCount(0);
+  context.setOfset(0);
+  context.setLoader(false);
+  context.setDataTableHomePage([]);
+  context.UpdateForse();
+  dispatch(resetFilters({tableName: "table9"}))
+  dispatch(dropFilters({tableName: "table9"}))
+}
 
-
+// //!При обновлении обновляет только 1 запись 
+// const UpdateRequest = (updatedRequest) => {
+//   const updatedDataTable = context.dataTableHomePage.map((item) =>
+//     item.id === updatedRequest.id ? updatedRequest : item
+//   );
+//   context.setDataTableHomePage(funFixEducator(updatedDataTable));
+// };
 
   return (
     <>
@@ -82,12 +101,12 @@ function filterBasickData(data, chekeds) {
               { context.selectedTable === "Заявки" && 
               <>
               <Input
-            
+          
                 placeholder={"Поиск..."}
                 settextSearchTableData={context.setextSearchTableData}
               />
               <img src="./img/Search_light.png" />
-              { (context.selectedTable === "Заявки" && context.selectPage === "Main") && <div className={styles.dropFilter}  onClick={() => dispatch(resetFilters({tableName: "table9"}))} title="нажмите для сброса фильтров"><img src="./img/ClearFilter.svg"/></div>}
+              { (context.selectedTable === "Заявки" && context.selectPage === "Main") && <div className={styles.dropFilter}  onClick={() => DropFilter()} title="нажмите для сброса фильтров"><img src="./img/ClearFilter.svg"/></div>}
 
               </>
               }
@@ -113,15 +132,15 @@ function filterBasickData(data, chekeds) {
             </div>
           ) : sessionStorage.getItem("userData").user?.id === 1 ? 
           <div className={styles.ButtonBack}>
-                  <div>
-                    <button onClick={()=>goBackCurd()}>Назад</button>
-                  </div>
-                  <div>
-                    <button onClick={() => generateAndDownloadExcel(context?.filteredTableData, "Маршрутный_лист")}>Экспорт</button>
-                  </div>
+              <div>
+                <button onClick={()=>goBackCurd()}>Назад</button>
+              </div>
+              <div>
+                <button onClick={() => generateAndDownloadExcel(context?.filteredTableData, "Маршрутный_лист")}>Экспорт</button>
+              </div>
 
-                </div>
-                :
+            </div>
+            :
           (
             <>              
             </>
@@ -140,4 +159,22 @@ function filterBasickData(data, chekeds) {
   );
 }
 
+{/* <div className={styles.countInfo}>
+<div>
+  <div className={styles.CountInfoBlock} style={{backgroundColor: "#d69a81"}}>
+      <div className={styles.contNew}><p>Новых: {12}</p></div>
+  </div>    
+</div> 
+<div>
+    <div className={styles.CountInfoBlock} style={{backgroundColor:  "#ffe78f"}}>
+        <div className={styles.contNew}><p>В работе: {12}</p></div>
+    </div>    
+</div> 
+<div>
+    <div className={styles.CountInfoBlock} style={{backgroundColor:  "#C5E384"}}>
+        <div className={styles.contNew}><p>Выполнены: {12}</p></div>
+    </div>    
+</div> 
+
+</div> */}
 export default FunctionTableTop;

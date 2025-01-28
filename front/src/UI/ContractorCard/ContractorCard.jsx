@@ -40,10 +40,10 @@ const ContractorCard = (props) => {
   };
 
   return (
-    <div className={styles.ContractorCard} onClick={clickCard}  >
-        <p className={styles.name}>{props?.name.split(" ")[0]}</p>
-        <p className={styles.name}>{props?.name.split(" ")[1]}</p>
-        <p className={styles.name}>{props?.name.split(" ")[2]}</p>
+    <div className={styles.ContractorCard} onClick={clickCard}>
+        <p className={styles.name}>{props?.name?.split(" ")[0]}</p>
+        <p className={styles.name}>{props?.name?.split(" ")[1]}</p>
+        <p className={styles.name}>{props?.name?.split(" ")[2]}</p>
         <div className={styles.buttonInner}>
           <button className={styles.button} style={{backgroundColor: getColor(count)}}>{count}</button>
         </div>

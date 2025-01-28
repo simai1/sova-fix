@@ -18,7 +18,6 @@ function HomePageAdmin() {
     <div className={styles.HomePage}>
      <Layout>
       <Header />
-      {context.selectPage === "Main" ? 
         <>
         <div className={styles.TableTop}>
           <FunctionTableTop />
@@ -26,11 +25,7 @@ function HomePageAdmin() {
           <div className={styles.Table} >
             <Table />
           </div>
-        </>:
-        <>
-          <PageCardContractors/>
         </>
-      }
       <div className={styles.PhoneData}>
       <div className={styles.Search}>
         <input type="text" placeholder="Поиск" onChange={(e) => context.setextSearchTableDataPhone(e.target.value)}/>
