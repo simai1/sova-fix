@@ -90,7 +90,7 @@ async def get_all_repair_requests(params: str = "") -> dict | None:
     data: dict = request.json()
 
     if request.status_code == 200:
-        return data['requestsDtos']
+        return data['data']
     else:
         logger.error('API: could not get all repair requests', f'{request.status_code}\nurl={url}')
         return None
@@ -163,7 +163,7 @@ async def create_repair_request(
 
 async def get_all_contractors() -> list:
     url = f'{cf.API_URL}/contractors/'
-    
+
     request = requests.get(url)
     data = request.json()
 
@@ -377,9 +377,9 @@ async def get_all_requests_with_params(params: str = "") -> list | None:
     req = requests.get(url)
 
     if req.status_code == 200:
-        return req.json()['requestsDtos']
+        return req.json()['data']
     else:
-        logger.error("API: could not get all requests with params", f"{req.status_code}")
+        logger.error("API: could not get all requests with params", f"{req.status_code}, {url=}")
     return None
 
 
