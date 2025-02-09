@@ -1,4 +1,4 @@
 .env
 latest.log
 test.py
-venv
+.venv
