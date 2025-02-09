@@ -10,7 +10,7 @@ from util import crm
 from util.crm import roles
 from util.verification import verify_user, VerificationError
 
-from data.const import statuses_ru_locale
+from data.const import statuses_keys
 
 router = Router(name=__name__)
 
@@ -43,10 +43,10 @@ async def show_contractor_requests_handler(user_id: int, params: str, message: M
 
     # изменение статусов индексов на сами статусы
     # НУЖНО ПЕРЕДЕЛАТЬ
-    for status_i in range(1, len(statuses_ru_locale) + 1):
-        status_found_index = params.find(str(status_i))
+    for status_k in statuses_keys:
+        status_found_index = params.find(str(status_k))
         if status_found_index != -1:
-            params = params[:status_found_index] + statuses_ru_locale[status_i] + params[status_found_index + 1:]
+            params = params.replace(status_k, statuses_keys[status_k])
 
     try:
         await verify_user(user_id, role=roles.CONTRACTOR, message=message)
@@ -66,10 +66,10 @@ async def show_more_requests(query: CallbackQuery, state: FSMContext) -> None:
 
     # изменение статусов индексов на сами статусы
     # НУЖНО ПЕРЕДЕЛАТЬ
-    for status_i in range(1, len(statuses_ru_locale) + 1):
-        status_found_index = params.find(str(status_i))
+    for status_k in statuses_keys:
+        status_found_index = params.find(str(status_k))
         if status_found_index != -1:
-            params = params[:status_found_index] + statuses_ru_locale[status_i] + params[status_found_index + 1:]
+            params = params.replace(status_k, statuses_keys[status_k])
 
     repair_requests = await crm.get_contractor_requests(query.from_user.id, params=params)
     await send_many_rr_for_contractor(repair_requests, query.message, state)

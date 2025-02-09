@@ -15,8 +15,8 @@ async def send_customer_menu(message: Message) -> None:
         [IKB(text='Подать заявку ➕', callback_data='create_repair_request')],
         [IKB(text="Список заявок 📋", switch_inline_query_current_chat="rr ")],
         [
-            IKB(text='Мои заявки *️⃣', callback_data='customer_requests:status=1,2,5'),
-            IKB(text='Выполненные заявки ✅', callback_data='customer_requests:status=3')
+            IKB(text='Мои заявки *️⃣', callback_data='customer_requests:status=S^a,S^b,S^e'),
+            IKB(text='Выполненные заявки ✅', callback_data='customer_requests:status=S^c')
         ],
         [IKB(text='Найти заявку по номеру 🔎', callback_data='request_by_number')]
     ])
