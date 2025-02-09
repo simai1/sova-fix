@@ -9,6 +9,7 @@ from util import crm
 from util.crm import roles
 from util.verification import VerificationError
 from util.verification import verify_user
+from data.const import statuses_ru_locale
 
 router = Router(name=__name__)
 
@@ -30,6 +31,13 @@ async def show_all_requests_admin_callback_handler(query: CallbackQuery, state: 
 
     params = query.data.split(':')[-1]
 
+    # изменение статусов индексов на сами статусы
+    # НУЖНО ПЕРЕДЕЛАТЬ
+    for status_i in range(1, len(statuses_ru_locale) + 1):
+        status_found_index = params.find(str(status_i))
+        if status_found_index != -1:
+            params = params[:status_found_index] + statuses_ru_locale[status_i] + params[status_found_index + 1:]
+
     user_id = query.from_user.id
 
     try:
@@ -48,6 +56,13 @@ async def show_more_requests(query: CallbackQuery, state: FSMContext) -> None:
     await pagination.next_page_in_state(state)
 
     params = query.data.split(':')[-1]
+
+    # изменение статусов индексов на сами статусы
+    # НУЖНО ПЕРЕДЕЛАТЬ
+    for status_i in range(1, len(statuses_ru_locale) + 1):
+        status_found_index = params.find(str(status_i))
+        if status_found_index != -1:
+            params = params[:status_found_index] + statuses_ru_locale[status_i] + params[status_found_index + 1:]
 
     repair_requests = await crm.get_all_requests_with_params(params=params)
     await send_many_rr_for_admin(repair_requests, query.message, state)

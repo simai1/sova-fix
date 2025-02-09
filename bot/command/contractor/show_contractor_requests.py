@@ -10,6 +10,8 @@ from util import crm
 from util.crm import roles
 from util.verification import verify_user, VerificationError
 
+from data.const import statuses_ru_locale
+
 router = Router(name=__name__)
 
 
@@ -39,6 +41,13 @@ async def page0_show_many_rr_for_contractor(message: Message, state: FSMContext,
 async def show_contractor_requests_handler(user_id: int, params: str, message: Message, state: FSMContext) -> None:
     await state.clear()
 
+    # изменение статусов индексов на сами статусы
+    # НУЖНО ПЕРЕДЕЛАТЬ
+    for status_i in range(1, len(statuses_ru_locale) + 1):
+        status_found_index = params.find(str(status_i))
+        if status_found_index != -1:
+            params = params[:status_found_index] + statuses_ru_locale[status_i] + params[status_found_index + 1:]
+
     try:
         await verify_user(user_id, role=roles.CONTRACTOR, message=message)
     except VerificationError:
@@ -54,6 +63,14 @@ async def show_more_requests(query: CallbackQuery, state: FSMContext) -> None:
     await pagination.next_page_in_state(state)
 
     params = query.data.split(':')[-1]
+
+    # изменение статусов индексов на сами статусы
+    # НУЖНО ПЕРЕДЕЛАТЬ
+    for status_i in range(1, len(statuses_ru_locale) + 1):
+        status_found_index = params.find(str(status_i))
+        if status_found_index != -1:
+            params = params[:status_found_index] + statuses_ru_locale[status_i] + params[status_found_index + 1:]
+
     repair_requests = await crm.get_contractor_requests(query.from_user.id, params=params)
     await send_many_rr_for_contractor(repair_requests, query.message, state)
     await pagination.send_next_button_if_needed(len(repair_requests), query.message, state, prefix='con', params=params)
