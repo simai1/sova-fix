@@ -6,6 +6,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import InlineKeyboardMarkup as IKM, BufferedInputFile
 from aiogram.types import Message, FSInputFile
 from aiogram.utils.media_group import MediaGroupBuilder
+from aiogram.exceptions import TelegramBadRequest
 
 from common.keyboard import to_start_kb
 from common.text import repair_request_text
@@ -62,11 +63,15 @@ async def send_repair_request(message: Message, repair_request: dict, kb: IKM | 
                 album=album
             )
 
-        await message.answer_media_group(album.build())
+        try:
+            await message.answer_media_group(album.build())
+        except TelegramBadRequest:
+            await message.answer("<i>не удалось загрузить фото</i>")
+            logger.error("TelegramBadRequest: file must be non-empty", f"{album.build()}")
         await message.answer(text, reply_markup=kb)
 
     except TelegramNetworkError:
-        logger.error(f"could not find some photos", f"photo: {file_filename}, check: {rr_check_filename}, comment_attachment: {rr_comment_attachment_filename}")
+        logger.error("could not find some photos", f"photo: {file_filename}, check: {rr_check_filename}, comment_attachment: {rr_comment_attachment_filename}")
         return
 
 
