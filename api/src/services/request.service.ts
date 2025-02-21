@@ -94,7 +94,7 @@ const getAllRequests = async (filter: any, order: any, pagination: any) => {
                         {
                             legalEntityId: value.includes('null') ? { [Op.is]: null } : { [Op.not]: null },
                         },
-                        { '$CLegalEntity.name$': { [Op.in]: value } },
+                        { '$LegalEntity.name$': { [Op.in]: value } },
                     ];
                 }
             }
@@ -108,6 +108,12 @@ const getAllRequests = async (filter: any, order: any, pagination: any) => {
                 return Number(mapStatusesRuLocale[v.trim()]);
             });
             whereParams[fieldName] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
+        } else if (fieldName === 'checkPhoto') {
+            whereParams[fieldName] = value.includes(null)
+                ? { [Op.is]: null }
+                : isExclusion
+                  ? { [Op.notIn]: value }
+                  : { [Op.in]: value };
         } else {
             whereParams[fieldName] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
         }
