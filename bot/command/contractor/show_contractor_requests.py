@@ -41,19 +41,21 @@ async def page0_show_many_rr_for_contractor(message: Message, state: FSMContext,
 async def show_contractor_requests_handler(user_id: int, params: str, message: Message, state: FSMContext) -> None:
     await state.clear()
 
+    params_for_request = params
+
     # изменение статусов индексов на сами статусы
     # НУЖНО ПЕРЕДЕЛАТЬ
     for status_k in statuses_keys:
-        status_found_index = params.find(str(status_k))
+        status_found_index = params_for_request.find(str(status_k))
         if status_found_index != -1:
-            params = params.replace(status_k, statuses_keys[status_k])
+            params_for_request = params_for_request.replace(status_k, statuses_keys[status_k])
 
     try:
         await verify_user(user_id, role=roles.CONTRACTOR, message=message)
     except VerificationError:
         return
 
-    repair_requests = await crm.get_contractor_requests(user_id, params=params)
+    repair_requests = await crm.get_contractor_requests(user_id, params=params_for_request)
 
     await page0_show_many_rr_for_contractor(message, state, repair_requests, params)
 
@@ -63,15 +65,16 @@ async def show_more_requests(query: CallbackQuery, state: FSMContext) -> None:
     await pagination.next_page_in_state(state)
 
     params = query.data.split(':')[-1]
+    params_for_request = params
 
     # изменение статусов индексов на сами статусы
     # НУЖНО ПЕРЕДЕЛАТЬ
     for status_k in statuses_keys:
-        status_found_index = params.find(str(status_k))
+        status_found_index = params_for_request.find(str(status_k))
         if status_found_index != -1:
-            params = params.replace(status_k, statuses_keys[status_k])
+            params_for_request = params_for_request.replace(status_k, statuses_keys[status_k])
 
-    repair_requests = await crm.get_contractor_requests(query.from_user.id, params=params)
+    repair_requests = await crm.get_contractor_requests(query.from_user.id, params=params_for_request)
     await send_many_rr_for_contractor(repair_requests, query.message, state)
     await pagination.send_next_button_if_needed(len(repair_requests), query.message, state, prefix='con', params=params)
 

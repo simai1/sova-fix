@@ -30,13 +30,14 @@ async def show_all_requests_admin_callback_handler(query: CallbackQuery, state: 
     await state.clear()
 
     params = query.data.split(':')[-1]
+    params_for_request = params
 
     # изменение статусов индексов на сами статусы
     # НУЖНО ПЕРЕДЕЛАТЬ
     for status_k in statuses_keys:
-        status_found_index = params.find(str(status_k))
+        status_found_index = params_for_request.find(str(status_k))
         if status_found_index != -1:
-            params = params.replace(status_k, statuses_keys[status_k])
+            params_for_request = params_for_request.replace(status_k, statuses_keys[status_k])
 
     user_id = query.from_user.id
 
@@ -45,26 +46,28 @@ async def show_all_requests_admin_callback_handler(query: CallbackQuery, state: 
     except VerificationError:
         return
 
-    repair_requests = await crm.get_all_requests_with_params(params=params)
+    repair_requests = await crm.get_all_requests_with_params(params=params_for_request)
 
     await page0_show_many_rr_for_admin(query.message, state, repair_requests, params)
 
     await query.answer()
+
 
 @router.callback_query(F.data.startswith('adm:show_more'))
 async def show_more_requests(query: CallbackQuery, state: FSMContext) -> None:
     await pagination.next_page_in_state(state)
 
     params = query.data.split(':')[-1]
+    params_for_request = params
 
     # изменение статусов индексов на сами статусы
     # НУЖНО ПЕРЕДЕЛАТЬ
     for status_k in statuses_keys:
-        status_found_index = params.find(str(status_k))
+        status_found_index = params_for_request.find(str(status_k))
         if status_found_index != -1:
-            params = params.replace(status_k, statuses_keys[status_k])
+            params_for_request = params_for_request.replace(status_k, statuses_keys[status_k])
 
-    repair_requests = await crm.get_all_requests_with_params(params=params)
+    repair_requests = await crm.get_all_requests_with_params(params=params_for_request)
     await send_many_rr_for_admin(repair_requests, query.message, state)
     await pagination.send_next_button_if_needed(len(repair_requests), query.message, state, prefix='adm', params=params)
 
