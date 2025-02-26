@@ -19,7 +19,7 @@ const getOne = catchAsync(async (req, res) => {
 });
 
 const create = catchAsync(async (req, res) => {
-    const { supportFrequency, lastTO, nextTO, objectId, contractorId, nomenclatureId, count, cost, comment } = req.body;
+    const { supportFrequency, lastTO, nextTO, objectId, contractorId, nomenclatureId, count, cost, comment, defaultCost } = req.body;
     const photo = req.file?.filename;
     if (!objectId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing objectId');
     if (!nomenclatureId) throw new ApiError(httpStatus.BAD_REQUEST, 'missing nomenclatureId');
@@ -28,6 +28,7 @@ const create = catchAsync(async (req, res) => {
         supportFrequency,
         lastTO,
         nextTO,
+        defaultCost,
         objectId,
         contractorId,
         photo,
@@ -56,6 +57,7 @@ const updatePhoto = catchAsync(async (req, res) => {
         undefined,
         undefined,
         undefined,
+        undefined,
         fileName,
         undefined,
         undefined,
@@ -69,11 +71,12 @@ const updatePhoto = catchAsync(async (req, res) => {
 
 const update = catchAsync(async (req, res) => {
     const { equipmentId } = req.params;
-    const { supportFrequency, lastTO, nextTO, objectId, contractorId, nomenclatureId, count, cost, comment } = req.body;
+    const { supportFrequency, lastTO, nextTO, objectId, contractorId, nomenclatureId, count, cost, comment, defaultCost } = req.body;
     if (
         !supportFrequency &&
         !lastTO &&
         !nextTO &&
+        !defaultCost &&
         !objectId &&
         !contractorId &&
         !nomenclatureId &&
@@ -87,6 +90,7 @@ const update = catchAsync(async (req, res) => {
         supportFrequency,
         lastTO,
         nextTO,
+        defaultCost,
         undefined,
         objectId,
         contractorId,
