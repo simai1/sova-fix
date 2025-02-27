@@ -36,6 +36,7 @@ export default class RepairRequest extends Model {
     ExtContractor?: ExtContractor; // external contractor rel
     extContractorId?: string;
     isExternal!: boolean;
+    isAutoCreated!: boolean;
     copiedRequestId?: string;
 
     static initialize(sequelize: Sequelize) {
@@ -113,6 +114,11 @@ export default class RepairRequest extends Model {
                 isExternal: {
                     type: DataTypes.BOOLEAN,
                     allowNull: true,
+                    defaultValue: false,
+                },
+                isAutoCreated: {
+                    type: DataTypes.BOOLEAN,
+                    allowNull: false,
                     defaultValue: false,
                 },
                 copiedRequestId: {
