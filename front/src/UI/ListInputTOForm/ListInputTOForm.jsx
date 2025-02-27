@@ -1,12 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./ListInputTOForm.module.scss";
 import DataContext from "../../context";
 
 function ListInputTOForm(props) {
   const { context } = React.useContext(DataContext);
-  const [valueName, setValueName] = useState(
-    props.dataList.find((item) => item.id === props.value)?.name || ""
-  );
+  const [valueName, setValueName] = useState(null);
+  useEffect(()=>{
+    setValueName(
+      props.dataList.find((item) => item.id === props.value)?.name || ""
+    )
+  },[ props.dataList, props.value])
   const [isDropdownVisible, setDropdownVisible] = useState(false);
 
   // Фильтрация списка по введенному тексту
@@ -41,6 +44,7 @@ function ListInputTOForm(props) {
     }, 100);
   };
 
+ 
   return (
     <div className={styles.ListInputTOForm}>
       {props.Textlabel && <label>{props.Textlabel}</label>}
