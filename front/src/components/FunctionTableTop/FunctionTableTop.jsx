@@ -13,6 +13,7 @@ import { filterRequestsWithoutCopiedId, generateAndDownloadExcel } from "../../f
 import { tableList } from "../Table/Data";
 import { useNavigate } from "react-router-dom";
 import { dropFilters, resetFilters } from "../../store/samplePoints/samplePoits";
+import Switch from '@mui/material/Switch';
 
 
 
@@ -92,6 +93,9 @@ const DropFilter = () =>{
 //   context.setDataTableHomePage(funFixEducator(updatedDataTable));
 // };
 
+const handleChange = (event) => {
+  context.setEnabledTo(event.target.checked);
+};
   return (
     <>
       <div className={styles.FunctionTableTop}>
@@ -148,33 +152,28 @@ const DropFilter = () =>{
       
         </div>
         { context.selectedTable === "Заявки" && context.selectPage === "Main" &&
+        <div className={styles.countInfoContainer}>
           <div className={styles.countInfo}>
-            <CountInfoBlock dataCount={filterRequestsWithoutCopiedId(dataTable)} keys="status" value="Новая заявка" color="#d69a81" name="Новых"/>
-            <CountInfoBlock dataCount={filterRequestsWithoutCopiedId(dataTable)} keys="status" value="В работе" color="#ffe78f" name="В работе"/>
-            <CountInfoBlock dataCount={filterRequestsWithoutCopiedId(dataTable)} keys="status" value="Выполнена" color="#C5E384" name="Выполнены"/>
-          </div>
+              <CountInfoBlock dataCount={filterRequestsWithoutCopiedId(dataTable)} keys="status" value="Новая заявка" color="#d69a81" name="Новых"/>
+              <CountInfoBlock dataCount={filterRequestsWithoutCopiedId(dataTable)} keys="status" value="В работе" color="#ffe78f" name="В работе"/>
+              <CountInfoBlock dataCount={filterRequestsWithoutCopiedId(dataTable)} keys="status" value="Выполнена" color="#C5E384" name="Выполнены"/>
+            </div>
+            <div className={styles.countSwitch}>
+              <div className={styles.Switch}>
+                  <button className={styles.switchOne}>
+                    <p className={!context.enabledTo ? styles.active : ""} onClick={()=>context.setEnabledTo(!context.enabledTo)}>Все заявки</p>
+                  </button>
+                  <button className={styles.switchTwo}>
+                    <p className={context.enabledTo ? styles.active : ""} onClick={()=>context.setEnabledTo(!context.enabledTo)}>Автозаявки</p>
+                  </button>
+              </div>
+            </div>
+        </div>
+        
         }
       </div>
     </>
   );
 }
 
-{/* <div className={styles.countInfo}>
-<div>
-  <div className={styles.CountInfoBlock} style={{backgroundColor: "#d69a81"}}>
-      <div className={styles.contNew}><p>Новых: {12}</p></div>
-  </div>    
-</div> 
-<div>
-    <div className={styles.CountInfoBlock} style={{backgroundColor:  "#ffe78f"}}>
-        <div className={styles.contNew}><p>В работе: {12}</p></div>
-    </div>    
-</div> 
-<div>
-    <div className={styles.CountInfoBlock} style={{backgroundColor:  "#C5E384"}}>
-        <div className={styles.contNew}><p>Выполнены: {12}</p></div>
-    </div>    
-</div> 
-
-</div> */}
 export default FunctionTableTop;
