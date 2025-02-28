@@ -13,6 +13,7 @@ function PopUpNewEquipment() {
   const { context } = useContext(DataContext);
   const [formData, setFormData] = useState({
     nomenclatureId: "",
+    defaultCost: "",
     nomenclatureName: "",
     objectId: "",
     objectName: "",
@@ -307,6 +308,24 @@ function PopUpNewEquipment() {
               value={formData.nextTO}
               disabled
             />
+          </div>
+          <div className={styles.pupUpSecondContainerInfo}>
+            <div className={styles.pupContainerInfoTitle}>
+              <p>Cтоимость ТО:</p>
+            </div>
+              <input
+                  name="defaultCost"
+                  className={styles.pupUpContainerInfoInput}
+                  placeholder="Фиксированная стоимость"
+                  value={formData.defaultCost}
+                  onChange={handleInputChange}
+                  type="number"
+                  style={{ textAlign: "center", paddingLeft: "0px" }}
+                />
+                <span className={styles.dayWord} style={{right:getRight(formData.defaultCost)}}>
+                  {formData.defaultCost && "руб."}
+                </span>
+             
           </div>
         </div>
       </div>

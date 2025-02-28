@@ -43,7 +43,7 @@
         flex-direction: row;
         padding: 6px 0px;
         position: relative;
-        top: 80px;
+        top: 85px;
         button {
           height: 44px;
           display: flex;
@@ -120,27 +120,53 @@
           left: 13px;
         }
       }
-      // .dropFilter{
-      //   position: absolute;
-      //   left: 20px;
-      //   height: 51px;
-      //   display: flex;
-      //   align-items: center;
-      //   justify-content: center;
-      //   background-color: var(--turquoise-color);
-      //   border-radius: 8px;
-      //   padding: 10px;
-      //   z-index: 100;
-      //   img{
-      //     width: 25px;
-      //     height: 25px;
-      //   }
-      //   transition: 0.1s linear all;
-      //   &:hover{
-      //     opacity: 0.6;
-      //     cursor: pointer;
-      //   }
-      // }
+      .countInfoContainer{
+        display: flex;
+        align-items: center;
+        .countSwitch{
+          display: flex;
+          align-items: center;
+          position: relative;
+          .Switch{
+            display: flex;
+            justify-content: center;
+            position: relative;
+            position: absolute;
+            top: -30px;
+            button{
+              margin: 0;
+              border: none;
+              background: none;
+              padding: 0;
+              font-size: 16px!important;
+            }
+            p{
+              margin-right: 10px;
+              height: 42px;
+              display: flex;
+              align-items: center;
+              width: max-content;
+              margin: 0;
+              box-sizing: border-box;
+              padding: 0px 10px;         
+              cursor: pointer;  
+              transition: 0.1s linear all;
+              &:hover{
+               background-color: rgb(255, 231, 143)!important;
+               border: none!important;
+              }
+              border-radius: 8px;
+            }
+          
+            p.active{
+              @include button(var(--turquoise-color));
+              padding: 0px 10px;    
+            }
+           
+          }
+        }
+      }
+      
       .countInfo{
         display: flex;
         align-items: center;

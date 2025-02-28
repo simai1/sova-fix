@@ -213,8 +213,10 @@ function PopUpEditAppoint(props) {
           <div className={styles.FirstBlock}>
             <ListInput
               Textlabel={"Исполнитель"}
+              idRequest={idRequest}
               handleListData={handleListData}
               name="contractorId"
+              updGetData={updGetData}
               dataList={context.dataContractors}
               value={dataApointment.contractorId}
               placeholder="Выберите исполнителя"
