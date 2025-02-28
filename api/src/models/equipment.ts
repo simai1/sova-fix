@@ -12,6 +12,7 @@ export default class Equipment extends Model {
     supportFrequency!: number;
     lastTO!: Date;
     nextTO!: Date;
+    defaultCost!: number;
     photo?: string;
     qr?: string;
     count!: number;
@@ -55,6 +56,10 @@ export default class Equipment extends Model {
                 },
                 nextTO: {
                     type: DataTypes.DATE,
+                    allowNull: false,
+                },
+                defaultCost: {
+                    type: DataTypes.INTEGER,
                     allowNull: false,
                 },
                 photo: {

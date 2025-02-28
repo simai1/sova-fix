@@ -11,7 +11,7 @@ function PopUpNewTO() {
   const [formData, setFormData] = useState({
     comment: "",
     date: "",
-    cost: "",
+    cost: context?.selectEquipment.defaultCost,
     contractorId: "",
     contractorName: "",
   });

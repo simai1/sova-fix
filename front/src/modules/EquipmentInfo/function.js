@@ -42,10 +42,13 @@ export const generateAndDownloadExcelEquipment = (equipmentData) => {
 
   // Лист с историей обслуживания ТО
   const historySheet = XLSX.utils.json_to_sheet(maintenanceHistory);
-  historySheet["!cols"] = Object.keys(maintenanceHistory[0]).map((key) => ({
-    wch: key.length + 15,
-  }));
-  XLSX.utils.book_append_sheet(workbook, historySheet, "История ТО");
+  console.log("historySheet", maintenanceHistory)
+  if(maintenanceHistory && maintenanceHistory[0]){
+      historySheet["!cols"] = Object.keys(maintenanceHistory[0]).map((key) => ({
+      wch: key.length + 15,
+    }));
+    XLSX.utils.book_append_sheet(workbook, historySheet, "История ТО");
+}
 
   // Генерация текущей даты для имени файла
   const currentDate = new Date();
