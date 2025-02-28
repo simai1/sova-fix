@@ -161,11 +161,11 @@ const handleChange = (event) => {
             <div className={styles.countSwitch}>
               <div className={styles.Switch}>
                   <button className={styles.switchOne}>
-                    <p className={!context.enabledTo ? styles.active : ""} onClick={()=>context.setEnabledTo(!context.enabledTo)}>Все заявки</p>
+                    <p className={styles.active} onClick={()=>context.setEnabledTo(!context.enabledTo)}>{context.enabledTo ? "Автозаявки" : "Заявки"}</p>
                   </button>
-                  <button className={styles.switchTwo}>
+                  {/* <button className={styles.switchTwo}>
                     <p className={context.enabledTo ? styles.active : ""} onClick={()=>context.setEnabledTo(!context.enabledTo)}>Автозаявки</p>
-                  </button>
+                  </button> */}
               </div>
             </div>
         </div>

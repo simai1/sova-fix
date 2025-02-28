@@ -148,33 +148,21 @@
               width: max-content;
               margin: 0;
               box-sizing: border-box;
-              border: 0.5px solid #000000;
               padding: 0px 10px;         
               cursor: pointer;  
               transition: 0.1s linear all;
               &:hover{
-               background-color: rgb(255, 231, 143);;
+               background-color: rgb(255, 231, 143)!important;
+               border: none!important;
               }
+              border-radius: 8px;
             }
           
             p.active{
               @include button(var(--turquoise-color));
               padding: 0px 10px;    
-              border: 0.5px solid #000000;
             }
-            .switchOne{
-              p{
-                border-radius: 8px 0px 0px 8px!important;
-  
-              }
-  
-            }
-            .switchTwo{
-              p{
-                border-radius: 0px 8px 8px 0px!important;
-              }
-  
-            }
+           
           }
         }
       }
