@@ -148,7 +148,7 @@
               width: max-content;
               margin: 0;
               box-sizing: border-box;
-              border: 1px solid #333;
+              border: 0.5px solid #000000;
               padding: 0px 10px;         
               cursor: pointer;  
               transition: 0.1s linear all;
@@ -160,7 +160,7 @@
             p.active{
               @include button(var(--turquoise-color));
               padding: 0px 10px;    
-              border: 1px solid #333;
+              border: 0.5px solid #000000;
             }
             .switchOne{
               p{
