@@ -115,7 +115,7 @@ const getAllRequests = async (filter: any, order: any, pagination: any) => {
                   ? { [Op.notIn]: value }
                   : { [Op.in]: value };
         } else if (fieldName === 'isAutoCreated') {
-            whereParams[fieldName] = { [Op.is]: true };
+            whereParams[fieldName] = { [Op.is]: value === 'true' };
         } else {
             whereParams[fieldName] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
         }
