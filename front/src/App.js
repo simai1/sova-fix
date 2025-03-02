@@ -279,8 +279,7 @@ const UpdateForse = () =>{
 
   
   function UpdateTableReguest() {
-    let url = `?offset=${ofset}&limit=${limit}`;
-    enabledTo && (url += `&isAutoCreated`);
+    let url = `?offset=${ofset}&limit=${limit}&isAutoCreated=${enabledTo}`;
     const uniqueData = getUniqueItems(storeFilter.isChecked);
     if (uniqueData.length !== 0) {
       const filterParams = uniqueData
