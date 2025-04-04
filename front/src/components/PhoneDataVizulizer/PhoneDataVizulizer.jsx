@@ -87,8 +87,6 @@ function PhoneDataVizulizer(props) {
   
       const response = await GetAllRequests(url);
       const newData = response?.data?.data || [];
-      console.log("response", response)
-      console.log("newData", newData)
       if (text) {
         // Если это поиск, полностью перезаписываем данные
         setDataBody(funFixEducator(newData));
