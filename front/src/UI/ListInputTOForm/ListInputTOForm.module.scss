@@ -37,7 +37,7 @@
   }
   .ListData {
     width: 273px;
-    max-height: 300px;
+    max-height: 200px;
     overflow-y: scroll;
     flex: 1;
     margin-left: 10px;
@@ -51,7 +51,7 @@
     background-color: #ffffff;
     .NameForList {
       font-size: 16px;
-      margin: 4px 7px;
+      margin: 7px 0px;
       transition: 0.1s linear all;
       cursor: pointer;
       &:first-child{
@@ -61,5 +61,9 @@
         color: var( --ActiveText-color);
       }
     }
+    .noResults{
+      margin-bottom: 10px;
+    }
   }
+ 
 }

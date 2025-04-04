@@ -3,6 +3,7 @@
     position: relative;
     width: 265px;
     align-items: center;
+   
     button{
         width: 265px;
     }
@@ -23,6 +24,8 @@
         padding-right: 15px;
         background-color: #fff;
         z-index: 1000;
+        height: calc(100vh - 325px);
+        overflow-y: auto;
         ul{
             list-style: none;
             position: relative;

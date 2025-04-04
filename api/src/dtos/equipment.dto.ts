@@ -10,6 +10,7 @@ export default class EquipmentDto {
     lastTO!: Date;
     lastTOHuman!: string;
     nextTO!: Date;
+    defaultCost!: number;
     nextTOHuman!: string;
     comment?: string;
     photo?: string;
@@ -31,6 +32,7 @@ export default class EquipmentDto {
         this.lastTO = model.lastTO;
         this.lastTOHuman = strftime('%d.%m.%y', model.lastTO);
         this.nextTO = model.nextTO;
+        this.defaultCost = model.defaultCost;
         this.nextTOHuman = strftime('%d.%m.%y', model.nextTO);
         this.photo = model.photo;
         this.qr = model.qr;

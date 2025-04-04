@@ -26,6 +26,7 @@ const getAll = catchAsync(async (req, res) => {
             'createdAt',
             'contractor',
             'checkPhoto',
+            'isAutoCreated',
             'exclude_search',
             'exclude_number',
             'exclude_status',
