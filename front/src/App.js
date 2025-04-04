@@ -39,6 +39,7 @@ function App() {
   const [dataContractors, setDataContractors] = useState([]);
   const [moreSelect, setMoreSelect] = useState([]);
   const [textSearchTableData, setextSearchTableData] = useState("");
+  const [textSearchTableDataPhone, setextSearchTableDataPhone] = useState("");
   const [popUp, setPopUp] = useState("");
   const [popUpEquipment, setPopUpEquipment] = useState("asddsa");
   const [popupGoodText, setPopupGoodText] = useState("")
@@ -122,6 +123,8 @@ const UpdateForse = () =>{
 
   const context = {
     dataEquipment,
+    textSearchTableDataPhone,
+    setextSearchTableDataPhone,
     setDataEquipment,
     GetDataEquipment,
     setSelectEquipment,
