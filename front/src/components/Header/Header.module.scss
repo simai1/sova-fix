@@ -19,6 +19,14 @@
    @media (max-width: 470px) {
       width: 100vw;
    }
+
+   @media (max-width: 380px) {
+      width: 106vw;
+   }
+
+   @media (max-width: 340px) {
+      width: 115vw;
+  }
   .buttonMenu {
     @include button(var(--turquoise-color));
     margin: 0px;
@@ -36,6 +44,10 @@
     @media (max-width: 870px) {
       // display: none;
      }
+
+    @media (max-width: 480px) {
+      width: 140px;
+    }
 }
 
   .menuUl{
@@ -97,7 +109,7 @@
   position: fixed;
   top: 0;
   left: 0;
-  height: 100vh;
+  height: 100%;
   width: 100%;
   background-color: #000;
   z-index: 900;
@@ -108,7 +120,7 @@ width: 100%;
   justify-content: center;
   margin-left: -178px;
   pointer-events: none;
-  @media (max-width: 870px) {
+  @media (max-width: 1150px) {
     margin-left: 0;
     
   }
@@ -123,7 +135,9 @@ width: 100%;
       width: 200px;
       position: relative;
       margin-top: 25px;
-    
+      @media (max-width: 420px) {
+        width: 185px;
+      }
     }
     .TitleSitteInnerText{
       font-size: 18px;
@@ -156,5 +170,8 @@ width: 100%;
   img{
     height: 75px;
     width: 180px;
+    @media (max-width: 870px) {
+      display: none;
+    }
   }
 }
