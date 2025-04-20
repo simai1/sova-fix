@@ -199,11 +199,11 @@ function EquipmentInfo() {
                             </div>
                             <div className={styles.marginInfo}>
                                 <p className={styles.paramInfo}>Общая стоимость проведенного ТО:</p>
-                                <p className={styles.paramInfoSecond}>{context.dataEquipment?.cost.toLocaleString().replace(",", " ")} руб.</p>
+                                <p className={styles.paramInfoSecond}>{context.dataEquipment?.cost !== 0 ? context.dataEquipment?.cost.toLocaleString().replace(",", " ") : context.dataEquipment?.defaultCost} руб.</p>
                             </div>
                             <div className={styles.marginInfo}>
                                 <p className={styles.paramInfo}>Средняя стоимость проведения ТО:</p>
-                                <p className={styles.paramInfoSecond}>{context.dataEquipment?.avgCost.toLocaleString().replace(",", " ")} руб.</p>
+                                <p className={styles.paramInfoSecond}>{context.dataEquipment?.avgCost !== 0 ? context.dataEquipment?.avgCost.toLocaleString().replace(",", " ") : context.dataEquipment?.defaultCost / context.dataEquipment?.count} руб.</p>
                             </div>
                             <div className={styles.marginInfo}>
                                 <p className={styles.paramInfo}>Период обслуживания:</p>

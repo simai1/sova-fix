@@ -17,6 +17,7 @@ function PopUpEditEquipment() {
     nomenclatureName: "",
     objectId: "",
     objectName: "",
+    defaultCost: "",
     contractorId: "",
     contractorName: "",
     comment: "",
@@ -31,6 +32,7 @@ function PopUpEditEquipment() {
       const matchedObject = objects.find((obj) => obj.name === equipment.object);
       const matchedContractor = contractors.find((cont) => cont.name === equipment.contractor);
       const matchedNomenclature = nomenclatures.find((nom) => nom.name === equipment.name);
+      console.log("equipment", equipment)
       setFormData({
         nomenclatureId: matchedNomenclature?.id || "",
         nomenclatureName: equipment?.name || "",
@@ -40,6 +42,7 @@ function PopUpEditEquipment() {
         contractorName: equipment?.contractor || equipment?.extContractor || "",
         comment: equipment?.comment || "",
         supportFrequency: equipment?.supportFrequency || "",
+        defaultCost: equipment?.defaultCost || "",
         lastTO: equipment?.lastTO?.split("T")[0] || "",
         nextTO: equipment?.nextTO?.split("T")[0] || "",
       });
@@ -68,6 +71,7 @@ function PopUpEditEquipment() {
 
     GetAllNomenclatures().then((response) => {
       if (response.status === 200) {
+        console.log("nomenclatures", response.data)
         setNomenclatures(response.data);
       }
     });
@@ -266,6 +270,20 @@ const handleSubmit = () => {
               disabled
             />
           </div>
+          <div className={styles.pupUpSecondContainerInfo}>
+            <div className={styles.pupContainerInfoTitle}>
+              <p>Стоимость ТО:</p>
+            </div>
+            <input
+              name="defaultCost"
+              className={styles.pupUpContainerInfoInput}
+              placeholder="Базовая стоимость"
+              value={formData.defaultCost}
+              onChange={handleInputChange}
+              style={{ textAlign: "center", paddingLeft: "0px" }}
+            />
+          </div>
+
         </div>
       </div>
       {/* Кнопка */}

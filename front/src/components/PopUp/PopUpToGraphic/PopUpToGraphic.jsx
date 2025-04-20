@@ -10,18 +10,6 @@ function PopUpToGraphic() {
   const [contractors, setContractors] = useState([]);
   const [idSelectEquipment, setIdSelectEquipment] = useState("");
   const [dataEquipment, setDataEquipment] = useState(null);
-  useEffect(() => {
-    setIdSelectEquipment(context.selectedTr) 
-  },[])
-
-  useEffect(() => {
-    GetOneEquipment(idSelectEquipment).then((res) => {
-        if(res?.status === 200){
-            setDataEquipment(res.data)
-        }
-    })
-  },[idSelectEquipment])
-
   const [formData, setFormData] = useState({
     comment: "",
     date: "",
@@ -29,6 +17,22 @@ function PopUpToGraphic() {
     contractorId: "",
     contractorName: "",
   });
+  useEffect(() => {
+    setIdSelectEquipment(context.selectedTr) 
+  },[])
+  useEffect(() => {
+    GetOneEquipment(idSelectEquipment).then((res) => {
+        if(res?.status === 200){
+            setDataEquipment(res.data)
+            setFormData({
+                ...formData,
+                cost: res?.data?.defaultCost
+            })
+        }
+    })
+  },[idSelectEquipment])
+
+ 
 
     // Загрузка данных из API
     useEffect(() => {

@@ -68,6 +68,7 @@ function App() {
   const [loader, setLoader] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
   const [dataTableHomePage, setDataTableHomePage] = useState([]);
+  const [enabledTo, setEnabledTo] = useState(false);
   const checkedAllFunc = () => {
     if(moreSelect.length > 0){
       setCheckedAll(true)
@@ -135,6 +136,8 @@ const UpdateForse = () =>{
     popUpEquipment,
     setPopUpEquipment,
     checkedAll,
+    enabledTo,
+    setEnabledTo,
     editListOpen,
     setMoreSelect,
     moreSelect,
@@ -233,7 +236,7 @@ const UpdateForse = () =>{
       setOfset(0);
       UpdateTableReguest();
     }
-  },[textSearchTableData, storeFilter] )
+  },[textSearchTableData, storeFilter, enabledTo] )
 
   const getParam = (value, key) =>{
     switch (key) {
@@ -276,7 +279,7 @@ const UpdateForse = () =>{
 
   
   function UpdateTableReguest() {
-    let url = `?offset=${ofset}&limit=${limit}`;
+    let url = `?offset=${ofset}&limit=${limit}&isAutoCreated=${Boolean(enabledTo)}`;
     
     const uniqueData = getUniqueItems(storeFilter.isChecked);
     if (uniqueData.length !== 0) {

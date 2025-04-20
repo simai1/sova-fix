@@ -151,6 +151,7 @@ export default {
                             fileName: e.photo,
                             // @ts-expect-error possibly null
                             createdBy: tgUser.id,
+                            isAutoCreated: true,
                             number: 0,
                         },
                     });
