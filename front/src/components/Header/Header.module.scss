@@ -14,7 +14,10 @@
     left: 0px;
     background-color: #e3dfda;
     box-shadow: 9px 3px 18px rgba(0, 0, 0, 0.2);
+   }
 
+   @media (max-width: 470px) {
+      width: 100vw;
    }
   .buttonMenu {
     @include button(var(--turquoise-color));
@@ -31,7 +34,7 @@
     margin-top: 15px;
     border-radius: 50px;
     @media (max-width: 870px) {
-      display: none;
+      // display: none;
      }
 }
 
@@ -105,21 +108,29 @@ width: 100%;
   justify-content: center;
   margin-left: -178px;
   pointer-events: none;
+  @media (max-width: 870px) {
+    margin-left: 0;
+    
+  }
   .TitleSitteInner{
     max-width: 900px;
     text-align: center;
     position: relative;
     @media (max-width: 870px) {
-      display: none;
+      // display: none;
      }
     img{
       width: 200px;
       position: relative;
+      margin-top: 25px;
     
     }
     .TitleSitteInnerText{
       font-size: 18px;
       width: 713px;
+      @media (max-width: 870px) {
+        display: none
+      }
     }
 
   }
