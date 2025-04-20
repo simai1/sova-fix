@@ -371,7 +371,7 @@
   font-size: 24px;
   padding: 50px 0px;
   position: relative;
-  left: -50px;
+  // left: -50px;
 }
 
 input[type="checkbox"] {
@@ -406,7 +406,7 @@ input[type="checkbox"]:checked:before {
   left: 45%;
   top: 60%;
   font-size: 22px;
-  @media (max-width: 525px) {
+  @media (max-width: 800px) {
     top: auto
   }
 }

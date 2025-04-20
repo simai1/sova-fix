@@ -36,6 +36,13 @@
             width: 250px!important;
             padding-right: 35px;
             height: 12px;
+
+            @media (max-width: 420px) {
+              width: 220px!important;
+            }
+            @media (max-width: 320px) {
+              width: 200px!important;
+            }
         }
     }
     .HeadMenuMain{
@@ -112,6 +119,12 @@
         height: 44px;
         width: 40px;
         transition: 0.1s linear all;
+        @media (max-width: 420px) {
+          left: 290px;
+        }
+        @media (max-width: 320px) {
+          left: 270px;
+        }
         &:hover{
           cursor: pointer;
           opacity: 0.6;
@@ -196,6 +209,12 @@
         @media (max-width: 525px) {
           margin-top: 50px;
         }
+        @media (max-width: 380px) {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          width: 100%;
+        }
         .CountInfoBlock{
           display: flex;
           border-radius: 8px;
@@ -216,8 +235,18 @@
         outline: none;
         border: none;
         cursor: pointer;
+        color: var(--black-color);
         @media (max-width: 525px) {
           font-size: 12px;
+        }
+
+        @media (max-width: 420px) {
+          font-size: 11px;
+        }
+
+        @media (max-width: 380px) {
+          width: 100%;
+          margin-top: 10px;
         }
       }
       }
