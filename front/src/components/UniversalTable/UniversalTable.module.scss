@@ -7,6 +7,9 @@
     overflow-y: scroll;
     border-radius: 8px;  
     // min-height: 65vh;
+    @media (max-height: 450px) {
+      max-height: 150vh !important;
+    }
     &::-webkit-scrollbar-track {
       background: inherit; /* делаем фон прозрачным */
     }
