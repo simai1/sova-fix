@@ -2,6 +2,12 @@ import axios from "axios";
 const http = axios.create({
   withCredentials: true,
 });
+<<<<<<< HEAD
+=======
+
+const server = process.env.REACT_APP_API_URL;
+// const server = "http://localhost:3000";
+>>>>>>> e00679c (api js fix)
 
 const server = "http://localhost:3000";
 
