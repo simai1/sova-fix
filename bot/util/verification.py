@@ -13,13 +13,13 @@ async def verify_user(
         user_id: int,
         role: int | list[int] | None = None,
         message: Message | None = None
-) -> None:
+) -> dict | None:
     """
     Try to verify if the user is in the database
     :param user_id: tg_id of the user
     :param message: message for answering
     :param role: check if the user has a specific role
-    :return:
+    :return: user data if verification passed, None otherwise
     """
     user = await crm.get_user(user_id)
 
@@ -28,7 +28,7 @@ async def verify_user(
         raise VerificationError(f'No user with id={user_id}')
 
     if role is None:
-        return
+        return user
 
     m_roles = [role] if isinstance(role, int) else role
 
@@ -36,6 +36,8 @@ async def verify_user(
     if user['role'] not in str_roles:
         await you_cant_do_that(message)
         raise VerificationError(f'User with id={user_id} is not a {str_roles}')
+    
+    return user
 
 
 async def has_role(user: dict, roles: list[int]) -> bool:

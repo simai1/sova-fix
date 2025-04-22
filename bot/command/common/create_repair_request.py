@@ -70,7 +70,23 @@ async def ask_object(query: CallbackQuery, state: FSMContext) -> None:
     unit_id = await pagination.get_selected_value(query, state)
     await state.update_data(unit=unit_id)
 
-    objects_data = await data_loader.get_objects_data(unit_id)
+    # Get user's Telegram ID
+    user_id = query.from_user.id
+    
+    # Get TgUser ID from the user's Telegram ID
+    tg_user_id = await crm.get_tg_user_id(user_id)
+    
+    # Get objects filtered by user access
+    objects_data = await data_loader.get_objects_data(unit_id, tg_user_id)
+    
+    # Проверка, есть ли у пользователя доступные объекты
+    if not objects_data:
+        await query.message.answer("У вас нет доступа к объектам в этом подразделении. Обратитесь к менеджеру для получения доступа.", reply_markup=to_start_kb())
+        await query.answer()
+        await query.message.edit_reply_markup(reply_markup=None)
+        await state.clear()
+        return
+    
     names = await pagination.set_pages_data(objects_data, state)
     kb = pagination.make_kb(0, names, prefix='object')
     await state.set_state(FSMRepairRequest.object_input)

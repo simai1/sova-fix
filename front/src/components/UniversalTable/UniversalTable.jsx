@@ -123,7 +123,7 @@ function UniversalTable(props) {
         return null;
       case "tgId":
         return value ? (
-          <a className={styles.tgIdLink} href={`https://t.me/${row[index]?.linkId}`}>
+          <a className={styles.tgIdLink} href={`tg://user?id=${value}`}>
             {value}
           </a>
         ) : (
@@ -158,7 +158,7 @@ function UniversalTable(props) {
               <div className={styles.FileVideo}>
                 <video
                   onClick={(e) => {
-                    e.preventDefault(); // Prevent the modal from closing
+                    e.preventDefault();
                     e.stopPropagation();
                     openModal(`${process.env.REACT_APP_API_URL}/uploads/${value}`);
                   }}
@@ -413,10 +413,14 @@ function UniversalTable(props) {
                   }
                 >
         {header.key !== "role" ? (
-          header.key === "nextTOHuman" ?
-          <span style={{ padding: header.key === "nextTOHuman" ? "5px 10px" : "0px", borderRadius: "5px", backgroundColor: getBgColorlastTOHuman(header.key, row[header.key])}} >{getValue(row[header.key], header.key, rowIndex, row)}</span> : 
-          getValue(row[header.key], header.key, rowIndex, row)
-      ) : (
+          props.customRender && props.customRender[header.key] ? (
+            props.customRender[header.key](row[header.key], row, rowIndex)
+          ) : (
+            header.key === "nextTOHuman" ?
+            <span style={{ padding: header.key === "nextTOHuman" ? "5px 10px" : "0px", borderRadius: "5px", backgroundColor: getBgColorlastTOHuman(header.key, row[header.key])}} >{getValue(row[header.key], header.key, rowIndex, row)}</span> : 
+            getValue(row[header.key], header.key, rowIndex, row)
+          )
+        ) : (
             <div key={rowIndex} className={styles.RoleClick}>
               <div
                 onClick={() => handleRoleClick(rowIndex , row.role)}

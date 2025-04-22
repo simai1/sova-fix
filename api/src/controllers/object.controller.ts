@@ -4,6 +4,15 @@ import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
 
 const getAll = catchAsync(async (req, res) => {
+    const { tgUserId } = req.query;
+    
+    // Если передан tgUserId, получаем только объекты этого пользователя
+    if (tgUserId) {
+        const userObjects = await objectService.getUserObjects(tgUserId as string);
+        return res.json(userObjects);
+    }
+    
+    // Иначе получаем все объекты
     const objects = await objectService.getAllObjects();
     res.json(objects);
 });

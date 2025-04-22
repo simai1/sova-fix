@@ -21,8 +21,10 @@ import categoryRoute from './routes/category.route';
 import nomenclatureRoute from './routes/nomenclature.route';
 import testRoute from './routes/test.route';
 
+
 import logger from './utils/logger';
 import winston from 'winston';
+import rawRoute from './routes/raw.route';
 
 const { app, getWss } = expressWs(express());
 
@@ -63,6 +65,7 @@ app.use('/equipments', equipmentRoute);
 app.use('/categories', categoryRoute);
 app.use('/nomenclatures', nomenclatureRoute);
 app.use('/test', testRoute);
+app.use('/raw', rawRoute);
 
 // websocket section
 app.ws('/', () => {

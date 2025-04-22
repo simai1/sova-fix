@@ -269,7 +269,6 @@ function Table() {
 
    //!Запрос на установку новой планорвой даты выполнения  
   const selectadNewPlanDateFunction = (id, date) => {
-    console.log("Вызвался selectadNewPlanDateFunction");
     const data = {
       planCompleteDate: new Date(date)
     }

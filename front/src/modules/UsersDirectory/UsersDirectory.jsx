@@ -12,6 +12,7 @@ import PopUpGoodMessage from "../../UI/PopUpGoodMessage/PopUpGoodMessage";
 import СonfirmDeleteUser from "./../../components/СonfirmDeleteUser/СonfirmDeleteUser";
 import ClearImg from "./../../assets/images/ClearFilter.svg"
 import { resetFilters } from "../../store/samplePoints/samplePoits";
+import { useNavigate } from "react-router-dom";
 
 function UsersDirectory() {
     const [tableDataObject, setTableDataObject] = useState([]);
@@ -20,9 +21,10 @@ function UsersDirectory() {
     const [Email, setEmail] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const isCurrentUserManager = JSON.parse(localStorage.getItem("userData"))?.user?.role === "ADMIN";
 
     function funFixData(data) {
-       
         return data.map((item) => {
           return {
             ...item,
@@ -32,6 +34,7 @@ function UsersDirectory() {
             tgUserId: item?.tgUserId || "___",
             name: item?.name || "___",
             role: funFixRole(item?.role),
+            accessButton: (isCurrentUserManager && item?.tgId) ? "button" : null,
           };
         });
       }
@@ -51,7 +54,6 @@ function UsersDirectory() {
       else{
         return "___"
       }
-
     }
 
     const getData = () => {
@@ -113,9 +115,25 @@ function UsersDirectory() {
       context.setPopupErrorText("Вы не можете изменить свою роль!");
     }
     };
+    const handleAccessClick = (userId) => {
+      navigate(`/Directory/TgUserObjects?userId=${userId}`);
+    };
 
+    const renderAccessButton = (value, row) => {
+      if (value) {
+        return (
+          <button 
+            className={styles.accessButton}
+            onClick={() => handleAccessClick(row.id)}
+          >
+            Доступы
+          </button>
+        );
+      }
+      return null;
+    };
 
-       const handleCreateUnit = () => {
+    const handleCreateUnit = () => {
         if (!Email) {
             setErrorMessage("Пожалуйста, заполните все поля!");
             return;
@@ -134,7 +152,7 @@ function UsersDirectory() {
         })
     }
 
-      const deletedUser = ()=>{
+    const deletedUser = ()=>{
         if( context.selectRowDirectory !== null &&   context.selectRowDirectory !== JSON.parse(sessionStorage.getItem("userData")).user?.id){
           context.setPopUp("СonfirmDeleteUser")
         }else if( context.selectRowDirectory === null){
@@ -144,7 +162,7 @@ function UsersDirectory() {
           context.setPopupErrorText("Вы не можете удалить себя!");
           context.setPopUp("PopUpError")
         }
-      }
+    }
 
     return ( 
         <div className={styles.ReferenceObjects}>
@@ -165,7 +183,18 @@ function UsersDirectory() {
               </div>
             }
         </div>
-        <UniversalTable FilterFlag={true} tableName="table5" tableHeader={tableUser} tableBody={tableDataObject} selectFlag={true} ClickRole={ClickRole} heightTable="calc(100vh - 285px)"/>
+        <UniversalTable 
+          FilterFlag={true} 
+          tableName="table5" 
+          tableHeader={tableUser} 
+          tableBody={tableDataObject} 
+          selectFlag={true} 
+          ClickRole={ClickRole} 
+          heightTable="calc(100vh - 285px)"
+          customRender={{
+            accessButton: renderAccessButton
+          }}
+        />
         {popUpCreate && (
                 <div className={styles.PupUpCreate}>
                     <PopUpContainer mT={300} title="Добавление пользователя" closePopUpFunc={setPopUpCreate}>

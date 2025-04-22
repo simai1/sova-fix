@@ -62,6 +62,10 @@ router.route('/urgency/bulk').patch(requestController.bulkUrgency);
 router.route('/contractor/bulk').patch(requestController.bulkContractor);
 
 router.route('/customer/:tgUserId').get(requestController.getCustomersRequests);
+
+// Маршрут для получения заявок по объектам, к которым у пользователя есть доступ
+router.route('/objects/:tgUserId').get(requestController.getRequestsByObjects);
+
 router.route('/add/check/:requestId').patch(uploadImage.single('file'), requestController.addCheck);
 
 router.route('/copy/:requestId').post(requestController.copy);

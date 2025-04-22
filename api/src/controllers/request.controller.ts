@@ -215,6 +215,42 @@ const getCustomersRequests = catchAsync(async (req, res) => {
     res.json(requestsDtos);
 });
 
+const getRequestsByObjects = catchAsync(async (req, res) => {
+    const { tgUserId } = req.params;
+    const filter = prepare(
+        pick(req.query, [
+            'search',
+            'number',
+            'status',
+            'unit',
+            'builder',
+            'object',
+            'problemDescription',
+            'urgency',
+            'itineraryOrder',
+            'repairPrice',
+            'comment',
+            'legalEntity',
+            'daysAtWork',
+            'createdAt',
+            'contractor',
+            'checkPhoto',
+        ])
+    );
+    
+    if (!tgUserId) {
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Missing tgUserId');
+    }
+    
+    try {
+        const requestsDtos = await requestService.getRequestsByObjects(tgUserId, filter);
+        res.json(requestsDtos);
+    } catch (error) {
+        console.error('Error getting requests by objects:', error);
+        throw error;
+    }
+});
+
 const addCheck = catchAsync(async (req, res) => {
     const { requestId } = req.params;
     const fileName = req.file?.filename;
@@ -283,6 +319,7 @@ export default {
     getAll,
     getOne,
     getCustomersRequests,
+    getRequestsByObjects,
     create,
     setContractor,
     setExtContractor,

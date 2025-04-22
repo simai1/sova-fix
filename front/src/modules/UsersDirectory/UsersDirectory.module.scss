@@ -116,3 +116,26 @@
       
       }
 }
+
+.accessButton {
+  background-color: var(--turquoise-color);
+  width: 100%;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 400;
+  
+  &:hover {
+    opacity: 0.8;
+  }
+  
+  &:active {
+    transform: translateY(1px);
+  }
+}
