@@ -2,16 +2,11 @@ import axios from "axios";
 const http = axios.create({
   withCredentials: true,
 });
-<<<<<<< HEAD
-=======
 
 const server = process.env.REACT_APP_API_URL;
 // const server = "http://localhost:3000";
->>>>>>> e00679c (api js fix)
 
-const server = "http://localhost:3000";
-
-const REFRESH_INTERVAL = 500000;
+const REFRESH_INTERVAL = 500000; // 15 минут 900000
 let refreshTokensTimeout;
 
 export const refreshTokens = async () => {
