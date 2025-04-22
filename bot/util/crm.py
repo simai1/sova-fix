@@ -231,6 +231,47 @@ async def get_customer_requests(user_id: int, params: str = '') -> list | None:
         return None
 
 
+async def get_requests_by_objects(user_id: int, params: str = '') -> list | None:
+    """
+    Получает заявки по объектам, к которым у пользователя есть доступ
+    
+    Args:
+        user_id: ID пользователя в Telegram
+        params: Дополнительные параметры запроса
+        
+    Returns:
+        Список заявок или None, если произошла ошибка
+    """
+    tg_user_id = await get_tg_user_id(user_id)
+    
+    if not tg_user_id:
+        logger.error("API: could not get tg_user_id for user", f"user_id={user_id}")
+        return None
+    
+    url = f'{cf.API_URL}/requests/objects/{tg_user_id}?{params}'
+    
+    logger.info(f"Getting requests by objects: user_id={user_id}, tg_user_id={tg_user_id}, url={url}")
+    
+    try:
+        request = requests.get(url)
+        
+        if request.status_code == 200:
+            data = request.json()
+            logger.info(f"Successfully got requests by objects: {len(data)} requests")
+            return data
+        else:
+            logger.error("API: could not get requests by objects", 
+                         f"status_code={request.status_code}, "
+                         f"tg_user_id={tg_user_id}, "
+                         f"response={request.text}")
+            return None
+    except Exception as e:
+        logger.error("API: exception getting requests by objects", 
+                     f"error={str(e)}, "
+                     f"tg_user_id={tg_user_id}")
+        return None
+
+
 async def change_repair_request_status(request_id: str, status: int) -> bool:
     url = f'{cf.API_URL}/requests/set/status'
 
@@ -460,7 +501,36 @@ async def get_rrs_for_user(user_data: dict, params: str = "") -> list:
 
     match user.role:
         case roles.CUSTOMER:
-            return await get_customer_requests(user.tg_id, params)
+            logger.info(f"Getting requests for CUSTOMER: {user.tg_id}")
+            
+            user_requests = await get_customer_requests(user.tg_id, params)
+            if user_requests is None:
+                user_requests = []
+                
+            object_requests = await get_requests_by_objects(user.tg_id, params)
+            if object_requests is None:
+                object_requests = []
+                
+            all_requests = []
+            request_ids = set()
+            
+            for request in user_requests:
+                if request['id'] not in request_ids:
+                    all_requests.append(request)
+                    request_ids.add(request['id'])
+                    
+            for request in object_requests:
+                if request['id'] not in request_ids:
+                    all_requests.append(request)
+                    request_ids.add(request['id'])
+            
+            logger.info(f"Total requests for user {user.tg_id}: {len(all_requests)} "
+                        f"(created: {len(user_requests)}, by objects: {len(object_requests)})")
+            
+            all_requests.sort(key=lambda x: x.get('number', 0), reverse=True)
+            
+            return all_requests
+            
         case roles.CONTRACTOR:
             return await get_contractor_requests(user.tg_id, params)
         case roles.ADMIN:
@@ -477,4 +547,69 @@ async def get_static_content(filename: str) -> bytes | None:
         return req.content
     else:
         logger.error(f"could not get {filename} from uploads", f"{req.status_code}")
+        return None
+
+
+async def get_user_objects(tg_user_id: str) -> list | None:
+    """
+    Получает список объектов, доступных пользователю Telegram через публичный API.
+    
+    Args:
+        tg_user_id: ID пользователя Telegram в базе данных
+        
+    Returns:
+        Список объектов, доступных пользователю, или None в случае ошибки
+    """
+    url = f"{cf.API_URL}/tgUsers/{tg_user_id}/objects/public"
+    
+    try:
+        logger.info(f"Getting objects for user {tg_user_id} via public API endpoint")
+        request = requests.get(url)
+        
+        if request.status_code == 200:
+            response = request.json()
+            
+            if isinstance(response, dict) and 'objects' in response:
+                objects = response['objects']
+                logger.info(f"Successfully got objects for user {tg_user_id}: {len(objects)} objects")
+                return objects
+            
+            logger.info(f"Successfully got objects for user {tg_user_id}: {len(response)} objects")
+            return response
+        else:
+            logger.error(f"API: could not get user objects: {request.status_code}, tg_user_id={tg_user_id}")
+            return None
+    except Exception as e:
+        logger.error(f"API: error when getting user objects: {str(e)}, tg_user_id={tg_user_id}")
+        return None
+
+
+async def get_tguser_object_relations(tg_user_id: str) -> list | None:
+    """
+    Прямой запрос к API для получения связей пользователя и объектов из таблицы tgUserObjects.
+    
+    Args:
+        tg_user_id: ID пользователя Telegram в базе данных
+        
+    Returns:
+        Список ID объектов, связанных с пользователем, или None в случае ошибки
+    """
+    url = f"{cf.API_URL}/raw/tgUserObjects/by-user/{tg_user_id}"
+    
+    try:
+        logger.info(f"Запрашиваем связи объектов для пользователя {tg_user_id}")
+        request = requests.get(url)
+        
+        if request.status_code == 200:
+            relations = request.json()
+            logger.info(f"Получили {len(relations)} связей для пользователя {tg_user_id}")
+            
+            object_ids = [rel.get('objectId') for rel in relations if rel.get('objectId')]
+            logger.info(f"Извлекли {len(object_ids)} ID объектов: {object_ids}")
+            return object_ids
+        else:
+            logger.error(f"Ошибка при запросе связей: {request.status_code}, tg_user_id={tg_user_id}")
+            return None
+    except Exception as e:
+        logger.error(f"Исключение при запросе связей: {str(e)}, tg_user_id={tg_user_id}")
         return None

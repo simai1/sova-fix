@@ -7,6 +7,8 @@ import LegalEntity from '../models/legalEntity';
 import legalEntityService from './legalEntity.service';
 import unitService from './unit.service';
 import { sendMsg, WsMsgData } from '../utils/ws';
+import { models } from '../models';
+import logger from '../utils/logger';
 
 const getObjectById = async (id: string): Promise<ObjectDir | null> => {
     return await ObjectDir.findByPk(id, { include: [{ model: Unit }, { model: LegalEntity }] });
@@ -18,6 +20,62 @@ const getAllObjects = async (): Promise<ObjectDto[]> => {
         order: [['number', 'ASC']],
     });
     return objects.map(o => new ObjectDto(o));
+};
+
+/**
+ * Получает объекты, доступные конкретному пользователю Telegram
+ * @param tgUserId ID пользователя Telegram
+ * @returns Массив объектов, доступных пользователю
+ */
+const getUserObjects = async (tgUserId: string): Promise<ObjectDto[]> => {
+    try {
+        logger.log({
+            level: 'info',
+            message: `Getting objects for user ${tgUserId} from object service`,
+        });
+
+        // Получаем связи пользователя с объектами из таблицы tgUserObjects
+        const userObjectRelations = await (models.TgUserObject as any).findAll({
+            where: { tgUserId },
+            include: [
+                {
+                    model: models.ObjectDir,
+                    as: 'Object',
+                    required: true,
+                    include: [{ model: Unit }, { model: LegalEntity }]
+                },
+            ],
+        });
+
+        logger.log({
+            level: 'info',
+            message: `Found ${userObjectRelations.length} relations with objects for user ${tgUserId}`,
+        });
+
+        // Извлекаем только объекты из связей
+        const objects = userObjectRelations
+            .map((relation: any) => relation.Object)
+            .filter((object: any) => object !== null && object !== undefined);
+
+        logger.log({
+            level: 'info',
+            message: `Final objects list for user ${tgUserId}: ${objects.length} items`,
+        });
+
+        // Преобразуем объекты в DTO и возвращаем
+        return objects.map((obj: any) => new ObjectDto(obj));
+    } catch (error) {
+        logger.log({
+            level: 'error',
+            message: `Error getting user objects: ${error}`,
+            error,
+        });
+
+        throw new ApiError(
+            httpStatus.INTERNAL_SERVER_ERROR,
+            `Failed to get objects for user ${tgUserId}`
+        );
+    }
 };
 
 const createObject = async (name: string, unitId: string, city: string, legalEntityId: string): Promise<ObjectDto> => {
@@ -80,6 +138,7 @@ const updateObject = async (
 export default {
     getObjectById,
     getAllObjects,
+    getUserObjects,
     createObject,
     getOneObject,
     destroyObject,

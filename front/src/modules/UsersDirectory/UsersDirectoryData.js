@@ -5,5 +5,6 @@ export const tableUser = [
     {key: "tgId", value:"Телеграм", isActive: true},
     {key: "isConfirmed", value:"Активация", isActive: true},
     {key: "role", value:"Роль", isActive: true},
+    {key: "accessButton", value:"Доступы", isActive: true},
   ]
 

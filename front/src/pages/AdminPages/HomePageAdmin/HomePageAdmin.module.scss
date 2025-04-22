@@ -37,22 +37,20 @@
 .TableTop{
   display: block;
   @media (max-width: 870px) {
-    // display: none;
+    display: none;
    }
 }
 .PhoneData{
   display: none;
   @media (max-width: 870px) {
-    // display: block;
-    // margin-top: 40px;
-    display: none;
+    display: block;
    }
 }
 .Table {
   width: 100%;
   display: flex;
   @media (max-width: 870px) {
-    // display: none;
+    display: none;
    }
   .TableInner {
     background-color: var(--light-grey-color);

@@ -1,8 +1,8 @@
 .env
 latest.log
 test.py
-*venv
-1
+.venv
+venv
+
 __pycache__/
 *.py[cod]
-1

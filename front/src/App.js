@@ -25,6 +25,7 @@ import RangeEquipment from "./modules/RangeEquipment/RangeEquipment";
 import GraphicEquipment from "./modules/GraphicEquipment/GraphicEquipment";
 import EquipmentInfo from "./modules/EquipmentInfo/EquipmentInfo";
 import PageCardContractors from "./pages/AdminPages/PageCardContractors/PageCardContractors";
+import TgUserObjects from "./pages/AdminPages/Directory/TgUserObjects";
 
 function App() {
   const [selectContructor, setSelectContractor] = useState("")
@@ -39,7 +40,6 @@ function App() {
   const [dataContractors, setDataContractors] = useState([]);
   const [moreSelect, setMoreSelect] = useState([]);
   const [textSearchTableData, setextSearchTableData] = useState("");
-  const [textSearchTableDataPhone, setextSearchTableDataPhone] = useState("");
   const [popUp, setPopUp] = useState("");
   const [popUpEquipment, setPopUpEquipment] = useState("asddsa");
   const [popupGoodText, setPopupGoodText] = useState("")
@@ -123,8 +123,6 @@ const UpdateForse = () =>{
 
   const context = {
     dataEquipment,
-    textSearchTableDataPhone,
-    setextSearchTableDataPhone,
     setDataEquipment,
     GetDataEquipment,
     setSelectEquipment,
@@ -354,6 +352,7 @@ const UpdateForse = () =>{
               <Route path="ReferenceObjects" element={<ReferenceObjects />}></Route>
               <Route path="ThePerformersDirectory" element={<ThePerformersDirectory />}></Route>
               <Route path="UsersDirectory" element={<UsersDirectory />}></Route>
+              <Route path="TgUserObjects" element={<TgUserObjects />}></Route>
             </Route>
 
             <Route path="/CardPage/*" element={<CardPage />}>

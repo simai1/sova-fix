@@ -44,21 +44,22 @@ async def show_customer_requests_handler(user_id: int, params: str, message: Mes
 
     params_for_request = params
 
-    # изменение статусов индексов на сами статусы
-    # НУЖНО ПЕРЕДЕЛАТЬ
     for status_k in statuses_keys:
         status_found_index = params_for_request.find(str(status_k))
         if status_found_index != -1:
             params_for_request = params_for_request.replace(status_k, statuses_keys[status_k])
 
     try:
-        await verify_user(user_id, role=roles.CUSTOMER, message=message)
+        user = await verify_user(user_id, role=roles.CUSTOMER, message=message)
+        if not user:
+            return
+        
+        repair_requests = await crm.get_rrs_for_user(user, params=params_for_request)
+        
+        await page0_show_many_rr_for_customer(message, state, repair_requests, params)
+        
     except VerificationError:
         return
-
-    repair_requests = await crm.get_customer_requests(user_id, params=params_for_request)
-
-    await page0_show_many_rr_for_customer(message, state, repair_requests, params)
 
 
 @router.callback_query(F.data.startswith('cus:show_more'))
@@ -68,16 +69,24 @@ async def show_more_requests(query: CallbackQuery, state: FSMContext) -> None:
     params = query.data.split(':')[-1]
     params_for_request = params
 
-    # изменение статусов индексов на сами статусы
-    # НУЖНО ПЕРЕДЕЛАТЬ
     for status_k in statuses_keys:
         status_found_index = params_for_request.find(str(status_k))
         if status_found_index != -1:
             params_for_request = params_for_request.replace(status_k, statuses_keys[status_k])
 
-    repair_requests = await crm.get_customer_requests(query.from_user.id, params=params_for_request)
-    await send_many_rr_for_customer(repair_requests, query.message, state)
-    await pagination.send_next_button_if_needed(len(repair_requests), query.message, state, prefix='cus', params=params)
-
-    await query.message.delete()
-    await query.answer()
+    try:
+        user = await verify_user(query.from_user.id, role=roles.CUSTOMER)
+        if not user:
+            await query.answer("Ошибка доступа")
+            return
+            
+        repair_requests = await crm.get_rrs_for_user(user, params=params_for_request)
+        
+        await send_many_rr_for_customer(repair_requests, query.message, state)
+        await pagination.send_next_button_if_needed(len(repair_requests), query.message, state, prefix='cus', params=params)
+        
+        await query.message.delete()
+        await query.answer()
+    except VerificationError:
+        await query.answer("Ошибка доступа")
+        return

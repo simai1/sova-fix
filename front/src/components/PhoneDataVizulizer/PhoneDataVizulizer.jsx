@@ -54,9 +54,9 @@ function PhoneDataVizulizer(props) {
   // Обновляем данные при изменении поиска или popUp
   useEffect(() => {
     if (context.textSearchTableDataPhone) {
-      setOffset(0); 
-      setDataBody([]); 
-      fetchData(0, context.textSearchTableDataPhone); 
+      setOffset(0); // Сбрасываем offset
+      setDataBody([]); // Очищаем текущие данные
+      fetchData(0, context.textSearchTableDataPhone); // Заново выполняем поиск
     }
   }, [context.textSearchTableDataPhone]);
   
@@ -86,7 +86,8 @@ function PhoneDataVizulizer(props) {
       }
   
       const response = await GetAllRequests(url);
-      const newData = response?.data?.data || [];
+      const newData = response?.data?.requestsDtos || [];
+  
       if (text) {
         // Если это поиск, полностью перезаписываем данные
         setDataBody(funFixEducator(newData));

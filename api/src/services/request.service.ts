@@ -15,6 +15,8 @@ import Unit from '../models/unit';
 import LegalEntity from '../models/legalEntity';
 import ExtContractor from '../models/externalContractor';
 import * as util from 'node:util';
+import logger from '../utils/logger';
+import { models } from '../models';
 
 const getAllRequests = async (filter: any, order: any, pagination: any) => {
     let requests;
@@ -523,94 +525,121 @@ const update = async (
 
 const getCustomersRequests = async (tgUserId: string, filter: any): Promise<RequestDto[]> => {
     let requests;
-    const whereParams = {};
+    const whereParams: any = {};
     Object.keys(filter).forEach((k: any) =>
         k === 'search'
             ? null
             : k !== 'contractor'
-              ? // @ts-expect-error skip
-                (whereParams[k] = filter[k])
-              : // @ts-expect-error skip
-                (whereParams['$Contractor.name$'] = filter[k])
+            ? (whereParams[k] = filter[k])
+            : (whereParams['$Contractor.name$'] = filter[k])
     );
-    // @ts-expect-error skip
-    whereParams['createdBy'] = tgUserId;
-    if (Object.keys(filter).length !== 0 && typeof filter.search !== 'undefined') {
-        const searchParams = [
-            {
-                status: (() => {
-                    return Object.keys(statusesRuLocale)
-                        .filter(s =>
-                            // @ts-expect-error skip
-                            statusesRuLocale[s].includes(
-                                Number.isInteger(filter.search) ? filter.search : filter.search.toLowerCase()
-                            )
-                        )
-                        .map(s => s);
-                })(),
-            },
-            { '$Unit.name$': { [Op.iLike]: `%${filter.search}%` } },
-            { builder: { [Op.iLike]: `%${filter.search}%` } },
-            { '$Object.name$': { [Op.iLike]: `%${filter.search}%` } },
-            { problemDescription: { [Op.iLike]: `%${filter.search}%` } },
-            { urgency: { [Op.iLike]: `%${filter.search}%` } },
-            sequelize.where(sequelize.cast(sequelize.col('repair_price'), 'varchar'), {
-                [Op.iLike]: `%${filter.search}%`,
-            }),
-            { comment: { [Op.iLike]: `%${filter.search}%` } },
-            { '$LegalEntity.name$': { [Op.iLike]: `%${filter.search}%` } },
-            { '$Contractor.name$': { [Op.iLike]: `%${filter.search}%` } },
-        ];
-        if (Number.isInteger(filter.search)) {
-            // @ts-expect-error skip
-            searchParams.push({ number: filter.search });
-            // @ts-expect-error skip
-            searchParams.push({ itineraryOrder: filter.search });
-            // @ts-expect-error skip
-            searchParams.push({ daysAtWork: filter.search });
+    
+    try {
+        const userObjects = await (models.TgUserObject as any).findAll({
+            where: { tgUserId },
+            attributes: ['objectId'],
+        });
+
+        if (!userObjects || userObjects.length === 0) {
+            logger.log({
+                level: 'info',
+                message: `No objects found for tgUser: ${tgUserId}`,
+            });
+            return [];
         }
-        requests = await RepairRequest.findAll({
-            where: {
-                [Op.and]: [
+
+        const objectIds = userObjects.map((obj: any) => obj.objectId);
+
+        whereParams.objectId = {
+            [Op.in]: objectIds,
+        };
+        
+        if (Object.keys(filter).length !== 0 && typeof filter.search !== 'undefined') {
+            const searchParams: any[] = [
+                {
+                    status: (() => {
+                        return Object.keys(statusesRuLocale)
+                            .filter(s =>
+                                statusesRuLocale[s as unknown as keyof typeof statusesRuLocale].includes(
+                                    Number.isInteger(filter.search) ? filter.search : filter.search.toLowerCase()
+                                )
+                            )
+                            .map(s => s);
+                    })(),
+                },
+                { '$Unit.name$': { [Op.iLike]: `%${filter.search}%` } },
+                { builder: { [Op.iLike]: `%${filter.search}%` } },
+                { '$Object.name$': { [Op.iLike]: `%${filter.search}%` } },
+                { problemDescription: { [Op.iLike]: `%${filter.search}%` } },
+                { urgency: { [Op.iLike]: `%${filter.search}%` } },
+                sequelize.where(sequelize.cast(sequelize.col('repair_price'), 'varchar'), {
+                    [Op.iLike]: `%${filter.search}%`,
+                }),
+                { comment: { [Op.iLike]: `%${filter.search}%` } },
+                { '$LegalEntity.name$': { [Op.iLike]: `%${filter.search}%` } },
+                { '$Contractor.name$': { [Op.iLike]: `%${filter.search}%` } },
+            ];
+            if (Number.isInteger(filter.search)) {
+                searchParams.push({ number: { [Op.eq]: filter.search } } as any);
+                searchParams.push({ itineraryOrder: { [Op.eq]: filter.search } } as any);
+                searchParams.push({ daysAtWork: { [Op.eq]: filter.search } } as any);
+            }
+            requests = await RepairRequest.findAll({
+                where: {
+                    [Op.and]: [
+                        {
+                            [Op.or]: searchParams,
+                        },
+                        whereParams,
+                    ],
+                },
+                include: [
                     {
-                        [Op.or]: searchParams,
+                        model: Contractor,
                     },
-                    whereParams,
+                    {
+                        model: ObjectDir,
+                    },
+                    {
+                        model: Unit,
+                    },
+                    {
+                        model: LegalEntity,
+                    },
+                    {
+                        model: ExtContractor,
+                    },
                 ],
-            },
-            include: [
-                {
-                    model: Contractor,
-                },
-                {
-                    model: ObjectDir,
-                },
-                {
-                    model: Unit,
-                },
-                {
-                    model: LegalEntity,
-                },
-                {
-                    model: ExtContractor,
-                },
-            ],
-            order: [['number', 'desc']],
+                order: [['number', 'desc']],
+            });
+        } else {
+            requests = await RepairRequest.findAll({
+                where: whereParams,
+                include: [
+                    { model: Contractor },
+                    { model: ObjectDir },
+                    { model: Unit },
+                    { model: LegalEntity },
+                    { model: ExtContractor },
+                ],
+                order: [['number', 'desc']],
+            });
+        }
+        
+        logger.log({
+            level: 'info',
+            message: `Found ${requests.length} requests for tgUser: ${tgUserId} based on user's objects`,
         });
-    } else {
-        requests = await RepairRequest.findAll({
-            where: whereParams,
-            include: [
-                { model: Contractor },
-                { model: ObjectDir },
-                { model: Unit },
-                { model: LegalEntity },
-                { model: ExtContractor },
-            ],
-            order: [['number', 'desc']],
+        
+        return requests.map(r => new RequestDto(r));
+    } catch (error) {
+        logger.log({
+            level: 'error',
+            message: `Error getting customer requests for tgUser: ${tgUserId}`,
+            error,
         });
+        throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Failed to get customer requests');
     }
-    return requests.map(r => new RequestDto(r));
 };
 
 const addCheck = async (requestId: string, file: string): Promise<void> => {
@@ -701,6 +730,14 @@ const copyRequest = async (requestId: string): Promise<void> => {
         number: 0,
     });
 };
+const getRequestsByObjects = async (tgUserId: string, filter: any): Promise<RequestDto[]> => {
+    logger.log({
+        level: 'info',
+        message: `Getting requests by objects for tgUser: ${tgUserId}`,
+    });
+    
+    return getCustomersRequests(tgUserId, filter);
+};
 
 export default {
     getAllRequests,
@@ -716,6 +753,7 @@ export default {
     deleteRequest,
     update,
     getCustomersRequests,
+    getRequestsByObjects,
     addCheck,
     bulkDeleteRequests,
     bulkSetStatus,

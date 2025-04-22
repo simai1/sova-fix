@@ -14,6 +14,7 @@ const {
     ExtContractor,
     Nomenclature,
     TechService,
+    TgUserObject,
 } = models;
 
 export default function () {
@@ -76,4 +77,12 @@ export default function () {
 
     ExtContractor.hasMany(TechService, { foreignKey: 'extContractorId' });
     TechService.belongsTo(ExtContractor, { foreignKey: 'extContractorId' });
+
+    // Setup TgUser to ObjectDir many-to-many relationship
+    TgUser.belongsToMany(ObjectDir, { through: TgUserObject, foreignKey: 'tgUserId', otherKey: 'objectId' });
+    ObjectDir.belongsToMany(TgUser, { through: TgUserObject, foreignKey: 'objectId', otherKey: 'tgUserId' });
+
+    // Важные ассоциации для правильной работы с объектами
+    TgUserObject.belongsTo(TgUser, { foreignKey: 'tgUserId', as: 'User' });
+    TgUserObject.belongsTo(ObjectDir, { foreignKey: 'objectId', as: 'Object' });
 }

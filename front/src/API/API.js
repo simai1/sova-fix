@@ -2,20 +2,19 @@ import axios from "axios";
 const http = axios.create({
   withCredentials: true,
 });
-const server = process.env.REACT_APP_API_URL;
-// const server = "http://localhost:3000";
 
-const REFRESH_INTERVAL = 500000; // 15 минут 900000
+const server = "http://localhost:3000";
+
+const REFRESH_INTERVAL = 500000;
 let refreshTokensTimeout;
 
-//!Рефреш токенов
 export const refreshTokens = async () => {
   try {
     const response = await http.get(`${server}/auth/refresh`);
     sessionStorage.removeItem("accessToken");
     sessionStorage.removeItem("refreshToken");
 
-    const { accessToken, refreshToken } = response.data; // Destructure the required data from the response
+    const { accessToken, refreshToken } = response.data;
 
     sessionStorage.setItem("accessToken", accessToken);
     sessionStorage.setItem("refreshToken", refreshToken);
@@ -26,7 +25,6 @@ export const refreshTokens = async () => {
   }
 };
 
-//!таймер рефреша
 const refreshTokensTimer = () => {
   clearTimeout(refreshTokensTimeout);
   if (sessionStorage.getItem("accessToken") === "null") {
@@ -58,7 +56,6 @@ window.addEventListener("unload", () => {
   clearTimeout(refreshTokensTimeout);
 });
 
-//! Запрос на авторизацию
 export const LoginFunc = async (UserData) => {
   try {
     const response = await http.post(`${server}/auth/login`, UserData);
@@ -77,7 +74,6 @@ export const LoginFunc = async (UserData) => {
   }
 };
 
-//! регистрация аккаунта
 export const Register = async (UserData) => {
   try {
     const response = await http.post(`${server}/auth/register`, UserData, {
@@ -90,13 +86,11 @@ export const Register = async (UserData) => {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
     } else {
-      console.log("Такой пользователь уже существует!");
       return false;
     }
   }
 };
 
-//! активация аккаунта
 export const ActivateFunc = async (UserData, idUser) => {
   try {
     const response = await http.post(
@@ -119,7 +113,6 @@ export const ActivateFunc = async (UserData, idUser) => {
 };
 
 export const LogOut = async () => {
-  console.log(sessionStorage.getItem("accessToken"));
   try {
     const response = await http.post(
       `${server}/auth/logout`,
@@ -141,7 +134,6 @@ export const LogOut = async () => {
   }
 };
 
-//!полуение всех заявок
 export const GetAllRequests = async (param) => {
   try {
     const response = await http.get(`${server}/requests${param}`, {
@@ -176,7 +168,6 @@ export const GetOneRequests = async (id) => {
   }
 };
 
-//!полуение всех Пользователей
 export const GetAllUsers = async () => {
   try {
     const response = await http.get(`${server}/users`, {
@@ -211,7 +202,7 @@ export const GetOneUsers = async (id) => {
   }
 };
 
-export const GetAllСontractors  = async () => {
+export const GetAllСontractors = async () => {
   try {
     const response = await http.get(`${server}/contractors`, {
       headers: {
@@ -228,7 +219,6 @@ export const GetAllСontractors  = async () => {
   }
 };
 
-//!изменение статуса заявки
 export const SetStatusRequest = async (data) => {
   try {
     const response = await http.patch(`${server}/requests/set/status`, data, {
@@ -246,7 +236,6 @@ export const SetStatusRequest = async (data) => {
   }
 };
 
-//!изменение contractor заявки
 export const SetcontractorRequest = async (data) => {
   try {
     const response = await http.patch(
@@ -268,7 +257,6 @@ export const SetcontractorRequest = async (data) => {
   }
 };
 
-//! удалить заявку
 export const DeleteRequest = async (id) => {
   try {
     const response = await http.delete(`${server}/requests/${id}/delete`, {
@@ -286,7 +274,6 @@ export const DeleteRequest = async (id) => {
   }
 };
 
-//! Получение карты пользователя
 export const GetContractorsItenerarity = async (id) => {
   try {
     const response = await http.get(`${server}/contractors/${id}/itinerary`, {
@@ -304,7 +291,6 @@ export const GetContractorsItenerarity = async (id) => {
   }
 };
 
-//! Изменение заявки
 export const ReseachDataRequest = async (id, data) => {
   try {
     const response = await http.patch(`${server}/requests/${id}/update`, data, {
@@ -322,7 +308,6 @@ export const ReseachDataRequest = async (id, data) => {
   }
 };
 
-//! удаление поьзователя
 export const DeleteUserFunc = async (id) => {
   try {
     const response = await http.delete(`${server}/users/${id}`, {
@@ -412,8 +397,6 @@ export const RejectActiveAccount = async (id) => {
   }
 };
 
-// legalEntities -------------------------------------------------------------------------------
-
 export const GetlegalEntitiesAll = async () => {
   try {
     const response = await http.get(`${server}/legalEntities`, {
@@ -498,8 +481,6 @@ export const EditLegalEntities = async (data, id) => {
     }
   }
 };
-
-// UNITS -------------------------------------------------------------------------------
 
 export const GetUnitsAll = async () => {
   try {
@@ -586,8 +567,6 @@ export const EditUnit = async (data, id) => {
   }
 };
 
-// objects -------------------------------------------------------------------------------
-
 export const GetObjectsAll = async () => {
   try {
     const response = await http.get(`${server}/objects`, {
@@ -671,8 +650,6 @@ export const EditObjects = async (data, id) => {
     }
   }
 };
-
-// extContractors -------------------------------------------------------------------------------
 
 export const GetextContractorsAll = async () => {
   try {
@@ -782,14 +759,11 @@ export const SetExtContractorsRequest = async (data) => {
 
 export const CreateCopyRequest = async (id) => {
   try {
-    const response = await http.post(
-      `${server}/requests/copy/${id}/`,
-      {
-        headers: {
-          Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
-        },
-      }
-    );
+    const response = await http.post(`${server}/requests/copy/${id}/`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
@@ -821,10 +795,6 @@ export const DeleteExtContractorsRequest = async (data) => {
   }
 };
 
-// Функции Массовых действий
-
-//!удаление заявок
-
 export const DeleteMoreRequest = async (data) => {
   try {
     const response = await http.post(`${server}/requests/delete/bulk`, data, {
@@ -842,7 +812,6 @@ export const DeleteMoreRequest = async (data) => {
   }
 };
 
-//!массовый статус
 export const EditMoreStatusRequest = async (data) => {
   try {
     const response = await http.patch(`${server}/requests/status/bulk`, data, {
@@ -860,7 +829,6 @@ export const EditMoreStatusRequest = async (data) => {
   }
 };
 
-//!массовый срочность
 export const EditMoreUrgencyRequest = async (data) => {
   try {
     const response = await http.patch(`${server}/requests/urgency/bulk`, data, {
@@ -878,7 +846,6 @@ export const EditMoreUrgencyRequest = async (data) => {
   }
 };
 
-//!массовый contractor
 export const EditMoreContractorRequest = async (data) => {
   try {
     const response = await http.patch(
@@ -907,7 +874,7 @@ export const setCommentPhotoApi = async (data) => {
       data,
       {
         headers: {
-          "Content-Type": "multipart/form-data", // Обязательно указывайте тип содержимого
+          "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
         },
       }
@@ -922,11 +889,6 @@ export const setCommentPhotoApi = async (data) => {
   }
 };
 
-
-// BlockTo  --------------------------------------------------------------------------------------------------/equipments
-
-
-//!Получение оборудования ВСЕГО
 export const GetAllEquipment = async () => {
   try {
     const response = await http.get(`${server}/equipments`, {
@@ -944,15 +906,13 @@ export const GetAllEquipment = async () => {
   }
 };
 
-//! Обновление оборудования
 export const UpdateEquipment = async (id, data) => {
-  console.log("data", data); // Для проверки структуры данных
+  console.log("data", data);
 
   try {
     const response = await http.patch(`${server}/equipments/${id}`, data, {
       headers: {
         Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
-        // Заголовок Content-Type НЕ указываем вручную — axios сделает это автоматически
       },
     });
 
@@ -961,40 +921,46 @@ export const UpdateEquipment = async (id, data) => {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
     } else {
-      console.error("Ошибка при обновлении оборудования!", error.response || error);
+      console.error(
+        "Ошибка при обновлении оборудования!",
+        error.response || error
+      );
     }
   }
 };
 
-//! Обновление фото оборудования
 export const UpdatePhotoEquipment = async (id, data) => {
-  console.log("data", data); // Для проверки структуры данных
+  console.log("data", data);
 
   try {
-    const response = await http.patch(`${server}/equipments/${id}/photo`, data, {
-      headers: {
-        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
-        // Заголовок Content-Type НЕ указываем вручную — axios сделает это автоматически
-      },
-    });
+    const response = await http.patch(
+      `${server}/equipments/${id}/photo`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+        },
+      }
+    );
 
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
     } else {
-      console.error("Ошибка при обновлении оборудования!", error.response || error);
+      console.error(
+        "Ошибка при обновлении оборудования!",
+        error.response || error
+      );
     }
   }
 };
 
-//! Проведение ОТ оборудования
 export const TOEquipment = async (id, data) => {
   try {
     const response = await http.post(`${server}/equipments/${id}/tech`, data, {
       headers: {
         Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
-        // Заголовок Content-Type НЕ указываем вручную — axios сделает это автоматически
       },
     });
 
@@ -1003,16 +969,14 @@ export const TOEquipment = async (id, data) => {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
     } else {
-      console.error("Ошибка при обновлении оборудования!", error.response || error);
+      console.error(
+        "Ошибка при обновлении оборудования!",
+        error.response || error
+      );
     }
   }
 };
 
-
-
-
-
-//!Получение оборудования ПО ID
 export const GetOneEquipment = async (id) => {
   try {
     const response = await http.get(`${server}/equipments/${id}`, {
@@ -1030,7 +994,6 @@ export const GetOneEquipment = async (id) => {
   }
 };
 
-//!Удаление оборудования
 export const DeleteEquipment = async (id) => {
   try {
     const response = await http.delete(`${server}/equipments/${id}`, {
@@ -1048,7 +1011,6 @@ export const DeleteEquipment = async (id) => {
   }
 };
 
-//!Создание оборудования
 export const CreateEquipment = async (data) => {
   try {
     const response = await http.post(`${server}/equipments`, data, {
@@ -1081,12 +1043,8 @@ export const GetQrEquipment = async (id) => {
       console.log("Ошибка при удалении номенклатуры!");
     }
   }
-}
+};
 
-
-// BlockTo  --------------------------------------------------------------------------------------------------/Categories
-
-//!Получение списка категорий
 export const GetAllCategories = async () => {
   try {
     const response = await http.get(`${server}/categories`, {
@@ -1104,7 +1062,6 @@ export const GetAllCategories = async () => {
   }
 };
 
-//!Получение одной категории
 export const GetOneCategories = async (id) => {
   try {
     const response = await http.get(`${server}/categories/${id}`, {
@@ -1122,7 +1079,6 @@ export const GetOneCategories = async (id) => {
   }
 };
 
-//!Создание категории
 export const CreateCategories = async (data) => {
   try {
     const response = await http.post(`${server}/categories`, data, {
@@ -1140,7 +1096,6 @@ export const CreateCategories = async (data) => {
   }
 };
 
-//!удалегиение категории
 export const DeleteCategories = async (id) => {
   try {
     const response = await http.delete(`${server}/categories/${id}`, {
@@ -1158,10 +1113,9 @@ export const DeleteCategories = async (id) => {
   }
 };
 
-//!Обновление категории
-export const UpdateCategories = async (id,data) => {
+export const UpdateCategories = async (id, data) => {
   try {
-    const response = await http.patch(`${server}/categories/${id}`,data, {
+    const response = await http.patch(`${server}/categories/${id}`, data, {
       headers: {
         Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
       },
@@ -1176,11 +1130,6 @@ export const UpdateCategories = async (id,data) => {
   }
 };
 
-// BlockTo  --------------------------------------------------------------------------------------------------/nomenclature
-
-
-
-//!Получение списка номенклатур
 export const GetAllNomenclatures = async () => {
   try {
     const response = await http.get(`${server}/nomenclatures`, {
@@ -1198,7 +1147,6 @@ export const GetAllNomenclatures = async () => {
   }
 };
 
-//!Создание номенклатуры
 export const CreateNomenclatures = async (data) => {
   try {
     const response = await http.post(`${server}/nomenclatures`, data, {
@@ -1216,8 +1164,6 @@ export const CreateNomenclatures = async (data) => {
   }
 };
 
-
-//!Получение одной номенклатуры
 export const GetOneNomenclatures = async (id) => {
   try {
     const response = await http.get(`${server}/nomenclatures/${id}`, {
@@ -1235,11 +1181,9 @@ export const GetOneNomenclatures = async (id) => {
   }
 };
 
-
-//!Обновление номенклатуры
-export const UpdateNomenclatures = async (id,data) => {
+export const UpdateNomenclatures = async (id, data) => {
   try {
-    const response = await http.patch(`${server}/nomenclatures/${id}`,data, {
+    const response = await http.patch(`${server}/nomenclatures/${id}`, data, {
       headers: {
         Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
       },
@@ -1254,7 +1198,6 @@ export const UpdateNomenclatures = async (id,data) => {
   }
 };
 
-//!Удаление номенклатуры
 export const DeleteNomenclaturesAPI = async (id) => {
   try {
     const response = await http.delete(`${server}/nomenclatures/${id}`, {
@@ -1270,4 +1213,103 @@ export const DeleteNomenclaturesAPI = async (id) => {
       console.log("Ошибка при удалении номенклатуры!");
     }
   }
-}
+};
+
+export const GetTgUserObjects = async (tgUserId) => {
+  try {
+    console.log('GetTgUserObjects - Token:', sessionStorage.getItem("accessToken"));
+    const response = await http.get(`${server}/tgUsers/${tgUserId}/objects`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    console.error('GetTgUserObjects error:', error.response || error);
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при получении объектов пользователя:", error.response?.data?.message || error.message);
+    }
+    throw error;
+  }
+};
+
+export const GetObjectTgUsers = async (objectId) => {
+  try {
+    const response = await http.get(
+      `${server}/tgUserObjects/object/${objectId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+        },
+      }
+    );
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при получении пользователей объекта!");
+    }
+  }
+};
+
+export const CreateTgUserObject = async (tgUserId, objectId) => {
+  try {
+    console.log('CreateTgUserObject - Token:', sessionStorage.getItem("accessToken"));
+    console.log('CreateTgUserObject - Params:', { tgUserId, objectId });
+    const response = await http.post(`${server}/tgUsers/${tgUserId}/objects`, 
+      { objectId },
+      {
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+        },
+      });
+    return response;
+  } catch (error) {
+    console.error('CreateTgUserObject error:', error.response || error);
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при создании связи пользователя с объектом:", error.response?.data?.message || error.message);
+    }
+    throw error;
+  }
+};
+
+export const DeleteTgUserObject = async (tgUserId, objectId) => {
+  try {
+    const response = await http.delete(`${server}/tgUsers/${tgUserId}/objects/${objectId}`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    console.error('DeleteTgUserObject error:', error.response || error);
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при удалении связи пользователя с объектом:", error.response?.data?.message || error.message);
+    }
+    throw error;
+  }
+};
+
+export const GetAllTgUsers = async () => {
+  try {
+    const response = await http.get(`${server}/tgUsers`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при получении списка Telegram пользователей!");
+    }
+  }
+};

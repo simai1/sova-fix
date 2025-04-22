@@ -167,9 +167,6 @@
       min-width: 41px!important;
       z-index: 50;
       background-color: #f7f7f7;
-      @media (max-width: 800px) {
-        left: auto;
-      }
     }
     .MainTd[name="unit"] {
       position: sticky;
@@ -179,9 +176,6 @@
       max-width: 125px;
       z-index: 50;
       background-color: #f7f7f7;
-      @media (max-width: 800px) {
-        left: auto;
-      }
     }
     .MainTd[name="contractor"] {
       position: sticky;
@@ -192,9 +186,6 @@
       z-index: 50;
       background-color: #f7f7f7;
       box-shadow: 5px 0 5px #e3dfda75;
-      @media (max-width: 800px) {
-        left: auto;
-      }
     }
     .MainTd[name="object"] {
       position: sticky;
@@ -204,9 +195,6 @@
       max-width: 120px;
       z-index: 49;
       background-color: #f7f7f7;
-      @media (max-width: 800px) {
-        left: auto;
-      }
     }
     td[name="tgId"] {
       text-align: center !important;
@@ -214,32 +202,19 @@
     .MainTd[name="checkAll"] {
       position: sticky;
       left: 0px;
-      width: 41px !important;
+
+      width: 41px;
       z-index: 50;
       background-color: #f7f7f7;
-      @media (max-width: 800px) {
-        left: auto;
-      }
-
-      input {
-        width: 20px !important;
-      }
     }
 
     .MainTh[name="checkAll"] {
       position: sticky;
       left: 0px;
       top: 0;
-      width: 41px !important;
+      width: 41px;
       z-index: 100;
       background-color: #b7ab9e;
-      @media (max-width: 800px) {
-        left: auto;
-      }
-
-      input {
-        width: 20px !important;
-      }
     }
     .MainTh[name="unit"] {
       position: sticky;
@@ -253,9 +228,6 @@
       &:hover {
         background-color: var(--Active-gray-color);
       }
-      @media (max-width: 800px) {
-        left: auto;
-      }
     }
     .MainTh[name="number"] {
       position: sticky;
@@ -266,9 +238,6 @@
       background-color: #b7ab9e;
       &:hover {
         cursor: default;
-      }
-      @media (max-width: 800px) {
-        left: auto;
       }
     }
     .MainTh[name="contractor"] {
@@ -284,9 +253,6 @@
       &:hover {
         background-color: var(--Active-gray-color);
       }
-      @media (max-width: 800px) {
-        left: auto;
-      }
     }
     .MainTh[name="object"] {
       position: sticky;
@@ -299,10 +265,6 @@
       background-color: #b7ab9e;
       &:hover {
         background-color: var(--Active-gray-color);
-      }
-
-      @media (max-width: 800px) {
-        left: auto;
       }
     }
 
@@ -371,7 +333,7 @@
   font-size: 24px;
   padding: 50px 0px;
   position: relative;
-  // left: -50px;
+  left: -50px;
 }
 
 input[type="checkbox"] {
@@ -406,9 +368,6 @@ input[type="checkbox"]:checked:before {
   left: 45%;
   top: 60%;
   font-size: 22px;
-  @media (max-width: 800px) {
-    top: auto
-  }
 }
 .fileVideoTable video{
   width: 150px;

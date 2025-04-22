@@ -17,12 +17,6 @@
     left: 0; /* Меню выезжает */
 }
 
-@media (max-height: 370px) {
-    .menu.open {
-        overflow-y: scroll;
-    }
-}
-
 .menu ul {
     list-style: none;
     padding: 0;

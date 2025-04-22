@@ -36,8 +36,7 @@ body {
   background-color: #e3dfda;
   /* padding: 16px 64px; */
   @media (max-width: 870px) {
-	overflow-y: scroll;
-	overflow-x: hidden;
+	overflow: hidden;
 	}
 }
 * {
