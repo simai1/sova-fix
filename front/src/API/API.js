@@ -2,6 +2,7 @@ import axios from "axios";
 const http = axios.create({
   withCredentials: true,
 });
+
 const server = process.env.REACT_APP_API_URL;
 // const server = "http://localhost:3000";
 
