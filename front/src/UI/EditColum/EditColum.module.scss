@@ -26,6 +26,9 @@
         z-index: 1000;
         height: calc(100vh - 325px);
         overflow-y: auto;
+        @media (max-width: 800px) {
+            top: 54px
+        }
         ul{
             list-style: none;
             position: relative;

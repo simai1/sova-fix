@@ -19,16 +19,16 @@ import {
 } from "../../function/function";
 import { tableList } from "../Table/Data";
 import { useNavigate } from "react-router-dom";
-import {
-  dropFilters,
-  resetFilters,
-} from "../../store/samplePoints/samplePoits";
-import Switch from "@mui/material/Switch";
+import { dropFilters, resetFilters, setChecked, setFilters } from "../../store/samplePoints/samplePoits";
+import Switch from '@mui/material/Switch';
+
+
 
 function FunctionTableTop(props) {
   const defaultValue = "Заявки";
   const { context } = React.useContext(DataContext);
   const [dataTable, setDataTable] = useState([]);
+  const applicationStatuses = ['В работе', "Выполнена", "Новая заявка"]
   //!удаление заявки
   const deleteRequestFunc = () => {
     if (context.moreSelect.length === 1) {
@@ -105,9 +105,30 @@ function FunctionTableTop(props) {
   //   context.setDataTableHomePage(funFixEducator(updatedDataTable));
   // };
 
-  const handleChange = (event) => {
-    context.setEnabledTo(event.target.checked);
-  };
+const handleChange = (event) => {
+  context.setEnabledTo(event.target.checked);
+};
+
+// Фильтр по кнопкам с количеством заявок по статусу 
+const filterTableApplication = async (status) => {
+  const filterStatuses = applicationStatuses.filter(st => st !== status);
+
+  dispatch(setFilters({
+    tableName: 'table9',
+    filter: status,
+    key: 'status'
+  }));
+
+  const checkedValues = filterStatuses.map(stat => ({
+    itemKey: "status",
+    value: stat
+  }));
+
+  dispatch(setChecked({
+    tableName: 'table9',
+    checked: checkedValues
+  }));
+};
   return (
     <>
       <div className={styles.FunctionTableTop}>
@@ -208,34 +229,21 @@ function FunctionTableTop(props) {
             <></>
           )}
         </div>
-        {context.selectedTable === "Заявки" &&
-          context.selectPage === "Main" && (
-            <div className={styles.countInfoContainer}>
-              <div className={styles.countInfo}>
-                <CountInfoBlock
-                  dataCount={filterRequestsWithoutCopiedId(dataTable)}
-                  keys="status"
-                  value="Новая заявка"
-                  color="#d69a81"
-                  name="Новых"
-                />
-                <CountInfoBlock
-                  dataCount={filterRequestsWithoutCopiedId(dataTable)}
-                  keys="status"
-                  value="В работе"
-                  color="#ffe78f"
-                  name="В работе"
-                />
-                <CountInfoBlock
-                  dataCount={filterRequestsWithoutCopiedId(dataTable)}
-                  keys="status"
-                  value="Выполнена"
-                  color="#C5E384"
-                  name="Выполнены"
-                />
-              </div>
-              <div className={styles.countSwitch}>
-                <div className={styles.Switch}>
+        { context.selectedTable === "Заявки" && context.selectPage === "Main" &&
+        <div className={styles.countInfoContainer}>
+          <div className={styles.countInfo}>
+              <button className={styles.countInfoButton} onClick={() => filterTableApplication("Новая заявка")}>
+                <CountInfoBlock dataCount={filterRequestsWithoutCopiedId(dataTable)} keys="status" value="Новая заявка" color="#d69a81" name="Новых"/>
+              </button>
+              <button className={styles.countInfoButton} onClick={() => filterTableApplication("В работе")}>
+                <CountInfoBlock dataCount={filterRequestsWithoutCopiedId(dataTable)} keys="status" value="В работе" color="#ffe78f" name="В работе"/>
+              </button>
+              <button className={styles.countInfoButton} onClick={() => filterTableApplication("Выполнена")}>
+                <CountInfoBlock dataCount={filterRequestsWithoutCopiedId(dataTable)} keys="status" value="Выполнена" color="#C5E384" name="Выполнены"/>
+              </button>
+            </div>
+            <div className={styles.countSwitch}>
+              <div className={styles.Switch}>
                   <button className={styles.switchOne}>
                     <p
                       className={styles.active}
