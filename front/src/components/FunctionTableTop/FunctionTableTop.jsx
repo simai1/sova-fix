@@ -258,7 +258,7 @@ const filterTableApplication = async (status) => {
                 </div>
               </div>
             </div>
-          )}
+          }
       </div>
     </>
   );
