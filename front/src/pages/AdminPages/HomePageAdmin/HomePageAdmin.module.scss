@@ -43,8 +43,9 @@
 .PhoneData{
   display: none;
   @media (max-width: 870px) {
-    display: block;
-    margin-top: 40px;
+    // display: block;
+    // margin-top: 40px;
+    display: none;
    }
 }
 .Table {
