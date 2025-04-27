@@ -37,5 +37,6 @@ router
     .get(equipmentController.getOne)
     .delete(equipmentController.destroy)
     .patch(equipmentController.update);
+router.route('/:equipmentId/copy').post(equipmentController.copyEquipments)
 
 export default router;

@@ -24,6 +24,7 @@ export default class EquipmentDto {
     contractor?: string;
     extContractor?: string;
     history?: object;
+    copiedEquipmentId?: string;
 
     constructor(model: Equipment) {
         this.id = model.id;
@@ -50,5 +51,6 @@ export default class EquipmentDto {
             ? // @ts-expect-error operands
               model.TechServices.map(ts => new TechServiceDto(ts)).sort((a, b) => new Date(b.date) - new Date(a.date))
             : undefined;
+        this.copiedEquipmentId = model.copiedEquipmentId
     }
 }

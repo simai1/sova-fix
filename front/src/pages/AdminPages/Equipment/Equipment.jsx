@@ -17,6 +17,7 @@ import PopUpNewEquipment from "../../../components/PopUp/Equipment/PopUpNewEquip
 import PopUpDeleteEquipment from "../../../components/PopUp/Equipment/PopUpDeleteEquipment/PopUpDeleteEquipment";
 import PopUpEditEquipment from "../../../components/PopUp/Equipment/PopUpEditEquipment/PopUpEditEquipment";
 import PopUpToGraphic from "../../../components/PopUp/PopUpToGraphic/PopUpToGraphic";
+import PopUpToCopy from "../../../components/PopUp/PopUpToCopy/PopUpToCopy";
 
 function Equipment() {
 
@@ -42,6 +43,7 @@ function Equipment() {
             {context.popUp === "PopUpDeleteCategory" && <PopUpDeleteCategory />}
             {context.popUp === "PopUpEditEquipment" && <PopUpEditEquipment />}
             {context.popUp === "PopUpToGraphic" && <PopUpToGraphic />}
+            {context.popUp === "PopUpToCopy" && <PopUpToCopy />}
         </div>
      );
 }

@@ -531,30 +531,30 @@ function Table() {
     switch (key) {
       case "id":
         return index + 1;
-      case "status":
-        return (
-          <div
+        case "status":
+          return (
+            <div
             onClick={() => funSetStatus(row.id)}
             className={styles.statusClick}
             style={{ backgroundColor: getStatusColor(value) }}
             ref={statusPopRef}
             key={key + row.id}
-          >
+            >
             {value}
             {shovStatusPop === row.id && (
               <div
-                className={styles.shovStatusPop}
-                style={
-                  checkHeights(context?.dataTableHomePage, index)
-                    ? { top: "-70%", width: "250px" }
-                    : { width: "250px" }
-                }
+              className={styles.shovStatusPop}
+              style={
+                checkHeights(context?.dataTableHomePage, index)
+                ? { top: "-70%", width: "250px" }
+                : { width: "250px" }
+              }
               >
                 <ul>
                   {Object.values(status).map((statusValue, statusIndex) => (
                     <li
-                      onClick={() => editStatus(statusIndex + 1, row.id)}
-                      key={statusIndex}
+                    onClick={() => editStatus(statusIndex + 1, row.id)}
+                    key={statusIndex}
                     >
                       {statusValue}
                     </li>
@@ -564,33 +564,33 @@ function Table() {
             )}
           </div>
         );
-      case "number":
-        return (
-          <div key={key + row.id}>
+        case "number":
+          return (
+            <div key={key + row.id}>
             {row?.copiedRequestId !== null ? `(${value})` : value}
           </div>
         );
-      case "contractor": 
-              return (
-                <div
-                onClick={() => funSetBulder(row.id)}
-                className={styles.statusClick}
-                ref={builderPopRef}
-                key={key + row.id}
-              >
+        case "contractor": 
+        return (
+          <div
+          onClick={() => funSetBulder(row.id)}
+          className={styles.statusClick}
+          ref={builderPopRef}
+          key={key + row.id}
+          >
                 {getContractorItem(row)}
                 {shovBulderPop === row.id && (
                   <div
-                    className={styles.shovStatusPop}
-                    style={
-                      checkHeights(context?.dataTableHomePage, index)
-                        ? { top: "-70%", width: "200%" }
-                        : {
-                            width: "200%",
-                            right: "-365px",
-                            top: "40px",
-                          }
+                  className={styles.shovStatusPop}
+                  style={
+                    checkHeights(context?.dataTableHomePage, index)
+                    ? { top: "-70%", width: "200%" }
+                    : {
+                      width: "200%",
+                      right: "-365px",
+                      top: "40px",
                     }
+                  }
                   >
                     <ul>
                       {value !== "___" && (
@@ -613,24 +613,24 @@ function Table() {
                 )}
               </div>
               );
-      case "builder":
-        return (
-          row.isExternal ? (
-            <div
-              onClick={() => funSetExp(row.id)}
-              className={styles.statusClick}
-              ref={extPopRef}
-              key={key + row.id}
-            >
+              case "builder":
+                return (
+                  row.isExternal ? (
+                    <div
+                    onClick={() => funSetExp(row.id)}
+                    className={styles.statusClick}
+                    ref={extPopRef}
+                    key={key + row.id}
+                    >
               {getItemBuilder(row)}
               {shovExtPop === row.id && (
                 <div
-                  className={styles.shovStatusPop}
-                  style={
-                    checkHeights(context?.dataTableHomePage, index)
-                      ? { top: "-70%", width: "200%" }
-                      : { width: "200%" }
-                  }
+                className={styles.shovStatusPop}
+                style={
+                  checkHeights(context?.dataTableHomePage, index)
+                  ? { top: "-70%", width: "200%" }
+                  : { width: "200%" }
+                }
                 >
                   <ul>
                     {value && value !== "___" && value !== "Внешний подрядчик" && (
@@ -651,9 +651,9 @@ function Table() {
             value || "___"
           )
         );
-      case "urgency":
-        return (
-          <div
+        case "urgency":
+          return (
+            <div
             onClick={() => funSetUrgency(row.id)}
             className={ styles.statusClick }
             style={{

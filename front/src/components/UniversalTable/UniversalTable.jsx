@@ -9,6 +9,7 @@ import { resetFilters } from "../../store/samplePoints/samplePoits";
 import ClearImg from "./../../assets/images/ClearFilter.svg";
 import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import EquipmentContextMenu from "../../UI/EquipmentContextMenu/EquipmentContextMenu";
 
 function UniversalTable(props) {
   const store = useSelector(
@@ -23,7 +24,11 @@ function UniversalTable(props) {
   const [sampleShow, setSampleShow] = useState(null);
   const [basickData, setBasickData] = useState([]);
   const [dropdownVisible, setDropdownVisible] = useState(null);
+  const [contextMenuOpen, setContextMenuOpen] = useState(false)
+  const [coordinatesX, setCoordinatesX] = useState(0);
+  const [coordinatesY, setCoordinatesY] = useState(0);
   const dropdownRef = useRef(null);
+  const contextCopyMenuRef = useRef(null)
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -314,6 +319,43 @@ function UniversalTable(props) {
     }
 }
 
+  const contextmenuClick = (event) => {
+    event.preventDefault(); // Prevent the default context menu from appearing
+    const x = event.clientX; // Get the X coordinate
+    const y = event.clientY; // Get the Y coordinate
+    setCoordinatesX(x);
+    setCoordinatesY(y);
+  };
+
+  const trClickRight = (row, target) => {
+    if (
+      target.className !== "Table_statusClick__QSptV" &&
+      target.tagName !== "LI" &&
+      !(context.selectRowDirectory === row.id) &&
+      JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER"
+    ) {
+        context.setSelectRowDirectory(row.id);
+        context.setSelectedTr(row.id);
+    }
+    if(JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER"){
+      setContextMenuOpen(true);
+    }
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (contextCopyMenuRef.current && !contextCopyMenuRef.current.contains(event.target)) {
+        setContextMenuOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
   return (
     <div
       className={styles.UniversalTable}
@@ -395,7 +437,12 @@ function UniversalTable(props) {
           {tableBodyData?.map((row, rowIndex) => (
             <tr
               key={rowIndex}
+              style={{backgroundColor: row?.copiedRequestId !== null ? "#ffe78f" : ""}}
               onClick={() => props?.selectFlag && clickTr(row)}
+              onContextMenu={(e) => {
+                trClickRight(row, e.target);
+                contextmenuClick(e)
+              }}
             >
               {tableHeaderData.map((header) => (
                 <td
@@ -409,7 +456,7 @@ function UniversalTable(props) {
                           backgroundColor: "#D8CDC1FF",
                           textAlign: textAlign(header.key, row[header.key]),
                         }
-                      : { textAlign: textAlign(header.key, row[header.key])}
+                      : { textAlign: textAlign(header.key, row[header.key]), backgroundColor: row?.copiedEquipmentId !== null ? "#ffe78f" : ""}
                   }
                 >
         {header.key !== "role" ? (
@@ -520,6 +567,20 @@ function UniversalTable(props) {
       )}
     </div>
   )}
+    
+    {contextMenuOpen ? (
+      <div
+        ref={contextCopyMenuRef}
+        style={{ display: contextMenuOpen ? "block" : "none" }}
+      >
+        <EquipmentContextMenu
+            X={coordinatesX}
+            Y={coordinatesY}
+            setContextMenuOpen={setContextMenuOpen}
+        />
+      </div>
+    ) : null}
+
     </div>
   );
 }

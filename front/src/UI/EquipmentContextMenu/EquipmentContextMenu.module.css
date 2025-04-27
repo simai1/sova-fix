@@ -1,0 +1,15 @@
+.EquipmentContextMenu {
+    position: absolute;
+    z-index: 1000;
+    padding: 15px;
+
+    border-radius: 8px;
+    background-color: var(--white-color);
+
+    button {
+        outline: none;
+        border: none;
+        background: none;
+        cursor: pointer;
+    }
+}

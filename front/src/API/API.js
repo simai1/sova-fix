@@ -775,6 +775,24 @@ export const CreateCopyRequest = async (id) => {
   }
 };
 
+export const CreateCopyToEquipments = async (id, quantity) => {
+  try {
+    const response = await http.post(`${server}/equipments/${id}/copy/`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+      quantity
+    })
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при копировании ТО");
+    }
+  }
+}
+
 export const DeleteExtContractorsRequest = async (data) => {
   try {
     const response = await http.patch(

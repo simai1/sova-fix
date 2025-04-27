@@ -29,6 +29,7 @@ export default class Equipment extends Model {
     ExtContractor?: ExtContractor;
     extContractorId?: string;
     TechServices?: TechService[];
+    copiedEquipmentId?: string;
 
     static initialize(sequelize: Sequelize) {
         Equipment.init(
@@ -84,6 +85,10 @@ export default class Equipment extends Model {
                     type: DataTypes.STRING,
                     allowNull: true,
                 },
+                copiedEquipmentId: {
+                    type: DataTypes.UUID,
+                    allowNull: true,
+                },                
             },
             {
                 sequelize,

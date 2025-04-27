@@ -126,6 +126,18 @@ const getQr = catchAsync(async (req, res) => {
     res.json(qr);
 });
 
+const copyEquipments = catchAsync(async (req, res) => {
+    const { equipmentId } = req.params;
+    const { quantity } = req.body;
+
+    if (!equipmentId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing equipment');
+    if (!quantity || quantity <= 0) throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid quantity');
+    
+    await equipmentService.copyEquipments(equipmentId, quantity)
+
+    return res.json({status: 'ok'})
+})
+
 export default {
     create,
     getAll,
@@ -135,4 +147,5 @@ export default {
     update,
     techServiceDo,
     getQr,
+    copyEquipments,
 };

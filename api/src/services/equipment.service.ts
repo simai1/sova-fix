@@ -228,6 +228,33 @@ const getOrGenerateQrCode = async (equipmentId: string) => {
     }
 };
 
+const copyEquipments = async (equipmentId: string, quantity: number): Promise<void> => {
+    const equipment = await Equipment.findByPk(equipmentId);
+    if (!equipment) throw new ApiError(httpStatus.BAD_REQUEST, 'No equipment with id ' + equipmentId);
+
+    for (let i = 0; i < quantity; i++) { // <-- делаем N копий
+        await Equipment.create({
+            supportFrequency: equipment.supportFrequency,
+            lastTO: equipment.lastTO,
+            nextTO: equipment.nextTO,
+            defaultCost: equipment.defaultCost,
+            photo: equipment.photo,
+            qr: equipment.qr,
+            count: equipment.count,
+            cost: equipment.cost,
+            comment: equipment.comment,
+            objectId: equipment.objectId,
+            unitId: equipment.unitId,
+            contractorId: equipment.contractorId,
+            extContractorId: equipment.extContractorId,
+            nomenclatureId: equipment.nomenclatureId,
+            copiedEquipmentId: equipment.id, 
+            number: equipment.id
+        });
+    }
+    return;
+};
+
 export default {
     create,
     getAll,
@@ -236,4 +263,5 @@ export default {
     update,
     techServiceDo,
     getOrGenerateQrCode,
+    copyEquipments,
 };
