@@ -440,8 +440,10 @@ function UniversalTable(props) {
               style={{backgroundColor: row?.copiedRequestId !== null ? "#ffe78f" : ""}}
               onClick={() => props?.selectFlag && clickTr(row)}
               onContextMenu={(e) => {
-                trClickRight(row, e.target);
-                contextmenuClick(e)
+                if (props.tableName === 'table11') {
+                  trClickRight(row, e.target);
+                  contextmenuClick(e)
+                }
               }}
             >
               {tableHeaderData.map((header) => (
@@ -456,7 +458,10 @@ function UniversalTable(props) {
                           backgroundColor: "#D8CDC1FF",
                           textAlign: textAlign(header.key, row[header.key]),
                         }
-                      : { textAlign: textAlign(header.key, row[header.key]), backgroundColor: row?.copiedEquipmentId !== null ? "#ffe78f" : ""}
+                      : { 
+                        textAlign: textAlign(header.key, row[header.key]),
+                        backgroundColor: row?.copiedEquipmentId !== null && props.tableName === 'table11' ? "#ffe78f" : ""
+                      }
                   }
                 >
         {header.key !== "role" ? (
