@@ -26,6 +26,7 @@ import GraphicEquipment from "./modules/GraphicEquipment/GraphicEquipment";
 import EquipmentInfo from "./modules/EquipmentInfo/EquipmentInfo";
 import PageCardContractors from "./pages/AdminPages/PageCardContractors/PageCardContractors";
 import TgUserObjects from "./pages/AdminPages/Directory/TgUserObjects";
+import DirectoryStatuses from "./modules/DirectoryStatuses/DirectoryStatuses";
 
 function App() {
   const [selectContructor, setSelectContractor] = useState("")
@@ -353,6 +354,7 @@ const UpdateForse = () =>{
               <Route path="ThePerformersDirectory" element={<ThePerformersDirectory />}></Route>
               <Route path="UsersDirectory" element={<UsersDirectory />}></Route>
               <Route path="TgUserObjects" element={<TgUserObjects />}></Route>
+              <Route path="Statuses" element={<DirectoryStatuses />}></Route>
             </Route>
 
             <Route path="/CardPage/*" element={<CardPage />}>
