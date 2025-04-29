@@ -460,7 +460,6 @@ function UniversalTable(props) {
                         }
                       : { 
                         textAlign: textAlign(header.key, row[header.key]),
-                        backgroundColor: row?.copiedEquipmentId !== null && props.tableName === 'table11' ? "#ffe78f" : ""
                       }
                   }
                 >
