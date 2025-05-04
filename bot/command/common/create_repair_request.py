@@ -6,7 +6,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery, FSInputFile
 
 import config as cf
-from common.keyboard import to_start_kb
+from common.keyboard import to_start_kb, skip_kb
 from data import data_loader
 from data.const import urgencies_ru_locale_dict, MAX_VIDEO_SIZE_BYTES, MAX_VIDEO_SIZE_MB
 from handler import pagination
@@ -28,6 +28,7 @@ class FSMRepairRequest(StatesGroup):
     legal_entity_input = State()
     photo_input = State()
     add_photo_input = State()
+    multiple_photos_input = State()
 
 
 @router.message(Command('create_repair_request'))
@@ -51,18 +52,52 @@ async def create_repair_request(user_id: int, message: Message, state: FSMContex
         return
 
     # анкета
-    await ask_unit(message, state)
+    await ask_unit(message, state, user_id)
 
 
-async def ask_unit(message: Message, state: FSMContext) -> None:
+async def ask_unit(message: Message, state: FSMContext, user_id: int) -> None:
     await state.clear()
-    await state.set_state(FSMRepairRequest.unit_input)
-
-    units_data = await data_loader.get_units_data()
-    names = await pagination.set_pages_data(units_data, state)
-    kb = pagination.make_kb(0, names, prefix='unit')
-
-    await message.answer("Выберите подразделение", reply_markup=kb)
+    
+    tg_user_id = await crm.get_tg_user_id(user_id)
+    
+    if not tg_user_id:
+        await message.answer("Не удалось найти вашу учетную запись. Пожалуйста, свяжитесь с поддержкой.", reply_markup=to_start_kb())
+        return
+    
+    units_with_objects = await data_loader.get_user_objects_by_units(tg_user_id)
+    
+    if not units_with_objects:
+        await message.answer("У вас нет доступа к объектам. Обратитесь к менеджеру для получения доступа.", reply_markup=to_start_kb())
+        return
+    
+    if len(units_with_objects) == 1:
+        unit_id = list(units_with_objects.keys())[0]
+        objects_data = units_with_objects[unit_id]
+        
+        await state.update_data(unit=unit_id)
+        
+        if not objects_data:
+            await message.answer("У вас нет доступа к объектам в этом подразделении. Обратитесь к менеджеру для получения доступа.", reply_markup=to_start_kb())
+            return
+        
+        names = await pagination.set_pages_data(objects_data, state)
+        kb = pagination.make_kb(0, names, prefix='object')
+        await state.set_state(FSMRepairRequest.object_input)
+        await message.answer("Выберите объект", reply_markup=kb)
+    else:
+        await state.set_state(FSMRepairRequest.unit_input)
+        
+        units_data = await data_loader.get_units_data()
+        filtered_units_data = {k: v for k, v in units_data.items() if v in units_with_objects}
+        
+        if not filtered_units_data:
+            await message.answer("Ошибка при получении списка подразделений. Обратитесь в техническую поддержку.", reply_markup=to_start_kb())
+            return
+        
+        names = await pagination.set_pages_data(filtered_units_data, state)
+        kb = pagination.make_kb(0, names, prefix='unit')
+        
+        await message.answer("Выберите подразделение", reply_markup=kb)
 
 
 @router.callback_query(FSMRepairRequest.unit_input, F.data.startswith('unit'))
@@ -75,17 +110,31 @@ async def ask_object(query: CallbackQuery, state: FSMContext) -> None:
     
     # Get TgUser ID from the user's Telegram ID
     tg_user_id = await crm.get_tg_user_id(user_id)
+    if not tg_user_id:
+        await query.message.answer("Не удалось найти вашу учетную запись. Пожалуйста, свяжитесь с поддержкой.", reply_markup=to_start_kb())
+        await query.answer()
+        await query.message.edit_reply_markup(reply_markup=None)
+        await state.clear()
+        return
     
-    # Get objects filtered by user access
-    objects_data = await data_loader.get_objects_data(unit_id, tg_user_id)
     
-    # Проверка, есть ли у пользователя доступные объекты
+    units_with_objects = await data_loader.get_user_objects_by_units(tg_user_id)
+    if unit_id not in units_with_objects:
+        await query.message.answer("У вас нет доступа к объектам в этом подразделении. Обратитесь к менеджеру для получения доступа.", reply_markup=to_start_kb())
+        await query.answer()
+        await query.message.edit_reply_markup(reply_markup=None)
+        await state.clear()
+        return
+    
+    objects_data = units_with_objects[unit_id]
+    
     if not objects_data:
         await query.message.answer("У вас нет доступа к объектам в этом подразделении. Обратитесь к менеджеру для получения доступа.", reply_markup=to_start_kb())
         await query.answer()
         await query.message.edit_reply_markup(reply_markup=None)
         await state.clear()
         return
+    
     
     names = await pagination.set_pages_data(objects_data, state)
     kb = pagination.make_kb(0, names, prefix='object')
@@ -115,26 +164,35 @@ async def ask_photo(message: Message, state: FSMContext) -> None:
         return
 
     await state.update_data(problem_description=text)
+    await state.update_data(photos=[])
 
     await state.set_state(FSMRepairRequest.photo_input)
-    await message.answer('Пришлите фото или видео 📸')
+    await message.answer('Пришлите фото или видео 📸', reply_markup=skip_kb())
+
+
+@router.callback_query(FSMRepairRequest.photo_input, F.data == "skip")
+async def skip_photo_handler(query: CallbackQuery, state: FSMContext) -> None:
+    await ask_urgency(query.message, state)
+    await query.answer()
+    await query.message.edit_reply_markup(reply_markup=None)
 
 
 @router.message(FSMRepairRequest.photo_input)
 async def check_photo(message: Message, state: FSMContext) -> None:
     match message.content_type:
         case ContentType.TEXT:
-            await message.answer("Пришлите фото или видео 📸")
+            await message.answer("Пришлите фото или видео 📸", reply_markup=skip_kb())
             return
 
         case ContentType.VIDEO:
             file = message.video
 
             if file.file_size > MAX_VIDEO_SIZE_BYTES:
-                await message.answer(f"Файл слишком большой (больше {MAX_VIDEO_SIZE_MB}Мб)\nПопробуйте другой")
+                await message.answer(f"Файл слишком большой (больше {MAX_VIDEO_SIZE_MB}Мб)\nПопробуйте другой", reply_markup=skip_kb())
                 return
 
             await state.update_data({"file_id": file.file_id, "file_content_type": ContentType.VIDEO})
+            await ask_urgency(message, state)
 
         case ContentType.PHOTO:
             index = -1
@@ -144,16 +202,50 @@ async def check_photo(message: Message, state: FSMContext) -> None:
                 file = message.photo[index]
 
             if file.file_size > MAX_VIDEO_SIZE_BYTES:
-                await message.answer(f"Файл слишком большой (больше {MAX_VIDEO_SIZE_MB}Мб)\nПопробуйте другой")
+                await message.answer(f"Файл слишком большой (больше {MAX_VIDEO_SIZE_MB}Мб)\nПопробуйте другой", reply_markup=skip_kb())
                 return
 
-            await state.update_data({"file_id": file.file_id, "file_content_type": ContentType.PHOTO})
+            data = await state.get_data()
+            photos = data.get('photos', [])
+            photos.append({"file_id": file.file_id, "content_type": ContentType.PHOTO})
+            await state.update_data({"photos": photos, "file_id": file.file_id, "file_content_type": ContentType.PHOTO})
+            
+            await state.set_state(FSMRepairRequest.multiple_photos_input)
+            await message.answer("Фото добавлено. Хотите добавить ещё фото?", reply_markup=skip_kb())
 
         case _:
-            await message.answer('Что-то не так, попробуйте ещё раз 🔄️')
+            await message.answer('Что-то не так, попробуйте ещё раз 🔄️', reply_markup=skip_kb())
             return
 
-    await ask_urgency(message, state)
+
+@router.callback_query(FSMRepairRequest.multiple_photos_input, F.data == "skip")
+async def finish_adding_photos(query: CallbackQuery, state: FSMContext) -> None:
+    await ask_urgency(query.message, state)
+    await query.answer()
+    await query.message.edit_reply_markup(reply_markup=None)
+
+
+@router.message(FSMRepairRequest.multiple_photos_input)
+async def add_more_photos(message: Message, state: FSMContext) -> None:
+    if message.content_type == ContentType.PHOTO:
+        index = -1
+        file = message.photo[index]
+        while file.file_size > MAX_VIDEO_SIZE_BYTES and -index <= len(message.photo):
+            index -= 1
+            file = message.photo[index]
+
+        if file.file_size > MAX_VIDEO_SIZE_BYTES:
+            await message.answer(f"Файл слишком большой (больше {MAX_VIDEO_SIZE_MB}Мб)\nПопробуйте другой", reply_markup=skip_kb())
+            return
+
+        data = await state.get_data()
+        photos = data.get('photos', [])
+        photos.append({"file_id": file.file_id, "content_type": ContentType.PHOTO})
+        await state.update_data({"photos": photos, "file_id": file.file_id, "file_content_type": ContentType.PHOTO})
+        
+        await message.answer("Фото добавлено. Хотите добавить ещё фото?", reply_markup=skip_kb())
+    else:
+        await message.answer("Пришлите фото или нажмите 'Пропустить', чтобы продолжить", reply_markup=skip_kb())
 
 
 async def ask_urgency(message: Message, state: FSMContext) -> None:
@@ -178,17 +270,6 @@ async def create_request(query: CallbackQuery, state: FSMContext) -> None:
     await pagination.remove_page_list(state)
 
     data = await state.get_data()
-
-    file_id = data['file_id']
-    file_content_type = data['file_content_type']
-
-    file = await query.bot.download(file_id)
-
-    if file is None:
-        await query.message.answer('Ошибка при загрузке файла')
-        await query.answer()
-        return
-
     user_id = query.from_user.id
     tg_user_id = await crm.get_tg_user_id(user_id)
 
@@ -196,14 +277,52 @@ async def create_request(query: CallbackQuery, state: FSMContext) -> None:
         await query.message.answer('Что-то пошло не так :(')
         return
 
-    rr = await crm.create_repair_request(
-        tg_user_id,
-        file,
-        file_content_type,
-        data['object'],
-        data['problem_description'],
-        data['urgency']
-    )
+    photos = data.get('photos', [])
+    
+    if not photos and 'file_id' not in data:
+        rr = await crm.create_repair_request_without_photo(
+            tg_user_id,
+            data['object'],
+            data['problem_description'],
+            data['urgency']
+        )
+    elif len(photos) <= 1:
+        file_id = data['file_id']
+        file_content_type = data['file_content_type']
+        file = await query.bot.download(file_id)
+
+        if file is None:
+            await query.message.answer('Ошибка при загрузке файла')
+            await query.answer()
+            return
+
+        rr = await crm.create_repair_request(
+            tg_user_id,
+            file,
+            file_content_type,
+            data['object'],
+            data['problem_description'],
+            data['urgency']
+        )
+    else:
+        files = []
+        for photo_data in photos:
+            file = await query.bot.download(photo_data["file_id"])
+            if file is not None:
+                files.append(file)
+
+        if not files:
+            await query.message.answer('Ошибка при загрузке файлов')
+            await query.answer()
+            return
+
+        rr = await crm.create_repair_request_multiple_photos(
+            tg_user_id,
+            files,
+            data['object'],
+            data['problem_description'],
+            data['urgency']
+        )
 
     if rr is None:
         await query.message.answer('Что-то пошло не так 😢. Попробуйте снова позже')
