@@ -308,6 +308,93 @@ const createRequest = async (
     return new RequestDto(request);
 };
 
+const createRequestWithoutPhoto = async (
+    objectId: string,
+    problemDescription: string | undefined,
+    urgency: string,
+    repairPrice: number | undefined,
+    comment: string | undefined,
+    tgUserId: string
+): Promise<RequestDto> => {
+    const objectDir = await objectService.getObjectById(objectId);
+    if (!objectDir) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found object with id ' + objectId);
+    if (!objectDir.Unit) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found unit');
+    if (!objectDir.LegalEntity) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found LegalEntity');
+    
+    const request = await RepairRequest.create({
+        unitId: objectDir.Unit.id,
+        objectId,
+        problemDescription,
+        urgency,
+        repairPrice,
+        comment,
+        legalEntityId: objectDir.LegalEntity.id,
+        fileName: null,
+        createdBy: tgUserId,
+        number: 0,
+    });
+    
+    request.Object = objectDir;
+    request.Unit = objectDir.Unit;
+    request.LegalEntity = objectDir.LegalEntity;
+    
+    sendMsg({
+        msg: {
+            requestId: request.id,
+            customer: request.createdBy,
+        },
+        event: 'REQUEST_CREATE',
+    } as WsMsgData);
+    
+    return new RequestDto(request);
+};
+
+const createRequestWithMultiplePhotos = async (
+    objectId: string,
+    problemDescription: string | undefined,
+    urgency: string,
+    repairPrice: number | undefined,
+    comment: string | undefined,
+    fileNames: string[],
+    tgUserId: string
+): Promise<RequestDto> => {
+    const objectDir = await objectService.getObjectById(objectId);
+    if (!objectDir) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found object with id ' + objectId);
+    if (!objectDir.Unit) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found unit');
+    if (!objectDir.LegalEntity) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found LegalEntity');
+    
+    const mainPhoto = fileNames[0];
+    const additionalPhotos = fileNames.slice(1);
+    
+    const request = await RepairRequest.create({
+        unitId: objectDir.Unit.id,
+        objectId,
+        problemDescription,
+        urgency,
+        repairPrice,
+        comment,
+        legalEntityId: objectDir.LegalEntity.id,
+        fileName: mainPhoto,
+        commentAttachment: additionalPhotos.length > 0 ? JSON.stringify(additionalPhotos) : undefined,
+        createdBy: tgUserId,
+        number: 0,
+    });
+    
+    request.Object = objectDir;
+    request.Unit = objectDir.Unit;
+    request.LegalEntity = objectDir.LegalEntity;
+    
+    sendMsg({
+        msg: {
+            requestId: request.id,
+            customer: request.createdBy,
+        },
+        event: 'REQUEST_CREATE',
+    } as WsMsgData);
+    
+    return new RequestDto(request);
+};
+
 const setContractor = async (requestId: string, contractorId: string): Promise<void> => {
     const request = await RepairRequest.findByPk(requestId);
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
@@ -743,6 +830,8 @@ export default {
     getAllRequests,
     getRequestById,
     createRequest,
+    createRequestWithoutPhoto,
+    createRequestWithMultiplePhotos,
     setContractor,
     setExtContractor,
     setComment,

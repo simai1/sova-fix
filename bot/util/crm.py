@@ -110,13 +110,33 @@ async def get_repair_request(request_id: str) -> dict | None:
 
 
 async def get_tg_user_id(user_id: int) -> str | None:
-    user = await get_user(user_id)
-
-    if user is None:
+    """
+    Получает ID пользователя Telegram в базе данных по его Telegram ID.
+    
+    Args:
+        user_id: Telegram ID пользователя
+    
+    Returns:
+        ID пользователя в базе данных или None в случае ошибки
+    """
+    try:
+        user = await get_user(user_id)
+        
+        if user is None:
+            logger.warn(f"Пользователь с Telegram ID {user_id} не найден в базе данных")
+            return None
+        
+        tg_user_id = user.get('id')
+        
+        if not tg_user_id:
+            logger.error(f"У пользователя с Telegram ID {user_id} отсутствует ID в базе данных")
+            return None
+            
+        logger.info(f"Получен ID пользователя в базе данных: {tg_user_id} для Telegram ID {user_id}")
+        return tg_user_id
+    except Exception as e:
+        logger.error(f"Ошибка при получении ID пользователя: {str(e)}, user_id={user_id}")
         return None
-
-    tg_user_id = user['id']
-    return tg_user_id
 
 
 async def create_repair_request(
@@ -158,6 +178,85 @@ async def create_repair_request(
         return request.json()['requestDto']
     else:
         logger.error('API: could not create repair request', f'{request.status_code}  {values}')
+        return None
+
+
+async def create_repair_request_without_photo(
+        tg_user_id: str,
+        object_id: str,
+        problem_description: str,
+        urgency: str,
+        repair_price: str | None = None,
+        comment: str | None = None,
+        legal_entity: str | None = None
+) -> dict | None:
+    """
+    Создает заявку на ремонт без прикрепления фотографии
+    """
+    url = f'{cf.API_URL}/requests/without-photo'
+
+    data = {
+        'objectId': object_id,
+        'problemDescription': problem_description,
+        'urgency': urgency,
+        'tgUserId': tg_user_id
+    }
+
+    if repair_price is not None:
+        data['repairPrice'] = repair_price
+    if comment is not None:
+        data['comment'] = comment
+    if legal_entity is not None:
+        data['legalEntity'] = legal_entity
+
+    request = requests.post(url=url, json=data)
+
+    if request.status_code == 200:
+        logger.info('new repair request without photo!', f'{data}')
+        return request.json()['requestDto']
+    else:
+        logger.error('API: could not create repair request without photo', f'{request.status_code}  {data}')
+        return None
+
+
+async def create_repair_request_multiple_photos(
+        tg_user_id: str,
+        files_list,
+        object_id: str,
+        problem_description: str,
+        urgency: str,
+        repair_price: str | None = None,
+        comment: str | None = None,
+        legal_entity: str | None = None
+) -> dict | None:
+    """
+    Создает заявку на ремонт с прикреплением нескольких фотографий
+    """
+    url = f'{cf.API_URL}/requests/multiple-photos'
+
+    values = {
+        'objectId': object_id,
+        'problemDescription': problem_description,
+        'urgency': urgency,
+        'tgUserId': tg_user_id
+    }
+
+    if repair_price is not None:
+        values['repairPrice'] = repair_price
+    if comment is not None:
+        values['comment'] = comment
+    if legal_entity is not None:
+        values['legalEntity'] = legal_entity
+
+    files = [('file', (f'img{i}.jpg', file)) for i, file in enumerate(files_list)]
+
+    request = requests.post(url=url, data=values, files=files)
+
+    if request.status_code == 200:
+        logger.info('new repair request with multiple photos!', f'{values}')
+        return request.json()['requestDto']
+    else:
+        logger.error('API: could not create repair request with multiple photos', f'{request.status_code}  {values}')
         return None
 
 
@@ -563,7 +662,6 @@ async def get_user_objects(tg_user_id: str) -> list | None:
     url = f"{cf.API_URL}/tgUsers/{tg_user_id}/objects/public"
     
     try:
-        logger.info(f"Getting objects for user {tg_user_id} via public API endpoint")
         request = requests.get(url)
         
         if request.status_code == 200:
@@ -571,16 +669,37 @@ async def get_user_objects(tg_user_id: str) -> list | None:
             
             if isinstance(response, dict) and 'objects' in response:
                 objects = response['objects']
-                logger.info(f"Successfully got objects for user {tg_user_id}: {len(objects)} objects")
+                logger.info(f"Получено объектов для пользователя {tg_user_id}: {len(objects)}")
+                
+                if not objects or len(objects) == 0:
+                    logger.warn(f"Пустой список объектов для пользователя {tg_user_id}")
+                    return []
+                
+                if len(objects) > 0:
+                    sample_obj = objects[0]
+                    logger.info(f"Пример структуры объекта: {sample_obj}")
+                
                 return objects
-            
-            logger.info(f"Successfully got objects for user {tg_user_id}: {len(response)} objects")
-            return response
+            elif isinstance(response, list):
+                logger.info(f"Получено объектов для пользователя {tg_user_id}: {len(response)}")
+                
+                if not response or len(response) == 0:
+                    logger.warn(f"Пустой список объектов для пользователя {tg_user_id}")
+                    return []
+                
+                if len(response) > 0:
+                    sample_obj = response[0]
+                    logger.info(f"Пример структуры объекта: {sample_obj}")
+                
+                return response
+            else:
+                logger.error(f"Неожиданный формат ответа API: {type(response)}")
+                return []
         else:
-            logger.error(f"API: could not get user objects: {request.status_code}, tg_user_id={tg_user_id}")
+            logger.error(f"Ошибка при запросе объектов: {request.status_code}, tg_user_id={tg_user_id}")
             return None
     except Exception as e:
-        logger.error(f"API: error when getting user objects: {str(e)}, tg_user_id={tg_user_id}")
+        logger.error(f"Исключение при запросе объектов: {str(e)}, tg_user_id={tg_user_id}")
         return None
 
 

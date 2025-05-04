@@ -41,8 +41,23 @@ const uploadImage = multer({
     },
 });
 
+const uploadMultipleImages = multer({
+    storage,
+    fileFilter: (req, file, cb) => {
+        const acceptedExtensionsList = ['.jpg', '.jpeg', '.png'];
+        const extname = path.extname(file.originalname).toLowerCase();
+        if (acceptedExtensionsList.includes(extname)) {
+            cb(null, true);
+        } else {
+            cb(new Error('Invalid file extension'));
+        }
+    },
+});
+
 router.route('/stats').get(requestController.getStat);
 router.route('/').get(requestController.getAll).post(uploadImageOrVideo.single('file'), requestController.create);
+router.route('/without-photo').post(requestController.createWithoutPhoto);
+router.route('/multiple-photos').post(uploadMultipleImages.array('file', 10), requestController.createWithMultiplePhotos);
 router.route('/:requestId').get(requestController.getOne);
 router.route('/:requestId/delete').delete(requestController.deleteRequest);
 router.route('/:requestId/update').patch(requestController.update);

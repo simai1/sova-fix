@@ -67,8 +67,8 @@ const create = catchAsync(async (req, res) => {
     if (!objectId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing object');
     if (!urgency) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing urgency');
     const tgUser = await TgUser.findByPk(tgUserId);
-    // @ts-expect-error 'tgUser' is possibly 'null'
-    if (!tgUser && tgUser.role !== 3) throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid tgUser');
+    
+    if (!tgUser || tgUser.role !== 3) throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid tgUser');
     const requestDto = await requestService.createRequest(
         objectId,
         problemDescription,
@@ -78,6 +78,53 @@ const create = catchAsync(async (req, res) => {
         fileName,
         tgUserId
     );
+    res.json({ requestDto });
+});
+
+const createWithoutPhoto = catchAsync(async (req, res) => {
+    const { objectId, problemDescription, urgency, repairPrice, comment, tgUserId } = req.body;
+    if (!tgUserId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing tgUserId');
+    if (!objectId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing object');
+    if (!urgency) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing urgency');
+    const tgUser = await TgUser.findByPk(tgUserId);
+    
+    if (!tgUser || tgUser.role !== 3) throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid tgUser');
+    const requestDto = await requestService.createRequestWithoutPhoto(
+        objectId,
+        problemDescription,
+        urgency,
+        repairPrice,
+        comment,
+        tgUserId
+    );
+    res.json({ requestDto });
+});
+
+const createWithMultiplePhotos = catchAsync(async (req, res) => {
+    const { objectId, problemDescription, urgency, repairPrice, comment, tgUserId } = req.body;
+    const files = (req as any).files as Express.Multer.File[];
+    
+    if (!files || files.length === 0) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing files');
+    if (!tgUserId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing tgUserId');
+    if (!objectId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing object');
+    if (!urgency) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing urgency');
+    
+    const tgUser = await TgUser.findByPk(tgUserId);
+    
+    if (!tgUser || tgUser.role !== 3) throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid tgUser');
+    
+    const fileNames = files.map(file => file.filename);
+    
+    const requestDto = await requestService.createRequestWithMultiplePhotos(
+        objectId,
+        problemDescription,
+        urgency,
+        repairPrice,
+        comment,
+        fileNames,
+        tgUserId
+    );
+    
     res.json({ requestDto });
 });
 
@@ -304,12 +351,14 @@ const copy = catchAsync(async (req, res) => {
 
 const getStat = catchAsync(async (req, res) => {
     const [requests] = await requestService.getAllRequests({}, {}, {});
+    
+    if (!Array.isArray(requests)) {
+        throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Failed to get requests');
+    }
+    
     const data = {
-        // @ts-expect-error error
         NEW_REQUEST: requests.reduce((acc: number, r: any) => (r.status === 1 ? acc + 1 : acc), 0),
-        // @ts-expect-error error
         AT_WORK: requests.reduce((acc: number, r: any) => (r.status === 2 ? acc + 1 : acc), 0),
-        // @ts-expect-error error
         DONE: requests.reduce((acc: number, r: any) => (r.status === 3 ? acc + 1 : acc), 0),
     };
     res.json(data);
@@ -321,6 +370,8 @@ export default {
     getCustomersRequests,
     getRequestsByObjects,
     create,
+    createWithoutPhoto,
+    createWithMultiplePhotos,
     setContractor,
     setExtContractor,
     setStatus,
