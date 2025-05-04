@@ -8,11 +8,9 @@ import {
   RemoveContractor,
   ReseachDataRequest,
   SetExtContractorsRequest,
-  SetRole,
   SetStatusRequest,
   SetcontractorRequest,
 } from "../../API/API";
-// import { SamplePoints } from "../../UI/SamplePoints/SamplePoints";
 import { useSelector } from "react-redux";
 import СonfirmDelete from "./../СonfirmDelete/СonfirmDelete";
 import Contextmenu from "../../UI/Contextmenu/Contextmenu";
@@ -20,7 +18,18 @@ import SamplePoints from "../SamplePoints/SamplePoints";
 import FilteImg from "./../../assets/images/filterColumn.svg";
 import { status, DataUrgency } from "./Data";
 import { funFixEducator } from "../../UI/SamplePoints/Function";
+
 function Table() {
+  const isJsonString = (str) => {
+    if (!str) return false;
+    try {
+      const json = JSON.parse(str);
+      return typeof json === 'object';
+    } catch (e) {
+      return false;
+    }
+  };
+
   const { context } = useContext(DataContext);
   const [actiwFilter, setActiwFilter] = useState(null);
   const [coordinatesX, setCoordinatesX] = useState(0);
@@ -31,7 +40,9 @@ function Table() {
     context.setSelectedTr(row.id);
     if (
       target.className !== "Table_statusClick__QSptV" &&
-      target.tagName !== "LI" && target.className !== "planCompleteDate"  && target.tagName !== "INPUT"
+      target.tagName !== "LI" &&
+      target.className !== "planCompleteDate" &&
+      target.tagName !== "INPUT"
     ) {
       if (context.moreSelect.includes(row.id)) {
         context.setMoreSelect(
@@ -52,20 +63,24 @@ function Table() {
     ) {
       context.setMoreSelect([...context.moreSelect, row.id]);
     }
-    if(JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER"){
+    if (
+      JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER"
+    ) {
       setOpenConextMenu(true);
     }
   };
 
   const contextmenuClick = (event) => {
-    event.preventDefault(); // Prevent the default context menu from appearing
-    const x = event.clientX; // Get the X coordinate
-    const y = event.clientY; // Get the Y coordinate
+    event.preventDefault();
+    const x = event.clientX;
+    const y = event.clientY;
     setCoordinatesX(x);
     setCoordinatesY(y);
   };
 
-  const store = useSelector((state) => state.isSamplePoints["table9"].isChecked);
+  const store = useSelector(
+    (state) => state.isSamplePoints["table9"].isChecked
+  );
   const [shovStatusPop, setshovStatusPop] = useState("");
   const [shovBulderPop, setshovBulderPop] = useState("");
   const [shovUrgencyPop, setshovUrgencyPop] = useState("");
@@ -81,7 +96,10 @@ function Table() {
   const [dataBuilder, setDataBuilder] = useState({});
   const contextmenuRef = useRef(null);
 
-  //! Юз эффект при загрузке страницы
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const [sliderPhotos, setSliderPhotos] = useState([]);
+  const [showSlider, setShowSlider] = useState(false);
+
   useEffect(() => {
     GetextContractorsAll().then((response) => {
       setDataBuilder(response.data);
@@ -92,7 +110,6 @@ function Table() {
     };
   }, []);
 
-   //! Юз эффект при загрузке контекстов
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (!event.target.closest("tr") && !event.target.closest("button")) {
@@ -106,7 +123,6 @@ function Table() {
     };
   }, [context]);
 
-
   const togglePopupState = (setter, data) => {
     const userRole = JSON.parse(localStorage.getItem("userData"))?.user?.role;
     setter((currentState) => {
@@ -118,24 +134,21 @@ function Table() {
       return "";
     });
   };
-     
-  //!функция смены статуса
+
   const funSetStatus = (data) => {
     togglePopupState(setshovStatusPop, data);
     setshovUrgencyPop("");
     setshovBulderPop("");
     setItineraryOrderPop("");
   };
-   
-  //!функция смены исполнителя
+
   const funSetBulder = (data) => {
     togglePopupState(setshovBulderPop, data);
     setshovStatusPop("");
     setshovUrgencyPop("");
     setItineraryOrderPop("");
   };
-  
-   //!функция смены объекта
+
   const funSetUrgency = (data) => {
     togglePopupState(setshovUrgencyPop, data);
     setshovStatusPop("");
@@ -143,7 +156,6 @@ function Table() {
     setItineraryOrderPop("");
   };
 
-  //!функция смены подрядчика
   const funSetExp = (data) => {
     togglePopupState(setshovExtPop, data);
     setshovStatusPop("");
@@ -151,61 +163,59 @@ function Table() {
     setshovUrgencyPop("");
     setItineraryOrderPop("");
   };
-  
-  const openModal = setModalImage;
+
+  const openModal = (url) => {
+    setModalImage(url);
+  };
+
   const closeModal = () => setModalImage(null);
-  
-   //!Запрос на смену исполнителя
+
   const SetBilder = (contractorId, idAppoint) => {
     const data = { requestId: idAppoint, contractorId };
     SetcontractorRequest(data).then((resp) => {
-      if(resp?.status === 200){
+      if (resp?.status === 200) {
         GetOneRequests(idAppoint).then((resp) => {
-            if(resp?.status === 200){
-              UpdateRequest(resp?.data)
-            }
-          })
-        }
+          if (resp?.status === 200) {
+            UpdateRequest(resp?.data);
+          }
+        });
+      }
     });
   };
 
-
-  //!Запрос смены статуса
   const editStatus = (status, requestId) => {
     const data = {
       requestId: requestId,
       status: status,
     };
     SetStatusRequest(data).then((resp) => {
-      if(resp?.status === 200){
+      if (resp?.status === 200) {
         GetOneRequests(requestId).then((resp) => {
-            if(resp?.status === 200){
-              UpdateRequest(resp?.data)
-            }
-          })
-        }
+          if (resp?.status === 200) {
+            UpdateRequest(resp?.data);
+          }
+        });
+      }
     });
   };
-  
-   //!Запрос на удаление билдера
+
   const deleteBilder = (requestId) => {
     const data = {
       requestId: requestId,
     };
     RemoveContractor(data).then((resp) => {
-      if(resp?.status === 200){
+      if (resp?.status === 200) {
         GetOneRequests(requestId).then((resp) => {
-            if(resp?.status === 200){
-              UpdateRequest(resp?.data)
-            }
-          })
-        }
+          if (resp?.status === 200) {
+            UpdateRequest(resp?.data);
+          }
+        });
+      }
     });
   };
-  
-  //!При обновлении обновляет только 1 запись 
+
   const UpdateRequest = (updatedRequest) => {
-    const editAppoint = funFixEducator(updatedRequest)
+    const editAppoint = funFixEducator(updatedRequest);
     const updatedDataTable = context.dataTableHomePage.map((item) =>
       item.id === editAppoint.id ? editAppoint : item
     );
@@ -213,25 +223,22 @@ function Table() {
     const updateDataAppoint = context.dataApointment.map((item) =>
       item.id === editAppoint.id ? editAppoint : item
     );
-    context.setDataAppointment(updateDataAppoint)
+    context.setDataAppointment(updateDataAppoint);
   };
-  
 
-  //!Запрос на смену срочности
   const SetUrgency = (name, idAppoint) => {
     const data = { urgency: name };
     ReseachDataRequest(idAppoint, data).then((resp) => {
-      if(resp?.status === 200){
-      GetOneRequests(idAppoint).then((resp) => {
-          if(resp?.status === 200){
-            UpdateRequest(resp?.data)
+      if (resp?.status === 200) {
+        GetOneRequests(idAppoint).then((resp) => {
+          if (resp?.status === 200) {
+            UpdateRequest(resp?.data);
           }
-        })
+        });
       }
     });
   };
-  
-  //!Запрос на внешнего подрядчика
+
   const setPerformersDirectory = (requestId) => {
     const data = {
       requestId: requestId,
@@ -239,66 +246,63 @@ function Table() {
     };
 
     SetcontractorRequest(data).then((resp) => {
-      if(resp?.status === 200){
+      if (resp?.status === 200) {
         GetOneRequests(requestId).then((resp) => {
-            if(resp?.status === 200){
-              UpdateRequest(resp?.data)
-            }
-          })
-        }
+          if (resp?.status === 200) {
+            UpdateRequest(resp?.data);
+          }
+        });
+      }
     });
   };
 
-   //!Запрос на установку extContractor
   const SetExp = (requestId, ExpId) => {
     const data = {
       requestId: requestId,
       extContractorId: ExpId,
     };
     SetExtContractorsRequest(data).then((resp) => {
-      if(resp?.status === 200){
+      if (resp?.status === 200) {
         GetOneRequests(requestId).then((resp) => {
-            if(resp?.status === 200){
-              UpdateRequest(resp?.data)
-              setshovExtPop("");
-            }
-          })
-        }
+          if (resp?.status === 200) {
+            UpdateRequest(resp?.data);
+            setshovExtPop("");
+          }
+        });
+      }
     });
   };
 
-   //!Запрос на установку новой планорвой даты выполнения  
   const selectadNewPlanDateFunction = (id, date) => {
     const data = {
-      planCompleteDate: new Date(date)
-    }
+      planCompleteDate: new Date(date),
+    };
     ReseachDataRequest(id, data).then((resp) => {
-      if(resp?.status === 200){
+      if (resp?.status === 200) {
         GetOneRequests(id).then((resp) => {
-            if(resp?.status === 200){
-              UpdateRequest(resp?.data)
-            }
-          })
-        }
+          if (resp?.status === 200) {
+            UpdateRequest(resp?.data);
+          }
+        });
+      }
     });
-  }
-   //!Запрос на удаление extContractor
+  };
+
   const deleteExp = (id) => {
     const data = {
       requestId: id,
     };
     DeleteExtContractorsRequest(data).then((resp) => {
-      if(resp?.status === 200){
+      if (resp?.status === 200) {
         GetOneRequests(id).then((resp) => {
-            if(resp?.status === 200){
-              UpdateRequest(resp?.data)
-            }
-          })
-        }
+          if (resp?.status === 200) {
+            UpdateRequest(resp?.data);
+          }
+        });
+      }
     });
   };
 
-  //!функция для обработки PopUp-ов
   const handleClickOutside = (event) => {
     const clickOutside = (ref, setter) => {
       if (
@@ -310,12 +314,12 @@ function Table() {
         setter("");
       }
     };
-  
+
     clickOutside(contextmenuRef, () => {
       setOpenConextMenu(false);
       setActiwFilter("");
     });
-  
+
     clickOutside(statusPopRef, setshovStatusPop);
     clickOutside(builderPopRef, setshovBulderPop);
     clickOutside(urgencyPopRef, setshovUrgencyPop);
@@ -323,34 +327,47 @@ function Table() {
     clickOutside(extPopRef, setshovExtPop);
   };
 
-  //!Провека на последний элемент
-  const checkHeights = (arr, index) => index === arr.length - 1 && arr.length !== 1;
+  const checkHeights = (arr, index) =>
+    index === arr.length - 1 && arr.length !== 1;
 
-  //!Если внешний отображать 
   const getContractorItem = (row) => {
-    if(row?.isExternal) {
-      return "Внешний подрядчик"
-    }else if(row?.contractor === "___") {
-      return "Не назначен"
-    }else{
-      return row?.contractor
+    if (row?.isExternal) {
+      return "Внешний подрядчик";
+    } else if (row?.contractor === "___") {
+      return "Не назначен";
+    } else {
+      return row?.contractor;
     }
-  }
- 
+  };
 
-  //!Получение количества элементов
-  const getCountList = () => setArrCount(
-    Array.from({ length: context.tableData?.length || 0 }, (_, i) => i + 1)
-  );
+  const getCountList = () =>
+    setArrCount(
+      Array.from({ length: context.tableData?.length || 0 }, (_, i) => i + 1)
+    );
 
   useEffect(() => {
     getCountList();
   }, [context.Dataitinerary]);
 
-  //! открытие модального окна фильтрации столбца
   const clickTh = (key, index, el) => {
-    if (el?.target?.tagName !== "IMG" && key !== "fileName" && key !== "number" && key !== "problemDescription" && key !== "repairPrice" && key !== "commentAttachment" && key !== "checkPhoto" && key !== "itineraryOrder" && key !== "daysAtWork" && key !== "planCompleteDate" && key !== "completeDate" && key !== "createdAt") {
-      const modalData = key === "status" ? context.tableData.map((item) => status[item[key]]) : context.tableData.map((item) => item[key]?.name || item[key]);
+    if (
+      el?.target?.tagName !== "IMG" &&
+      key !== "fileName" &&
+      key !== "number" &&
+      key !== "problemDescription" &&
+      key !== "repairPrice" &&
+      key !== "commentAttachment" &&
+      key !== "checkPhoto" &&
+      key !== "itineraryOrder" &&
+      key !== "daysAtWork" &&
+      key !== "planCompleteDate" &&
+      key !== "completeDate" &&
+      key !== "createdAt"
+    ) {
+      const modalData =
+        key === "status"
+          ? context.tableData.map((item) => status[item[key]])
+          : context.tableData.map((item) => item[key]?.name || item[key]);
       context.setSamplePointsData(modalData);
       setActiwFilter(key);
     }
@@ -358,58 +375,54 @@ function Table() {
 
   const sortDataTable = () => {
     if (!context.sortStateParam) {
-      // Если параметр сортировки отсутствует, сортируем по `number` по возрастанию
-      const sortedData = [...context?.dataTableHomePage].sort((a, b) => b.number - a.number);
+      const sortedData = [...context?.dataTableHomePage].sort(
+        (a, b) => b.number - a.number
+      );
       context.setDataTableHomePage(sortedData);
       return;
     }
-  
+
     const [colPart, typePart] = context.sortStateParam.split("&");
-    const col = colPart.split("=")[1]; // Извлекаем имя столбца
-    const type = typePart.split("=")[1]; // Извлекаем тип сортировки (asc/desc)
-  
+    const col = colPart.split("=")[1];
+    const type = typePart.split("=")[1];
+
     const sortedData = [...context?.dataTableHomePage].sort((a, b) => {
-      if (a[col] === null || a[col] === undefined) return 1; // Сортируем null/undefined в конец
+      if (a[col] === null || a[col] === undefined) return 1;
       if (b[col] === null || b[col] === undefined) return -1;
-  
+
       if (typeof a[col] === "string") {
-        // Сортируем строки
         return type === "asc"
           ? a[col].localeCompare(b[col])
           : b[col].localeCompare(a[col]);
       }
-  
+
       if (typeof a[col] === "number" || a[col] instanceof Date) {
-        // Сортируем числа и даты
         return type === "asc" ? a[col] - b[col] : b[col] - a[col];
       }
-  
-      return 0; // Для остальных типов данных
+
+      return 0;
     });
-  
-    context.setDataTableHomePage(sortedData); // Обновляем состояние с отсортированными данными
+
+    context.setDataTableHomePage(sortedData);
   };
 
   useEffect(() => {
-    sortDataTable(); // Выполняем сортировку при изменении параметров сортировки
+    sortDataTable();
   }, [context.sortStateParam]);
-  
 
-  
-  //! Function to handle sorting
   const funSortByColumn = (key) => {
     let par = "";
-    const newSortState = { ...context.sortState }; 
+    const newSortState = { ...context.sortState };
 
     if (!newSortState[key]) {
       par = `col=${key}&type=${"asc"}`;
-      newSortState[key] = { type: "asc" }; 
+      newSortState[key] = { type: "asc" };
     } else if (newSortState[key].type === "asc") {
       par = `col=${key}&type=${"desc"}`;
-      newSortState[key] = { type: "desc" }; 
+      newSortState[key] = { type: "desc" };
     } else {
-      par = ""; 
-      newSortState[key] = null; 
+      par = "";
+      newSortState[key] = null;
     }
 
     for (const col in newSortState) {
@@ -418,7 +431,7 @@ function Table() {
       }
     }
 
-    context.setSortState(newSortState); 
+    context.setSortState(newSortState);
     context.setSortStateParam(par);
   };
 
@@ -426,9 +439,8 @@ function Table() {
     (state) => state.editColumTableSlice.ActiveColumTable
   );
 
-  //! функция на определение исполнителя
   const getItemBuilder = (row) => {
-    if(row?.builder === "Внешний подрядчик"){
+    if (row?.builder === "Внешний подрядчик") {
       return "Не назначен";
     }
     if (row?.builder && row?.isExternal) {
@@ -438,16 +450,27 @@ function Table() {
     }
   };
 
-   //! функция на определение TextAlign
-  const textAlign = (key, item) => ["number", "itineraryOrder", "id", "createdAt", "daysAtWork", "completeDate", "repairPrice", "commentAttachment", "planCompleteDate"].includes(key) || item === "___" ? "center" : "left";
+  const textAlign = (key, item) =>
+    [
+      "number",
+      "itineraryOrder",
+      "id",
+      "createdAt",
+      "daysAtWork",
+      "completeDate",
+      "repairPrice",
+      "commentAttachment",
+      "planCompleteDate",
+    ].includes(key) || item === "___"
+      ? "center"
+      : "left";
 
-  //! функция на определение файл видео формата или нет
   const isVideo = (fileName) => {
-    const videoExtensions = ['.mp4', '.avi', '.mov', '.wmv', '.mkv'];
-    return videoExtensions.some(ext => fileName.endsWith(ext));
+    if (!fileName) return false;
+    const videoExtensions = [".mp4", ".avi", ".mov", ".wmv", ".mkv"];
+    return videoExtensions.some((ext) => fileName.endsWith(ext));
   };
 
-  //! Функция фильтрации всех столбцов пустых
   const WhatNanItem = () => {
     const tds = document.querySelectorAll("td[name='name']");
     tds?.forEach((el) => {
@@ -459,11 +482,11 @@ function Table() {
     });
   };
 
-  //! Функция определения заднего фона
   const whatPageBgTd = (row) => {
-    const isSelected = context?.selectedTable === "Заявки" 
-      ? context.moreSelect.includes(row) 
-      : context.selectedTr === row;
+    const isSelected =
+      context?.selectedTable === "Заявки"
+        ? context.moreSelect.includes(row)
+        : context.selectedTr === row;
     return isSelected ? "#D8CDC1FF" : undefined;
   };
 
@@ -471,7 +494,6 @@ function Table() {
     context.checkedAllFunc();
   }, [context.filteredTableData, context?.moreSelect]);
 
-  //! Функция нвжвтия на глобальный Th
   const clickAllTh = () => {
     if (context?.moreSelect?.length > 0) {
       context.setMoreSelect([]);
@@ -480,38 +502,38 @@ function Table() {
       context.setMoreSelect(ids);
     }
   };
-  
-  //! Функция разрешения сортировки
-  const filterAndNote = (key) => {
-      const arrayNotFilter = [
-        "number", "fileName", "checkPhoto", "commentAttachment",
-      ]
-      if (arrayNotFilter.includes(key)) {
-        return false
-      }else{
-        return true
-      }
-  }
 
-   //! Функция Получения цвета Urgensy
-  const getColorUrgensy = (value) =>{
+  const filterAndNote = (key) => {
+    const arrayNotFilter = [
+      "number",
+      "fileName",
+      "checkPhoto",
+      "commentAttachment",
+    ];
+    if (arrayNotFilter.includes(key)) {
+      return false;
+    } else {
+      return true;
+    }
+  };
+
+  const getColorUrgensy = (value) => {
     switch (value) {
       case "В течение часа":
-        return "#d69a81" //красный
+        return "#d69a81";
       case "В течение текущего дня":
-        return "#f9ab23" // ?оранжевый
+        return "#f9ab23";
       case "В течение 3-х дней":
-        return "#ffe78f" // желтый
+        return "#ffe78f";
       case "В течение недели":
-        return "#eaf45b" // ?светло желтый
+        return "#eaf45b";
       case "Выполнено":
-        return "#C5E384" // зеленый
+        return "#C5E384";
       default:
-        return ""
+        return "";
     }
-  }
+  };
 
- //! Функция Получения цвета Status
   const getStatusColor = (statusValue) => {
     switch (statusValue) {
       case "Новая заявка":
@@ -531,30 +553,30 @@ function Table() {
     switch (key) {
       case "id":
         return index + 1;
-        case "status":
-          return (
-            <div
+      case "status":
+        return (
+          <div
             onClick={() => funSetStatus(row.id)}
             className={styles.statusClick}
             style={{ backgroundColor: getStatusColor(value) }}
             ref={statusPopRef}
             key={key + row.id}
-            >
+          >
             {value}
             {shovStatusPop === row.id && (
               <div
-              className={styles.shovStatusPop}
-              style={
-                checkHeights(context?.dataTableHomePage, index)
-                ? { top: "-70%", width: "250px" }
-                : { width: "250px" }
-              }
+                className={styles.shovStatusPop}
+                style={
+                  checkHeights(context?.dataTableHomePage, index)
+                    ? { top: "-70%", width: "250px" }
+                    : { width: "250px" }
+                }
               >
                 <ul>
                   {Object.values(status).map((statusValue, statusIndex) => (
                     <li
-                    onClick={() => editStatus(statusIndex + 1, row.id)}
-                    key={statusIndex}
+                      onClick={() => editStatus(statusIndex + 1, row.id)}
+                      key={statusIndex}
                     >
                       {statusValue}
                     </li>
@@ -564,100 +586,98 @@ function Table() {
             )}
           </div>
         );
-        case "number":
-          return (
-            <div key={key + row.id}>
+      case "number":
+        return (
+          <div key={key + row.id}>
             {row?.copiedRequestId !== null ? `(${value})` : value}
           </div>
         );
-        case "contractor": 
+      case "contractor":
         return (
           <div
-          onClick={() => funSetBulder(row.id)}
-          className={styles.statusClick}
-          ref={builderPopRef}
-          key={key + row.id}
+            onClick={() => funSetBulder(row.id)}
+            className={styles.statusClick}
+            ref={builderPopRef}
+            key={key + row.id}
           >
-                {getContractorItem(row)}
-                {shovBulderPop === row.id && (
-                  <div
-                  className={styles.shovStatusPop}
-                  style={
-                    checkHeights(context?.dataTableHomePage, index)
-                    ? { top: "-70%", width: "200%" }
-                    : {
-                      width: "200%",
-                      right: "-365px",
-                      top: "40px",
-                    }
-                  }
-                  >
-                    <ul>
-                      {value !== "___" && (
-                        <li onClick={() => deleteBilder(row.id)}>
-                          Удалить исполнителя
-                        </li>
-                      )}
-                      {context.dataContractors?.map(
-                        (value, index) => (
-                          <li onClick={() => SetBilder(value.id, row.id)} key={index}>
-                            {value.name}
-                          </li>
-                        )
-                      )}
-                      <li onClick={() =>setPerformersDirectory(row.id)}>
-                        Внешний подрядчик
-                      </li>
-                    </ul>
-                  </div>
-                )}
-              </div>
-              );
-              case "builder":
-                return (
-                  row.isExternal ? (
-                    <div
-                    onClick={() => funSetExp(row.id)}
-                    className={styles.statusClick}
-                    ref={extPopRef}
-                    key={key + row.id}
-                    >
-              {getItemBuilder(row)}
-              {shovExtPop === row.id && (
-                <div
+            {getContractorItem(row)}
+            {shovBulderPop === row.id && (
+              <div
                 className={styles.shovStatusPop}
                 style={
                   checkHeights(context?.dataTableHomePage, index)
-                  ? { top: "-70%", width: "200%" }
-                  : { width: "200%" }
+                    ? { top: "-70%", width: "200%" }
+                    : {
+                        width: "200%",
+                        right: "-365px",
+                        top: "40px",
+                      }
                 }
-                >
-                  <ul>
-                    {value && value !== "___" && value !== "Внешний подрядчик" && (
+              >
+                <ul>
+                  {value !== "___" && (
+                    <li onClick={() => deleteBilder(row.id)}>
+                      Удалить исполнителя
+                    </li>
+                  )}
+                  {context.dataContractors?.map((value, index) => (
+                    <li onClick={() => SetBilder(value.id, row.id)} key={index}>
+                      {value.name}
+                    </li>
+                  ))}
+                  <li onClick={() => setPerformersDirectory(row.id)}>
+                    Внешний подрядчик
+                  </li>
+                </ul>
+              </div>
+            )}
+          </div>
+        );
+      case "builder":
+        return row.isExternal ? (
+          <div
+            onClick={() => funSetExp(row.id)}
+            className={styles.statusClick}
+            ref={extPopRef}
+            key={key + row.id}
+          >
+            {getItemBuilder(row)}
+            {shovExtPop === row.id && (
+              <div
+                className={styles.shovStatusPop}
+                style={
+                  checkHeights(context?.dataTableHomePage, index)
+                    ? { top: "-70%", width: "200%" }
+                    : { width: "200%" }
+                }
+              >
+                <ul>
+                  {value &&
+                    value !== "___" &&
+                    value !== "Внешний подрядчик" && (
                       <li onClick={() => deleteExp(row.id)}>
                         Удалить подрядчика
                       </li>
                     )}
-                    {dataBuilder?.map((builder, idx) => (
-                      <li onClick={() => SetExp(row.id, builder.id)} key={idx}>
-                        {builder.name}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          ): (
-            value || "___"
-          )
+                  {dataBuilder?.map((builder, idx) => (
+                    <li onClick={() => SetExp(row.id, builder.id)} key={idx}>
+                      {builder.name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        ) : (
+          value || "___"
         );
-        case "urgency":
-          return (
-            <div
+      case "urgency":
+        return (
+          <div
             onClick={() => funSetUrgency(row.id)}
-            className={ styles.statusClick }
+            className={styles.statusClick}
             style={{
-              backgroundColor: getColorUrgensy(value)
+              backgroundColor: getColorUrgensy(value),
             }}
             ref={urgencyPopRef}
             key={key + row.id}
@@ -675,9 +695,7 @@ function Table() {
                 <ul>
                   {DataUrgency?.map((value, index) => (
                     <li
-                      onClick={() =>
-                        SetUrgency(value.name, row.id)
-                      }
+                      onClick={() => SetUrgency(value.name, row.id)}
                       key={index}
                     >
                       {value.name}
@@ -695,101 +713,199 @@ function Table() {
           <>
             {value === "___" || value === null ? (
               "___"
-            ) : (
-              JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" ? (
-                <div className={styles.planCompleteDate} key={row.id}>
+            ) : JSON.parse(localStorage.getItem("userData"))?.user?.role !==
+              "OBSERVER" ? (
+              <div className={styles.planCompleteDate} key={row.id}>
                 <input
-                      type="date"
-                      value={row["planCompleteDateRaw"].split('T')[0]} // Extracting date part from ISO string
-                      onChange={(e) => {
-                       
-                        selectadNewPlanDateFunction(row.id, e.target.value);
-                      }}
-                    />
-                </div>
-              ) :{
-                value
+                  type="date"
+                  value={row["planCompleteDateRaw"].split("T")[0]}
+                  onChange={(e) => {
+                    selectadNewPlanDateFunction(row.id, e.target.value);
+                  }}
+                />
+              </div>
+            ) : (
+              {
+                value,
               }
             )}
           </>
         );
       case "fileName":
-        case "commentAttachment":
-          case "checkPhoto" :
-              return (value !== null && value !== "___") ? (
-                <div  key={key + row.id}>
-                { isVideo(value) ? (
-                  <div className={styles.fileVideoTable}>
-                    <video
-                      onClick={(e) => {
-                        e.preventDefault(); // Prevent the default action
-                        e.stopPropagation(); // Prevent the modal from closing
-                        openModal(`${process.env.REACT_APP_API_URL}/uploads/${value}`);
-                      }}
-                      style={{ cursor: "pointer" }}
-                      className={styles.videoTable}
-                    >
-                      <source src={`${process.env.REACT_APP_API_URL}/uploads/${value}`} />
-                      Your browser does not support the video tag.
-                    </video>
-                  </div>
-                ) : (
-                  <img
+        return value !== null && value !== "___" ? (
+          <div className={styles.fileTableContainer} key={key + row.id}>
+            {isVideo(value) ? (
+              <div className={styles.fileVideoTable}>
+                <video
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openModal(
+                      `${process.env.REACT_APP_API_URL}/uploads/${value}`
+                    );
+                  }}
+                  style={{ cursor: "pointer" }}
+                  className={styles.videoTable}
+                >
+                  <source
                     src={`${process.env.REACT_APP_API_URL}/uploads/${value}`}
-                    alt="Uploaded file"
-                    onClick={() =>
-                      openModal(`${process.env.REACT_APP_API_URL}/uploads/${value}`)
-                    }
-                    style={{ cursor: "pointer" }}
-                    className={styles.imgTable}
                   />
-                )}
+                  Your browser does not support the video tag.
+                </video>
               </div>
-              ) : (
-                "___"
-              );
+            ) : (
+              <img
+                src={`${process.env.REACT_APP_API_URL}/uploads/${value}`}
+                alt="Uploaded file"
+                onClick={() => {
+                  if (
+                    row.commentAttachment &&
+                    isJsonString(row.commentAttachment)
+                  ) {
+                    const additionalPhotos = JSON.parse(row.commentAttachment);
+                    if (
+                      Array.isArray(additionalPhotos) &&
+                      additionalPhotos.length > 0
+                    ) {
+                      openPhotoSlider([value, ...additionalPhotos]);
+                    } else {
+                      openModal(
+                        `${process.env.REACT_APP_API_URL}/uploads/${value}`
+                      );
+                    }
+                  } else {
+                    openModal(
+                      `${process.env.REACT_APP_API_URL}/uploads/${value}`
+                    );
+                  }
+                }}
+                style={{ cursor: "pointer" }}
+                className={styles.imgTable}
+              />
+            )}
+          </div>
+        ) : (
+          "___"
+        );
+      case "commentAttachment":
+      case "checkPhoto":
+        return value !== null && value !== "___" ? (
+          <div key={key + row.id}>
+            {isVideo(value) ? (
+              <div className={styles.fileVideoTable}>
+                <video
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openModal(
+                      `${process.env.REACT_APP_API_URL}/uploads/${value}`
+                    );
+                  }}
+                  style={{ cursor: "pointer" }}
+                  className={styles.videoTable}
+                >
+                  <source
+                    src={`${process.env.REACT_APP_API_URL}/uploads/${value}`}
+                  />
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+            ) : isJsonString(value) ? (
+              <img
+                src={`${process.env.REACT_APP_API_URL}/uploads/${
+                  JSON.parse(value)[0]
+                }`}
+                alt="Uploaded file"
+                onClick={() => openPhotoSlider(JSON.parse(value))}
+                style={{ cursor: "pointer" }}
+                className={styles.imgTable}
+              />
+            ) : (
+              <img
+                src={`${process.env.REACT_APP_API_URL}/uploads/${value}`}
+                alt="Uploaded file"
+                onClick={() =>
+                  openModal(`${process.env.REACT_APP_API_URL}/uploads/${value}`)
+                }
+                style={{ cursor: "pointer" }}
+                className={styles.imgTable}
+              />
+            )}
+          </div>
+        ) : (
+          "___"
+        );
       case "createdAt":
-        case "completeDate":
-          return <p key={key + row.id} style={{ whiteSpace: "nowrap" }}>{value || "___"}</p>
+      case "completeDate":
+        return (
+          <p key={key + row.id} style={{ whiteSpace: "nowrap" }}>
+            {value || "___"}
+          </p>
+        );
       default:
-        return <p style={{ whiteSpace: "wrap" }} key={key + row.id} >{value || "___"}</p>
+        return (
+          <p style={{ whiteSpace: "wrap" }} key={key + row.id}>
+            {value || "___"}
+          </p>
+        );
     }
   };
 
-  const tableRef = useRef(null); // Ссылка на таблицу для отслеживания скролла
+  const tableRef = useRef(null);
   const handleScroll = () => {
     const container = tableRef.current?.parentElement;
     if (container) {
       const { scrollTop, scrollHeight, clientHeight } = container;
       const maxScrollTop = scrollHeight - clientHeight;
-      if (scrollTop >= maxScrollTop - 50 && context.loader && context.totalCount > context?.dataTableHomePage.length) {
-        context.setLoader(false); // Отключаем загрузку, чтобы предотвратить повторные запросы
-        context.setOfset((prev) => prev + 10); // Обновляем offset для запросаё
-
+      if (
+        scrollTop >= maxScrollTop - 50 &&
+        context.loader &&
+        context.totalCount > context?.dataTableHomePage.length
+      ) {
+        context.setLoader(false);
+        context.setOfset((prev) => prev + 10);
       }
     }
   };
 
   useEffect(() => {
-    context.UpdateTableReguest(); // Загружаем данные, когда offset изменился
+    context.UpdateTableReguest();
   }, [context.ofset]);
-  
+
   useEffect(() => {
     const container = tableRef.current?.parentElement;
     if (container) {
       container.addEventListener("scroll", handleScroll);
     }
-  
+
     return () => {
       if (container) {
         container.removeEventListener("scroll", handleScroll);
       }
     };
-  }, [context.loader]); // Следим за состоянием loader
+  }, [context.loader]);
 
-  
-  
-  
+  const openPhotoSlider = (photos) => {
+    setSliderPhotos(photos);
+    setCurrentSlideIndex(0);
+    setShowSlider(true);
+  };
+
+  const nextSlide = () => {
+    setCurrentSlideIndex((prev) => (prev + 1) % sliderPhotos.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlideIndex(
+      (prev) => (prev - 1 + sliderPhotos.length) % sliderPhotos.length
+    );
+  };
+
+  const closeSlider = () => {
+    setShowSlider(false);
+    setSliderPhotos([]);
+  };
+
   return (
     <div className={styles.TableWrapper}>
       <div
@@ -826,27 +942,27 @@ function Table() {
                       {item.value}
 
                       {filterAndNote(item.key) && (
-                          <img
-                            onClick={() => funSortByColumn(item.key)}
-                            className={styles.thSort}
-                            src={
-                              context?.sortState[item.key]?.type === "desc"
-                                ? "./img/sort.svg"
-                                : context?.sortState[item.key]?.type === "asc"
-                                ? "./img/sort.svg"
-                                : "./img/=.svg" // Нейтральное состояние
-                            }
-                            title="Сортировать колонку"
-                            alt=">"
-                            style={{
-                              transition: "all 0.2s ease",
-                              transform:
-                                context?.sortState[item.key]?.type === "asc"
-                                  ? "rotate(-180deg)"
-                                  : "none",
-                            }}
-                          />
-                        )}
+                        <img
+                          onClick={() => funSortByColumn(item.key)}
+                          className={styles.thSort}
+                          src={
+                            context?.sortState[item.key]?.type === "desc"
+                              ? "./img/sort.svg"
+                              : context?.sortState[item.key]?.type === "asc"
+                              ? "./img/sort.svg"
+                              : "./img/=.svg"
+                          }
+                          title="Сортировать колонку"
+                          alt=">"
+                          style={{
+                            transition: "all 0.2s ease",
+                            transform:
+                              context?.sortState[item.key]?.type === "asc"
+                                ? "rotate(-180deg)"
+                                : "none",
+                          }}
+                        />
+                      )}
 
                       {actiwFilter === item.key && (
                         <div
@@ -859,8 +975,8 @@ function Table() {
                           }}
                         >
                           <SamplePoints
-                            basickData={context.dataApointment} // нефильтрованные данные
-                            tableBodyData={context.dataApointment} // фильтрованные данные
+                            basickData={context.dataApointment}
+                            tableBodyData={context.dataApointment}
                             punkts={[
                               ...context.dataApointment.map((it) =>
                                 it[item.key] === null ? "___" : it[item.key]
@@ -871,13 +987,13 @@ function Table() {
                             ].sort((a, b) => {
                               return String(a).localeCompare(String(b));
                             })}
-                            itemKey={item.key} // ключь пунта
+                            itemKey={item.key}
                             tableName={"table9"}
                           />
                         </div>
                       )}
                       {store.find((elem) => elem.itemKey === item.key) && (
-                          <img src={FilteImg} />
+                        <img src={FilteImg} />
                       )}
                     </div>
                   </th>
@@ -885,88 +1001,115 @@ function Table() {
             </tr>
           </thead>
           <tbody>
-            
-              {context?.dataTableHomePage.length > 0 ? (
+            {context?.dataTableHomePage.length > 0 ? (
               <>
                 {context?.dataTableHomePage?.map((row, index) => (
-                    <tr
-                      key={index}
-                      style={{backgroundColor: row?.copiedRequestId !== null ? "#ffe78f" : ""}}
-                      onClick={(e) => {trClick(row, e.target)}}
-                      onContextMenu={(e) => {trClickRight(row, e.target); contextmenuClick(e)}}
-                      className={context.moreSelect.some((el) => el === row.id) ? styles.setectedTr : ""}
+                  <tr
+                    key={index}
+                    style={{
+                      backgroundColor:
+                        row?.copiedRequestId !== null ? "#ffe78f" : "",
+                    }}
+                    onClick={(e) => {
+                      trClick(row, e.target);
+                    }}
+                    onContextMenu={(e) => {
+                      trClickRight(row, e.target);
+                      contextmenuClick(e);
+                    }}
+                    className={
+                      context.moreSelect.some((el) => el === row.id)
+                        ? styles.setectedTr
+                        : ""
+                    }
+                  >
+                    <td
+                      key={new Date().getTime() + row.id}
+                      name="checkAll"
+                      style={{
+                        textAlign: "center",
+                        backgroundColor: whatPageBgTd(row.id),
+                      }}
+                      className={styles.MainTd}
+                      id={row?.copiedRequestId !== null ? "copiedRequestId" : undefined}
                     >
+                      <input
+                        type="checkbox"
+                        checked={context.moreSelect.some((el) => el === row.id)}
+                        key={index}
+                        name="checkAll"
+                        className={styles.checkbox}
+                        readOnly
+                      />
+                    </td>
+                    {storeTableHeader
+                      ?.filter((el) => el.isActive === true)
+                      ?.map((headerItem) => (
                         <td
-                        key={new Date().getTime() + row.id}
-                          name="checkAll"
-                          style={{textAlign: "center", backgroundColor: whatPageBgTd(row.id)}}
+                          key={headerItem.key}
+                          name={headerItem.key}
                           className={styles.MainTd}
-                          id={row?.copiedRequestId !== null && "copiedRequestId"}
+                          id={row?.copiedRequestId !== null ? "copiedRequestId" : undefined}
+                          style={{
+                            textAlign: textAlign(
+                              headerItem.key,
+                              row[headerItem.key]
+                            ),
+                            backgroundColor: whatPageBgTd(row.id),
+                          }}
                         >
-                          <input
-                            type="checkbox"
-                            checked={context.moreSelect.some((el) => el === row.id)}
-                            key={index}
-                            name="checkAll"
-                            className={styles.checkbox}
-                            readOnly
-                          />
+                          {getValue(
+                            row[headerItem.key],
+                            headerItem.key,
+                            index,
+                            row
+                          )}
                         </td>
-                        {storeTableHeader?.filter((el) => el.isActive === true)?.map((headerItem) => (
-                          <td
-                            key={headerItem.key}
-                            name={headerItem.key}
-                            className={styles.MainTd}
-                            id={row?.copiedRequestId !== null && "copiedRequestId"}
-                            style={{textAlign: textAlign(headerItem.key,row[headerItem.key]), backgroundColor: whatPageBgTd(row.id)}}
-                          >
-                            {getValue(row[headerItem.key], headerItem.key, index, row)}
-                          </td>
                       ))}
-                    </tr>
-                  ))}
-                </>
-              ) : (
-                <tr>
-                  <td colSpan={21} className={styles.tableNotData}></td>
+                  </tr>
+                ))}
+              </>
+            ) : (
+              <tr>
+                <td colSpan={21} className={styles.tableNotData}>
                   <div className={styles.notData}> Нет данных</div>
-                </tr>
-              )}
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
-      {
-      context.loader && <div>
-        <p style={{ margin: "10px 0 0 0px" }}>
-          Кол-во выбранных заявок: {context.moreSelect.length}
-        </p>
-      </div>
-      }
-  
-      
+      {context.loader && (
+        <div>
+          <p style={{ margin: "10px 0 0 0px" }}>
+            Кол-во выбранных заявок: {context.moreSelect.length}
+          </p>
+        </div>
+      )}
 
-      {modalImage && (
-        <div className={styles.modal}>
-          <span className={styles.close} onClick={closeModal}>&times;</span>
-            {isVideo(modalImage) ? (
-              <video
-                controls
-                className={styles.modalContent}
-                src={modalImage}
-                alt="Full size video"
-              >
-                Your browser does not support the video tag.
-              </video>
-            ) : (
-              <div onClick={closeModal}>
-
+      {showSlider && (
+        <div className={styles.photoSlider}>
+          <div className={styles.sliderContent}>
+            <button className={styles.closeSlider} onClick={closeSlider}>
+              ×
+            </button>
+            <div className={styles.sliderControls}>
+              <button className={styles.prevButton} onClick={prevSlide}>
+                ❮
+              </button>
               <img
-                className={styles.modalContent}
-                src={modalImage}
-                alt="Full size"
+                src={`${process.env.REACT_APP_API_URL}/uploads/${sliderPhotos[currentSlideIndex]}`}
+                alt={`Slide ${currentSlideIndex + 1}`}
+                className={styles.sliderImage}
               />
-              </div>
-            )}
+              <button className={styles.nextButton} onClick={nextSlide}>
+                ❯
+              </button>
+            </div>
+            <div className={styles.sliderIndicator}>
+              {currentSlideIndex + 1} / {sliderPhotos.length}
+            </div>
+          </div>
         </div>
       )}
       {context.popUp === "СonfirmDelete" && <СonfirmDelete />}
@@ -982,13 +1125,29 @@ function Table() {
           />
         </div>
       )}
+      {modalImage && (
+        <div className={styles.modalOverlay} onClick={closeModal}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <button className={styles.closeButton} onClick={closeModal}>×</button>
+            {isVideo(modalImage.split('/').pop()) ? (
+              <video controls className={styles.modalVideo}>
+                <source src={modalImage} />
+                Your browser does not support the video tag.
+              </video>
+            ) : (
+              <img src={modalImage} alt="Enlarged media" className={styles.modalImage} />
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
 export default Table;
 
-{/* {!context.loader ? (
+{
+  /* {!context.loader ? (
     <tr>
       <td colSpan="21" className={styles.tableNotDataSpinner}>
         <div className={styles.tableNotDataSpinnerInner}>
@@ -1000,4 +1159,5 @@ export default Table;
       </td>
     </tr>
   ):( 
-    <>*/}
+    <>*/
+}
