@@ -18,6 +18,7 @@ import * as util from 'node:util';
 import logger from '../utils/logger';
 import { models } from '../models';
 import Urgency from '../models/urgency';
+import User from '../models/user';
 
 const getAllRequests = async (filter: any, order: any, pagination: any) => {
     let requests;
@@ -120,6 +121,10 @@ const getAllRequests = async (filter: any, order: any, pagination: any) => {
         } else if (fieldName === 'isAutoCreated') {
             console.log(value);
             whereParams[fieldName] = { [Op.is]: value.includes('true') };
+        } else if (fieldName === 'isExternal') {
+            whereParams[fieldName] = { [Op.is]: value.includes('true') };
+        } else if (fieldName === 'managerTgId') {
+            whereParams[fieldName] = filter.managerTgId;
         } else {
             whereParams[fieldName] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
         }
@@ -175,6 +180,7 @@ const getAllRequests = async (filter: any, order: any, pagination: any) => {
                 { model: Unit },
                 { model: LegalEntity },
                 { model: ExtContractor },
+                { model: TgUser, as: 'TgUser' },
             ],
             order:
                 order.col && order.type
@@ -210,6 +216,9 @@ const getAllRequests = async (filter: any, order: any, pagination: any) => {
                 {
                     model: ExtContractor,
                 },
+                {
+                    model: TgUser,
+                },
             ],
         });
     } else {
@@ -221,6 +230,7 @@ const getAllRequests = async (filter: any, order: any, pagination: any) => {
                 { model: Unit },
                 { model: LegalEntity },
                 { model: ExtContractor },
+                { model: TgUser },
             ],
             order:
                 order.col && order.type
@@ -239,6 +249,7 @@ const getAllRequests = async (filter: any, order: any, pagination: any) => {
                 { model: Unit },
                 { model: LegalEntity },
                 { model: ExtContractor },
+                { model: TgUser },
             ],
         });
     }
@@ -265,6 +276,7 @@ const getRequestById = async (requestId: string): Promise<RequestDto> => {
             { model: Unit },
             { model: LegalEntity },
             { model: ExtContractor },
+            { model: TgUser },
         ],
     });
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
@@ -400,62 +412,198 @@ const createRequestWithMultiplePhotos = async (
     return new RequestDto(request);
 };
 
-const setContractor = async (requestId: string, contractorId: string): Promise<void> => {
-    const request = await RepairRequest.findByPk(requestId);
-    if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
-    const oldStatus = request.status;
-    if (contractorId.toLowerCase() === 'внешний подрядчик')
-        await request.update({ contractorId: null, builder: 'Внешний подрядчик', isExternal: true });
-    else
-        await request.update({
-            contractorId,
-            builder: 'Внутренний сотрудник',
-            status: 2,
-            daysAtWork: 1,
-            ExtContractorId: null,
-            isExternal: false,
-        });
-
-    const customer = await TgUser.findByPk(request.createdBy);
-    const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
-    sendMsg({
-        msg: {
-            newStatus: 2,
-            oldStatus: oldStatus,
-            requestId: requestId,
-            contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
-            customer: customer ? customer.tgId : null,
-        },
-        event: 'STATUS_UPDATE',
-    } as WsMsgData);
+const setContractor = async (requestId: string, contractorId: string, managerId?: string): Promise<void> => {
+    try {
+        const request = await RepairRequest.findByPk(requestId);
+        if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
+        const oldStatus = request.status;
+        
+        // Обработка случая с менеджером как исполнителем
+        if (managerId) {
+            logger.info(`Setting manager/admin with ID: ${managerId} for request: ${requestId}`);
+            
+            let manager = null;
+            
+            // First, try to find a TgUser (manager) with this ID
+            try {
+                manager = await TgUser.findByPk(managerId);
+                if (manager) {
+                    logger.info(`Found manager as TgUser: ${manager.name}, tgId: ${manager.tgId}`);
+                }
+            } catch (error) {
+                logger.error(`Error looking up TgUser manager: ${error}`);
+            }
+            
+            if (manager) {
+                await request.update({
+                    managerId: managerId,
+                    managerTgId: manager.tgId,
+                    status: 2,
+                    daysAtWork: 1,
+                    contractorId: null,
+                    ExtContractorId: null,
+                    isExternal: false,
+                    builder: `Менеджер: ${manager.name}`
+                });
+                
+                logger.info(`Заявка ${requestId} назначена менеджеру ${manager.name}, установлены поля: managerId=${managerId}, managerTgId=${manager.tgId}`);
+                
+                const customer = await TgUser.findByPk(request.createdBy);
+                
+                sendMsg({
+                    msg: {
+                        newStatus: 2,
+                        oldStatus: oldStatus,
+                        requestId: requestId,
+                        contractor: null,
+                        customer: customer ? customer.tgId : null,
+                        tgUser: manager.tgId
+                    },
+                    event: 'STATUS_UPDATE',
+                } as WsMsgData);
+                
+                return;
+            }
+        }
+        
+        // Обработка "Внешний подрядчик"
+        if (contractorId && typeof contractorId === 'string' && 
+            (contractorId.toLowerCase() === 'внешний подрядчик' || 
+             contractorId.toLowerCase() === 'external contractor' || 
+             contractorId === 'external')) {
+            
+            logger.info(`Setting external contractor for request: ${requestId}`);
+            
+            await request.update({ 
+                contractorId: null, 
+                managerId: null,
+                managerTgId: null,
+                builder: 'Внешний подрядчик', 
+                isExternal: true,
+                status: 2,
+                daysAtWork: 1,
+                ExtContractorId: null
+            });
+            
+            const customer = await TgUser.findByPk(request.createdBy);
+            
+            sendMsg({
+                msg: {
+                    newStatus: 2,
+                    oldStatus: oldStatus,
+                    requestId: requestId,
+                    contractor: null,
+                    customer: customer ? customer.tgId : null,
+                },
+                event: 'STATUS_UPDATE',
+            } as WsMsgData);
+            
+            return;
+        }
+        
+        // Проверяем существование подрядчика с переданным ID
+        if (contractorId) {
+            try {
+                const contractor = await Contractor.findByPk(contractorId);
+                if (!contractor) {
+                    logger.error(`Contractor with ID ${contractorId} not found`);
+                    throw new ApiError(httpStatus.BAD_REQUEST, `Contractor with ID ${contractorId} not found`);
+                }
+                
+                logger.info(`Setting contractor ${contractor.name} (ID: ${contractorId}) for request: ${requestId}`);
+                
+                await request.update({
+                    contractorId,
+                    managerId: null,
+                    managerTgId: null,
+                    builder: 'Внутренний сотрудник',
+                    status: 2,
+                    daysAtWork: 1,
+                    ExtContractorId: null,
+                    isExternal: false,
+                });
+                
+                const customer = await TgUser.findByPk(request.createdBy);
+                const tgContractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
+                
+                sendMsg({
+                    msg: {
+                        newStatus: 2,
+                        oldStatus: oldStatus,
+                        requestId: requestId,
+                        contractor: tgContractor ? (tgContractor.TgUser ? tgContractor.TgUser.tgId : null) : null,
+                        customer: customer ? customer.tgId : null,
+                    },
+                    event: 'STATUS_UPDATE',
+                } as WsMsgData);
+            } catch (error) {
+                logger.error(`Error while setting contractor for request ${requestId}: ${error}`);
+                throw error;
+            }
+        } else {
+            // Если contractorId не передан, но и managerId тоже нет
+            logger.error('Neither contractor ID nor manager ID was provided');
+            throw new ApiError(httpStatus.BAD_REQUEST, 'Either contractor ID or manager ID must be provided');
+        }
+    } catch (error) {
+        logger.error(`Error in setContractor for request ${requestId}: ${error}`);
+        throw error;
+    }
 };
 
 const setExtContractor = async (requestId: string, extContractorId: string): Promise<void> => {
-    const request = await RepairRequest.findByPk(requestId);
-    const extContractor = await ExtContractor.findByPk(extContractorId);
-    if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
-    if (!extContractor) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found external contractor');
-    const oldStatus = request.status;
-    await request.update({
-        ExtContractorId: extContractorId,
-        contractorId: null,
-        status: 2,
-        daysAtWork: 1,
-        builder: extContractor.name,
-    });
+    try {
+        logger.info(`Setting external contractor ${extContractorId} for request ${requestId}`);
+        
+        // Находим заявку
+        const request = await RepairRequest.findByPk(requestId);
+        if (!request) {
+            logger.error(`Request with id ${requestId} not found`);
+            throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
+        }
+        
+        // Находим внешнего подрядчика
+        const extContractor = await ExtContractor.findByPk(extContractorId);
+        if (!extContractor) {
+            logger.error(`External contractor with id ${extContractorId} not found`);
+            throw new ApiError(httpStatus.BAD_REQUEST, 'Not found external contractor');
+        }
+        
+        const oldStatus = request.status;
+        
+        // Обновляем заявку
+        logger.info(`Updating request ${requestId} with external contractor ${extContractor.name}`);
+        await request.update({
+            ExtContractorId: extContractorId,
+            contractorId: null,
+            managerId: null,
+            managerTgId: null,
+            status: 2,
+            daysAtWork: 1,
+            builder: extContractor.name,
+            isExternal: true
+        });
 
-    const customer = await TgUser.findByPk(request.createdBy);
-    const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
-    sendMsg({
-        msg: {
-            newStatus: 2,
-            oldStatus: oldStatus,
-            requestId: requestId,
-            contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
-            customer: customer ? customer.tgId : null,
-        },
-        event: 'STATUS_UPDATE',
-    } as WsMsgData);
+        // Находим заказчика для отправки уведомления
+        const customer = await TgUser.findByPk(request.createdBy);
+        
+        // Отправляем уведомление
+        sendMsg({
+            msg: {
+                newStatus: 2,
+                oldStatus: oldStatus,
+                requestId: requestId,
+                contractor: null,
+                customer: customer ? customer.tgId : null,
+            },
+            event: 'STATUS_UPDATE',
+        } as WsMsgData);
+        
+        logger.info(`Successfully set external contractor ${extContractor.name} for request ${requestId}`);
+    } catch (error) {
+        logger.error(`Error in setExtContractor for request ${requestId}: ${error}`);
+        throw error;
+    }
 };
 
 const setComment = async (requestId: string, comment: string): Promise<void> => {
@@ -553,18 +701,44 @@ const update = async (
     builder: string | undefined,
     planCompleteDate: Date | null | undefined,
     urgencyId: string | null | undefined
+    managerTgId: string | undefined
 ): Promise<void> => {
     const request = await RepairRequest.findByPk(requestId);
-    if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
-    let objectDir;
-    if (objectId) objectDir = await objectService.getObjectById(objectId);
-
-    if (itineraryOrder) {
-        const itinerary = await contractorService.getContractorsItinerary(request.contractorId as string, {});
-        for (const it of itinerary) {
-            if (itineraryOrder === it.itineraryOrder)
-                await RepairRequest.update({ itineraryOrder: request.itineraryOrder }, { where: { id: it.id } });
+    if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found request with id ' + requestId);
+    
+    logger.info({
+        level: 'info',
+        message: `Updating repair request ${requestId}`,
+        fields: {
+            originalManagerTgId: request.managerTgId,
+            newManagerTgId: managerTgId,
+            originalManagerId: request.managerId
         }
+    });
+    
+    const updateData: any = {};
+    
+    if (objectId) updateData.objectId = objectId;
+    if (problemDescription !== undefined) updateData.problemDescription = problemDescription;
+    if (urgency) updateData.urgency = urgency;
+    if (repairPrice !== undefined) updateData.repairPrice = repairPrice;
+    if (comment !== undefined) updateData.comment = comment;
+    if (itineraryOrder !== undefined) updateData.itineraryOrder = itineraryOrder;
+    if (contractorId !== undefined) updateData.contractorId = contractorId;
+    if (status !== undefined) updateData.status = status;
+    if (builder !== undefined) updateData.builder = builder;
+    if (planCompleteDate !== undefined) updateData.planCompleteDate = planCompleteDate;
+    if (managerTgId !== undefined) updateData.managerTgId = managerTgId;
+    
+    await request.update(updateData);
+    
+    // Если статус обновлен на "выполнено", устанавливаем дату завершения
+    if (status === 3) {
+        const dateNow = new Date();
+        await request.update({
+            completeDate: dateNow,
+            daysAtWork: Math.floor((dateNow.getTime() - request.createdAt.getTime()) / (1000 * 60 * 60 * 24)),
+        });
     }
 
     // ws section
@@ -674,10 +848,11 @@ const getCustomersRequests = async (tgUserId: string, filter: any): Promise<Requ
                 { '$Contractor.name$': { [Op.iLike]: `%${filter.search}%` } },
             ];
             if (Number.isInteger(filter.search)) {
-                searchParams.push({ number: { [Op.eq]: filter.search } } as any);
-                searchParams.push({ itineraryOrder: { [Op.eq]: filter.search } } as any);
-                searchParams.push({ daysAtWork: { [Op.eq]: filter.search } } as any);
+                searchParams.push({ number: { [Op.eq]: filter.search } });
+                searchParams.push({ itineraryOrder: { [Op.eq]: filter.search } });
+                searchParams.push({ daysAtWork: { [Op.eq]: filter.search } });
             }
+            
             requests = await RepairRequest.findAll({
                 where: {
                     [Op.and]: [
@@ -688,21 +863,12 @@ const getCustomersRequests = async (tgUserId: string, filter: any): Promise<Requ
                     ],
                 },
                 include: [
-                    {
-                        model: Contractor,
-                    },
-                    {
-                        model: ObjectDir,
-                    },
-                    {
-                        model: Unit,
-                    },
-                    {
-                        model: LegalEntity,
-                    },
-                    {
-                        model: ExtContractor,
-                    },
+                    { model: Contractor },
+                    { model: ObjectDir },
+                    { model: Unit },
+                    { model: LegalEntity },
+                    { model: ExtContractor },
+                    { model: TgUser },
                 ],
                 order: [['number', 'desc']],
             });
@@ -715,6 +881,7 @@ const getCustomersRequests = async (tgUserId: string, filter: any): Promise<Requ
                     { model: Unit },
                     { model: LegalEntity },
                     { model: ExtContractor },
+                    { model: TgUser },
                 ],
                 order: [['number', 'desc']],
             });
@@ -736,8 +903,8 @@ const getCustomersRequests = async (tgUserId: string, filter: any): Promise<Requ
     }
 };
 
-const addCheck = async (requestId: string, file: string): Promise<void> => {
-    await RepairRequest.update({ checkPhoto: file }, { where: { id: requestId } });
+const addCheck = async (requestId: string, fileName: string): Promise<void> => {
+    await RepairRequest.update({ checkPhoto: fileName }, { where: { id: requestId } });
     await setStatus(requestId, 3);
 };
 
@@ -824,13 +991,52 @@ const copyRequest = async (requestId: string): Promise<void> => {
         number: 0,
     });
 };
+
 const getRequestsByObjects = async (tgUserId: string, filter: any): Promise<RequestDto[]> => {
-    logger.log({
-        level: 'info',
-        message: `Getting requests by objects for tgUser: ${tgUserId}`,
+    return getCustomersRequests(tgUserId, filter);
+};
+
+// New function to set a manager as the executor
+const setManager = async (requestId: string, managerId: string): Promise<void> => {
+    const request = await RepairRequest.findByPk(requestId);
+    if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
+    
+    const oldStatus = request.status;
+    
+    // Find the manager
+    const manager = await TgUser.findByPk(managerId);
+    if (!manager) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found manager with id ' + managerId);
+    
+    logger.info(`Назначение менеджера ${manager.name} (ID: ${managerId}, tgId: ${manager.tgId}) исполнителем для заявки: ${requestId}`);
+    
+    // Update the request with both managerId and managerTgId
+    await request.update({
+        managerId,
+        managerTgId: manager.tgId, // Store tgId for direct reference in bot
+        status: 2,
+        daysAtWork: 1,
+        contractorId: null,
+        ExtContractorId: null,
+        isExternal: false,
+        builder: `Менеджер: ${manager.name}`
     });
     
-    return getCustomersRequests(tgUserId, filter);
+    logger.info(`Заявка ${requestId} успешно обновлена, установлены поля: managerId=${managerId}, managerTgId=${manager.tgId}`);
+    
+    // Send notification
+    const customer = await TgUser.findByPk(request.createdBy);
+    
+    sendMsg({
+        msg: {
+            newStatus: 2,
+            oldStatus: oldStatus,
+            requestId: requestId,
+            contractor: null,
+            customer: customer ? customer.tgId : null,
+            tgUser: manager.tgId
+        },
+        event: 'STATUS_UPDATE',
+    } as WsMsgData);
 };
 
 const changeUrgency = async(prevName: string, urgencyId: string) => {
@@ -873,4 +1079,6 @@ export default {
     bulkSetContractor,
     copyRequest,
     changeUrgency,
+    setManager,
+
 };

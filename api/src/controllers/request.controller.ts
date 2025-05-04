@@ -6,6 +6,7 @@ import statuses from '../config/statuses';
 import pick from '../utils/pick';
 import prepare from '../utils/prepare';
 import TgUser from '../models/tgUser';
+import logger from '../utils/logger';
 
 const getAll = catchAsync(async (req, res) => {
     const filter = prepare(
@@ -129,10 +130,10 @@ const createWithMultiplePhotos = catchAsync(async (req, res) => {
 });
 
 const setContractor = catchAsync(async (req, res) => {
-    const { requestId, contractorId } = req.body;
+    const { requestId, contractorId, managerId } = req.body;
     if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
-    if (!contractorId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing contractorId');
-    await requestService.setContractor(requestId, contractorId);
+    if (!contractorId && !managerId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing contractorId or managerId');
+    await requestService.setContractor(requestId, contractorId, managerId);
     res.json({ status: 'OK' });
 });
 
@@ -204,9 +205,11 @@ const update = catchAsync(async (req, res) => {
         builder,
         planCompleteDate,
         urgencyId,
+        managerTgId,
     } = req.body;
     const { requestId } = req.params;
     if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
+    
     if (
         !objectId &&
         !problemDescription &&
@@ -217,9 +220,20 @@ const update = catchAsync(async (req, res) => {
         !contractorId &&
         !status &&
         !builder &&
-        typeof planCompleteDate === 'undefined'
+        typeof planCompleteDate === 'undefined' &&
+        !managerTgId
     )
         throw new ApiError(httpStatus.BAD_REQUEST, 'Missing body');
+    
+    logger.info({
+        message: `Updating request ${requestId}`,
+        fields: {
+            managerTgId,
+            status,
+            contractorId,
+        }
+    });
+    
     await requestService.update(
         requestId,
         objectId,
@@ -232,7 +246,8 @@ const update = catchAsync(async (req, res) => {
         status,
         builder,
         planCompleteDate,
-        urgencyId
+        urgencyId,
+        managerTgId
     );
     res.json({ status: 'OK' });
 });
@@ -371,6 +386,11 @@ const changeUrgency = catchAsync(async (req, res) => {
     if (!prevName || !urgencyId) throw new ApiError(httpStatus.BAD_REQUEST, 'missing prevName or urgencyId');
     await requestService.changeUrgency(prevName, urgencyId);
 
+const setManager = catchAsync(async (req, res) => {
+    const { requestId, managerId } = req.body;
+    if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
+    if (!managerId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing managerId');
+    await requestService.setManager(requestId, managerId);
     res.json({ status: 'OK' });
 });
 
@@ -399,4 +419,5 @@ export default {
     copy,
     getStat,
     changeUrgency,
+    setManager,
 };

@@ -29,9 +29,12 @@ export default class RequestDto {
     createdAt!: string;
     createdAtRaw?: Date;
     contractor?: ContractorDto | null;
+    contractorManager?: string | null;
     extContractor?: ExtContractorDto | null;
     isExternal!: boolean;
     copiedRequestId?: string;
+    managerId?: string | null;
+    managerTgId?: string | null;
 
     constructor(model: RepairRequest) {
         this.id = model.id;
@@ -59,8 +62,11 @@ export default class RequestDto {
         this.createdAt = model.createdAt ? strftime('%d.%m.%y', model.createdAt) : '';
         this.createdAtRaw = model.createdAt;
         this.contractor = model.Contractor ? new ContractorDto(model.Contractor) : null;
+        this.contractorManager = model.managerId && model.TgUser ? model.TgUser.name : model.builder;
         this.extContractor = model.ExtContractor ? new ExtContractorDto(model.ExtContractor) : null;
         this.isExternal = model.isExternal;
         this.copiedRequestId = model.copiedRequestId;
+        this.managerId = model.managerId;
+        this.managerTgId = model.managerTgId;
     }
 }
