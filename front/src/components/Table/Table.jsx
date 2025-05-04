@@ -10,6 +10,8 @@ import {
   SetExtContractorsRequest,
   SetStatusRequest,
   SetcontractorRequest,
+  GetAllManagers,
+  GetAllAdmins,
 } from "../../API/API";
 import { useSelector } from "react-redux";
 import СonfirmDelete from "./../СonfirmDelete/СonfirmDelete";
@@ -94,6 +96,8 @@ function Table() {
   const ItineraryOrderPopRef = useRef(null);
   const [arrCount, setArrCount] = useState([]);
   const [dataBuilder, setDataBuilder] = useState({});
+  const [managers, setManagers] = useState([]);
+  const [admins, setAdmins] = useState([]);
   const contextmenuRef = useRef(null);
 
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
@@ -104,6 +108,19 @@ function Table() {
     GetextContractorsAll().then((response) => {
       setDataBuilder(response.data);
     });
+    
+    GetAllManagers().then((response) => {
+      if (response && response.data) {
+        setManagers(response.data);
+      }
+    });
+    
+    GetAllAdmins().then((response) => {
+      if (response && response.data) {
+        setAdmins(response.data);
+      }
+    });
+    
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -330,16 +347,6 @@ function Table() {
   const checkHeights = (arr, index) =>
     index === arr.length - 1 && arr.length !== 1;
 
-  const getContractorItem = (row) => {
-    if (row?.isExternal) {
-      return "Внешний подрядчик";
-    } else if (row?.contractor === "___") {
-      return "Не назначен";
-    } else {
-      return row?.contractor;
-    }
-  };
-
   const getCountList = () =>
     setArrCount(
       Array.from({ length: context.tableData?.length || 0 }, (_, i) => i + 1)
@@ -348,6 +355,31 @@ function Table() {
   useEffect(() => {
     getCountList();
   }, [context.Dataitinerary]);
+
+  const getPopupClassName = (index, totalRows) => {
+    const isNearBottom = index > (totalRows * 2/3);
+    const isNearRight = index % 2 === 1;
+    
+    let classNames = [styles.shovStatusPop];
+    
+    if (isNearBottom) {
+      if (styles['top-aligned']) {
+        classNames.push(styles['top-aligned']);
+      } else {
+        classNames.push('top-aligned');
+      }
+    }
+    
+    if (isNearRight) {
+      if (styles['right-aligned']) {
+        classNames.push(styles['right-aligned']);
+      } else {
+        classNames.push('right-aligned');
+      }
+    }
+    
+    return classNames.join(' ');
+  };
 
   const clickTh = (key, index, el) => {
     if (
@@ -440,12 +472,22 @@ function Table() {
   );
 
   const getItemBuilder = (row) => {
-    if (row?.builder === "Внешний подрядчик") {
-      return "Не назначен";
-    }
-    if (row?.builder && row?.isExternal) {
-      return row?.builder;
-    } else {
+    // Если есть подрядчик с именем
+    if (row?.contractor && typeof row.contractor === 'object' && row.contractor.name) {
+      return row.contractor.name;
+    } 
+    // Если это менеджер-исполнитель
+    else if (row?.managerId) {
+      // Ищем менеджера среди списка всех менеджеров
+      const manager = managers.find(m => m.id === row.managerId);
+      return manager ? manager.name : "Менеджер";
+    } 
+    // Если это внешний подрядчик
+    else if (row?.isExternal) {
+      return row?.builder || "Внешний подрядчик";
+    } 
+    // В остальных случаях
+    else {
       return "Не назначен";
     }
   };
@@ -550,6 +592,8 @@ function Table() {
   };
 
   const getValue = (value, key, index, row) => {
+    const totalRows = context?.dataTableHomePage?.length || 0;
+    
     switch (key) {
       case "id":
         return index + 1;
@@ -565,12 +609,7 @@ function Table() {
             {value}
             {shovStatusPop === row.id && (
               <div
-                className={styles.shovStatusPop}
-                style={
-                  checkHeights(context?.dataTableHomePage, index)
-                    ? { top: "-70%", width: "250px" }
-                    : { width: "250px" }
-                }
+                className={getPopupClassName(index, totalRows)}
               >
                 <ul>
                   {Object.values(status).map((statusValue, statusIndex) => (
@@ -600,34 +639,37 @@ function Table() {
             ref={builderPopRef}
             key={key + row.id}
           >
-            {getContractorItem(row)}
+            {getItemBuilder(row)}
             {shovBulderPop === row.id && (
               <div
-                className={styles.shovStatusPop}
-                style={
-                  checkHeights(context?.dataTableHomePage, index)
-                    ? { top: "-70%", width: "200%" }
-                    : {
-                        width: "200%",
-                        right: "-365px",
-                        top: "40px",
-                      }
-                }
+                className={getPopupClassName(index, totalRows)}
               >
                 <ul>
-                  {value !== "___" && (
+                  <li className={styles.listHeader}>Действия:</li>
+                  {(row?.contractor !== "___" || row?.managerId || row?.isExternal) && (
                     <li onClick={() => deleteBilder(row.id)}>
                       Удалить исполнителя
                     </li>
                   )}
+                  <li onClick={() => setPerformersDirectory(row.id)}>
+                    Выбрать внешнего подрядчика
+                  </li>
+                  
+                  <li className={styles.listHeader}>Менеджеры:</li>
+                  {managers && managers.length > 0 && 
+                    managers.map((manager, idx) => (
+                      <li onClick={() => SetManager(manager.id, row.id)} key={`manager-${idx}`}>
+                        {manager.name}
+                      </li>
+                    ))
+                  }
+                  
+                  <li className={styles.listHeader}>Исполнители:</li>
                   {context.dataContractors?.map((value, index) => (
                     <li onClick={() => SetBilder(value.id, row.id)} key={index}>
                       {value.name}
                     </li>
                   ))}
-                  <li onClick={() => setPerformersDirectory(row.id)}>
-                    Внешний подрядчик
-                  </li>
                 </ul>
               </div>
             )}
@@ -641,24 +683,17 @@ function Table() {
             ref={extPopRef}
             key={key + row.id}
           >
-            {getItemBuilder(row)}
+            {row?.builder || "Не назначен"}
             {shovExtPop === row.id && (
               <div
-                className={styles.shovStatusPop}
-                style={
-                  checkHeights(context?.dataTableHomePage, index)
-                    ? { top: "-70%", width: "200%" }
-                    : { width: "200%" }
-                }
+                className={getPopupClassName(index, totalRows)}
               >
                 <ul>
-                  {value &&
-                    value !== "___" &&
-                    value !== "Внешний подрядчик" && (
-                      <li onClick={() => deleteExp(row.id)}>
-                        Удалить подрядчика
-                      </li>
-                    )}
+                  {row?.isExternal && row?.builder && (
+                    <li onClick={() => deleteBilder(row.id)}>
+                      Удалить исполнителя
+                    </li>
+                  )}
                   {dataBuilder?.map((builder, idx) => (
                     <li onClick={() => SetExp(row.id, builder.id)} key={idx}>
                       {builder.name}
@@ -669,7 +704,21 @@ function Table() {
             )}
           </div>
         ) : (
-          value || "___"
+          (() => {
+            if (row?.managerId) {
+              const manager = managers.find(m => m.id === row.managerId);
+              return manager ? manager.name : "Менеджер";
+            } 
+            else if (row?.contractor && typeof row.contractor === 'object' && row.contractor.name) {
+              return row.contractor.name;
+            }
+            else if (typeof row?.contractor === 'string' && row.contractor !== "___") {
+              return row.contractor;
+            }
+            else {
+              return "Не назначен";
+            }
+          })()
         );
       case "urgency":
         return (
@@ -685,12 +734,7 @@ function Table() {
             {value || "___"}
             {shovUrgencyPop === row.id && (
               <div
-                className={styles.shovStatusPop}
-                style={
-                  checkHeights(context?.dataTableHomePage, index)
-                    ? { top: "-70%", width: "200%" }
-                    : { width: "200%" }
-                }
+                className={getPopupClassName(index, totalRows)}
               >
                 <ul>
                   {DataUrgency?.map((value, index) => (
@@ -842,6 +886,31 @@ function Table() {
             {value || "___"}
           </p>
         );
+      case "itineraryOrder":
+        return (
+          <div
+            onClick={() => togglePopupState(setItineraryOrderPop, row.id)}
+            className={styles.statusClick}
+            ref={ItineraryOrderPopRef}
+            key={key + row.id}
+          >
+            {value || "___"}
+            {itineraryOrderPop === row.id && (
+              <div className={getPopupClassName(index, totalRows)}>
+                <ul>
+                  {arrCount?.map((el) => (
+                    <li
+                      key={el}
+                      onClick={() => SetCountCard(el, row.id)}
+                    >
+                      {el}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        );
       default:
         return (
           <p style={{ whiteSpace: "wrap" }} key={key + row.id}>
@@ -904,6 +973,48 @@ function Table() {
   const closeSlider = () => {
     setShowSlider(false);
     setSliderPhotos([]);
+  };
+
+  const SetManager = (managerId, requestId) => {
+    const data = { requestId: requestId, managerId: managerId };
+    SetcontractorRequest(data).then((resp) => {
+      if (resp?.status === 200) {
+        GetOneRequests(requestId).then((resp) => {
+          if (resp?.status === 200) {
+            UpdateRequest(resp?.data);
+          }
+        });
+      }
+    });
+  };
+
+  const SetAdmin = (adminId, requestId) => {
+    const data = { requestId: requestId, managerId: adminId };
+    SetcontractorRequest(data).then((resp) => {
+      if (resp?.status === 200) {
+        GetOneRequests(requestId).then((resp) => {
+          if (resp?.status === 200) {
+            UpdateRequest(resp?.data);
+          }
+        });
+      }
+    });
+  };
+
+  const SetCountCard = (el, idAppoint) => {
+    const data = {
+      itineraryOrder: el,
+    };
+    ReseachDataRequest(idAppoint, data).then((resp) => {
+      if (resp?.status === 200) {
+        GetOneRequests(idAppoint).then((resp) => {
+          if (resp?.status === 200) {
+            UpdateRequest(resp?.data);
+            setItineraryOrderPop("");
+          }
+        });
+      }
+    });
   };
 
   return (

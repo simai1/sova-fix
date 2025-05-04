@@ -5,6 +5,7 @@ import ObjectDir from './object';
 import Unit from './unit';
 import LegalEntity from './legalEntity';
 import ExtContractor from './externalContractor';
+import TgUser from './tgUser';
 
 export default class RepairRequest extends Model {
     id!: string;
@@ -33,6 +34,9 @@ export default class RepairRequest extends Model {
     legalEntityId?: string;
     Contractor?: Contractor; // contractor rel
     contractorId?: string;
+    TgUser?: TgUser; // manager rel
+    managerId?: string;
+    managerTgId?: string; // telegram ID of manager for direct reference in bot
     ExtContractor?: ExtContractor; // external contractor rel
     extContractorId?: string;
     isExternal!: boolean;
@@ -123,6 +127,14 @@ export default class RepairRequest extends Model {
                 },
                 copiedRequestId: {
                     type: DataTypes.UUID,
+                    allowNull: true,
+                },
+                managerId: {
+                    type: DataTypes.UUID,
+                    allowNull: true,
+                },
+                managerTgId: {
+                    type: DataTypes.STRING,
                     allowNull: true,
                 },
             },

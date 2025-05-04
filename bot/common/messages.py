@@ -34,6 +34,8 @@ async def add_media_to_album(media_filename: str, caption: str, album: MediaGrou
 
 
 async def send_repair_request(message: Message, repair_request: dict, kb: IKM | None = None) -> None:
+    user_id = message.chat.id
+    
     text = repair_request_text(repair_request)
 
     file_filename = repair_request['fileName']
@@ -43,11 +45,12 @@ async def send_repair_request(message: Message, repair_request: dict, kb: IKM | 
     try:
         album = MediaGroupBuilder()
 
-        await add_media_to_album(
-            media_filename=file_filename,
-            caption="Описание проблемы",
-            album=album
-        )
+        if file_filename is not None:
+            await add_media_to_album(
+                media_filename=file_filename,
+                caption="Описание проблемы",
+                album=album
+            )
 
         if rr_check_filename is not None:
             await add_media_to_album(
@@ -64,10 +67,12 @@ async def send_repair_request(message: Message, repair_request: dict, kb: IKM | 
             )
 
         try:
-            await message.answer_media_group(album.build())
+            if album._media:
+                await message.answer_media_group(album.build())
         except TelegramBadRequest:
             await message.answer("<i>не удалось загрузить фото</i>")
             logger.error("TelegramBadRequest: file must be non-empty", f"{album.build()}")
+        
         await message.answer(text, reply_markup=kb)
 
     except TelegramNetworkError:

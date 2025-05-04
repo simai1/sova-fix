@@ -128,32 +128,64 @@
         border-radius: 8px;
         background-color: var(--dark-grey-color);
         text-align: center;
+        position: relative;
+        cursor: pointer;
+        
         &:hover {
           background-color: var(--Active-gray-color);
-          // opacity: 0.8;
         }
+        
         .shovStatusPop {
-          max-height: 150px;
-          overflow-y: scroll;
-          transform: translateY(20px);
+          max-height: 250px;
+          overflow-y: auto;
           position: absolute;
+          left: 170px;
+          top: 0;
           background-color: #fff;
-          padding: 10px;
+          padding: 15px;
           border-radius: 8px;
-          box-shadow: 1px 0px 8px var(--dark-grey-color);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
           z-index: 100;
+          min-width: 200px;
+          width: max-content;
+          max-width: 350px;
+          transform: none;
+          
           ul {
             list-style-type: none;
             padding: 0;
             margin: 0;
+            
             li {
               display: flex;
               align-items: center;
               padding: 10px;
               text-align: start;
+              border-radius: 6px;
+              margin-bottom: 2px;
+              white-space: nowrap;
+              
               &:hover {
                 background-color: var(--Active-gray-color);
-                border-radius: 8px;
+              }
+              
+              &.listHeader {
+                font-weight: bold;
+                color: #555;
+                pointer-events: none;
+                padding: 5px 10px;
+                margin-top: 8px;
+                margin-bottom: 5px;
+                background-color: #f5f5f5;
+                border-radius: 5px;
+                
+                &:hover {
+                  background-color: #f5f5f5;
+                }
+                
+                &:first-child {
+                  margin-top: 0;
+                }
               }
             }
           }
@@ -310,8 +342,8 @@
       width: 150px;
       height: 150px;
       transition: 0.1s all linear;
-      object-fit: cover; /* Масштабирование и обрезка */
-      border-radius: 4px; /* Для скругления углов, если нужно */
+      object-fit: cover;
+      border-radius: 4px;
       &:hover {
         opacity: 0.4;
       }
@@ -375,6 +407,7 @@
 }
 
 input[type="checkbox"] {
+  appearance: none;
   -moz-appearance: none;
   -webkit-appearance: none;
   -o-appearance: none;
