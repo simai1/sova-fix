@@ -207,11 +207,37 @@ async def check_photo(message: Message, state: FSMContext) -> None:
 
             data = await state.get_data()
             photos = data.get('photos', [])
-            photos.append({"file_id": file.file_id, "content_type": ContentType.PHOTO})
-            await state.update_data({"photos": photos, "file_id": file.file_id, "file_content_type": ContentType.PHOTO})
+            media_group_id = message.media_group_id
             
-            await state.set_state(FSMRepairRequest.multiple_photos_input)
-            await message.answer("Фото добавлено. Хотите добавить ещё фото?", reply_markup=skip_kb())
+            # Сохраняем информацию о группе фотографий
+            if media_group_id:
+                processed_groups = data.get('processed_media_groups', [])
+                
+                # Добавляем фото в список
+                photos.append({"file_id": file.file_id, "content_type": ContentType.PHOTO})
+                await state.update_data({
+                    "photos": photos, 
+                    "file_id": file.file_id, 
+                    "file_content_type": ContentType.PHOTO
+                })
+                
+                # Если это первое фото из группы, отправляем сообщение и запоминаем группу
+                if media_group_id not in processed_groups:
+                    processed_groups.append(media_group_id)
+                    await state.update_data({"processed_media_groups": processed_groups})
+                    await state.set_state(FSMRepairRequest.multiple_photos_input)
+                    await message.answer("Фото добавлено. Хотите добавить ещё фото?", reply_markup=skip_kb())
+            else:
+                # Одиночное фото (не в группе)
+                photos.append({"file_id": file.file_id, "content_type": ContentType.PHOTO})
+                await state.update_data({
+                    "photos": photos, 
+                    "file_id": file.file_id, 
+                    "file_content_type": ContentType.PHOTO
+                })
+                
+                await state.set_state(FSMRepairRequest.multiple_photos_input)
+                await message.answer("Фото добавлено. Хотите добавить ещё фото?", reply_markup=skip_kb())
 
         case _:
             await message.answer('Что-то не так, попробуйте ещё раз 🔄️', reply_markup=skip_kb())
@@ -240,10 +266,26 @@ async def add_more_photos(message: Message, state: FSMContext) -> None:
 
         data = await state.get_data()
         photos = data.get('photos', [])
-        photos.append({"file_id": file.file_id, "content_type": ContentType.PHOTO})
-        await state.update_data({"photos": photos, "file_id": file.file_id, "file_content_type": ContentType.PHOTO})
+        media_group_id = message.media_group_id
         
-        await message.answer("Фото добавлено. Хотите добавить ещё фото?", reply_markup=skip_kb())
+        # Сохраняем информацию о группе фотографий
+        if media_group_id:
+            processed_groups = data.get('processed_media_groups', [])
+            
+            # Добавляем фото в список
+            photos.append({"file_id": file.file_id, "content_type": ContentType.PHOTO})
+            await state.update_data({"photos": photos, "file_id": file.file_id, "file_content_type": ContentType.PHOTO})
+            
+            # Если это первое фото из новой группы, отправляем сообщение и запоминаем группу
+            if media_group_id not in processed_groups:
+                processed_groups.append(media_group_id)
+                await state.update_data({"processed_media_groups": processed_groups})
+                await message.answer("Фото добавлено. Хотите добавить ещё фото?", reply_markup=skip_kb())
+        else:
+            # Одиночное фото (не в группе)
+            photos.append({"file_id": file.file_id, "content_type": ContentType.PHOTO})
+            await state.update_data({"photos": photos, "file_id": file.file_id, "file_content_type": ContentType.PHOTO})
+            await message.answer("Фото добавлено. Хотите добавить ещё фото?", reply_markup=skip_kb())
     else:
         await message.answer("Пришлите фото или нажмите 'Пропустить', чтобы продолжить", reply_markup=skip_kb())
 

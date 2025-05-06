@@ -37,63 +37,65 @@ class User:
         self.linkId = data['linkId']
         self.is_confirmed = data['isConfirmed']
 
-
-_users_cache = {}
-_nonexistent_users = set()
-
-async def clear_user_cache(user_id: int = None) -> None:
+async def register_user(user_id: int, name: str, role: int, username: str) -> dict | None:
     """
-    Очищает кэш пользователей полностью или для конкретного пользователя.
+    Регистрирует нового пользователя.
     
     Args:
-        user_id: Telegram ID пользователя для очистки из кэша.
-                Если None, очищает весь кэш.
-    """
-    global _users_cache, _nonexistent_users
-    
-    if user_id is None:
-        old_size = len(_users_cache)
-        _users_cache.clear()
-        _nonexistent_users.clear()
-    else:
-        if user_id in _users_cache:
-            del _users_cache[user_id]
+        user_id: Telegram ID пользователя
+        name: Имя пользователя
+        role: Роль пользователя
+        username: Имя пользователя в Telegram
         
-        if user_id in _nonexistent_users:
-            _nonexistent_users.remove(user_id)
-
-async def register_user(user_id: int, name: str, role: int, username: str) -> dict | None:
-    await clear_user_cache(user_id)
-    
+    Returns:
+        Данные созданного пользователя или None в случае ошибки
+    """
     if await user_already_exists(user_id):
         return None
 
     url = f'{cf.API_URL}/tgUsers'
 
     data: dict = {'name': name, 'role': role, 'tgId': str(user_id), 'linkId': username}
-    request = requests.post(url, data)
+    
+    try:
+        request = requests.post(url, data)
 
-    if request.status_code == 200:
-        logger.info('API: successfully registered user', f'tg_id={user_id}')
-        _users_cache[user_id] = data
-        return data
-    else:
-        logger.error(f'API: could not register user {user_id}', f'{request.status_code}')
+        if request.status_code == 200:
+            logger.info(f'API: successfully registered user with tgId={user_id}')
+            return request.json()
+        else:
+            logger.error(f'API: could not register user with tgId={user_id}', f'status={request.status_code}')
+            return None
+    except Exception as e:
+        logger.error(f'API: exception during user registration with tgId={user_id}', f'error={str(e)}')
         return None
 
 
 async def get_all_users() -> list | dict | None:
+    """
+    Получает список всех пользователей.
+    
+    Returns:
+        Список всех пользователей или None в случае ошибки
+    """
     url = f'{cf.API_URL}/tgUsers'
 
-    request = requests.get(url)
-    data = request.json()
-
-    return data
+    try:
+        request = requests.get(url)
+        
+        if request.status_code == 200:
+            return request.json()
+        else:
+            logger.error(f'API: could not get all users, status={request.status_code}')
+            return None
+    except Exception as e:
+        logger.error(f'API: exception getting all users: {str(e)}')
+        return None
 
 
 async def get_user(user_id: int) -> dict | None:
     """
-    Получает данные пользователя по его Telegram ID с использованием кэша.
+    Получает данные пользователя по его Telegram ID.
     
     Args:
         user_id: Telegram ID пользователя
@@ -101,39 +103,45 @@ async def get_user(user_id: int) -> dict | None:
     Returns:
         Данные пользователя или None, если пользователь не найден
     """
-    global _users_cache, _nonexistent_users
-    
-    if user_id in _users_cache:
-        return _users_cache[user_id]
-    
-    if user_id in _nonexistent_users:
-        logger.debug(f"Пользователь {user_id} в списке несуществующих (из кэша)")
-        return None
-    
     url = f'{cf.API_URL}/tgUsers/{user_id}'
     
     try:
         request = requests.get(url)
         
         if request.status_code != 200:
+            logger.debug(f"API: user with tgId={user_id} not found, status={request.status_code}")
             return None
         
         data = request.json()
         
         if data is None:
-            _nonexistent_users.add(user_id)
+            logger.debug(f"API: empty response for user with tgId={user_id}")
             return None
-        
-        _users_cache[user_id] = data
         
         return data
     except Exception as e:
+        logger.error(f"API: exception getting user with tgId={user_id}: {str(e)}")
         return None
 
 
 async def user_already_exists(user_id: int) -> bool:
-    user = await get_user(user_id)
-    return user is not None
+    """
+    Проверяет, существует ли пользователь с указанным Telegram ID.
+    
+    Args:
+        user_id: Telegram ID пользователя
+        
+    Returns:
+        True если пользователь существует, False в противном случае
+    """
+    url = f'{cf.API_URL}/tgUsers/{user_id}'
+    
+    try:
+        request = requests.get(url)
+        return request.status_code == 200 and request.json() is not None
+    except Exception as e:
+        logger.error(f"API: exception checking if user with tgId={user_id} exists: {str(e)}")
+        return False
 
 
 async def get_all_repair_requests(params: str = "") -> dict | None:
@@ -530,8 +538,21 @@ async def get_repair_request_number(request_id: str) -> int | None:
 
 
 async def sync_manager(email: str, password: str, name: str, tg_id: int, username: str) -> dict | None:
+    """
+    Синхронизирует данные менеджера с web-частью системы.
+    
+    Args:
+        email: Email менеджера
+        password: Пароль менеджера
+        name: Имя менеджера
+        tg_id: Telegram ID менеджера
+        username: Имя пользователя в Telegram
+        
+    Returns:
+        Данные синхронизированного менеджера или None в случае ошибки
+    """
     url = f'{cf.API_URL}/tgUsers/syncManager'
-
+    
     data = {
         "email": email,
         "password": password,
@@ -540,13 +561,17 @@ async def sync_manager(email: str, password: str, name: str, tg_id: int, usernam
         "linkId": username
     }
 
-    request = requests.post(url, data)
-
-    if request.status_code == 200:
-        logger.info('successfully synced manager')
-        return request.json()
-    else:
-        logger.error('API: could not sync manager', f'{request.status_code}')
+    try:
+        request = requests.post(url, data)
+        
+        if request.status_code == 200:
+            logger.info(f'Successfully synced manager with tgId={tg_id}')
+            return request.json()
+        else:
+            logger.error(f'API: could not sync manager with tgId={tg_id}, status={request.status_code}, response={request.text}')
+            return None
+    except Exception as e:
+        logger.error(f'API: exception during sync manager with tgId={tg_id}, error={str(e)}')
         return None
 
 
