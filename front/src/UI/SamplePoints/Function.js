@@ -23,7 +23,7 @@ export function funFixEducator(data) {
 
       return {
         ...item,
-        contractor: item?.contractor?.name || "___",
+        contractor: item?.contractor || "___",
         status: status[item?.status] || "___",
         number: item?.number || "___",
         object: item?.object || "___",
@@ -46,7 +46,7 @@ export function funFixEducator(data) {
   }else{
     return {
       ...data,
-      contractor: data?.contractor?.name || "___",
+      contractor: data?.contractor || "___",
       status: status[data?.status] || "___",
       number: data?.number || "___",
       object: data?.object || "___",

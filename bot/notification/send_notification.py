@@ -92,26 +92,38 @@ async def from_websocket_message(bot: Bot, message_string: str) -> None:
 
     msg = message_dict["msg"]
     event = message_dict["event"]
+    
+    
+    request_id = msg.get("requestId")
+    if request_id:
+        request_info = await crm.get_repair_request(request_id)
+        if request_info:
+            msg["requestInfo"] = request_info
 
     if "customer" in msg.keys() and msg['customer'] is not None:
-        if msg['customer'].isdigit():
+        if str(msg['customer']).isdigit():
             customer_id = int(msg["customer"])
         else:
             customer_id = await crm.get_tg_id_by_id(msg["customer"])
     else:
         customer_id = None
 
+
     if "contractor" in msg.keys() and msg['contractor'] is not None:
-        if msg['contractor'].isdigit():
+        if str(msg['contractor']).isdigit():
             contractor_id = int(msg["contractor"])
         else:
             contractor_id = await crm.get_tg_id_by_id(msg["contractor"])
     else:
         contractor_id = None
-
+        
     if "tgUser" in msg.keys() and msg['tgUser'] is not None:
-        user = await crm.get_user_by_id(msg['tgUser'])
-        tg_user_id = user['tgId']
+        if str(msg['tgUser']).isdigit():
+            tg_user_id = int(msg['tgUser'])
+        else:
+            user = await crm.get_user_by_id(msg['tgUser'])
+            tg_user_id = int(user['tgId']) if user and 'tgId' in user else None
+            
     else:
         tg_user_id = None
 

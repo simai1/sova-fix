@@ -5,6 +5,7 @@ import ObjectDir from './object';
 import Unit from './unit';
 import LegalEntity from './legalEntity';
 import ExtContractor from './externalContractor';
+import TgUser from './tgUser';
 
 export default class RepairRequest extends Model {
     id!: string;
@@ -33,6 +34,9 @@ export default class RepairRequest extends Model {
     legalEntityId?: string;
     Contractor?: Contractor; // contractor rel
     contractorId?: string;
+    TgUser?: TgUser; // manager rel
+    managerId?: string;
+    managerTgId?: string; // telegram ID of manager for direct reference in bot
     ExtContractor?: ExtContractor; // external contractor rel
     extContractorId?: string;
     isExternal!: boolean;
@@ -105,7 +109,7 @@ export default class RepairRequest extends Model {
                 },
                 fileName: {
                     type: DataTypes.STRING,
-                    allowNull: false,
+                    allowNull: true,
                 },
                 checkPhoto: {
                     type: DataTypes.STRING,
@@ -125,6 +129,14 @@ export default class RepairRequest extends Model {
                     type: DataTypes.UUID,
                     allowNull: true,
                 },
+                managerId: {
+                    type: DataTypes.UUID,
+                    allowNull: true,
+                },
+                managerTgId: {
+                    type: DataTypes.STRING,
+                    allowNull: true,
+                },
             },
             {
                 sequelize,
@@ -139,8 +151,7 @@ export default class RepairRequest extends Model {
             const maxNumber = await RepairRequest.max('number');
             if (!maxNumber || maxNumber === 0) model.set('number', 1);
             else {
-                // @ts-expect-error maxNumber is always number after checks
-                model.set('number', maxNumber + 1);
+                model.set('number', (maxNumber as number) + 1);
             }
         });
     }
