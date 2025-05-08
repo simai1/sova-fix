@@ -180,7 +180,6 @@ function RepotIndicators() {
     return mass;
   }
 
-
   return (
     <div className={styles.RepotYour}>
       <Layout>

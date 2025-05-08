@@ -157,11 +157,19 @@ async def check_photo(message: Message, state: FSMContext) -> None:
 
 
 async def ask_urgency(message: Message, state: FSMContext) -> None:
-    data = await pagination.set_pages_data(urgencies_ru_locale_dict, state)
+    urgencies = await crm.get_all_urgencies()
+    
+    # Исключаем срочности с name == "Маршрут" или "Выполнено"
+    excluded_names = {"Маршрут", "Выполнено"}
+    filtered_urgencies = [u for u in urgencies if u.get('name') not in excluded_names]
+    
+    urgencies_dict = {u['name']: u['name'] for u in filtered_urgencies}
+    
+    data = await pagination.set_pages_data(urgencies_dict, state)
     kb = pagination.make_kb(0, data, prefix='urgency', make_pages=False)
+
     await state.set_state(FSMRepairRequest.unregncy_input)
     await message.answer('Выберите срочность', reply_markup=kb)
-
 
 @router.callback_query(FSMRepairRequest.unregncy_input, F.data.startswith('urgency'))
 async def create_request(query: CallbackQuery, state: FSMContext) -> None:

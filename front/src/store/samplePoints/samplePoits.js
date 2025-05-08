@@ -43,6 +43,9 @@ const isSamplePoints = createSlice({
     table13: {
       isChecked: [],
     },
+    table14: {
+      isChecked: []
+    }
   },
 
   reducers: {

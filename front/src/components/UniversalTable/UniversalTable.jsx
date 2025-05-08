@@ -187,6 +187,13 @@ function UniversalTable(props) {
         ) : (
           "___"
         );
+      case "color": 
+        return(
+          <div className={styles.ColorContainer}>
+            <div className={styles.ColorBlock} style={{backgroundColor: value}}></div>
+            <p>Код цвета: {value}</p>
+          </div> 
+        )
       default:
         return value ?? "___";
     }
@@ -242,7 +249,7 @@ function UniversalTable(props) {
     };
     ReseachDataRequest(idAppoint, data).then((resp) => {
       if (resp?.status === 200) {
-        props.updateTable();
+        props?.updateTable();
         setItineraryOrderPop("");
       }
     });
@@ -440,7 +447,7 @@ function UniversalTable(props) {
               style={{backgroundColor: row?.copiedRequestId !== null ? "#ffe78f" : ""}}
               onClick={() => props?.selectFlag && clickTr(row)}
               onContextMenu={(e) => {
-                if (props.tableName === 'table11') {
+                if (props?.tableName === 'table11') {
                   trClickRight(row, e.target);
                   contextmenuClick(e)
                 }

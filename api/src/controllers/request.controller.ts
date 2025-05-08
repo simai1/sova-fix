@@ -156,6 +156,7 @@ const update = catchAsync(async (req, res) => {
         status,
         builder,
         planCompleteDate,
+        urgencyId,
     } = req.body;
     const { requestId } = req.params;
     if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
@@ -183,7 +184,8 @@ const update = catchAsync(async (req, res) => {
         contractorId,
         status,
         builder,
-        planCompleteDate
+        planCompleteDate,
+        urgencyId
     );
     res.json({ status: 'OK' });
 });
@@ -237,11 +239,11 @@ const getRequestsByObjects = catchAsync(async (req, res) => {
             'checkPhoto',
         ])
     );
-    
+
     if (!tgUserId) {
         throw new ApiError(httpStatus.BAD_REQUEST, 'Missing tgUserId');
     }
-    
+
     try {
         const requestsDtos = await requestService.getRequestsByObjects(tgUserId, filter);
         res.json(requestsDtos);
@@ -315,6 +317,14 @@ const getStat = catchAsync(async (req, res) => {
     res.json(data);
 });
 
+const changeUrgency = catchAsync(async (req, res) => {
+    const { prevName, urgencyId } = req.body;
+    if (!prevName || !urgencyId) throw new ApiError(httpStatus.BAD_REQUEST, 'missing prevName or urgencyId');
+    await requestService.changeUrgency(prevName, urgencyId);
+
+    res.json({ status: 'OK' });
+});
+
 export default {
     getAll,
     getOne,
@@ -337,4 +347,5 @@ export default {
     bulkContractor,
     copy,
     getStat,
+    changeUrgency,
 };

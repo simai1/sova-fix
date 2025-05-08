@@ -14,6 +14,7 @@ import Category from './category';
 import Nomenclature from './nomenclature';
 import TechService from './techService';
 import TgUserObject from './tgUserObject';
+import Urgency from './urgency';
 
 const { DB_USER, DB_PWD, DB_HOST, DB_PORT, DB_NAME } = process.env;
 export const models = {
@@ -32,6 +33,7 @@ export const models = {
     Equipment,
     TechService,
     TgUserObject,
+    Urgency,
 };
 
 export const sequelize = new Sequelize(`${DB_NAME}`, `${DB_USER}`, `${DB_PWD}`, {
