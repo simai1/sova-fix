@@ -1,5 +1,4 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
-import RepairRequest from './repairRequest';
 
 export default class Urgency extends Model {
     id!: string;
@@ -46,13 +45,6 @@ export default class Urgency extends Model {
                 // @ts-expect-error maxNumber is always number after checks
                 model.set('number', maxNumber + 1);
             }
-        });
-    }
-
-    static associate() {
-        Urgency.hasMany(RepairRequest, {
-            foreignKey: 'urgencyId',
-            as: 'RepairRequests',
         });
     }
 }

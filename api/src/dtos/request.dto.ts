@@ -13,7 +13,7 @@ export default class RequestDto {
     objectId?: string;
     problemDescription?: string;
     urgency!: string;
-    urgencyId!: string;
+    urgencyId?: string;
     fileName!: string;
     commentAttachment?: string;
     itineraryOrder?: number;

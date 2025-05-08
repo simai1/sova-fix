@@ -15,7 +15,7 @@ export default class RepairRequest extends Model {
     builder!: string;
     problemDescription?: string;
     urgency!: string;
-    urgencyId!: string;
+    urgencyId?: string;
     itineraryOrder?: number;
     planCompleteDate?: Date;
     completeDate?: Date;
@@ -79,10 +79,6 @@ export default class RepairRequest extends Model {
                 urgencyId: {
                     type: DataTypes.UUID,
                     allowNull: true,
-                    references: {
-                        model: 'urgency',
-                        key: 'id',
-                    },
                 },
                 itineraryOrder: {
                     type: DataTypes.SMALLINT,
@@ -152,12 +148,6 @@ export default class RepairRequest extends Model {
                 // @ts-expect-error maxNumber is always number after checks
                 model.set('number', maxNumber + 1);
             }
-        });
-    }
-    static associate() {
-        RepairRequest.belongsTo(Urgency, {
-            foreignKey: 'urgencyId',
-            as: 'Urgency',
         });
     }
 }

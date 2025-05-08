@@ -1,4 +1,5 @@
 import { models } from './index';
+import Urgency from './urgency';
 
 const {
     User,
@@ -85,4 +86,7 @@ export default function () {
     // Важные ассоциации для правильной работы с объектами
     TgUserObject.belongsTo(TgUser, { foreignKey: 'tgUserId', as: 'User' });
     TgUserObject.belongsTo(ObjectDir, { foreignKey: 'objectId', as: 'Object' });
+
+    Urgency.hasMany(RepairRequest, {foreignKey: 'urgencyId'});
+    RepairRequest.belongsTo(Urgency, { foreignKey: 'urgencyId' });
 }

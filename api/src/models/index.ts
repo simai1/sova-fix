@@ -26,6 +26,7 @@ export const models = {
     LegalEntity,
     ExtContractor,
     ObjectDir,
+    Urgency,
     RepairRequest,
     ApiKey,
     Category,
@@ -33,7 +34,6 @@ export const models = {
     Equipment,
     TechService,
     TgUserObject,
-    Urgency,
 };
 
 export const sequelize = new Sequelize(`${DB_NAME}`, `${DB_USER}`, `${DB_PWD}`, {
