@@ -13,6 +13,7 @@ export default class RequestDto {
     objectId?: string;
     problemDescription?: string;
     urgency!: string;
+    urgencyId!: string;
     fileName!: string;
     commentAttachment?: string;
     itineraryOrder?: number;
@@ -42,6 +43,7 @@ export default class RequestDto {
         this.objectId = model.objectId;
         this.problemDescription = model.problemDescription;
         this.urgency = model.urgency;
+        this.urgencyId = model.urgencyId;
         this.itineraryOrder = model.itineraryOrder;
         this.planCompleteDate = model.planCompleteDate ? strftime('%d.%m.%y', model.planCompleteDate) : '';
         this.planCompleteDateRaw = model.planCompleteDate;

@@ -5,7 +5,7 @@ import DataContext from "./context";
 import "./styles/style.css";
 import { tableHeadAppoint, tableList, tableUser } from "./components/Table/Data";
 import HomePageAdmin from "./pages/AdminPages/HomePageAdmin/HomePageAdmin";
-import { GetAllCategories, GetAllEquipment, GetAllNomenclatures, GetAllRequests, GetAllUsers, GetAllСontractors, GetContractorsItenerarity, GetOneEquipment } from "./API/API";
+import { GetAllCategories, GetAllEquipment, GetAllNomenclatures, GetAllRequests, GetAllUrgensies, GetAllUsers, GetAllСontractors, GetContractorsItenerarity, GetOneEquipment } from "./API/API";
 import Activate from "./pages/Login/Activate/Activate";
 import { useDispatch, useSelector } from "react-redux";
 import { FilteredSample, funFixEducator } from "./UI/SamplePoints/Function";
@@ -26,7 +26,7 @@ import GraphicEquipment from "./modules/GraphicEquipment/GraphicEquipment";
 import EquipmentInfo from "./modules/EquipmentInfo/EquipmentInfo";
 import PageCardContractors from "./pages/AdminPages/PageCardContractors/PageCardContractors";
 import TgUserObjects from "./pages/AdminPages/Directory/TgUserObjects";
-import DirectoryStatuses from "./modules/DirectoryStatuses/DirectoryStatuses";
+import DirectoryUrgency from "./modules/DirectoryUrgencies/DirectoryUrgency";
 
 function App() {
   const [selectContructor, setSelectContractor] = useState("")
@@ -71,6 +71,7 @@ function App() {
   const [totalCount, setTotalCount] = useState(0);
   const [dataTableHomePage, setDataTableHomePage] = useState([]);
   const [enabledTo, setEnabledTo] = useState(false);
+  const [urgencyList, setUrgencyList] = useState([])
   const checkedAllFunc = () => {
     if(moreSelect.length > 0){
       setCheckedAll(true)
@@ -120,6 +121,15 @@ const UpdateForse = () =>{
       setLoader(true); // Разрешаем загрузку следующих данных
     }
   });
+}
+
+const UpdateUrgency = () => {
+  GetAllUrgensies().then(response => {
+    console.log(response)
+    if(response) {
+      setUrgencyList(response.data)
+    }
+  })
 }
 
   const context = {
@@ -213,7 +223,10 @@ const UpdateForse = () =>{
     setDataTableHomePage,
     setTotalCount,
     UpdateForse,
-    SortDataTable
+    SortDataTable,
+    urgencyList,
+    setUrgencyList,
+    UpdateUrgency,
   };
 
   const storeFilter = useSelector((state) => state.isSamplePoints["table9"]);
@@ -315,12 +328,6 @@ const UpdateForse = () =>{
     });
   }
   
-
- 
-
-
-  
-
   useEffect(() => {
     GetAllСontractors().then((resp) => {
       if(resp) {
@@ -331,6 +338,12 @@ const UpdateForse = () =>{
       setDataAppointment(funFixEducator(resp?.data?.data));
     });
   }, [dataUsers]);
+
+  useEffect(() => {
+    GetAllUrgensies().then(response => {
+      if(response?.status === 200) setUrgencyList(response.data)
+    })
+  }, [dataApointment])
 
   return (
     <DataContext.Provider
@@ -354,7 +367,7 @@ const UpdateForse = () =>{
               <Route path="ThePerformersDirectory" element={<ThePerformersDirectory />}></Route>
               <Route path="UsersDirectory" element={<UsersDirectory />}></Route>
               <Route path="TgUserObjects" element={<TgUserObjects />}></Route>
-              <Route path="Statuses" element={<DirectoryStatuses />}></Route>
+              <Route path="Urgency" element={<DirectoryUrgency />}></Route>
             </Route>
 
             <Route path="/CardPage/*" element={<CardPage />}>

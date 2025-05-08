@@ -187,6 +187,13 @@ function UniversalTable(props) {
         ) : (
           "___"
         );
+      case "color": 
+        return(
+          <div className={styles.ColorContainer}>
+            <div className={styles.ColorBlock} style={{backgroundColor: value}}></div>
+            <p>Код цвета: {value}</p>
+          </div> 
+        )
       default:
         return value ?? "___";
     }
@@ -242,7 +249,7 @@ function UniversalTable(props) {
     };
     ReseachDataRequest(idAppoint, data).then((resp) => {
       if (resp?.status === 200) {
-        props.updateTable();
+        props?.updateTable();
         setItineraryOrderPop("");
       }
     });
@@ -440,8 +447,10 @@ function UniversalTable(props) {
               style={{backgroundColor: row?.copiedRequestId !== null ? "#ffe78f" : ""}}
               onClick={() => props?.selectFlag && clickTr(row)}
               onContextMenu={(e) => {
-                trClickRight(row, e.target);
-                contextmenuClick(e)
+                if (props?.tableName === 'table11') {
+                  trClickRight(row, e.target);
+                  contextmenuClick(e)
+                }
               }}
             >
               {tableHeaderData.map((header) => (
@@ -456,7 +465,7 @@ function UniversalTable(props) {
                           backgroundColor: "#D8CDC1FF",
                           textAlign: textAlign(header.key, row[header.key]),
                         }
-                      : { textAlign: textAlign(header.key, row[header.key]), backgroundColor: row?.copiedEquipmentId !== null ? "#ffe78f" : ""}
+                      : { textAlign: textAlign(header.key, row[header.key])}
                   }
                 >
         {header.key !== "role" ? (

@@ -33,6 +33,7 @@ function PopUpEditAppoint(props) {
     repairPrice: "",
     comment: "",
     // legalEntity:"",
+    urgencyId: ""
   });
   const [selectId, setSelectId] = useState(null);
   const DataStatus = [
@@ -95,6 +96,7 @@ function PopUpEditAppoint(props) {
         repairPrice: dataApStart?.repairPrice,
         comment: dataApStart?.comment,
         legalEntity: dataApStart?.legalEntity,
+        urgencyId: dataApStart?.urgencyId
       });
     }
   }, [dataApStart]);
@@ -114,6 +116,11 @@ function PopUpEditAppoint(props) {
   };
   const handleListData = (name, value) => {
     setdataApointment((prevState) => ({ ...prevState, [name]: value }));
+    if(name === "urgency") {
+      const urgency = context?.urgencyList?.find(item => item.name === value)
+      setdataApointment((prevState) => ({ ...prevState, urgencyId: urgency?.id }));
+
+    }
   };
   const getObjectNameById = (id) => {
     const objectItem = dataObject.find((item) => item.id === id);
@@ -227,7 +234,7 @@ function PopUpEditAppoint(props) {
               Textlabel={"Срочность"}
               handleListData={handleListData}
               name="urgency"
-              dataList={DataUrgency}
+              dataList={context?.urgencyList}
               value={dataApointment.urgency}
               placeholder="Выберите срочность заявки"
               isActive={activeDropdown === "urgency"}

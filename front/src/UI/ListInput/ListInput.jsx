@@ -12,7 +12,12 @@ function ListInput(props) {
       SetExp(el.id)
     }else if(props?.name === "contractorId"){
       setStatus(el.id)
+    }else if (props?.name === 'urgency') {
+      props.handleListData(props.name, el.name);
+      setValueName(el.name);
+      props.toggleDropdown(); // Close the dropdown after selection
     }else{
+      console.log(el)
       props.handleListData(props.name, el.id);
       setValueName(el.name);
       props.toggleDropdown(); // Close the dropdown after selection

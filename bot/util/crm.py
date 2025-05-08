@@ -613,3 +613,11 @@ async def get_tguser_object_relations(tg_user_id: str) -> list | None:
     except Exception as e:
         logger.error(f"Исключение при запросе связей: {str(e)}, tg_user_id={tg_user_id}")
         return None
+
+async def get_all_urgencies() -> list | None:
+    url = f"{cf.API_URL}/urgency"
+
+    request = requests.get(url)
+    data = request.json()
+
+    return data

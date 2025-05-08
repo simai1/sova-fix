@@ -17,6 +17,7 @@ import ExtContractor from '../models/externalContractor';
 import * as util from 'node:util';
 import logger from '../utils/logger';
 import { models } from '../models';
+import Urgency from '../models/urgency';
 
 const getAllRequests = async (filter: any, order: any, pagination: any) => {
     let requests;
@@ -283,6 +284,9 @@ const createRequest = async (
     if (!objectDir) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found object with id ' + objectId);
     if (!objectDir.Unit) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found unit');
     if (!objectDir.LegalEntity) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found LegalEntity');
+    const urgencyRecord = await Urgency.findOne({ where: { name: urgency } });
+    if (!urgencyRecord) throw new ApiError(httpStatus.BAD_REQUEST, `Urgency "${urgency}" not found`);
+
     const request = await RepairRequest.create({
         unitId: objectDir.Unit.id,
         objectId,
@@ -294,6 +298,7 @@ const createRequest = async (
         fileName,
         createdBy: tgUserId,
         number: 0,
+        urgencyId: urgencyRecord.id,
     });
     request.Object = objectDir;
     request.Unit = objectDir.Unit;
@@ -459,7 +464,8 @@ const update = async (
     contractorId: string | undefined,
     status: number | undefined,
     builder: string | undefined,
-    planCompleteDate: Date | null | undefined
+    planCompleteDate: Date | null | undefined,
+    urgencyId: string | null | undefined
 ): Promise<void> => {
     const request = await RepairRequest.findByPk(requestId);
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
@@ -518,6 +524,7 @@ const update = async (
             daysAtWork: typeof status !== 'undefined' && status == 2 ? 1 : 0,
             itineraryOrder: urgency && request.urgency === 'Маршрут' && urgency !== 'Маршрут' ? null : itineraryOrder,
             planCompleteDate: urgency && urgency === 'Маршрут' ? new Date() : planCompleteDate,
+            urgencyId,
         },
         { where: { id: request.id } }
     );
@@ -739,6 +746,22 @@ const getRequestsByObjects = async (tgUserId: string, filter: any): Promise<Requ
     return getCustomersRequests(tgUserId, filter);
 };
 
+const changeUrgency = async(prevName: string, urgencyId: string) => {
+    const urgency = await Urgency.findByPk(urgencyId);
+    if (!urgency) throw new Error(`Urgency with id ${urgencyId} not found`);
+
+    // Обновить все заявки, где старое имя совпадает
+    await RepairRequest.update(
+        {
+            urgency: urgency.name,       // обновляем текстовое имя
+            urgencyId: urgency.id,       // присваиваем новый ID срочности
+        },
+        {
+            where: { urgency: prevName } // по совпадению старого текста
+        }
+    );
+}
+
 export default {
     getAllRequests,
     getRequestById,
@@ -760,4 +783,5 @@ export default {
     bulkSetUrgency,
     bulkSetContractor,
     copyRequest,
+    changeUrgency,
 };
