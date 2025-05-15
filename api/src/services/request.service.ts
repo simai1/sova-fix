@@ -18,6 +18,7 @@ import * as util from 'node:util';
 import logger from '../utils/logger';
 import { models } from '../models';
 import User from '../models/user';
+import Urgency from '../models/urgency';
 
 const getAllRequests = async (filter: any, order: any, pagination: any) => {
     let requests;
@@ -295,6 +296,9 @@ const createRequest = async (
     if (!objectDir) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found object with id ' + objectId);
     if (!objectDir.Unit) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found unit');
     if (!objectDir.LegalEntity) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found LegalEntity');
+    const urgencyRecord = await Urgency.findOne({ where: { name: urgency } });
+    if (!urgencyRecord) throw new ApiError(httpStatus.BAD_REQUEST, `Urgency "${urgency}" not found`);
+
     const request = await RepairRequest.create({
         unitId: objectDir.Unit.id,
         objectId,
@@ -306,6 +310,7 @@ const createRequest = async (
         fileName,
         createdBy: tgUserId,
         number: 0,
+        urgencyId: urgencyRecord.id,
     });
     request.Object = objectDir;
     request.Unit = objectDir.Unit;
@@ -696,6 +701,7 @@ const update = async (
     builder: string | undefined,
     planCompleteDate: Date | null | undefined,
     managerTgId: string | undefined
+    urgencyId: string | null | undefined
 ): Promise<void> => {
     const request = await RepairRequest.findByPk(requestId);
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found request with id ' + requestId);
@@ -734,6 +740,55 @@ const update = async (
             daysAtWork: Math.floor((dateNow.getTime() - request.createdAt.getTime()) / (1000 * 60 * 60 * 24)),
         });
     }
+
+    // ws section
+    if (typeof urgency !== 'undefined' && urgency !== request.urgency) {
+        const customer = await TgUser.findByPk(request.createdBy);
+        const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
+        sendMsg({
+            msg: {
+                newUrgency: urgency,
+                oldUrgency: request.urgency,
+                requestId: requestId,
+                contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
+                customer: customer ? customer.tgId : null,
+            },
+            event: 'URGENCY_UPDATE',
+        } as WsMsgData);
+    } else if (typeof comment !== 'undefined' && comment !== request.comment) {
+        const customer = await TgUser.findByPk(request.createdBy);
+        const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
+        sendMsg({
+            msg: {
+                newComment: comment,
+                oldComment: request.comment,
+                requestId: requestId,
+                contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
+                customer: customer ? customer.tgId : null,
+            },
+            event: 'COMMENT_UPDATE',
+        } as WsMsgData);
+    }
+    await RepairRequest.update(
+        {
+            objectId,
+            problemDescription,
+            unitId: objectDir?.Unit?.id,
+            legalEntityId: objectDir?.LegalEntity?.id,
+            urgency,
+            repairPrice,
+            comment,
+            contractorId,
+            status,
+            builder: typeof contractorId !== 'undefined' && contractorId ? 'Внутренний сотрудник' : builder,
+            completeDate: typeof status !== 'undefined' && status == 3 ? new Date() : null,
+            daysAtWork: typeof status !== 'undefined' && status == 2 ? 1 : 0,
+            itineraryOrder: urgency && request.urgency === 'Маршрут' && urgency !== 'Маршрут' ? null : itineraryOrder,
+            planCompleteDate: urgency && urgency === 'Маршрут' ? new Date() : planCompleteDate,
+            urgencyId,
+        },
+        { where: { id: request.id } }
+    );
 };
 
 const getCustomersRequests = async (tgUserId: string, filter: any): Promise<RequestDto[]> => {
@@ -984,6 +1039,22 @@ const setManager = async (requestId: string, managerId: string): Promise<void> =
     } as WsMsgData);
 };
 
+const changeUrgency = async(prevName: string, urgencyId: string) => {
+    const urgency = await Urgency.findByPk(urgencyId);
+    if (!urgency) throw new Error(`Urgency with id ${urgencyId} not found`);
+
+    // Обновить все заявки, где старое имя совпадает
+    await RepairRequest.update(
+        {
+            urgency: urgency.name,       // обновляем текстовое имя
+            urgencyId: urgency.id,       // присваиваем новый ID срочности
+        },
+        {
+            where: { urgency: prevName } // по совпадению старого текста
+        }
+    );
+}
+
 export default {
     getAllRequests,
     getRequestById,
@@ -1008,4 +1079,5 @@ export default {
     bulkSetContractor,
     copyRequest,
     setManager,
+    changeUrgency,
 };

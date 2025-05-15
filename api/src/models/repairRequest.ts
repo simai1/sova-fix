@@ -6,6 +6,7 @@ import Unit from './unit';
 import LegalEntity from './legalEntity';
 import ExtContractor from './externalContractor';
 import TgUser from './tgUser';
+import Urgency from './urgency';
 
 export default class RepairRequest extends Model {
     id!: string;
@@ -15,6 +16,7 @@ export default class RepairRequest extends Model {
     builder!: string;
     problemDescription?: string;
     urgency!: string;
+    urgencyId?: string;
     itineraryOrder?: number;
     planCompleteDate?: Date;
     completeDate?: Date;
@@ -77,6 +79,10 @@ export default class RepairRequest extends Model {
                 urgency: {
                     type: DataTypes.STRING,
                     allowNull: false,
+                },
+                urgencyId: {
+                    type: DataTypes.UUID,
+                    allowNull: true,
                 },
                 itineraryOrder: {
                     type: DataTypes.SMALLINT,

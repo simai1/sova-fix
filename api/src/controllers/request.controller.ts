@@ -205,6 +205,7 @@ const update = catchAsync(async (req, res) => {
         builder,
         planCompleteDate,
         managerTgId,
+        urgencyId,
     } = req.body;
     const { requestId } = req.params;
     if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
@@ -246,6 +247,7 @@ const update = catchAsync(async (req, res) => {
         builder,
         planCompleteDate,
         managerTgId
+        urgencyId
     );
     res.json({ status: 'OK' });
 });
@@ -299,11 +301,11 @@ const getRequestsByObjects = catchAsync(async (req, res) => {
             'checkPhoto',
         ])
     );
-    
+
     if (!tgUserId) {
         throw new ApiError(httpStatus.BAD_REQUEST, 'Missing tgUserId');
     }
-    
+
     try {
         const requestsDtos = await requestService.getRequestsByObjects(tgUserId, filter);
         res.json(requestsDtos);
@@ -387,6 +389,13 @@ const setManager = catchAsync(async (req, res) => {
     res.json({ status: 'OK' });
 });
 
+const changeUrgency = catchAsync(async (req, res) => {
+    const { prevName, urgencyId } = req.body;
+    if (!prevName || !urgencyId) throw new ApiError(httpStatus.BAD_REQUEST, 'missing prevName or urgencyId');
+    await requestService.changeUrgency(prevName, urgencyId);
+    res.json({ status: 'OK' });
+});
+
 export default {
     getAll,
     getOne,
@@ -412,4 +421,5 @@ export default {
     copy,
     getStat,
     setManager,
+    changeUrgency,
 };

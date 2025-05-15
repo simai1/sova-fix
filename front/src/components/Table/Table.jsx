@@ -3,6 +3,7 @@ import styles from "./Table.module.scss";
 import DataContext from "../../context";
 import {
   DeleteExtContractorsRequest,
+  GetAllUrgensies,
   GetOneRequests,
   GetextContractorsAll,
   RemoveContractor,
@@ -243,8 +244,10 @@ function Table() {
     context.setDataAppointment(updateDataAppoint);
   };
 
-  const SetUrgency = (name, idAppoint) => {
-    const data = { urgency: name };
+
+  //!Запрос на смену срочности
+  const SetUrgency = (name, idAppoint, idUrgency) => {
+    const data = { urgency: name, urgencyId: idUrgency};
     ReseachDataRequest(idAppoint, data).then((resp) => {
       if (resp?.status === 200) {
         GetOneRequests(idAppoint).then((resp) => {
@@ -559,22 +562,29 @@ function Table() {
     }
   };
 
-  const getColorUrgensy = (value) => {
-    switch (value) {
-      case "В течение часа":
-        return "#d69a81";
-      case "В течение текущего дня":
-        return "#f9ab23";
-      case "В течение 3-х дней":
-        return "#ffe78f";
-      case "В течение недели":
-        return "#eaf45b";
-      case "Выполнено":
-        return "#C5E384";
-      default:
-        return "";
-    }
-  };
+   //! Функция Получения цвета Urgensy
+  const getColorUrgensy = (value) =>{
+    const urgency = context?.urgencyList.find(urgency => urgency.name === value)
+    if(urgency) return urgency.color
+
+    return ''
+    // context?.urgencyList[indexUrgency]
+    // console.log(context?.urgencyList[indexUrgency])
+    // switch (value) {
+    //   case "В течение часа":
+    //     return "#d69a81" //красный
+    //   case "В течение текущего дня":
+    //     return "#f9ab23" // ?оранжевый
+    //   case "В течение 3-х дней":
+    //     return "#ffe78f" // желтый
+    //   case "В течение недели":
+    //     return "#eaf45b" // ?светло желтый
+    //   case "Выполнено":
+    //     return "#C5E384" // зеленый
+    //   default:
+    //     return ""
+    // }
+  }
 
   const getStatusColor = (statusValue) => {
     switch (statusValue) {
@@ -590,6 +600,13 @@ function Table() {
         return "";
     }
   };
+
+  const getUrgencyById = (id, value) => {
+    if(!id) return value
+    const findedUrgency = context?.urgencyList?.find(urgency => urgency.id === id)
+
+    return findedUrgency.name
+  }
 
   const getValue = (value, key, index, row) => {
     const totalRows = context?.dataTableHomePage?.length || 0;
@@ -726,7 +743,7 @@ function Table() {
             onClick={() => funSetUrgency(row.id)}
             className={styles.statusClick}
             style={{
-              backgroundColor: getColorUrgensy(value),
+              backgroundColor: getColorUrgensy(getUrgencyById(row?.urgencyId, value))
             }}
             ref={urgencyPopRef}
             key={key + row.id}
@@ -737,9 +754,11 @@ function Table() {
                 className={getPopupClassName(index, totalRows)}
               >
                 <ul>
-                  {DataUrgency?.map((value, index) => (
+                  {context?.urgencyList?.map((value, index) => (
                     <li
-                      onClick={() => SetUrgency(value.name, row.id)}
+                      onClick={() =>
+                        SetUrgency(value.name, row.id, value.id)
+                      }
                       key={index}
                     >
                       {value.name}
@@ -1016,6 +1035,11 @@ function Table() {
       }
     });
   };
+  useEffect(() => {
+    GetAllUrgensies().then(response => {
+      context?.setUrgencyList(response.data)
+    })
+  }, [])
 
   return (
     <div className={styles.TableWrapper}>

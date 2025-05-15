@@ -20,6 +20,7 @@ import equipmentRoute from './routes/equipment.route';
 import categoryRoute from './routes/category.route';
 import nomenclatureRoute from './routes/nomenclature.route';
 import testRoute from './routes/test.route';
+import urgencyRouter from './routes/urgency.route'
 
 
 import logger from './utils/logger';
@@ -66,6 +67,7 @@ app.use('/categories', categoryRoute);
 app.use('/nomenclatures', nomenclatureRoute);
 app.use('/test', testRoute);
 app.use('/raw', rawRoute);
+app.use('/urgency', urgencyRouter)
 
 // websocket section
 app.ws('/', () => {

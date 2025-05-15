@@ -107,4 +107,6 @@ router.route('/add/check/:requestId').patch(uploadImage.single('file'), requestC
 
 router.route('/copy/:requestId').post(requestController.copy);
 
+router.route('/changeUrgency').post(requestController.changeUrgency)
+
 export default router;

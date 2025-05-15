@@ -1350,6 +1350,23 @@ export const GetAllManagers = async () => {
   }
 };
 
+export const GetAllUrgensies = async () => {
+  try {
+    const response = await http.get(`${server}/urgency`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при получении менеджеров!");
+    }
+  }
+};
+
 export const GetAllAdmins = async () => {
   try {
     const response = await http.get(`${server}/users`, {
@@ -1366,6 +1383,74 @@ export const GetAllAdmins = async () => {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
     } else {
       console.log("Ошибка при получении администраторов!");
+    }
+  }
+};
+
+export const CreateUrgency = async (data) => {
+  try {
+    const response = await http.post(`${server}/urgency`, data, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при получении карты пользователя!");
+    }
+  }
+};
+
+export const EditUrgency = async (data, id) => {
+  try {
+    const response = await http.patch(`${server}/urgency/${id}`, data, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при получении карты пользователя!");
+    }
+  }
+};
+
+export const DeleteUrgency = async (id) => {
+  try {
+    const response = await http.delete(`${server}/urgency/${id}`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при получении администраторов!");
+    }
+  }
+};
+
+export const ChangeUrgency = async (data) => {
+  try {
+    const response = await http.post(`${server}/requests/changeUrgency`, data, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при получении карты пользователя!");
     }
   }
 };
