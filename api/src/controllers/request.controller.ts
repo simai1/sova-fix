@@ -246,7 +246,7 @@ const update = catchAsync(async (req, res) => {
         status,
         builder,
         planCompleteDate,
-        managerTgId
+        managerTgId,
         urgencyId
     );
     res.json({ status: 'OK' });

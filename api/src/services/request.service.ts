@@ -700,7 +700,7 @@ const update = async (
     status: number | undefined,
     builder: string | undefined,
     planCompleteDate: Date | null | undefined,
-    managerTgId: string | undefined
+    managerTgId: string | undefined,
     urgencyId: string | null | undefined
 ): Promise<void> => {
     const request = await RepairRequest.findByPk(requestId);
@@ -731,6 +731,8 @@ const update = async (
     if (managerTgId !== undefined) updateData.managerTgId = managerTgId;
     
     await request.update(updateData);
+    let objectDir;
+    if (objectId) objectDir = await objectService.getObjectById(objectId);
     
     // Если статус обновлен на "выполнено", устанавливаем дату завершения
     if (status === 3) {

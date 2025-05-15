@@ -993,9 +993,6 @@ async def user_already_exists(user_id: int) -> bool:
         logger.error(f"API: exception checking if user with tgId={user_id} exists: {str(e)}")
         return False
 
-
-async def get_all_repair_requests(params: str = "") -> dict | None:
-	@@ -99,25 +160,61 @@ async def get_all_repair_requests(params: str = "") -> dict | None:
 async def get_repair_request(request_id: str) -> dict | None:
     url = f'{cf.API_URL}/requests/{request_id}'
 
@@ -1057,8 +1054,8 @@ async def get_tg_user_id(user_id: int) -> str | None:
 
 async def create_repair_request(
         tg_user_id: str,
-	@@ -161,6 +258,85 @@ async def create_repair_request(
-        return None
+) -> None:
+    return None
 
 
 async def create_repair_request_without_photo(
@@ -1143,7 +1140,10 @@ async def create_repair_request_multiple_photos(
 async def get_all_contractors() -> list:
     url = f'{cf.API_URL}/contractors/'
 
-	@@ -275,17 +451,30 @@ async def get_requests_by_objects(user_id: int, params: str = '') -> list | None
+    request = requests.get(url)
+    data = request.json()
+    return data
+
 async def change_repair_request_status(request_id: str, status: int) -> bool:
     url = f'{cf.API_URL}/requests/set/status'
 
@@ -1174,7 +1174,11 @@ async def change_repair_request_status(request_id: str, status: int) -> bool:
         return False
 
 
-	@@ -349,8 +538,21 @@ async def get_repair_request_number(request_id: str) -> int | None:
+async def get_repair_request_number(request_id: str) -> int | None:
+    rr = await get_repair_request(request_id)
+    if rr is None:
+        return None
+    return rr['number']
 
 
 async def sync_manager(email: str, password: str, name: str, tg_id: int, username: str) -> dict | None:
@@ -1267,25 +1271,6 @@ async def update_repair_request(request_id: str, data: dict) -> bool:
     except Exception as e:
         logger.error(f"Исключение при обновлении заявки: {str(e)}, id={request_id}, данные={data}")
         return False
-        case roles.CONTRACTOR:
-            return await get_contractor_requests(user.tg_id, params)
-        case roles.ADMIN:
-            all_requests = await get_all_requests_with_params(params)
-            if all_requests is None:
-                all_requests = []
-
-            manager_requests = await get_manager_assigned_requests(user.tg_id)
-            if manager_requests is None:
-                manager_requests = []
-
-            if manager_requests:
-                request_ids = {req['id'] for req in all_requests}
-                for req in manager_requests:
-                    if req['id'] not in request_ids:
-                        all_requests.append(req)
-                        request_ids.add(req['id'])
-            return all_requests
-
 
 async def get_static_content(filename: str) -> bytes | None:
     url = f"{cf.API_URL}/tgUsers/{tg_user_id}/objects/public"
