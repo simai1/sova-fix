@@ -49,6 +49,7 @@ const getUsersDir = async (): Promise<userDir[]> => {
     const users = await User.findAll({ include: [{ model: TgUser }] });
     const tgUsers = await TgUser.findAll();
     const userDirs: userDir[] = [];
+    
     users.forEach(user => {
         userDirs.push({
             id: user.id,
@@ -57,10 +58,11 @@ const getUsersDir = async (): Promise<userDir[]> => {
             tgId: user.TgUser?.tgId,
             linkId: user.TgUser?.linkId,
             tgUserId: user.tgManagerId,
-            name: user.name,
+            name: user.TgUser?.name || user.name || user.login,
             role: user.role,
         });
     });
+    
     for (const user of tgUsers) {
         if (!userDirs.some(ud => ud.tgUserId === user.id))
             userDirs.push({
@@ -74,6 +76,7 @@ const getUsersDir = async (): Promise<userDir[]> => {
                 role: user.role,
             });
     }
+    
     return userDirs;
 };
 

@@ -2,7 +2,7 @@ from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
-from common.keyboard import rr_admin_kb
+from common.keyboard import rr_admin_kb, is_manager_executor
 from common.messages import send_repair_request, send_several_requests, page0_show_many_requests
 from handler import pagination
 from util import crm
@@ -10,13 +10,23 @@ from util.crm import roles
 from util.verification import VerificationError
 from util.verification import verify_user
 from data.const import statuses_keys
+from util import logger
 
 router = Router(name=__name__)
 
 
 # send repair request functions
 async def send_rr_for_admin(message: Message, repair_request: dict) -> None:
-    await send_repair_request(message, repair_request, rr_admin_kb(repair_request))
+    user_id = message.chat.id
+    is_executor = await is_manager_executor(user_id, repair_request)
+    
+    if is_executor:
+        from command.common.show_manager_requests import send_rr_for_manager
+        await send_rr_for_manager(message, repair_request)
+        return
+
+    kb = rr_admin_kb(repair_request)
+    await send_repair_request(message, repair_request, kb)
 
 async def send_many_rr_for_admin(repair_requests: list, message: Message, state: FSMContext) -> None:
     await send_several_requests(repair_requests, message, state, send_rr_for_admin)

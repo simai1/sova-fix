@@ -6,6 +6,7 @@ import statuses from '../config/statuses';
 import pick from '../utils/pick';
 import prepare from '../utils/prepare';
 import TgUser from '../models/tgUser';
+import logger from '../utils/logger';
 
 const getAll = catchAsync(async (req, res) => {
     const filter = prepare(
@@ -67,8 +68,8 @@ const create = catchAsync(async (req, res) => {
     if (!objectId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing object');
     if (!urgency) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing urgency');
     const tgUser = await TgUser.findByPk(tgUserId);
-    // @ts-expect-error 'tgUser' is possibly 'null'
-    if (!tgUser && tgUser.role !== 3) throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid tgUser');
+    
+    if (!tgUser || tgUser.role !== 3) throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid tgUser');
     const requestDto = await requestService.createRequest(
         objectId,
         problemDescription,
@@ -81,11 +82,58 @@ const create = catchAsync(async (req, res) => {
     res.json({ requestDto });
 });
 
+const createWithoutPhoto = catchAsync(async (req, res) => {
+    const { objectId, problemDescription, urgency, repairPrice, comment, tgUserId } = req.body;
+    if (!tgUserId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing tgUserId');
+    if (!objectId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing object');
+    if (!urgency) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing urgency');
+    const tgUser = await TgUser.findByPk(tgUserId);
+    
+    if (!tgUser || tgUser.role !== 3) throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid tgUser');
+    const requestDto = await requestService.createRequestWithoutPhoto(
+        objectId,
+        problemDescription,
+        urgency,
+        repairPrice,
+        comment,
+        tgUserId
+    );
+    res.json({ requestDto });
+});
+
+const createWithMultiplePhotos = catchAsync(async (req, res) => {
+    const { objectId, problemDescription, urgency, repairPrice, comment, tgUserId } = req.body;
+    const files = (req as any).files as Express.Multer.File[];
+    
+    if (!files || files.length === 0) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing files');
+    if (!tgUserId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing tgUserId');
+    if (!objectId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing object');
+    if (!urgency) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing urgency');
+    
+    const tgUser = await TgUser.findByPk(tgUserId);
+    
+    if (!tgUser || tgUser.role !== 3) throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid tgUser');
+    
+    const fileNames = files.map(file => file.filename);
+    
+    const requestDto = await requestService.createRequestWithMultiplePhotos(
+        objectId,
+        problemDescription,
+        urgency,
+        repairPrice,
+        comment,
+        fileNames,
+        tgUserId
+    );
+    
+    res.json({ requestDto });
+});
+
 const setContractor = catchAsync(async (req, res) => {
-    const { requestId, contractorId } = req.body;
+    const { requestId, contractorId, managerId } = req.body;
     if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
-    if (!contractorId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing contractorId');
-    await requestService.setContractor(requestId, contractorId);
+    if (!contractorId && !managerId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing contractorId or managerId');
+    await requestService.setContractor(requestId, contractorId, managerId);
     res.json({ status: 'OK' });
 });
 
@@ -156,10 +204,12 @@ const update = catchAsync(async (req, res) => {
         status,
         builder,
         planCompleteDate,
+        managerTgId,
         urgencyId,
     } = req.body;
     const { requestId } = req.params;
     if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
+    
     if (
         !objectId &&
         !problemDescription &&
@@ -170,9 +220,20 @@ const update = catchAsync(async (req, res) => {
         !contractorId &&
         !status &&
         !builder &&
-        typeof planCompleteDate === 'undefined'
+        typeof planCompleteDate === 'undefined' &&
+        !managerTgId
     )
         throw new ApiError(httpStatus.BAD_REQUEST, 'Missing body');
+    
+    logger.info({
+        message: `Updating request ${requestId}`,
+        fields: {
+            managerTgId,
+            status,
+            contractorId,
+        }
+    });
+    
     await requestService.update(
         requestId,
         objectId,
@@ -185,6 +246,7 @@ const update = catchAsync(async (req, res) => {
         status,
         builder,
         planCompleteDate,
+        managerTgId
         urgencyId
     );
     res.json({ status: 'OK' });
@@ -306,22 +368,31 @@ const copy = catchAsync(async (req, res) => {
 
 const getStat = catchAsync(async (req, res) => {
     const [requests] = await requestService.getAllRequests({}, {}, {});
+    
+    if (!Array.isArray(requests)) {
+        throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Failed to get requests');
+    }
+    
     const data = {
-        // @ts-expect-error error
         NEW_REQUEST: requests.reduce((acc: number, r: any) => (r.status === 1 ? acc + 1 : acc), 0),
-        // @ts-expect-error error
         AT_WORK: requests.reduce((acc: number, r: any) => (r.status === 2 ? acc + 1 : acc), 0),
-        // @ts-expect-error error
         DONE: requests.reduce((acc: number, r: any) => (r.status === 3 ? acc + 1 : acc), 0),
     };
     res.json(data);
+});
+
+const setManager = catchAsync(async (req, res) => {
+    const { requestId, managerId } = req.body;
+    if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
+    if (!managerId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing managerId');
+    await requestService.setManager(requestId, managerId);
+    res.json({ status: 'OK' });
 });
 
 const changeUrgency = catchAsync(async (req, res) => {
     const { prevName, urgencyId } = req.body;
     if (!prevName || !urgencyId) throw new ApiError(httpStatus.BAD_REQUEST, 'missing prevName or urgencyId');
     await requestService.changeUrgency(prevName, urgencyId);
-
     res.json({ status: 'OK' });
 });
 
@@ -331,6 +402,8 @@ export default {
     getCustomersRequests,
     getRequestsByObjects,
     create,
+    createWithoutPhoto,
+    createWithMultiplePhotos,
     setContractor,
     setExtContractor,
     setStatus,
@@ -347,5 +420,6 @@ export default {
     bulkContractor,
     copy,
     getStat,
+    setManager,
     changeUrgency,
 };
