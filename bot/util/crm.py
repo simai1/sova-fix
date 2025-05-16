@@ -227,7 +227,6 @@ async def create_repair_request(
         comment: str | None = None,
         legal_entity: str | None = None
 ) -> dict | None:
-
     url = f'{cf.API_URL}/requests/'
 
     values = {
@@ -1050,12 +1049,6 @@ async def get_tg_user_id(user_id: int) -> str | None:
     except Exception as e:
         logger.error(f"Ошибка при получении ID пользователя: {str(e)}, user_id={user_id}")
         return None
-
-
-async def create_repair_request(
-        tg_user_id: str,
-) -> None:
-    return None
 
 
 async def create_repair_request_without_photo(

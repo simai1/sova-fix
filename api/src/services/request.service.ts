@@ -337,6 +337,8 @@ const createRequestWithoutPhoto = async (
     if (!objectDir) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found object with id ' + objectId);
     if (!objectDir.Unit) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found unit');
     if (!objectDir.LegalEntity) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found LegalEntity');
+    const urgencyRecord = await Urgency.findOne({ where: { name: urgency } });
+    if (!urgencyRecord) throw new ApiError(httpStatus.BAD_REQUEST, `Urgency "${urgency}" not found`);
     
     const request = await RepairRequest.create({
         unitId: objectDir.Unit.id,
@@ -349,6 +351,7 @@ const createRequestWithoutPhoto = async (
         fileName: null,
         createdBy: tgUserId,
         number: 0,
+        urgencyId: urgencyRecord.id
     });
     
     request.Object = objectDir;
@@ -379,6 +382,8 @@ const createRequestWithMultiplePhotos = async (
     if (!objectDir) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found object with id ' + objectId);
     if (!objectDir.Unit) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found unit');
     if (!objectDir.LegalEntity) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found LegalEntity');
+    const urgencyRecord = await Urgency.findOne({ where: { name: urgency } });
+    if (!urgencyRecord) throw new ApiError(httpStatus.BAD_REQUEST, `Urgency "${urgency}" not found`);
     
     const mainPhoto = fileNames[0];
     const additionalPhotos = fileNames.slice(1);
@@ -395,6 +400,7 @@ const createRequestWithMultiplePhotos = async (
         commentAttachment: additionalPhotos.length > 0 ? JSON.stringify(additionalPhotos) : undefined,
         createdBy: tgUserId,
         number: 0,
+        urgencyId: urgencyRecord.id
     });
     
     request.Object = objectDir;
@@ -729,6 +735,7 @@ const update = async (
     if (builder !== undefined) updateData.builder = builder;
     if (planCompleteDate !== undefined) updateData.planCompleteDate = planCompleteDate;
     if (managerTgId !== undefined) updateData.managerTgId = managerTgId;
+    if (urgencyId) updateData.urgencyId = urgencyId;
     
     await request.update(updateData);
     let objectDir;
@@ -742,55 +749,6 @@ const update = async (
             daysAtWork: Math.floor((dateNow.getTime() - request.createdAt.getTime()) / (1000 * 60 * 60 * 24)),
         });
     }
-
-    // ws section
-    if (typeof urgency !== 'undefined' && urgency !== request.urgency) {
-        const customer = await TgUser.findByPk(request.createdBy);
-        const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
-        sendMsg({
-            msg: {
-                newUrgency: urgency,
-                oldUrgency: request.urgency,
-                requestId: requestId,
-                contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
-                customer: customer ? customer.tgId : null,
-            },
-            event: 'URGENCY_UPDATE',
-        } as WsMsgData);
-    } else if (typeof comment !== 'undefined' && comment !== request.comment) {
-        const customer = await TgUser.findByPk(request.createdBy);
-        const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
-        sendMsg({
-            msg: {
-                newComment: comment,
-                oldComment: request.comment,
-                requestId: requestId,
-                contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
-                customer: customer ? customer.tgId : null,
-            },
-            event: 'COMMENT_UPDATE',
-        } as WsMsgData);
-    }
-    await RepairRequest.update(
-        {
-            objectId,
-            problemDescription,
-            unitId: objectDir?.Unit?.id,
-            legalEntityId: objectDir?.LegalEntity?.id,
-            urgency,
-            repairPrice,
-            comment,
-            contractorId,
-            status,
-            builder: typeof contractorId !== 'undefined' && contractorId ? 'Внутренний сотрудник' : builder,
-            completeDate: typeof status !== 'undefined' && status == 3 ? new Date() : null,
-            daysAtWork: typeof status !== 'undefined' && status == 2 ? 1 : 0,
-            itineraryOrder: urgency && request.urgency === 'Маршрут' && urgency !== 'Маршрут' ? null : itineraryOrder,
-            planCompleteDate: urgency && urgency === 'Маршрут' ? new Date() : planCompleteDate,
-            urgencyId,
-        },
-        { where: { id: request.id } }
-    );
 };
 
 const getCustomersRequests = async (tgUserId: string, filter: any): Promise<RequestDto[]> => {

@@ -96,8 +96,9 @@ function UniversalTable(props) {
   }, [tableBodyData]);
 
   const isVideo = (fileName) => {
-    const videoExtensions = ['.mp4', '.avi', '.mov', '.wmv', '.mkv'];
-    return videoExtensions.some(ext => fileName.endsWith(ext));
+    if (!fileName) return false;
+    const videoExtensions = [".mp4", ".avi", ".mov", ".wmv", ".mkv"];
+    return videoExtensions.some((ext) => fileName.endsWith(ext));
   };
 
   const buttonInfoClick = (dataRow) => {
@@ -123,7 +124,7 @@ function UniversalTable(props) {
   const getValue = (value, key, index, row) => {
     switch (key) {
       case "contractor":
-        return value ?? row.extContractor;
+        return value?.name ?? row.extContractor;
       case "itineraryOrder":
         return null;
       case "tgId":
