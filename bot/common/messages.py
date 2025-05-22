@@ -122,11 +122,29 @@ async def send_repair_request(message: Message, repair_request: dict, kb: IKM | 
             )
 
         if rr_comment_attachment_filename is not None:
-            await add_media_to_album(
-                media_filename=rr_comment_attachment_filename,
-                caption="Вложение комментария",
-                album=album
-            )
+            # Если это JSON-массив файлов
+            if rr_comment_attachment_filename.startswith('[') and rr_comment_attachment_filename.endswith(']'):
+                try:
+                    files = json.loads(rr_comment_attachment_filename)
+                    for file_item in files:
+                        await add_media_to_album(
+                            media_filename=file_item,
+                            caption="Вложение комментария",
+                            album=album
+                        )
+                except Exception as e:
+                    logger.error(f"Ошибка парсинга commentAttachment: {e}, значение: {rr_comment_attachment_filename}")
+                    await add_media_to_album(
+                        media_filename=rr_comment_attachment_filename,
+                        caption="Вложение комментария",
+                        album=album
+                    )
+                else:
+                    await add_media_to_album(
+                        media_filename=rr_comment_attachment_filename,
+                        caption="Вложение комментария",
+                        album=album
+                )
 
         try:
             if album._media:
