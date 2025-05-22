@@ -700,7 +700,7 @@ const update = async (
     status: number | undefined,
     builder: string | undefined,
     planCompleteDate: Date | null | undefined,
-    urgencyId: string | null | undefined
+    urgencyId: string | null | undefined,
     managerTgId: string | undefined
 ): Promise<void> => {
     const request = await RepairRequest.findByPk(requestId);
@@ -769,12 +769,20 @@ const update = async (
             event: 'COMMENT_UPDATE',
         } as WsMsgData);
     }
+
+    // Получаем objectDir только если objectId передан
+    let unitId, legalEntityId;
+    if (objectId) {
+        const objectDir = await objectService.getObjectById(objectId);
+        unitId = objectDir?.Unit?.id;
+        legalEntityId = objectDir?.LegalEntity?.id;
+    }
     await RepairRequest.update(
         {
             objectId,
             problemDescription,
-            unitId: objectDir?.Unit?.id,
-            legalEntityId: objectDir?.LegalEntity?.id,
+            unitId,
+            legalEntityId,
             urgency,
             repairPrice,
             comment,
