@@ -69,10 +69,12 @@ const requestUpdateSchema = Joi.object({
         builder: Joi.string().optional(),
         planCompleteDate: Joi.date().optional().allow(null),
         managerTgId: Joi.string().optional(),
-    }),
+        urgencyId: Joi.string().optional(),
+    }).unknown(true),
     params: Joi.object({
         requestId: Joi.string().required(),
     }),
+    query: Joi.object().unknown(true),
 });
 
 router.route('/stats').get(requestController.getStat);
