@@ -168,12 +168,22 @@
   transform: translateY(20px);
   position: absolute;
   top: -20px;
-  right: -65px;
+  left: calc(100% + 10px);
   background-color: #fff;
   padding: 10px;
   border-radius: 8px;
   box-shadow: 1px 0px 8px var(--dark-grey-color);
   z-index: 100;
+  
+  &.top-aligned {
+    top: auto;
+    bottom: -20px;
+  }
+  
+  &.right-aligned {
+    left: auto;
+    right: calc(100% + 10px);
+  }
   ul {
     list-style-type: none;
     padding: 0;

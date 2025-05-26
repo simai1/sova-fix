@@ -297,7 +297,26 @@ function UniversalTable(props) {
   };
 
   const checkHeights = (arr, index) => {
-    return arr?.length - 1 === index && index === arr?.length - 1 && arr?.length !== 1;
+    return index === arr.length - 1 && arr.length !== 1;
+  };
+
+  const getPopupClassName = (index, totalRows) => {
+    const isNearBottom = index > (totalRows * 2/3);
+    
+    let classNames = [styles.shovStatusPop];
+    
+    if (isNearBottom) {
+      classNames.push(styles['top-aligned'] || 'top-aligned');
+    }
+    
+    // Проверяем, находится ли элемент близко к правому краю экрана
+    const shouldAlignRight = index % 4 === 3; // каждый 4-й элемент
+    
+    if (shouldAlignRight) {
+      classNames.push(styles['right-aligned'] || 'right-aligned');
+    }
+    
+    return classNames.join(' ');
   };
 
   const getBgColorlastTOHuman = (key, lastTOHuman) => {
@@ -519,7 +538,7 @@ function UniversalTable(props) {
                     >
                       {row[header.key] !== null ? row[header.key] : "___"}
                       {itineraryOrderPop === row.id && (
-                        <div className={styles.shovStatusPop}>
+                        <div className={getPopupClassName(rowIndex, tableBodyData.length)}>
                           <ul>
                             {arrCount?.map((el) => {
                               return (

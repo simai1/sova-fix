@@ -360,24 +360,20 @@ function Table() {
 
   const getPopupClassName = (index, totalRows) => {
     const isNearBottom = index > (totalRows * 2/3);
-    const isNearRight = index % 2 === 1;
     
     let classNames = [styles.shovStatusPop];
     
     if (isNearBottom) {
-      if (styles['top-aligned']) {
-        classNames.push(styles['top-aligned']);
-      } else {
-        classNames.push('top-aligned');
-      }
+      classNames.push(styles['top-aligned'] || 'top-aligned');
     }
     
-    if (isNearRight) {
-      if (styles['right-aligned']) {
-        classNames.push(styles['right-aligned']);
-      } else {
-        classNames.push('right-aligned');
-      }
+    // Проверяем, находится ли элемент близко к правому краю экрана
+    // Это можно определить по позиции в таблице или другим способом
+    // Пока используем простую логику - каждый второй элемент
+    const shouldAlignRight = index % 4 === 3; // каждый 4-й элемент
+    
+    if (shouldAlignRight) {
+      classNames.push(styles['right-aligned'] || 'right-aligned');
     }
     
     return classNames.join(' ');

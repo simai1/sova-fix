@@ -139,7 +139,7 @@
           max-height: 250px;
           overflow-y: auto;
           position: absolute;
-          left: 170px;
+          left: calc(100% + 10px);
           top: 0;
           background-color: #fff;
           padding: 15px;
@@ -150,6 +150,16 @@
           width: max-content;
           max-width: 350px;
           transform: none;
+          
+          &.top-aligned {
+            top: auto;
+            bottom: 0;
+          }
+          
+          &.right-aligned {
+            left: auto;
+            right: calc(100% + 10px);
+          }
           
           ul {
             list-style-type: none;
