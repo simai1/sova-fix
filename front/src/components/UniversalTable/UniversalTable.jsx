@@ -96,6 +96,7 @@ function UniversalTable(props) {
   }, [tableBodyData]);
 
   const isVideo = (fileName) => {
+    if (typeof fileName !== 'string') return false;
     const videoExtensions = ['.mp4', '.avi', '.mov', '.wmv', '.mkv'];
     return videoExtensions.some(ext => fileName.endsWith(ext));
   };
@@ -123,6 +124,7 @@ function UniversalTable(props) {
   const getValue = (value, key, index, row) => {
     switch (key) {
       case "contractor":
+        if (value?.name) return value.name ?? row.extContractor;
         return value ?? row.extContractor;
       case "itineraryOrder":
         return null;
