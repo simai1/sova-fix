@@ -7,7 +7,7 @@ const ContractorCard = (props) => {
   const [count, setCount] = useState(0)
   const navigate = useNavigate();
   const clickCard = () =>{
-    const idInteger = context?.dataContractors.find(el => el.name === props?.name)?.id;
+    const idInteger = context?.dataContractors.find(el => el.name === props?.name?.name)?.id;
     context.setSelectContractor(idInteger)
     navigate(`/CardPage/CardPageModule`)
   }
@@ -29,9 +29,9 @@ const ContractorCard = (props) => {
 
   return (
     <div className={styles.ContractorCard} onClick={clickCard}>
-        <p className={styles.name}>{props?.name?.split(" ")[0]}</p>
-        <p className={styles.name}>{props?.name?.split(" ")[1]}</p>
-        <p className={styles.name}>{props?.name?.split(" ")[2]}</p>
+        <p className={styles.name}>{props?.name?.name?.split(" ")[0]}</p>
+        <p className={styles.name}>{props?.name?.name?.split(" ")[1]}</p>
+        <p className={styles.name}>{props?.name?.name?.split(" ")[2]}</p>
         <div className={styles.buttonInner}>
           <button className={styles.button} style={{backgroundColor: getColor(count)}}>{count}</button>
         </div>
