@@ -28,6 +28,8 @@ const getAll = catchAsync(async (req, res) => {
             'contractor',
             'checkPhoto',
             'isAutoCreated',
+            'managerTgId',
+            'managerId',
             'exclude_search',
             'exclude_number',
             'exclude_status',

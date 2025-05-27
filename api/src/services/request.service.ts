@@ -21,251 +21,260 @@ import Urgency from '../models/urgency';
 import User from '../models/user';
 
 const getAllRequests = async (filter: any, order: any, pagination: any) => {
-    let requests;
-    const whereParams: any = {};
-    Object.keys(filter).forEach((key: string) => {
-        if (key === 'search') {
-            return;
-        }
-        const isExclusion = key.startsWith('exclude_');
-        const fieldName = isExclusion ? key.replace('exclude_', '') : key;
-
-        let value = Array.isArray(filter[key]) ? filter[key] : [filter[key]];
-
-        if (fieldName === 'contractor') {
-            value = value.map((v: any) => (v === null ? 'null' : v));
-            if (isExclusion) {
-                if (value.includes('null')) {
-                    whereParams[Op.and] = [
-                        {
-                            contractorId: value.includes('null') ? { [Op.not]: null } : { [Op.is]: null },
-                        },
-                        { '$Contractor.name$': { [Op.notIn]: value } },
-                    ];
-                } else {
-                    whereParams[Op.or] = [
-                        {
-                            contractorId: value.includes('null') ? { [Op.not]: null } : { [Op.is]: null },
-                        },
-                        { '$Contractor.name$': { [Op.notIn]: value } },
-                    ];
-                }
-            } else {
-                if (value.includes('null')) {
-                    whereParams[Op.or] = [
-                        {
-                            contractorId: value.includes('null') ? { [Op.is]: null } : { [Op.not]: null },
-                        },
-                        { '$Contractor.name$': { [Op.in]: value } },
-                    ];
-                } else {
-                    whereParams[Op.and] = [
-                        {
-                            contractorId: value.includes('null') ? { [Op.is]: null } : { [Op.not]: null },
-                        },
-                        { '$Contractor.name$': { [Op.in]: value } },
-                    ];
-                }
+    try {
+        let requests;
+        const whereParams: any = {};
+        Object.keys(filter).forEach((key: string) => {
+            if (key === 'search') {
+                return;
             }
-        } else if (fieldName === 'legalEntity') {
-            value = value.map((v: any) => (v === null ? 'null' : v));
-            if (isExclusion) {
-                if (value.includes('null')) {
-                    whereParams[Op.and] = [
-                        {
-                            legalEntityId: value.includes('null') ? { [Op.not]: null } : { [Op.is]: null },
-                        },
-                        { '$LegalEntity.name$': { [Op.notIn]: value } },
-                    ];
+            const isExclusion = key.startsWith('exclude_');
+            const fieldName = isExclusion ? key.replace('exclude_', '') : key;
+
+            let value = Array.isArray(filter[key]) ? filter[key] : [filter[key]];
+
+            if (fieldName === 'contractor') {
+                value = value.map((v: any) => (v === null ? 'null' : v));
+                if (isExclusion) {
+                    if (value.includes('null')) {
+                        whereParams[Op.and] = [
+                            {
+                                contractorId: value.includes('null') ? { [Op.not]: null } : { [Op.is]: null },
+                            },
+                            { '$Contractor.name$': { [Op.notIn]: value } },
+                        ];
+                    } else {
+                        whereParams[Op.or] = [
+                            {
+                                contractorId: value.includes('null') ? { [Op.not]: null } : { [Op.is]: null },
+                            },
+                            { '$Contractor.name$': { [Op.notIn]: value } },
+                        ];
+                    }
                 } else {
-                    whereParams[Op.or] = [
-                        {
-                            legalEntityId: value.includes('null') ? { [Op.not]: null } : { [Op.is]: null },
-                        },
-                        { '$LegalEntity.name$': { [Op.notIn]: value } },
-                    ];
+                    if (value.includes('null')) {
+                        whereParams[Op.or] = [
+                            {
+                                contractorId: value.includes('null') ? { [Op.is]: null } : { [Op.not]: null },
+                            },
+                            { '$Contractor.name$': { [Op.in]: value } },
+                        ];
+                    } else {
+                        whereParams[Op.and] = [
+                            {
+                                contractorId: value.includes('null') ? { [Op.is]: null } : { [Op.not]: null },
+                            },
+                            { '$Contractor.name$': { [Op.in]: value } },
+                        ];
+                    }
                 }
+            } else if (fieldName === 'legalEntity') {
+                value = value.map((v: any) => (v === null ? 'null' : v));
+                if (isExclusion) {
+                    if (value.includes('null')) {
+                        whereParams[Op.and] = [
+                            {
+                                legalEntityId: value.includes('null') ? { [Op.not]: null } : { [Op.is]: null },
+                            },
+                            { '$LegalEntity.name$': { [Op.notIn]: value } },
+                        ];
+                    } else {
+                        whereParams[Op.or] = [
+                            {
+                                legalEntityId: value.includes('null') ? { [Op.not]: null } : { [Op.is]: null },
+                            },
+                            { '$LegalEntity.name$': { [Op.notIn]: value } },
+                        ];
+                    }
+                } else {
+                    if (value.includes('null')) {
+                        whereParams[Op.or] = [
+                            {
+                                legalEntityId: value.includes('null') ? { [Op.is]: null } : { [Op.not]: null },
+                            },
+                            { '$LegalEntity.name$': { [Op.in]: value } },
+                        ];
+                    } else {
+                        whereParams[Op.and] = [
+                            {
+                                legalEntityId: value.includes('null') ? { [Op.is]: null } : { [Op.not]: null },
+                            },
+                            { '$LegalEntity.name$': { [Op.in]: value } },
+                        ];
+                    }
+                }
+            } else if (fieldName === 'object') {
+                whereParams['$Object.name$'] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
+            } else if (fieldName === 'unit') {
+                whereParams['$Unit.name$'] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
+            } else if (fieldName === 'status') {
+                value = value.map((v: any) => {
+                    // @ts-expect-error any type
+                    return Number(mapStatusesRuLocale[v.trim()]);
+                });
+                whereParams[fieldName] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
+            } else if (fieldName === 'checkPhoto') {
+                whereParams[fieldName] = value.includes(null)
+                    ? { [Op.is]: null }
+                    : isExclusion
+                      ? { [Op.notIn]: value }
+                      : { [Op.in]: value };
+            } else if (fieldName === 'isAutoCreated') {
+                console.log(value);
+                whereParams[fieldName] = { [Op.is]: value.includes('true') };
+            } else if (fieldName === 'isExternal') {
+                whereParams[fieldName] = { [Op.is]: value.includes('true') };
+            } else if (fieldName === 'managerTgId') {
+                logger.info(`Filtering by managerTgId: ${filter.managerTgId}`);
+                whereParams[fieldName] = filter.managerTgId;
+            } else if (fieldName === 'managerId') {
+                logger.info(`Filtering by managerId: ${filter.managerId}`);
+                whereParams[fieldName] = filter.managerId;
             } else {
-                if (value.includes('null')) {
-                    whereParams[Op.or] = [
-                        {
-                            legalEntityId: value.includes('null') ? { [Op.is]: null } : { [Op.not]: null },
-                        },
-                        { '$LegalEntity.name$': { [Op.in]: value } },
-                    ];
-                } else {
-                    whereParams[Op.and] = [
-                        {
-                            legalEntityId: value.includes('null') ? { [Op.is]: null } : { [Op.not]: null },
-                        },
-                        { '$LegalEntity.name$': { [Op.in]: value } },
-                    ];
-                }
+                whereParams[fieldName] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
             }
-        } else if (fieldName === 'object') {
-            whereParams['$Object.name$'] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
-        } else if (fieldName === 'unit') {
-            whereParams['$Unit.name$'] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
-        } else if (fieldName === 'status') {
-            value = value.map((v: any) => {
-                // @ts-expect-error any type
-                return Number(mapStatusesRuLocale[v.trim()]);
-            });
-            whereParams[fieldName] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
-        } else if (fieldName === 'checkPhoto') {
-            whereParams[fieldName] = value.includes(null)
-                ? { [Op.is]: null }
-                : isExclusion
-                  ? { [Op.notIn]: value }
-                  : { [Op.in]: value };
-        } else if (fieldName === 'isAutoCreated') {
-            console.log(value);
-            whereParams[fieldName] = { [Op.is]: value.includes('true') };
-        } else if (fieldName === 'isExternal') {
-            whereParams[fieldName] = { [Op.is]: value.includes('true') };
-        } else if (fieldName === 'managerTgId') {
-            whereParams[fieldName] = filter.managerTgId;
-        } else {
-            whereParams[fieldName] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
-        }
-    });
-    console.log(util.inspect(whereParams, { showHidden: true, depth: null, colors: true }));
-    let totalCount;
-    if (Object.keys(filter).length !== 0 && typeof filter.search !== 'undefined') {
-        const searchParams = [
-            {
-                status: (() => {
-                    return Object.keys(statusesRuLocale)
-                        .filter(s =>
-                            // @ts-expect-error skip
-                            statusesRuLocale[s].includes(
-                                Number.isInteger(filter.search) ? filter.search : filter.search.toLowerCase()
+        });
+        console.log(util.inspect(whereParams, { showHidden: true, depth: null, colors: true }));
+        let totalCount;
+        if (Object.keys(filter).length !== 0 && typeof filter.search !== 'undefined') {
+            const searchParams = [
+                {
+                    status: (() => {
+                        return Object.keys(statusesRuLocale)
+                            .filter(s =>
+                                // @ts-expect-error skip
+                                statusesRuLocale[s].includes(
+                                    Number.isInteger(filter.search) ? filter.search : filter.search.toLowerCase()
+                                )
                             )
-                        )
-                        .map(s => s);
-                })(),
-            },
-            { '$Unit.name$': { [Op.iLike]: `%${filter.search}%` } },
-            { builder: { [Op.iLike]: `%${filter.search}%` } },
-            { '$Object.name$': { [Op.iLike]: `%${filter.search}%` } },
-            { problemDescription: { [Op.iLike]: `%${filter.search}%` } },
-            { urgency: { [Op.iLike]: `%${filter.search}%` } },
-            sequelize.where(sequelize.cast(sequelize.col('repair_price'), 'varchar'), {
-                [Op.iLike]: `%${filter.search}%`,
-            }),
-            { comment: { [Op.iLike]: `%${filter.search}%` } },
-            { '$LegalEntity.name$': { [Op.iLike]: `%${filter.search}%` } },
-            { '$Contractor.name$': { [Op.iLike]: `%${filter.search}%` } },
-        ];
-        if (Number.isInteger(filter.search)) {
-            // @ts-expect-error skip
-            searchParams.push({ number: filter.search });
-            // @ts-expect-error skip
-            searchParams.push({ itineraryOrder: filter.search });
-            // @ts-expect-error skip
-            searchParams.push({ daysAtWork: filter.search });
+                            .map(s => s);
+                    })(),
+                },
+                { '$Unit.name$': { [Op.iLike]: `%${filter.search}%` } },
+                { builder: { [Op.iLike]: `%${filter.search}%` } },
+                { '$Object.name$': { [Op.iLike]: `%${filter.search}%` } },
+                { problemDescription: { [Op.iLike]: `%${filter.search}%` } },
+                { urgency: { [Op.iLike]: `%${filter.search}%` } },
+                sequelize.where(sequelize.cast(sequelize.col('repair_price'), 'varchar'), {
+                    [Op.iLike]: `%${filter.search}%`,
+                }),
+                { comment: { [Op.iLike]: `%${filter.search}%` } },
+                { '$LegalEntity.name$': { [Op.iLike]: `%${filter.search}%` } },
+                { '$Contractor.name$': { [Op.iLike]: `%${filter.search}%` } },
+            ];
+            if (Number.isInteger(filter.search)) {
+                // @ts-expect-error skip
+                searchParams.push({ number: filter.search });
+                // @ts-expect-error skip
+                searchParams.push({ itineraryOrder: filter.search });
+                // @ts-expect-error skip
+                searchParams.push({ daysAtWork: filter.search });
+            }
+            requests = await RepairRequest.findAll({
+                where: {
+                    [Op.and]: [
+                        {
+                            [Op.or]: searchParams,
+                        },
+                        whereParams,
+                    ],
+                },
+                include: [
+                    { model: Contractor },
+                    { model: ObjectDir },
+                    { model: Unit },
+                    { model: LegalEntity },
+                    { model: ExtContractor },
+                    { model: TgUser, as: 'TgUser' },
+                ],
+                order:
+                    order.col && order.type
+                        ? order.col === 'contractor'
+                            ? [['Contractor', 'name', order.type]]
+                            : [[order.col, order.type]]
+                        : [['number', 'desc']],
+                limit: pagination.limit,
+                offset: pagination.offset,
+            });
+            totalCount = await RepairRequest.count({
+                where: {
+                    [Op.and]: [
+                        {
+                            [Op.or]: searchParams,
+                        },
+                        whereParams,
+                    ],
+                },
+                include: [
+                    {
+                        model: Contractor,
+                    },
+                    {
+                        model: ObjectDir,
+                    },
+                    {
+                        model: Unit,
+                    },
+                    {
+                        model: LegalEntity,
+                    },
+                    {
+                        model: ExtContractor,
+                    },
+                    {
+                        model: TgUser,
+                    },
+                ],
+            });
+        } else {
+            requests = await RepairRequest.findAll({
+                where: whereParams,
+                include: [
+                    { model: Contractor },
+                    { model: ObjectDir },
+                    { model: Unit },
+                    { model: LegalEntity },
+                    { model: ExtContractor },
+                    { model: TgUser },
+                ],
+                order:
+                    order.col && order.type
+                        ? order.col === 'contractor'
+                            ? [['Contractor', 'name', order.type]]
+                            : [[order.col, order.type]]
+                        : [['number', 'desc']],
+                limit: pagination.limit,
+                offset: pagination.offset,
+            });
+            totalCount = await RepairRequest.count({
+                where: whereParams,
+                include: [
+                    { model: Contractor },
+                    { model: ObjectDir },
+                    { model: Unit },
+                    { model: LegalEntity },
+                    { model: ExtContractor },
+                    { model: TgUser },
+                ],
+            });
         }
-        requests = await RepairRequest.findAll({
-            where: {
-                [Op.and]: [
-                    {
-                        [Op.or]: searchParams,
-                    },
-                    whereParams,
-                ],
-            },
-            include: [
-                { model: Contractor },
-                { model: ObjectDir },
-                { model: Unit },
-                { model: LegalEntity },
-                { model: ExtContractor },
-                { model: TgUser, as: 'TgUser' },
-            ],
-            order:
-                order.col && order.type
-                    ? order.col === 'contractor'
-                        ? [['Contractor', 'name', order.type]]
-                        : [[order.col, order.type]]
-                    : [['number', 'desc']],
-            limit: pagination.limit,
-            offset: pagination.offset,
-        });
-        totalCount = await RepairRequest.count({
-            where: {
-                [Op.and]: [
-                    {
-                        [Op.or]: searchParams,
-                    },
-                    whereParams,
-                ],
-            },
-            include: [
-                {
-                    model: Contractor,
-                },
-                {
-                    model: ObjectDir,
-                },
-                {
-                    model: Unit,
-                },
-                {
-                    model: LegalEntity,
-                },
-                {
-                    model: ExtContractor,
-                },
-                {
-                    model: TgUser,
-                },
-            ],
-        });
-    } else {
-        requests = await RepairRequest.findAll({
-            where: whereParams,
-            include: [
-                { model: Contractor },
-                { model: ObjectDir },
-                { model: Unit },
-                { model: LegalEntity },
-                { model: ExtContractor },
-                { model: TgUser },
-            ],
-            order:
-                order.col && order.type
-                    ? order.col === 'contractor'
-                        ? [['Contractor', 'name', order.type]]
-                        : [[order.col, order.type]]
-                    : [['number', 'desc']],
-            limit: pagination.limit,
-            offset: pagination.offset,
-        });
-        totalCount = await RepairRequest.count({
-            where: whereParams,
-            include: [
-                { model: Contractor },
-                { model: ObjectDir },
-                { model: Unit },
-                { model: LegalEntity },
-                { model: ExtContractor },
-                { model: TgUser },
-            ],
-        });
-    }
 
-    // sort copied
-    const sortedRequests: RepairRequest[] = [];
-    const copiedRequests: RepairRequest[] = [];
-    requests.forEach(request => {
-        request.copiedRequestId ? copiedRequests.push(request) : sortedRequests.push(request);
-    });
-    for (const r of copiedRequests) {
-        const targetIndex = sortedRequests.findIndex(sortedRequest => sortedRequest.id === r.copiedRequestId);
-        sortedRequests.splice(targetIndex + 1, 0, r);
-    }
+        // sort copied
+        const sortedRequests: RepairRequest[] = [];
+        const copiedRequests: RepairRequest[] = [];
+        requests.forEach(request => {
+            request.copiedRequestId ? copiedRequests.push(request) : sortedRequests.push(request);
+        });
+        for (const r of copiedRequests) {
+            const targetIndex = sortedRequests.findIndex(sortedRequest => sortedRequest.id === r.copiedRequestId);
+            sortedRequests.splice(targetIndex + 1, 0, r);
+        }
 
-    return [sortedRequests.map(request => new RequestDto(request)), totalCount];
+        return [sortedRequests.map(request => new RequestDto(request)), totalCount];
+    } catch (error) {
+        logger.error(`Error in getAllRequests: ${error}`);
+        throw error;
+    }
 };
 
 const getRequestById = async (requestId: string): Promise<RequestDto> => {
@@ -742,6 +751,21 @@ const update = async (
     }
 
     // ws section
+    if (typeof status !== 'undefined' && status !== request.status) {
+        const customer = await TgUser.findByPk(request.createdBy);
+        const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
+        sendMsg({
+            msg: {
+                newStatus: status,
+                oldStatus: request.status,
+                requestId: requestId,
+                contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
+                customer: customer ? customer.tgId : null,
+            },
+            event: 'STATUS_UPDATE',
+        } as WsMsgData);
+    }
+    
     if (typeof urgency !== 'undefined' && urgency !== request.urgency) {
         const customer = await TgUser.findByPk(request.createdBy);
         const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
@@ -755,7 +779,9 @@ const update = async (
             },
             event: 'URGENCY_UPDATE',
         } as WsMsgData);
-    } else if (typeof comment !== 'undefined' && comment !== request.comment) {
+    }
+    
+    if (typeof comment !== 'undefined' && comment !== request.comment) {
         const customer = await TgUser.findByPk(request.createdBy);
         const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
         sendMsg({
@@ -929,7 +955,22 @@ const bulkSetStatus = async (ids: object, status: number): Promise<void> => {
     const repairRequests = await RepairRequest.findAll({ where: { id: ids } });
     if (repairRequests.length === 0) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found any requests');
     for (const request of repairRequests) {
+        const oldStatus = request.status;
         await request.update({ status });
+        
+        // Отправляем уведомление о смене статуса
+        const customer = await TgUser.findByPk(request.createdBy);
+        const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
+        sendMsg({
+            msg: {
+                newStatus: status,
+                oldStatus: oldStatus,
+                requestId: request.id,
+                contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
+                customer: customer ? customer.tgId : null,
+            },
+            event: 'STATUS_UPDATE',
+        } as WsMsgData);
     }
 };
 
@@ -937,7 +978,22 @@ const bulkSetUrgency = async (ids: object, urgency: string): Promise<void> => {
     const repairRequests = await RepairRequest.findAll({ where: { id: ids } });
     if (repairRequests.length === 0) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found any requests');
     for (const request of repairRequests) {
+        const oldUrgency = request.urgency;
         await request.update({ urgency });
+        
+        // Отправляем уведомление о смене срочности
+        const customer = await TgUser.findByPk(request.createdBy);
+        const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
+        sendMsg({
+            msg: {
+                newUrgency: urgency,
+                oldUrgency: oldUrgency,
+                requestId: request.id,
+                contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
+                customer: customer ? customer.tgId : null,
+            },
+            event: 'URGENCY_UPDATE',
+        } as WsMsgData);
     }
 };
 

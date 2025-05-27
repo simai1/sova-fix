@@ -918,7 +918,13 @@ async def get_manager_assigned_requests(tg_user_id: str) -> list | None:
         Список заявок, назначенных менеджеру, или None в случае ошибки
     """
     try:
-        url = f'{cf.API_URL}/requests?managerTgId={tg_user_id}'
+        # Убеждаемся что tg_user_id это строка
+        tg_user_id_str = str(tg_user_id)
+        logger.info(f"Запрос заявок для менеджера с tg_user_id: {tg_user_id_str}")
+        
+        url = f'{cf.API_URL}/requests?managerTgId={tg_user_id_str}'
+        logger.info(f"URL запроса: {url}")
+        
         request = requests.get(url)
         
         if request.status_code == 200:
@@ -926,15 +932,21 @@ async def get_manager_assigned_requests(tg_user_id: str) -> list | None:
             
             if isinstance(response, dict) and 'data' in response:
                 requests_data = response['data']
+                logger.info(f"Получено {len(requests_data)} заявок через managerTgId")
                 return requests_data
             elif isinstance(response, list):
+                logger.info(f"Получено {len(response)} заявок через managerTgId (прямой список)")
                 return response
             else:
+                logger.warn(f"Неожиданный формат ответа: {type(response)}")
                 return []
         else:
             logger.error(f"Ошибка при запросе заявок по managerTgId: код {request.status_code}")
+            logger.error(f"Ответ сервера: {request.text}")
         
-        user = await get_user_by_tg_id(tg_user_id)
+        # Fallback: пытаемся найти через managerId
+        logger.info("Пытаемся найти заявки через managerId")
+        user = await get_user_by_tg_id(int(tg_user_id))
         
         if not user or 'id' not in user:
             logger.error(f'Не удалось получить данные пользователя: tg_id={tg_user_id}')
@@ -942,6 +954,7 @@ async def get_manager_assigned_requests(tg_user_id: str) -> list | None:
         
         user_id = user['id']
         url = f'{cf.API_URL}/requests?managerId={user_id}'
+        logger.info(f"Fallback URL запроса: {url}")
         
         request = requests.get(url)
         
@@ -950,13 +963,17 @@ async def get_manager_assigned_requests(tg_user_id: str) -> list | None:
             
             if isinstance(response, dict) and 'data' in response:
                 requests_data = response['data']
+                logger.info(f"Получено {len(requests_data)} заявок через managerId")
                 return requests_data
             elif isinstance(response, list):
+                logger.info(f"Получено {len(response)} заявок через managerId (прямой список)")
                 return response
             else:
+                logger.warn(f"Неожиданный формат ответа fallback: {type(response)}")
                 return []
         else:
             logger.error(f"Ошибка при запросе заявок по managerId: код {request.status_code}")
+            logger.error(f"Ответ сервера fallback: {request.text}")
             return []
             
     except Exception as e:
