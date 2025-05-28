@@ -18,243 +18,263 @@ import * as util from 'node:util';
 import logger from '../utils/logger';
 import { models } from '../models';
 import Urgency from '../models/urgency';
+import User from '../models/user';
 
 const getAllRequests = async (filter: any, order: any, pagination: any) => {
-    let requests;
-    const whereParams: any = {};
-    Object.keys(filter).forEach((key: string) => {
-        if (key === 'search') {
-            return;
-        }
-        const isExclusion = key.startsWith('exclude_');
-        const fieldName = isExclusion ? key.replace('exclude_', '') : key;
-
-        let value = Array.isArray(filter[key]) ? filter[key] : [filter[key]];
-
-        if (fieldName === 'contractor') {
-            value = value.map((v: any) => (v === null ? 'null' : v));
-            if (isExclusion) {
-                if (value.includes('null')) {
-                    whereParams[Op.and] = [
-                        {
-                            contractorId: value.includes('null') ? { [Op.not]: null } : { [Op.is]: null },
-                        },
-                        { '$Contractor.name$': { [Op.notIn]: value } },
-                    ];
-                } else {
-                    whereParams[Op.or] = [
-                        {
-                            contractorId: value.includes('null') ? { [Op.not]: null } : { [Op.is]: null },
-                        },
-                        { '$Contractor.name$': { [Op.notIn]: value } },
-                    ];
-                }
-            } else {
-                if (value.includes('null')) {
-                    whereParams[Op.or] = [
-                        {
-                            contractorId: value.includes('null') ? { [Op.is]: null } : { [Op.not]: null },
-                        },
-                        { '$Contractor.name$': { [Op.in]: value } },
-                    ];
-                } else {
-                    whereParams[Op.and] = [
-                        {
-                            contractorId: value.includes('null') ? { [Op.is]: null } : { [Op.not]: null },
-                        },
-                        { '$Contractor.name$': { [Op.in]: value } },
-                    ];
-                }
+    try {
+        let requests;
+        const whereParams: any = {};
+        Object.keys(filter).forEach((key: string) => {
+            if (key === 'search') {
+                return;
             }
-        } else if (fieldName === 'legalEntity') {
-            value = value.map((v: any) => (v === null ? 'null' : v));
-            if (isExclusion) {
-                if (value.includes('null')) {
-                    whereParams[Op.and] = [
-                        {
-                            legalEntityId: value.includes('null') ? { [Op.not]: null } : { [Op.is]: null },
-                        },
-                        { '$LegalEntity.name$': { [Op.notIn]: value } },
-                    ];
+            const isExclusion = key.startsWith('exclude_');
+            const fieldName = isExclusion ? key.replace('exclude_', '') : key;
+
+            let value = Array.isArray(filter[key]) ? filter[key] : [filter[key]];
+
+            if (fieldName === 'contractor') {
+                value = value.map((v: any) => (v === null ? 'null' : v));
+                if (isExclusion) {
+                    if (value.includes('null')) {
+                        whereParams[Op.and] = [
+                            {
+                                contractorId: value.includes('null') ? { [Op.not]: null } : { [Op.is]: null },
+                            },
+                            { '$Contractor.name$': { [Op.notIn]: value } },
+                        ];
+                    } else {
+                        whereParams[Op.or] = [
+                            {
+                                contractorId: value.includes('null') ? { [Op.not]: null } : { [Op.is]: null },
+                            },
+                            { '$Contractor.name$': { [Op.notIn]: value } },
+                        ];
+                    }
                 } else {
-                    whereParams[Op.or] = [
-                        {
-                            legalEntityId: value.includes('null') ? { [Op.not]: null } : { [Op.is]: null },
-                        },
-                        { '$LegalEntity.name$': { [Op.notIn]: value } },
-                    ];
+                    if (value.includes('null')) {
+                        whereParams[Op.or] = [
+                            {
+                                contractorId: value.includes('null') ? { [Op.is]: null } : { [Op.not]: null },
+                            },
+                            { '$Contractor.name$': { [Op.in]: value } },
+                        ];
+                    } else {
+                        whereParams[Op.and] = [
+                            {
+                                contractorId: value.includes('null') ? { [Op.is]: null } : { [Op.not]: null },
+                            },
+                            { '$Contractor.name$': { [Op.in]: value } },
+                        ];
+                    }
                 }
+            } else if (fieldName === 'legalEntity') {
+                value = value.map((v: any) => (v === null ? 'null' : v));
+                if (isExclusion) {
+                    if (value.includes('null')) {
+                        whereParams[Op.and] = [
+                            {
+                                legalEntityId: value.includes('null') ? { [Op.not]: null } : { [Op.is]: null },
+                            },
+                            { '$LegalEntity.name$': { [Op.notIn]: value } },
+                        ];
+                    } else {
+                        whereParams[Op.or] = [
+                            {
+                                legalEntityId: value.includes('null') ? { [Op.not]: null } : { [Op.is]: null },
+                            },
+                            { '$LegalEntity.name$': { [Op.notIn]: value } },
+                        ];
+                    }
+                } else {
+                    if (value.includes('null')) {
+                        whereParams[Op.or] = [
+                            {
+                                legalEntityId: value.includes('null') ? { [Op.is]: null } : { [Op.not]: null },
+                            },
+                            { '$LegalEntity.name$': { [Op.in]: value } },
+                        ];
+                    } else {
+                        whereParams[Op.and] = [
+                            {
+                                legalEntityId: value.includes('null') ? { [Op.is]: null } : { [Op.not]: null },
+                            },
+                            { '$LegalEntity.name$': { [Op.in]: value } },
+                        ];
+                    }
+                }
+            } else if (fieldName === 'object') {
+                whereParams['$Object.name$'] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
+            } else if (fieldName === 'unit') {
+                whereParams['$Unit.name$'] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
+            } else if (fieldName === 'status') {
+                value = value.map((v: any) => {
+                    // @ts-expect-error any type
+                    return Number(mapStatusesRuLocale[v.trim()]);
+                });
+                whereParams[fieldName] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
+            } else if (fieldName === 'checkPhoto') {
+                whereParams[fieldName] = value.includes(null)
+                    ? { [Op.is]: null }
+                    : isExclusion
+                      ? { [Op.notIn]: value }
+                      : { [Op.in]: value };
+            } else if (fieldName === 'isAutoCreated') {
+                console.log(value);
+                whereParams[fieldName] = { [Op.is]: value.includes('true') };
+            } else if (fieldName === 'isExternal') {
+                whereParams[fieldName] = { [Op.is]: value.includes('true') };
+            } else if (fieldName === 'managerTgId') {
+                logger.info(`Filtering by managerTgId: ${filter.managerTgId}`);
+                whereParams[fieldName] = filter.managerTgId;
+            } else if (fieldName === 'managerId') {
+                logger.info(`Filtering by managerId: ${filter.managerId}`);
+                whereParams[fieldName] = filter.managerId;
             } else {
-                if (value.includes('null')) {
-                    whereParams[Op.or] = [
-                        {
-                            legalEntityId: value.includes('null') ? { [Op.is]: null } : { [Op.not]: null },
-                        },
-                        { '$LegalEntity.name$': { [Op.in]: value } },
-                    ];
-                } else {
-                    whereParams[Op.and] = [
-                        {
-                            legalEntityId: value.includes('null') ? { [Op.is]: null } : { [Op.not]: null },
-                        },
-                        { '$LegalEntity.name$': { [Op.in]: value } },
-                    ];
-                }
+                whereParams[fieldName] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
             }
-        } else if (fieldName === 'object') {
-            whereParams['$Object.name$'] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
-        } else if (fieldName === 'unit') {
-            whereParams['$Unit.name$'] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
-        } else if (fieldName === 'status') {
-            value = value.map((v: any) => {
-                // @ts-expect-error any type
-                return Number(mapStatusesRuLocale[v.trim()]);
-            });
-            whereParams[fieldName] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
-        } else if (fieldName === 'checkPhoto') {
-            whereParams[fieldName] = value.includes(null)
-                ? { [Op.is]: null }
-                : isExclusion
-                  ? { [Op.notIn]: value }
-                  : { [Op.in]: value };
-        } else if (fieldName === 'isAutoCreated') {
-            console.log(value);
-            whereParams[fieldName] = { [Op.is]: value.includes('true') };
-        } else {
-            whereParams[fieldName] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
-        }
-    });
-    console.log(util.inspect(whereParams, { showHidden: true, depth: null, colors: true }));
-    let totalCount;
-    if (Object.keys(filter).length !== 0 && typeof filter.search !== 'undefined') {
-        const searchParams = [
-            {
-                status: (() => {
-                    return Object.keys(statusesRuLocale)
-                        .filter(s =>
-                            // @ts-expect-error skip
-                            statusesRuLocale[s].includes(
-                                Number.isInteger(filter.search) ? filter.search : filter.search.toLowerCase()
+        });
+        console.log(util.inspect(whereParams, { showHidden: true, depth: null, colors: true }));
+        let totalCount;
+        if (Object.keys(filter).length !== 0 && typeof filter.search !== 'undefined') {
+            const searchParams = [
+                {
+                    status: (() => {
+                        return Object.keys(statusesRuLocale)
+                            .filter(s =>
+                                // @ts-expect-error skip
+                                statusesRuLocale[s].includes(
+                                    Number.isInteger(filter.search) ? filter.search : filter.search.toLowerCase()
+                                )
                             )
-                        )
-                        .map(s => s);
-                })(),
-            },
-            { '$Unit.name$': { [Op.iLike]: `%${filter.search}%` } },
-            { builder: { [Op.iLike]: `%${filter.search}%` } },
-            { '$Object.name$': { [Op.iLike]: `%${filter.search}%` } },
-            { problemDescription: { [Op.iLike]: `%${filter.search}%` } },
-            { urgency: { [Op.iLike]: `%${filter.search}%` } },
-            sequelize.where(sequelize.cast(sequelize.col('repair_price'), 'varchar'), {
-                [Op.iLike]: `%${filter.search}%`,
-            }),
-            { comment: { [Op.iLike]: `%${filter.search}%` } },
-            { '$LegalEntity.name$': { [Op.iLike]: `%${filter.search}%` } },
-            { '$Contractor.name$': { [Op.iLike]: `%${filter.search}%` } },
-        ];
-        if (Number.isInteger(filter.search)) {
-            // @ts-expect-error skip
-            searchParams.push({ number: filter.search });
-            // @ts-expect-error skip
-            searchParams.push({ itineraryOrder: filter.search });
-            // @ts-expect-error skip
-            searchParams.push({ daysAtWork: filter.search });
+                            .map(s => s);
+                    })(),
+                },
+                { '$Unit.name$': { [Op.iLike]: `%${filter.search}%` } },
+                { builder: { [Op.iLike]: `%${filter.search}%` } },
+                { '$Object.name$': { [Op.iLike]: `%${filter.search}%` } },
+                { problemDescription: { [Op.iLike]: `%${filter.search}%` } },
+                { urgency: { [Op.iLike]: `%${filter.search}%` } },
+                sequelize.where(sequelize.cast(sequelize.col('repair_price'), 'varchar'), {
+                    [Op.iLike]: `%${filter.search}%`,
+                }),
+                { comment: { [Op.iLike]: `%${filter.search}%` } },
+                { '$LegalEntity.name$': { [Op.iLike]: `%${filter.search}%` } },
+                { '$Contractor.name$': { [Op.iLike]: `%${filter.search}%` } },
+            ];
+            if (Number.isInteger(filter.search)) {
+                // @ts-expect-error skip
+                searchParams.push({ number: filter.search });
+                // @ts-expect-error skip
+                searchParams.push({ itineraryOrder: filter.search });
+                // @ts-expect-error skip
+                searchParams.push({ daysAtWork: filter.search });
+            }
+            requests = await RepairRequest.findAll({
+                where: {
+                    [Op.and]: [
+                        {
+                            [Op.or]: searchParams,
+                        },
+                        whereParams,
+                    ],
+                },
+                include: [
+                    { model: Contractor },
+                    { model: ObjectDir },
+                    { model: Unit },
+                    { model: LegalEntity },
+                    { model: ExtContractor },
+                    { model: TgUser, as: 'TgUser' },
+                ],
+                order:
+                    order.col && order.type
+                        ? order.col === 'contractor'
+                            ? [['Contractor', 'name', order.type]]
+                            : [[order.col, order.type]]
+                        : [['number', 'desc']],
+                limit: pagination.limit,
+                offset: pagination.offset,
+            });
+            totalCount = await RepairRequest.count({
+                where: {
+                    [Op.and]: [
+                        {
+                            [Op.or]: searchParams,
+                        },
+                        whereParams,
+                    ],
+                },
+                include: [
+                    {
+                        model: Contractor,
+                    },
+                    {
+                        model: ObjectDir,
+                    },
+                    {
+                        model: Unit,
+                    },
+                    {
+                        model: LegalEntity,
+                    },
+                    {
+                        model: ExtContractor,
+                    },
+                    {
+                        model: TgUser,
+                    },
+                ],
+            });
+        } else {
+            requests = await RepairRequest.findAll({
+                where: whereParams,
+                include: [
+                    { model: Contractor },
+                    { model: ObjectDir },
+                    { model: Unit },
+                    { model: LegalEntity },
+                    { model: ExtContractor },
+                    { model: TgUser },
+                ],
+                order:
+                    order.col && order.type
+                        ? order.col === 'contractor'
+                            ? [['Contractor', 'name', order.type]]
+                            : [[order.col, order.type]]
+                        : [['number', 'desc']],
+                limit: pagination.limit,
+                offset: pagination.offset,
+            });
+            totalCount = await RepairRequest.count({
+                where: whereParams,
+                include: [
+                    { model: Contractor },
+                    { model: ObjectDir },
+                    { model: Unit },
+                    { model: LegalEntity },
+                    { model: ExtContractor },
+                    { model: TgUser },
+                ],
+            });
         }
-        requests = await RepairRequest.findAll({
-            where: {
-                [Op.and]: [
-                    {
-                        [Op.or]: searchParams,
-                    },
-                    whereParams,
-                ],
-            },
-            include: [
-                { model: Contractor },
-                { model: ObjectDir },
-                { model: Unit },
-                { model: LegalEntity },
-                { model: ExtContractor },
-            ],
-            order:
-                order.col && order.type
-                    ? order.col === 'contractor'
-                        ? [['Contractor', 'name', order.type]]
-                        : [[order.col, order.type]]
-                    : [['number', 'desc']],
-            limit: pagination.limit,
-            offset: pagination.offset,
-        });
-        totalCount = await RepairRequest.count({
-            where: {
-                [Op.and]: [
-                    {
-                        [Op.or]: searchParams,
-                    },
-                    whereParams,
-                ],
-            },
-            include: [
-                {
-                    model: Contractor,
-                },
-                {
-                    model: ObjectDir,
-                },
-                {
-                    model: Unit,
-                },
-                {
-                    model: LegalEntity,
-                },
-                {
-                    model: ExtContractor,
-                },
-            ],
-        });
-    } else {
-        requests = await RepairRequest.findAll({
-            where: whereParams,
-            include: [
-                { model: Contractor },
-                { model: ObjectDir },
-                { model: Unit },
-                { model: LegalEntity },
-                { model: ExtContractor },
-            ],
-            order:
-                order.col && order.type
-                    ? order.col === 'contractor'
-                        ? [['Contractor', 'name', order.type]]
-                        : [[order.col, order.type]]
-                    : [['number', 'desc']],
-            limit: pagination.limit,
-            offset: pagination.offset,
-        });
-        totalCount = await RepairRequest.count({
-            where: whereParams,
-            include: [
-                { model: Contractor },
-                { model: ObjectDir },
-                { model: Unit },
-                { model: LegalEntity },
-                { model: ExtContractor },
-            ],
-        });
-    }
 
-    // sort copied
-    const sortedRequests: RepairRequest[] = [];
-    const copiedRequests: RepairRequest[] = [];
-    requests.forEach(request => {
-        request.copiedRequestId ? copiedRequests.push(request) : sortedRequests.push(request);
-    });
-    for (const r of copiedRequests) {
-        const targetIndex = sortedRequests.findIndex(sortedRequest => sortedRequest.id === r.copiedRequestId);
-        sortedRequests.splice(targetIndex + 1, 0, r);
-    }
+        // sort copied
+        const sortedRequests: RepairRequest[] = [];
+        const copiedRequests: RepairRequest[] = [];
+        requests.forEach(request => {
+            request.copiedRequestId ? copiedRequests.push(request) : sortedRequests.push(request);
+        });
+        for (const r of copiedRequests) {
+            const targetIndex = sortedRequests.findIndex(sortedRequest => sortedRequest.id === r.copiedRequestId);
+            sortedRequests.splice(targetIndex + 1, 0, r);
+        }
 
-    return [sortedRequests.map(request => new RequestDto(request)), totalCount];
+        return [sortedRequests.map(request => new RequestDto(request)), totalCount];
+    } catch (error) {
+        logger.error(`Error in getAllRequests: ${error}`);
+        throw error;
+    }
 };
 
 const getRequestById = async (requestId: string): Promise<RequestDto> => {
@@ -265,6 +285,7 @@ const getRequestById = async (requestId: string): Promise<RequestDto> => {
             { model: Unit },
             { model: LegalEntity },
             { model: ExtContractor },
+            { model: TgUser },
         ],
     });
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
@@ -313,62 +334,285 @@ const createRequest = async (
     return new RequestDto(request);
 };
 
-const setContractor = async (requestId: string, contractorId: string): Promise<void> => {
-    const request = await RepairRequest.findByPk(requestId);
-    if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
-    const oldStatus = request.status;
-    if (contractorId.toLowerCase() === 'внешний подрядчик')
-        await request.update({ contractorId: null, builder: 'Внешний подрядчик', isExternal: true });
-    else
-        await request.update({
-            contractorId,
-            builder: 'Внутренний сотрудник',
-            status: 2,
-            daysAtWork: 1,
-            ExtContractorId: null,
-            isExternal: false,
-        });
-
-    const customer = await TgUser.findByPk(request.createdBy);
-    const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
+const createRequestWithoutPhoto = async (
+    objectId: string,
+    problemDescription: string | undefined,
+    urgency: string,
+    repairPrice: number | undefined,
+    comment: string | undefined,
+    tgUserId: string
+): Promise<RequestDto> => {
+    const objectDir = await objectService.getObjectById(objectId);
+    if (!objectDir) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found object with id ' + objectId);
+    if (!objectDir.Unit) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found unit');
+    if (!objectDir.LegalEntity) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found LegalEntity');
+    
+    const request = await RepairRequest.create({
+        unitId: objectDir.Unit.id,
+        objectId,
+        problemDescription,
+        urgency,
+        repairPrice,
+        comment,
+        legalEntityId: objectDir.LegalEntity.id,
+        fileName: null,
+        createdBy: tgUserId,
+        number: 0,
+    });
+    
+    request.Object = objectDir;
+    request.Unit = objectDir.Unit;
+    request.LegalEntity = objectDir.LegalEntity;
+    
     sendMsg({
         msg: {
-            newStatus: 2,
-            oldStatus: oldStatus,
-            requestId: requestId,
-            contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
-            customer: customer ? customer.tgId : null,
+            requestId: request.id,
+            customer: request.createdBy,
         },
-        event: 'STATUS_UPDATE',
+        event: 'REQUEST_CREATE',
     } as WsMsgData);
+    
+    return new RequestDto(request);
+};
+
+const createRequestWithMultiplePhotos = async (
+    objectId: string,
+    problemDescription: string | undefined,
+    urgency: string,
+    repairPrice: number | undefined,
+    comment: string | undefined,
+    fileNames: string[],
+    tgUserId: string
+): Promise<RequestDto> => {
+    const objectDir = await objectService.getObjectById(objectId);
+    if (!objectDir) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found object with id ' + objectId);
+    if (!objectDir.Unit) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found unit');
+    if (!objectDir.LegalEntity) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found LegalEntity');
+    
+    const mainPhoto = fileNames[0];
+    const additionalPhotos = fileNames.slice(1);
+    
+    const request = await RepairRequest.create({
+        unitId: objectDir.Unit.id,
+        objectId,
+        problemDescription,
+        urgency,
+        repairPrice,
+        comment,
+        legalEntityId: objectDir.LegalEntity.id,
+        fileName: mainPhoto,
+        commentAttachment: additionalPhotos.length > 0 ? JSON.stringify(additionalPhotos) : undefined,
+        createdBy: tgUserId,
+        number: 0,
+    });
+    
+    request.Object = objectDir;
+    request.Unit = objectDir.Unit;
+    request.LegalEntity = objectDir.LegalEntity;
+    
+    sendMsg({
+        msg: {
+            requestId: request.id,
+            customer: request.createdBy,
+        },
+        event: 'REQUEST_CREATE',
+    } as WsMsgData);
+    
+    return new RequestDto(request);
+};
+
+const setContractor = async (requestId: string, contractorId: string, managerId?: string): Promise<void> => {
+    try {
+        const request = await RepairRequest.findByPk(requestId);
+        if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
+        const oldStatus = request.status;
+        
+        // Обработка случая с менеджером как исполнителем
+        if (managerId) {
+            logger.info(`Setting manager/admin with ID: ${managerId} for request: ${requestId}`);
+            
+            let manager = null;
+            
+            // First, try to find a TgUser (manager) with this ID
+            try {
+                manager = await TgUser.findByPk(managerId);
+                if (manager) {
+                    logger.info(`Found manager as TgUser: ${manager.name}, tgId: ${manager.tgId}`);
+                }
+            } catch (error) {
+                logger.error(`Error looking up TgUser manager: ${error}`);
+            }
+            
+            if (manager) {
+                await request.update({
+                    managerId: managerId,
+                    managerTgId: manager.tgId,
+                    status: 2,
+                    daysAtWork: 1,
+                    contractorId: null,
+                    ExtContractorId: null,
+                    isExternal: false,
+                    builder: `Менеджер: ${manager.name}`
+                });
+                
+                logger.info(`Заявка ${requestId} назначена менеджеру ${manager.name}, установлены поля: managerId=${managerId}, managerTgId=${manager.tgId}`);
+                
+                const customer = await TgUser.findByPk(request.createdBy);
+                
+                sendMsg({
+                    msg: {
+                        newStatus: 2,
+                        oldStatus: oldStatus,
+                        requestId: requestId,
+                        contractor: null,
+                        customer: customer ? customer.tgId : null,
+                        tgUser: manager.tgId
+                    },
+                    event: 'STATUS_UPDATE',
+                } as WsMsgData);
+                
+                return;
+            }
+        }
+        
+        // Обработка "Внешний подрядчик"
+        if (contractorId && typeof contractorId === 'string' && 
+            (contractorId.toLowerCase() === 'внешний подрядчик' || 
+             contractorId.toLowerCase() === 'external contractor' || 
+             contractorId === 'external')) {
+            
+            logger.info(`Setting external contractor for request: ${requestId}`);
+            
+            await request.update({ 
+                contractorId: null, 
+                managerId: null,
+                managerTgId: null,
+                builder: 'Внешний подрядчик', 
+                isExternal: true,
+                status: 2,
+                daysAtWork: 1,
+                ExtContractorId: null
+            });
+            
+            const customer = await TgUser.findByPk(request.createdBy);
+            
+            sendMsg({
+                msg: {
+                    newStatus: 2,
+                    oldStatus: oldStatus,
+                    requestId: requestId,
+                    contractor: null,
+                    customer: customer ? customer.tgId : null,
+                },
+                event: 'STATUS_UPDATE',
+            } as WsMsgData);
+            
+            return;
+        }
+        
+        // Проверяем существование подрядчика с переданным ID
+        if (contractorId) {
+            try {
+                const contractor = await Contractor.findByPk(contractorId);
+                if (!contractor) {
+                    logger.error(`Contractor with ID ${contractorId} not found`);
+                    throw new ApiError(httpStatus.BAD_REQUEST, `Contractor with ID ${contractorId} not found`);
+                }
+                
+                logger.info(`Setting contractor ${contractor.name} (ID: ${contractorId}) for request: ${requestId}`);
+                
+                await request.update({
+                    contractorId,
+                    managerId: null,
+                    managerTgId: null,
+                    builder: 'Внутренний сотрудник',
+                    status: 2,
+                    daysAtWork: 1,
+                    ExtContractorId: null,
+                    isExternal: false,
+                });
+                
+                const customer = await TgUser.findByPk(request.createdBy);
+                const tgContractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
+                
+                sendMsg({
+                    msg: {
+                        newStatus: 2,
+                        oldStatus: oldStatus,
+                        requestId: requestId,
+                        contractor: tgContractor ? (tgContractor.TgUser ? tgContractor.TgUser.tgId : null) : null,
+                        customer: customer ? customer.tgId : null,
+                    },
+                    event: 'STATUS_UPDATE',
+                } as WsMsgData);
+            } catch (error) {
+                logger.error(`Error while setting contractor for request ${requestId}: ${error}`);
+                throw error;
+            }
+        } else {
+            // Если contractorId не передан, но и managerId тоже нет
+            logger.error('Neither contractor ID nor manager ID was provided');
+            throw new ApiError(httpStatus.BAD_REQUEST, 'Either contractor ID or manager ID must be provided');
+        }
+    } catch (error) {
+        logger.error(`Error in setContractor for request ${requestId}: ${error}`);
+        throw error;
+    }
 };
 
 const setExtContractor = async (requestId: string, extContractorId: string): Promise<void> => {
-    const request = await RepairRequest.findByPk(requestId);
-    const extContractor = await ExtContractor.findByPk(extContractorId);
-    if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
-    if (!extContractor) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found external contractor');
-    const oldStatus = request.status;
-    await request.update({
-        ExtContractorId: extContractorId,
-        contractorId: null,
-        status: 2,
-        daysAtWork: 1,
-        builder: extContractor.name,
-    });
+    try {
+        logger.info(`Setting external contractor ${extContractorId} for request ${requestId}`);
+        
+        // Находим заявку
+        const request = await RepairRequest.findByPk(requestId);
+        if (!request) {
+            logger.error(`Request with id ${requestId} not found`);
+            throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
+        }
+        
+        // Находим внешнего подрядчика
+        const extContractor = await ExtContractor.findByPk(extContractorId);
+        if (!extContractor) {
+            logger.error(`External contractor with id ${extContractorId} not found`);
+            throw new ApiError(httpStatus.BAD_REQUEST, 'Not found external contractor');
+        }
+        
+        const oldStatus = request.status;
+        
+        // Обновляем заявку
+        logger.info(`Updating request ${requestId} with external contractor ${extContractor.name}`);
+        await request.update({
+            ExtContractorId: extContractorId,
+            contractorId: null,
+            managerId: null,
+            managerTgId: null,
+            status: 2,
+            daysAtWork: 1,
+            builder: extContractor.name,
+            isExternal: true
+        });
 
-    const customer = await TgUser.findByPk(request.createdBy);
-    const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
-    sendMsg({
-        msg: {
-            newStatus: 2,
-            oldStatus: oldStatus,
-            requestId: requestId,
-            contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
-            customer: customer ? customer.tgId : null,
-        },
-        event: 'STATUS_UPDATE',
-    } as WsMsgData);
+        // Находим заказчика для отправки уведомления
+        const customer = await TgUser.findByPk(request.createdBy);
+        
+        // Отправляем уведомление
+        sendMsg({
+            msg: {
+                newStatus: 2,
+                oldStatus: oldStatus,
+                requestId: requestId,
+                contractor: null,
+                customer: customer ? customer.tgId : null,
+            },
+            event: 'STATUS_UPDATE',
+        } as WsMsgData);
+        
+        logger.info(`Successfully set external contractor ${extContractor.name} for request ${requestId}`);
+    } catch (error) {
+        logger.error(`Error in setExtContractor for request ${requestId}: ${error}`);
+        throw error;
+    }
 };
 
 const setComment = async (requestId: string, comment: string): Promise<void> => {
@@ -465,22 +709,63 @@ const update = async (
     status: number | undefined,
     builder: string | undefined,
     planCompleteDate: Date | null | undefined,
-    urgencyId: string | null | undefined
+    urgencyId: string | null | undefined,
+    managerTgId: string | undefined
 ): Promise<void> => {
     const request = await RepairRequest.findByPk(requestId);
-    if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
-    let objectDir;
-    if (objectId) objectDir = await objectService.getObjectById(objectId);
-
-    if (itineraryOrder) {
-        const itinerary = await contractorService.getContractorsItinerary(request.contractorId as string, {});
-        for (const it of itinerary) {
-            if (itineraryOrder === it.itineraryOrder)
-                await RepairRequest.update({ itineraryOrder: request.itineraryOrder }, { where: { id: it.id } });
+    if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found request with id ' + requestId);
+    
+    logger.info({
+        level: 'info',
+        message: `Updating repair request ${requestId}`,
+        fields: {
+            originalManagerTgId: request.managerTgId,
+            newManagerTgId: managerTgId,
+            originalManagerId: request.managerId
         }
+    });
+    
+    const updateData: any = {};
+    
+    if (objectId) updateData.objectId = objectId;
+    if (problemDescription !== undefined) updateData.problemDescription = problemDescription;
+    if (urgency) updateData.urgency = urgency;
+    if (repairPrice !== undefined) updateData.repairPrice = repairPrice;
+    if (comment !== undefined) updateData.comment = comment;
+    if (itineraryOrder !== undefined) updateData.itineraryOrder = itineraryOrder;
+    if (contractorId !== undefined) updateData.contractorId = contractorId;
+    if (status !== undefined) updateData.status = status;
+    if (builder !== undefined) updateData.builder = builder;
+    if (planCompleteDate !== undefined) updateData.planCompleteDate = planCompleteDate;
+    if (managerTgId !== undefined) updateData.managerTgId = managerTgId;
+    
+    await request.update(updateData);
+    
+    // Если статус обновлен на "выполнено", устанавливаем дату завершения
+    if (status === 3) {
+        const dateNow = new Date();
+        await request.update({
+            completeDate: dateNow,
+            daysAtWork: Math.floor((dateNow.getTime() - request.createdAt.getTime()) / (1000 * 60 * 60 * 24)),
+        });
     }
 
     // ws section
+    if (typeof status !== 'undefined' && status !== request.status) {
+        const customer = await TgUser.findByPk(request.createdBy);
+        const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
+        sendMsg({
+            msg: {
+                newStatus: status,
+                oldStatus: request.status,
+                requestId: requestId,
+                contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
+                customer: customer ? customer.tgId : null,
+            },
+            event: 'STATUS_UPDATE',
+        } as WsMsgData);
+    }
+    
     if (typeof urgency !== 'undefined' && urgency !== request.urgency) {
         const customer = await TgUser.findByPk(request.createdBy);
         const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
@@ -494,7 +779,9 @@ const update = async (
             },
             event: 'URGENCY_UPDATE',
         } as WsMsgData);
-    } else if (typeof comment !== 'undefined' && comment !== request.comment) {
+    }
+    
+    if (typeof comment !== 'undefined' && comment !== request.comment) {
         const customer = await TgUser.findByPk(request.createdBy);
         const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
         sendMsg({
@@ -508,12 +795,20 @@ const update = async (
             event: 'COMMENT_UPDATE',
         } as WsMsgData);
     }
+
+    // Получаем objectDir только если objectId передан
+    let unitId, legalEntityId;
+    if (objectId) {
+        const objectDir = await objectService.getObjectById(objectId);
+        unitId = objectDir?.Unit?.id;
+        legalEntityId = objectDir?.LegalEntity?.id;
+    }
     await RepairRequest.update(
         {
             objectId,
             problemDescription,
-            unitId: objectDir?.Unit?.id,
-            legalEntityId: objectDir?.LegalEntity?.id,
+            unitId,
+            legalEntityId,
             urgency,
             repairPrice,
             comment,
@@ -587,10 +882,11 @@ const getCustomersRequests = async (tgUserId: string, filter: any): Promise<Requ
                 { '$Contractor.name$': { [Op.iLike]: `%${filter.search}%` } },
             ];
             if (Number.isInteger(filter.search)) {
-                searchParams.push({ number: { [Op.eq]: filter.search } } as any);
-                searchParams.push({ itineraryOrder: { [Op.eq]: filter.search } } as any);
-                searchParams.push({ daysAtWork: { [Op.eq]: filter.search } } as any);
+                searchParams.push({ number: { [Op.eq]: filter.search } });
+                searchParams.push({ itineraryOrder: { [Op.eq]: filter.search } });
+                searchParams.push({ daysAtWork: { [Op.eq]: filter.search } });
             }
+            
             requests = await RepairRequest.findAll({
                 where: {
                     [Op.and]: [
@@ -601,21 +897,12 @@ const getCustomersRequests = async (tgUserId: string, filter: any): Promise<Requ
                     ],
                 },
                 include: [
-                    {
-                        model: Contractor,
-                    },
-                    {
-                        model: ObjectDir,
-                    },
-                    {
-                        model: Unit,
-                    },
-                    {
-                        model: LegalEntity,
-                    },
-                    {
-                        model: ExtContractor,
-                    },
+                    { model: Contractor },
+                    { model: ObjectDir },
+                    { model: Unit },
+                    { model: LegalEntity },
+                    { model: ExtContractor },
+                    { model: TgUser },
                 ],
                 order: [['number', 'desc']],
             });
@@ -628,6 +915,7 @@ const getCustomersRequests = async (tgUserId: string, filter: any): Promise<Requ
                     { model: Unit },
                     { model: LegalEntity },
                     { model: ExtContractor },
+                    { model: TgUser },
                 ],
                 order: [['number', 'desc']],
             });
@@ -649,8 +937,8 @@ const getCustomersRequests = async (tgUserId: string, filter: any): Promise<Requ
     }
 };
 
-const addCheck = async (requestId: string, file: string): Promise<void> => {
-    await RepairRequest.update({ checkPhoto: file }, { where: { id: requestId } });
+const addCheck = async (requestId: string, fileName: string): Promise<void> => {
+    await RepairRequest.update({ checkPhoto: fileName }, { where: { id: requestId } });
     await setStatus(requestId, 3);
 };
 
@@ -667,7 +955,22 @@ const bulkSetStatus = async (ids: object, status: number): Promise<void> => {
     const repairRequests = await RepairRequest.findAll({ where: { id: ids } });
     if (repairRequests.length === 0) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found any requests');
     for (const request of repairRequests) {
+        const oldStatus = request.status;
         await request.update({ status });
+        
+        // Отправляем уведомление о смене статуса
+        const customer = await TgUser.findByPk(request.createdBy);
+        const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
+        sendMsg({
+            msg: {
+                newStatus: status,
+                oldStatus: oldStatus,
+                requestId: request.id,
+                contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
+                customer: customer ? customer.tgId : null,
+            },
+            event: 'STATUS_UPDATE',
+        } as WsMsgData);
     }
 };
 
@@ -675,7 +978,22 @@ const bulkSetUrgency = async (ids: object, urgency: string): Promise<void> => {
     const repairRequests = await RepairRequest.findAll({ where: { id: ids } });
     if (repairRequests.length === 0) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found any requests');
     for (const request of repairRequests) {
+        const oldUrgency = request.urgency;
         await request.update({ urgency });
+        
+        // Отправляем уведомление о смене срочности
+        const customer = await TgUser.findByPk(request.createdBy);
+        const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
+        sendMsg({
+            msg: {
+                newUrgency: urgency,
+                oldUrgency: oldUrgency,
+                requestId: request.id,
+                contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
+                customer: customer ? customer.tgId : null,
+            },
+            event: 'URGENCY_UPDATE',
+        } as WsMsgData);
     }
 };
 
@@ -737,13 +1055,52 @@ const copyRequest = async (requestId: string): Promise<void> => {
         number: 0,
     });
 };
+
 const getRequestsByObjects = async (tgUserId: string, filter: any): Promise<RequestDto[]> => {
-    logger.log({
-        level: 'info',
-        message: `Getting requests by objects for tgUser: ${tgUserId}`,
+    return getCustomersRequests(tgUserId, filter);
+};
+
+// New function to set a manager as the executor
+const setManager = async (requestId: string, managerId: string): Promise<void> => {
+    const request = await RepairRequest.findByPk(requestId);
+    if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
+    
+    const oldStatus = request.status;
+    
+    // Find the manager
+    const manager = await TgUser.findByPk(managerId);
+    if (!manager) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found manager with id ' + managerId);
+    
+    logger.info(`Назначение менеджера ${manager.name} (ID: ${managerId}, tgId: ${manager.tgId}) исполнителем для заявки: ${requestId}`);
+    
+    // Update the request with both managerId and managerTgId
+    await request.update({
+        managerId,
+        managerTgId: manager.tgId, // Store tgId for direct reference in bot
+        status: 2,
+        daysAtWork: 1,
+        contractorId: null,
+        ExtContractorId: null,
+        isExternal: false,
+        builder: `Менеджер: ${manager.name}`
     });
     
-    return getCustomersRequests(tgUserId, filter);
+    logger.info(`Заявка ${requestId} успешно обновлена, установлены поля: managerId=${managerId}, managerTgId=${manager.tgId}`);
+    
+    // Send notification
+    const customer = await TgUser.findByPk(request.createdBy);
+    
+    sendMsg({
+        msg: {
+            newStatus: 2,
+            oldStatus: oldStatus,
+            requestId: requestId,
+            contractor: null,
+            customer: customer ? customer.tgId : null,
+            tgUser: manager.tgId
+        },
+        event: 'STATUS_UPDATE',
+    } as WsMsgData);
 };
 
 const changeUrgency = async(prevName: string, urgencyId: string) => {
@@ -766,6 +1123,8 @@ export default {
     getAllRequests,
     getRequestById,
     createRequest,
+    createRequestWithoutPhoto,
+    createRequestWithMultiplePhotos,
     setContractor,
     setExtContractor,
     setComment,
@@ -784,4 +1143,6 @@ export default {
     bulkSetContractor,
     copyRequest,
     changeUrgency,
+    setManager,
+
 };

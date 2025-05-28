@@ -128,32 +128,74 @@
         border-radius: 8px;
         background-color: var(--dark-grey-color);
         text-align: center;
+        position: relative;
+        cursor: pointer;
+        
         &:hover {
           background-color: var(--Active-gray-color);
-          // opacity: 0.8;
         }
+        
         .shovStatusPop {
-          max-height: 150px;
-          overflow-y: scroll;
-          transform: translateY(20px);
+          max-height: 250px;
+          overflow-y: auto;
           position: absolute;
+          left: calc(100% + 10px);
+          top: 0;
           background-color: #fff;
-          padding: 10px;
+          padding: 15px;
           border-radius: 8px;
-          box-shadow: 1px 0px 8px var(--dark-grey-color);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
           z-index: 100;
+          min-width: 200px;
+          width: max-content;
+          max-width: 350px;
+          transform: none;
+          
+          &.top-aligned {
+            top: auto;
+            bottom: 0;
+          }
+          
+          &.right-aligned {
+            left: auto;
+            right: calc(100% + 10px);
+          }
+          
           ul {
             list-style-type: none;
             padding: 0;
             margin: 0;
+            
             li {
               display: flex;
               align-items: center;
               padding: 10px;
               text-align: start;
+              border-radius: 6px;
+              margin-bottom: 2px;
+              white-space: nowrap;
+              
               &:hover {
                 background-color: var(--Active-gray-color);
-                border-radius: 8px;
+              }
+              
+              &.listHeader {
+                font-weight: bold;
+                color: #555;
+                pointer-events: none;
+                padding: 5px 10px;
+                margin-top: 8px;
+                margin-bottom: 5px;
+                background-color: #f5f5f5;
+                border-radius: 5px;
+                
+                &:hover {
+                  background-color: #f5f5f5;
+                }
+                
+                &:first-child {
+                  margin-top: 0;
+                }
               }
             }
           }
@@ -310,8 +352,8 @@
       width: 150px;
       height: 150px;
       transition: 0.1s all linear;
-      object-fit: cover; /* Масштабирование и обрезка */
-      border-radius: 4px; /* Для скругления углов, если нужно */
+      object-fit: cover;
+      border-radius: 4px;
       &:hover {
         opacity: 0.4;
       }
@@ -375,6 +417,7 @@
 }
 
 input[type="checkbox"] {
+  appearance: none;
   -moz-appearance: none;
   -webkit-appearance: none;
   -o-appearance: none;
@@ -468,4 +511,173 @@ input[type="checkbox"]:checked:before {
   100% {
     transform: rotate(360deg);
   }
+}
+
+.fileTableContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100px;
+  overflow: hidden;
+
+  .imgTable {
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 100px;
+    object-fit: contain;
+    border-radius: 4px;
+    transition: transform 0.2s;
+
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+
+  .fileVideoTable {
+    width: 100%;
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .videoTable {
+      width: auto;
+      height: auto;
+      max-width: 100%;
+      max-height: 100px;
+      object-fit: contain;
+      border-radius: 4px;
+      transition: transform 0.2s;
+
+      &:hover {
+        transform: scale(1.05);
+      }
+    }
+  }
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  position: relative;
+  max-width: 90%;
+  max-height: 90%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.closeButton {
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 30px;
+  cursor: pointer;
+  z-index: 1001;
+}
+
+.modalImage {
+  max-width: 100%;
+  max-height: 90vh;
+  border-radius: 4px;
+  object-fit: contain;
+}
+
+.modalVideo {
+  max-width: 100%;
+  max-height: 90vh;
+  border-radius: 4px;
+}
+
+.photoSlider {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.9);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.sliderContent {
+  position: relative;
+  max-width: 90%;
+  max-height: 90%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.closeSlider {
+  position: absolute;
+  right: -40px;
+  top: -40px;
+  color: white;
+  font-size: 30px;
+  font-weight: bold;
+  background: none;
+  border: none;
+  cursor: pointer;
+  z-index: 1001;
+}
+
+.sliderControls {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.prevButton, .nextButton {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 30px;
+  cursor: pointer;
+  padding: 20px;
+  z-index: 1001;
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: scale(1.2);
+  }
+}
+
+.sliderImage {
+  max-width: 80vw;
+  max-height: 80vh;
+  margin: 0 20px;
+  object-fit: contain;
+}
+
+.sliderIndicator {
+  color: white;
+  margin-top: 20px;
+  font-size: 16px;
+}
+
+// Стили для ячеек таблицы с изображениями и видео
+td[name="fileName"], td[name="commentAttachment"], td[name="checkPhoto"] {
+  text-align: center;
+  min-width: 120px;
+  max-width: 160px;
+  padding: 5px !important;
 }

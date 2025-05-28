@@ -37,50 +37,111 @@ class User:
         self.linkId = data['linkId']
         self.is_confirmed = data['isConfirmed']
 
-
-
 async def register_user(user_id: int, name: str, role: int, username: str) -> dict | None:
+    """
+    Регистрирует нового пользователя.
+    
+    Args:
+        user_id: Telegram ID пользователя
+        name: Имя пользователя
+        role: Роль пользователя
+        username: Имя пользователя в Telegram
+        
+    Returns:
+        Данные созданного пользователя или None в случае ошибки
+    """
     if await user_already_exists(user_id):
         return None
 
     url = f'{cf.API_URL}/tgUsers'
 
     data: dict = {'name': name, 'role': role, 'tgId': str(user_id), 'linkId': username}
-    request = requests.post(url, data)
+    
+    try:
+        request = requests.post(url, data)
 
-    if request.status_code == 200:
-        logger.info('API: successfully registered user', f'tg_id={user_id}')
-        return data
-    else:
-        logger.error(f'API: could not register user {user_id}', f'{request.status_code}')
+        if request.status_code == 200:
+            logger.info(f'API: successfully registered user with tgId={user_id}')
+            return request.json()
+        else:
+            logger.error(f'API: could not register user with tgId={user_id}', f'status={request.status_code}')
+            return None
+    except Exception as e:
+        logger.error(f'API: exception during user registration with tgId={user_id}', f'error={str(e)}')
         return None
 
 
 async def get_all_users() -> list | dict | None:
+    """
+    Получает список всех пользователей.
+    
+    Returns:
+        Список всех пользователей или None в случае ошибки
+    """
     url = f'{cf.API_URL}/tgUsers'
 
-    request = requests.get(url)
-    data = request.json()
-
-    return data
+    try:
+        request = requests.get(url)
+        
+        if request.status_code == 200:
+            return request.json()
+        else:
+            logger.error(f'API: could not get all users, status={request.status_code}')
+            return None
+    except Exception as e:
+        logger.error(f'API: exception getting all users: {str(e)}')
+        return None
 
 
 async def get_user(user_id: int) -> dict | None:
+    """
+    Получает данные пользователя по его Telegram ID.
+    
+    Args:
+        user_id: Telegram ID пользователя
+        
+    Returns:
+        Данные пользователя или None, если пользователь не найден
+    """
     url = f'{cf.API_URL}/tgUsers/{user_id}'
-
-    request = requests.get(url)
-    data = request.json()
-
-    if data is None:
-        logger.warn(f'API: no user with tg_id={user_id}')
+    
+    try:
+        request = requests.get(url)
+        
+        if request.status_code != 200:
+            logger.debug(f"API: user with tgId={user_id} not found, status={request.status_code}")
+            return None
+        
+        data = request.json()
+        
+        if data is None:
+            logger.debug(f"API: empty response for user with tgId={user_id}")
+            return None
+        
+        return data
+    except Exception as e:
+        logger.error(f"API: exception getting user with tgId={user_id}: {str(e)}")
         return None
-
-    return data
 
 
 async def user_already_exists(user_id: int) -> bool:
-    user = await get_user(user_id)
-    return user is not None
+    """
+    Проверяет, существует ли пользователь с указанным Telegram ID.
+    
+    Args:
+        user_id: Telegram ID пользователя
+        
+    Returns:
+        True если пользователь существует, False в противном случае
+    """
+    url = f'{cf.API_URL}/tgUsers/{user_id}'
+    
+    try:
+        request = requests.get(url)
+        return request.status_code == 200 and request.json() is not None
+    except Exception as e:
+        logger.error(f"API: exception checking if user with tgId={user_id} exists: {str(e)}")
+        return False
 
 
 async def get_all_repair_requests(params: str = "") -> dict | None:
@@ -99,24 +160,60 @@ async def get_all_repair_requests(params: str = "") -> dict | None:
 async def get_repair_request(request_id: str) -> dict | None:
     url = f'{cf.API_URL}/requests/{request_id}'
 
-    request = requests.get(url)
-    data: dict = request.json()
-
-    if request.status_code == 200:
+    logger.info(f"Запрашиваем детали заявки: id={request_id}")
+    
+    try:
+        request = requests.get(url)
+        
+        if request.status_code != 200:
+            logger.error(f'API: could not get repair request, код: {request.status_code}, request_id={request_id}')
+            logger.error(f'API ответ: {request.text}')
+            return None
+        
+        data: dict = request.json()
+        
+        logger.info(f"Получили данные заявки: id={data.get('id')}, status={data.get('status')}, managerId={data.get('managerId')}, managerTgId={data.get('managerTgId')}")
+        
+        if 'status' in data and not isinstance(data['status'], int):
+            try:
+                data['status'] = int(data['status'])
+            except (ValueError, TypeError):
+                logger.error(f"Не удалось преобразовать статус {data.get('status')} в int")
+        
         return data
-    else:
-        logger.error('API: could not get repair request', f'{request.status_code}\nrequest_id={request_id}')
+    except Exception as e:
+        logger.error(f'API: исключение при получении заявки: {str(e)}, request_id={request_id}')
         return None
 
 
 async def get_tg_user_id(user_id: int) -> str | None:
-    user = await get_user(user_id)
-
-    if user is None:
+    """
+    Получает ID пользователя Telegram в базе данных по его Telegram ID.
+    
+    Args:
+        user_id: Telegram ID пользователя
+    
+    Returns:
+        ID пользователя в базе данных или None в случае ошибки
+    """
+    try:
+        user = await get_user(user_id)
+        
+        if user is None:
+            logger.warn(f"Пользователь с Telegram ID {user_id} не найден в базе данных")
+            return None
+        
+        tg_user_id = user.get('id')
+        
+        if not tg_user_id:
+            logger.error(f"У пользователя с Telegram ID {user_id} отсутствует ID в базе данных")
+            return None
+            
+        logger.info(f"Получен ID пользователя в базе данных: {tg_user_id} для Telegram ID {user_id}")
+        return tg_user_id
+    except Exception as e:
+        logger.error(f"Ошибка при получении ID пользователя: {str(e)}, user_id={user_id}")
         return None
-
-    tg_user_id = user['id']
-    return tg_user_id
 
 
 async def create_repair_request(
@@ -158,6 +255,85 @@ async def create_repair_request(
         return request.json()['requestDto']
     else:
         logger.error('API: could not create repair request', f'{request.status_code}  {values}')
+        return None
+
+
+async def create_repair_request_without_photo(
+        tg_user_id: str,
+        object_id: str,
+        problem_description: str,
+        urgency: str,
+        repair_price: str | None = None,
+        comment: str | None = None,
+        legal_entity: str | None = None
+) -> dict | None:
+    """
+    Создает заявку на ремонт без прикрепления фотографии
+    """
+    url = f'{cf.API_URL}/requests/without-photo'
+
+    data = {
+        'objectId': object_id,
+        'problemDescription': problem_description,
+        'urgency': urgency,
+        'tgUserId': tg_user_id
+    }
+
+    if repair_price is not None:
+        data['repairPrice'] = repair_price
+    if comment is not None:
+        data['comment'] = comment
+    if legal_entity is not None:
+        data['legalEntity'] = legal_entity
+
+    request = requests.post(url=url, json=data)
+
+    if request.status_code == 200:
+        logger.info('new repair request without photo!', f'{data}')
+        return request.json()['requestDto']
+    else:
+        logger.error('API: could not create repair request without photo', f'{request.status_code}  {data}')
+        return None
+
+
+async def create_repair_request_multiple_photos(
+        tg_user_id: str,
+        files_list,
+        object_id: str,
+        problem_description: str,
+        urgency: str,
+        repair_price: str | None = None,
+        comment: str | None = None,
+        legal_entity: str | None = None
+) -> dict | None:
+    """
+    Создает заявку на ремонт с прикреплением нескольких фотографий
+    """
+    url = f'{cf.API_URL}/requests/multiple-photos'
+
+    values = {
+        'objectId': object_id,
+        'problemDescription': problem_description,
+        'urgency': urgency,
+        'tgUserId': tg_user_id
+    }
+
+    if repair_price is not None:
+        values['repairPrice'] = repair_price
+    if comment is not None:
+        values['comment'] = comment
+    if legal_entity is not None:
+        values['legalEntity'] = legal_entity
+
+    files = [('file', (f'img{i}.jpg', file)) for i, file in enumerate(files_list)]
+
+    request = requests.post(url=url, data=values, files=files)
+
+    if request.status_code == 200:
+        logger.info('new repair request with multiple photos!', f'{values}')
+        return request.json()['requestDto']
+    else:
+        logger.error('API: could not create repair request with multiple photos', f'{request.status_code}  {values}')
         return None
 
 
@@ -275,17 +451,30 @@ async def get_requests_by_objects(user_id: int, params: str = '') -> list | None
 async def change_repair_request_status(request_id: str, status: int) -> bool:
     url = f'{cf.API_URL}/requests/set/status'
 
+    logger.info(f"Изменяем статус заявки: id={request_id}, новый статус={status}")
+    
+    try:
+        status_int = int(status)
+    except (ValueError, TypeError):
+        logger.error(f"Неверный формат статуса: {status}")
+        return False
+
     data = {
         "requestId": request_id,
-        "status": status
+        "status": status_int
     }
 
-    request = requests.patch(url, json=data)
-
-    if request.status_code == 200:
-        return True
-    else:
-        logger.error('API: could not change request status', f'{request.status_code}\nrequest_id={request_id}, status={status}')
+    try:
+        request = requests.patch(url, json=data)
+        
+        if request.status_code == 200:
+            return True
+        else:
+            logger.error(f"API: не удалось изменить статус заявки. Код: {request.status_code}, запрос: request_id={request_id}, status={status_int}")
+            logger.error(f"Ответ API: {request.text}")
+            return False
+    except Exception as e:
+        logger.error(f"Исключение при изменении статуса заявки: {str(e)}")
         return False
 
 
@@ -349,8 +538,21 @@ async def get_repair_request_number(request_id: str) -> int | None:
 
 
 async def sync_manager(email: str, password: str, name: str, tg_id: int, username: str) -> dict | None:
+    """
+    Синхронизирует данные менеджера с web-частью системы.
+    
+    Args:
+        email: Email менеджера
+        password: Пароль менеджера
+        name: Имя менеджера
+        tg_id: Telegram ID менеджера
+        username: Имя пользователя в Telegram
+        
+    Returns:
+        Данные синхронизированного менеджера или None в случае ошибки
+    """
     url = f'{cf.API_URL}/tgUsers/syncManager'
-
+    
     data = {
         "email": email,
         "password": password,
@@ -359,13 +561,17 @@ async def sync_manager(email: str, password: str, name: str, tg_id: int, usernam
         "linkId": username
     }
 
-    request = requests.post(url, data)
-
-    if request.status_code == 200:
-        logger.info('successfully synced manager')
-        return request.json()
-    else:
-        logger.error('API: could not sync manager', f'{request.status_code}')
+    try:
+        request = requests.post(url, data)
+        
+        if request.status_code == 200:
+            logger.info(f'Successfully synced manager with tgId={tg_id}')
+            return request.json()
+        else:
+            logger.error(f'API: could not sync manager with tgId={tg_id}, status={request.status_code}, response={request.text}')
+            return None
+    except Exception as e:
+        logger.error(f'API: exception during sync manager with tgId={tg_id}, error={str(e)}')
         return None
 
 
@@ -414,11 +620,28 @@ async def get_tg_id_by_id(_id: str) -> int | None:
 
 async def get_all_requests_with_params(params: str = "") -> list | None:
     url = f"{cf.API_URL}/requests?{params}"
-
+    
+    logger.info(f"Запрашиваем заявки с параметрами: {params}")
+    
     req = requests.get(url)
 
     if req.status_code == 200:
-        return req.json()['data']
+        response = req.json()
+        
+        # Проверяем формат ответа
+        if isinstance(response, dict) and 'data' in response:
+            data = response['data']
+            logger.info(f"Получили {len(data)} заявок через API")
+            
+            # Выводим информацию о первой заявке для отладки
+            if data and len(data) > 0:
+                sample = data[0]
+                logger.info(f"Пример заявки: id={sample.get('id')}, status={sample.get('status')}, managerId={sample.get('managerId')}")
+            
+            return data
+        else:
+            logger.info(f"Получили ответ в неожиданном формате: {type(response)}")
+            return response
     else:
         logger.error("API: could not get all requests with params", f"{req.status_code}, {url=}")
     return None
@@ -463,15 +686,31 @@ async def add_check(rr_id: str, file: BinaryIO) -> bool:
 
 
 async def update_repair_request(request_id: str, data: dict) -> bool:
+    """
+    Обновляет информацию о заявке на ремонт через API.
+    
+    Args:
+        request_id: ID заявки
+        data: Словарь с полями для обновления
+        
+    Returns:
+        True если обновление прошло успешно, иначе False
+    """
     url = f"{cf.API_URL}/requests/{request_id}/update"
-
-    req = requests.patch(url, data)
-
-    if req.status_code == 200:
-        logger.info("successfully updated repair request", f"requestId: {request_id}, data: {data}")
-        return True
-    else:
-        logger.error("could not add check", f"{req.status_code}  requestId: {request_id}, data: {data}")
+    
+    logger.info(f"Отправляем запрос на обновление заявки: id={request_id}, данные={data}")
+    
+    try:
+        req = requests.patch(url, json=data)
+        
+        if req.status_code == 200:
+            return True
+        else:
+            logger.error(f"Не удалось обновить заявку: код={req.status_code}, id={request_id}, данные={data}")
+            logger.error(f"Ответ API: {req.text}")
+            return False
+    except Exception as e:
+        logger.error(f"Исключение при обновлении заявки: {str(e)}, id={request_id}, данные={data}")
         return False
 
 
@@ -534,7 +773,21 @@ async def get_rrs_for_user(user_data: dict, params: str = "") -> list:
         case roles.CONTRACTOR:
             return await get_contractor_requests(user.tg_id, params)
         case roles.ADMIN:
-            return await get_all_requests_with_params(params)
+            all_requests = await get_all_requests_with_params(params)
+            if all_requests is None:
+                all_requests = []
+                
+            manager_requests = await get_manager_assigned_requests(user.tg_id)
+            if manager_requests is None:
+                manager_requests = []
+                
+            if manager_requests:
+                request_ids = {req['id'] for req in all_requests}
+                for req in manager_requests:
+                    if req['id'] not in request_ids:
+                        all_requests.append(req)
+                        request_ids.add(req['id'])
+            return all_requests
 
 
 async def get_static_content(filename: str) -> bytes | None:
@@ -563,7 +816,6 @@ async def get_user_objects(tg_user_id: str) -> list | None:
     url = f"{cf.API_URL}/tgUsers/{tg_user_id}/objects/public"
     
     try:
-        logger.info(f"Getting objects for user {tg_user_id} via public API endpoint")
         request = requests.get(url)
         
         if request.status_code == 200:
@@ -571,16 +823,37 @@ async def get_user_objects(tg_user_id: str) -> list | None:
             
             if isinstance(response, dict) and 'objects' in response:
                 objects = response['objects']
-                logger.info(f"Successfully got objects for user {tg_user_id}: {len(objects)} objects")
+                logger.info(f"Получено объектов для пользователя {tg_user_id}: {len(objects)}")
+                
+                if not objects or len(objects) == 0:
+                    logger.warn(f"Пустой список объектов для пользователя {tg_user_id}")
+                    return []
+                
+                if len(objects) > 0:
+                    sample_obj = objects[0]
+                    logger.info(f"Пример структуры объекта: {sample_obj}")
+                
                 return objects
-            
-            logger.info(f"Successfully got objects for user {tg_user_id}: {len(response)} objects")
-            return response
+            elif isinstance(response, list):
+                logger.info(f"Получено объектов для пользователя {tg_user_id}: {len(response)}")
+                
+                if not response or len(response) == 0:
+                    logger.warn(f"Пустой список объектов для пользователя {tg_user_id}")
+                    return []
+                
+                if len(response) > 0:
+                    sample_obj = response[0]
+                    logger.info(f"Пример структуры объекта: {sample_obj}")
+                
+                return response
+            else:
+                logger.error(f"Неожиданный формат ответа API: {type(response)}")
+                return []
         else:
-            logger.error(f"API: could not get user objects: {request.status_code}, tg_user_id={tg_user_id}")
+            logger.error(f"Ошибка при запросе объектов: {request.status_code}, tg_user_id={tg_user_id}")
             return None
     except Exception as e:
-        logger.error(f"API: error when getting user objects: {str(e)}, tg_user_id={tg_user_id}")
+        logger.error(f"Исключение при запросе объектов: {str(e)}, tg_user_id={tg_user_id}")
         return None
 
 
@@ -613,6 +886,112 @@ async def get_tguser_object_relations(tg_user_id: str) -> list | None:
     except Exception as e:
         logger.error(f"Исключение при запросе связей: {str(e)}, tg_user_id={tg_user_id}")
         return None
+
+async def get_all_urgencies() -> list | None:
+    url = f"{cf.API_URL}/urgency"
+
+async def get_repair_requests_by_contractor(contractor_id: str, filter_: dict | None = None) -> list | None:
+    url = f'{cf.API_URL}/contractors/{contractor_id}/requests'
+
+    if filter_ is not None:
+        url += "?" + "&".join([f"{key}={value}" for key, value in filter_.items()])
+
+    request = requests.get(url)
+    data = request.json()
+
+    return data
+    if request.status_code == 200:
+        return data
+    else:
+        logger.error('API: could not get repair requests by contractor', f'{request.status_code}\ncontractor_id={contractor_id}')
+        return None
+
+
+async def get_manager_assigned_requests(tg_user_id: str) -> list | None:
+    """
+    Получает заявки, назначенные менеджеру, по его Telegram ID.
+    
+    Args:
+        tg_user_id: Telegram ID менеджера
+    
+    Returns:
+        Список заявок, назначенных менеджеру, или None в случае ошибки
+    """
+    try:
+        # Убеждаемся что tg_user_id это строка
+        tg_user_id_str = str(tg_user_id)
+        logger.info(f"Запрос заявок для менеджера с tg_user_id: {tg_user_id_str}")
+        
+        url = f'{cf.API_URL}/requests?managerTgId={tg_user_id_str}'
+        logger.info(f"URL запроса: {url}")
+        
+        request = requests.get(url)
+        
+        if request.status_code == 200:
+            response = request.json()
+            
+            if isinstance(response, dict) and 'data' in response:
+                requests_data = response['data']
+                logger.info(f"Получено {len(requests_data)} заявок через managerTgId")
+                return requests_data
+            elif isinstance(response, list):
+                logger.info(f"Получено {len(response)} заявок через managerTgId (прямой список)")
+                return response
+            else:
+                logger.warn(f"Неожиданный формат ответа: {type(response)}")
+                return []
+        else:
+            logger.error(f"Ошибка при запросе заявок по managerTgId: код {request.status_code}")
+            logger.error(f"Ответ сервера: {request.text}")
+        
+        # Fallback: пытаемся найти через managerId
+        logger.info("Пытаемся найти заявки через managerId")
+        user = await get_user_by_tg_id(int(tg_user_id))
+        
+        if not user or 'id' not in user:
+            logger.error(f'Не удалось получить данные пользователя: tg_id={tg_user_id}')
+            return []
+        
+        user_id = user['id']
+        url = f'{cf.API_URL}/requests?managerId={user_id}'
+        logger.info(f"Fallback URL запроса: {url}")
+        
+        request = requests.get(url)
+        
+        if request.status_code == 200:
+            response = request.json()
+            
+            if isinstance(response, dict) and 'data' in response:
+                requests_data = response['data']
+                logger.info(f"Получено {len(requests_data)} заявок через managerId")
+                return requests_data
+            elif isinstance(response, list):
+                logger.info(f"Получено {len(response)} заявок через managerId (прямой список)")
+                return response
+            else:
+                logger.warn(f"Неожиданный формат ответа fallback: {type(response)}")
+                return []
+        else:
+            logger.error(f"Ошибка при запросе заявок по managerId: код {request.status_code}")
+            logger.error(f"Ответ сервера fallback: {request.text}")
+            return []
+            
+    except Exception as e:
+        logger.error(f"Исключение при получении заявок менеджера: {str(e)}, tg_user_id={tg_user_id}")
+        return []
+
+
+async def get_user_by_tg_id(tg_id: int) -> dict | None:
+    """
+    Получает пользователя по его Telegram ID
+    
+    Args:
+        tg_id: Telegram ID пользователя
+        
+    Returns:
+        Информация о пользователе или None, если пользователь не найден
+    """
+    return await get_user(tg_id)
 
 async def get_all_urgencies() -> list | None:
     url = f"{cf.API_URL}/urgency"

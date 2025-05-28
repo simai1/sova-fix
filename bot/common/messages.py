@@ -1,5 +1,6 @@
 import asyncio
 from typing import Callable
+import json
 
 from aiogram.exceptions import TelegramNetworkError
 from aiogram.fsm.context import FSMContext
@@ -23,17 +24,50 @@ async def to_start_msg(message: Message) -> None:
 
 
 async def add_media_to_album(media_filename: str, caption: str, album: MediaGroupBuilder) -> None:
-    file_ext = media_filename.split('.')[-1]
-    media_type: str = {"jpg": "photo", "mp4": "video", "10": "video"}[file_ext]
+    try:
+        # Очищаем имя файла от кавычек и скобок, которые могут быть в JSON
+        clean_filename = media_filename.strip('"[]\'')
+        
+        logger.debug(f"Обрабатываем файл: исходное имя='{media_filename}', очищенное='{clean_filename}'")
+        
+        # Получаем расширение файла
+        if '.' in clean_filename:
+            file_ext = clean_filename.split('.')[-1].lower().strip()
+            # Убедимся, что расширение не содержит лишних символов
+            if not file_ext.isalnum():
+                logger.warn(f"Обнаружено некорректное расширение файла: {file_ext}, очищаем")
+                file_ext = ''.join(c for c in file_ext if c.isalnum())
+        else:
+            logger.warn(f"Файл без расширения: {clean_filename}, используем jpg по умолчанию")
+            file_ext = "jpg"
+        
+        logger.debug(f"Расширение файла: {file_ext}")
+        
+        if file_ext in ["jpg", "jpeg", "png", "gif"]:
+            media_type = "photo"
+        elif file_ext in ["mp4", "10", "mov", "avi"]:
+            media_type = "video"
+        else:
+            logger.warn(f"Неизвестное расширение файла: {file_ext}, используем photo по умолчанию")
+            media_type = "photo"
 
-    file = await crm.get_static_content(media_filename)
+        file = await crm.get_static_content(clean_filename)
+        
+        if file is None:
+            logger.error(f"Не удалось получить содержимое файла: {clean_filename}")
+            return
 
-    input_file = BufferedInputFile(file=file, filename=f"{caption}.{file_ext}")
+        input_file = BufferedInputFile(file=file, filename=f"{caption}.{file_ext}")
 
-    album.add(type=media_type, media=input_file, caption=f"<i>{caption}</i>")
+        album.add(type=media_type, media=input_file, caption=f"<i>{caption}</i>")
+        
+    except Exception as e:
+        logger.error(f"Ошибка при добавлении медиа в альбом: {str(e)}, файл: {media_filename}")
 
 
 async def send_repair_request(message: Message, repair_request: dict, kb: IKM | None = None) -> None:
+    user_id = message.chat.id
+    
     text = repair_request_text(repair_request)
 
     file_filename = repair_request['fileName']
@@ -43,11 +77,42 @@ async def send_repair_request(message: Message, repair_request: dict, kb: IKM | 
     try:
         album = MediaGroupBuilder()
 
-        await add_media_to_album(
-            media_filename=file_filename,
-            caption="Описание проблемы",
-            album=album
-        )
+        if file_filename is not None:
+            # Проверяем, является ли file_filename строкой в формате JSON-массива
+            if file_filename.startswith('[') and file_filename.endswith(']'):
+                try:
+                    # Пробуем распарсить как JSON-массив
+                    file_list = json.loads(file_filename)
+                    if isinstance(file_list, list):
+                        logger.info(f"Обнаружена группа из {len(file_list)} файлов: {file_list}")
+                        for file_item in file_list:
+                            await add_media_to_album(
+                                media_filename=file_item,
+                                caption="Описание проблемы",
+                                album=album
+                            )
+                    else:
+                        logger.warn(f"JSON не является массивом: {file_filename}")
+                        await add_media_to_album(
+                            media_filename=file_filename,
+                            caption="Описание проблемы",
+                            album=album
+                        )
+                except json.JSONDecodeError as e:
+                    logger.error(f"Ошибка парсинга JSON в fileName: {str(e)}, значение: {file_filename}")
+                    # Если не удалось распарсить как JSON, обрабатываем как обычный файл
+                    await add_media_to_album(
+                        media_filename=file_filename,
+                        caption="Описание проблемы",
+                        album=album
+                    )
+            else:
+                # Обычный одиночный файл
+                await add_media_to_album(
+                    media_filename=file_filename,
+                    caption="Описание проблемы",
+                    album=album
+                )
 
         if rr_check_filename is not None:
             await add_media_to_album(
@@ -57,21 +122,46 @@ async def send_repair_request(message: Message, repair_request: dict, kb: IKM | 
             )
 
         if rr_comment_attachment_filename is not None:
-            await add_media_to_album(
-                media_filename=rr_comment_attachment_filename,
-                caption="Вложение комментария",
-                album=album
-            )
+            # Если это JSON-массив файлов
+            if rr_comment_attachment_filename.startswith('[') and rr_comment_attachment_filename.endswith(']'):
+                try:
+                    files = json.loads(rr_comment_attachment_filename)
+                    for file_item in files:
+                        await add_media_to_album(
+                            media_filename=file_item,
+                            caption="Вложение комментария",
+                            album=album
+                        )
+                except Exception as e:
+                    logger.error(f"Ошибка парсинга commentAttachment: {e}, значение: {rr_comment_attachment_filename}")
+                    await add_media_to_album(
+                        media_filename=rr_comment_attachment_filename,
+                        caption="Вложение комментария",
+                        album=album
+                    )
+                else:
+                    await add_media_to_album(
+                        media_filename=rr_comment_attachment_filename,
+                        caption="Вложение комментария",
+                        album=album
+                )
 
         try:
-            await message.answer_media_group(album.build())
+            if album._media:
+                await message.answer_media_group(album.build())
         except TelegramBadRequest:
             await message.answer("<i>не удалось загрузить фото</i>")
             logger.error("TelegramBadRequest: file must be non-empty", f"{album.build()}")
+        
         await message.answer(text, reply_markup=kb)
 
-    except TelegramNetworkError:
-        logger.error("could not find some photos", f"photo: {file_filename}, check: {rr_check_filename}, comment_attachment: {rr_comment_attachment_filename}")
+    except TelegramNetworkError as e:
+        logger.error(f"TelegramNetworkError: {str(e)}, photo: {file_filename}, check: {rr_check_filename}, comment_attachment: {rr_comment_attachment_filename}")
+        return
+    except Exception as e:
+        logger.error(f"Ошибка при отправке заявки: {str(e)}, заявка ID: {repair_request.get('id', 'неизвестно')}")
+        await message.answer(f"<i>Ошибка при загрузке данных заявки</i>")
+        await message.answer(text, reply_markup=kb)
         return
 
 

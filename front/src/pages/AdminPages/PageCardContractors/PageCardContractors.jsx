@@ -12,7 +12,7 @@ function PageCardContractors() {
   const [namePodnoSorted, setNamePodnoSorted] = useState([]);
   const [contId, setContId] = useState("");
   useEffect(() => {
-    const matchingNames = context?.dataApointment.filter(appointment => context?.dataContractors.some(contractor => contractor?.name === appointment.contractor && appointment?.urgency === "Маршрут" && appointment?.status !== "Выполнена" && appointment?.status !== "Неактуальна" )).map(appointment => appointment.contractor);
+    const matchingNames = context?.dataApointment.filter(appointment => context?.dataContractors.some(contractor => contractor?.name === appointment.contractor?.name && appointment?.urgency === "Маршрут" && appointment?.status !== "Выполнена" && appointment?.status !== "Неактуальна" )).map(appointment => appointment.contractor);
     const uniqueMatchingNames = [...new Set(matchingNames)];
     setNamePodr(uniqueMatchingNames);
     setNamePodnoSorted(matchingNames);

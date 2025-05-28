@@ -65,8 +65,19 @@ const getAll = async (): Promise<TgUserDto[]> => {
 };
 
 const getAllManagers = async (): Promise<TgUserDto[]> => {
-    const users = await User.findAll({ where: { tgManagerId: { [Op.ne]: null } }, include: [{ model: TgUser }] });
-    return users.map(user => new TgUserDto(user.TgUser as TgUser));
+    const users = await User.findAll({ 
+        where: { 
+            tgManagerId: { [Op.ne]: null } 
+        }, 
+        include: [{ 
+            model: TgUser,
+            required: true
+        }] 
+    });
+    
+    return users
+        .filter(user => user.TgUser)
+        .map(user => new TgUserDto(user.TgUser as TgUser));
 };
 
 const getOneUser = async (tgUserId: string): Promise<TgUserDto> => {

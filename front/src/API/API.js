@@ -1345,6 +1345,44 @@ export const GetAllUrgensies = async () => {
     if (error?.response?.status === 403) {
       window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
     } else {
+      console.log("Ошибка при получении списка срочностей!");
+    }
+  }
+};
+
+export const GetAllManagers = async () => {
+  try {
+    const response = await http.get(`${server}/tgUsers/managers`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при получении карты пользователя!");
+      console.log("Ошибка при получении менеджеров!");
+    }
+  }
+};
+
+export const GetAllAdmins = async () => {
+  try {
+    const response = await http.get(`${server}/users`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    if (response && response.data) {
+      response.data = response.data.filter(user => user.role === 2);
+    }
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
       console.log("Ошибка при получении карты пользователя!");
     }
   }
