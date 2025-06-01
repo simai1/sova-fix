@@ -111,4 +111,8 @@ router.route('/copy/:requestId').post(requestController.copy);
 
 router.route('/changeUrgency').post(requestController.changeUrgency)
 
+// Migration endpoints (should be protected in production)
+router.route('/migrate/manager-ids').post(requestController.migrateManagerData);
+router.route('/validate/manager-ids').post(requestController.validateManagerData);
+
 export default router;

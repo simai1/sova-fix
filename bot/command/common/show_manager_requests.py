@@ -71,7 +71,15 @@ async def manager_assigned_tasks_callback_handler(query: CallbackQuery, state: F
         await query.answer()
         return
 
+    logger.info(f"Запрос назначенных задач для пользователя: {query.from_user.id}")
+    
     repair_requests = await crm.get_manager_assigned_requests(query.from_user.id)
+    
+    logger.info(f"Получено заявок для пользователя {query.from_user.id}: {len(repair_requests) if repair_requests else 0}")
+    
+    if repair_requests:
+        for i, req in enumerate(repair_requests):
+            logger.info(f"Заявка {i+1}: ID={req.get('id')}, статус={req.get('status')}, managerId={req.get('managerId')}, managerTgId={req.get('managerTgId')}")
 
     if not repair_requests or len(repair_requests) == 0:
         await query.message.answer("У вас нет назначенных задач 🤷‍♂️")

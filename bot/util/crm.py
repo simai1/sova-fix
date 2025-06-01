@@ -910,6 +910,7 @@ async def get_repair_requests_by_contractor(contractor_id: str, filter_: dict | 
 async def get_manager_assigned_requests(tg_user_id: str) -> list | None:
     """
     Получает заявки, назначенные менеджеру, по его Telegram ID.
+    Возвращает только заявки со статусом "В работе" (статус 2).
     
     Args:
         tg_user_id: Telegram ID менеджера
@@ -922,7 +923,8 @@ async def get_manager_assigned_requests(tg_user_id: str) -> list | None:
         tg_user_id_str = str(tg_user_id)
         logger.info(f"Запрос заявок для менеджера с tg_user_id: {tg_user_id_str}")
         
-        url = f'{cf.API_URL}/requests?managerTgId={tg_user_id_str}'
+        # Добавляем фильтр по статусу "В работе" (статус 2)
+        url = f'{cf.API_URL}/requests?managerTgId={tg_user_id_str}&status=2'
         logger.info(f"URL запроса: {url}")
         
         request = requests.get(url)
@@ -932,10 +934,10 @@ async def get_manager_assigned_requests(tg_user_id: str) -> list | None:
             
             if isinstance(response, dict) and 'data' in response:
                 requests_data = response['data']
-                logger.info(f"Получено {len(requests_data)} заявок через managerTgId")
+                logger.info(f"Получено {len(requests_data)} заявок через managerTgId со статусом 'В работе'")
                 return requests_data
             elif isinstance(response, list):
-                logger.info(f"Получено {len(response)} заявок через managerTgId (прямой список)")
+                logger.info(f"Получено {len(response)} заявок через managerTgId (прямой список) со статусом 'В работе'")
                 return response
             else:
                 logger.warn(f"Неожиданный формат ответа: {type(response)}")
@@ -953,7 +955,8 @@ async def get_manager_assigned_requests(tg_user_id: str) -> list | None:
             return []
         
         user_id = user['id']
-        url = f'{cf.API_URL}/requests?managerId={user_id}'
+        # Добавляем фильтр по статусу "В работе" (статус 2) и для fallback
+        url = f'{cf.API_URL}/requests?managerId={user_id}&status=2'
         logger.info(f"Fallback URL запроса: {url}")
         
         request = requests.get(url)
@@ -963,10 +966,10 @@ async def get_manager_assigned_requests(tg_user_id: str) -> list | None:
             
             if isinstance(response, dict) and 'data' in response:
                 requests_data = response['data']
-                logger.info(f"Получено {len(requests_data)} заявок через managerId")
+                logger.info(f"Получено {len(requests_data)} заявок через managerId со статусом 'В работе'")
                 return requests_data
             elif isinstance(response, list):
-                logger.info(f"Получено {len(response)} заявок через managerId (прямой список)")
+                logger.info(f"Получено {len(response)} заявок через managerId (прямой список) со статусом 'В работе'")
                 return response
             else:
                 logger.warn(f"Неожиданный формат ответа fallback: {type(response)}")
