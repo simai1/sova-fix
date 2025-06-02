@@ -109,6 +109,10 @@ const getAllRequests = async (filter: any, order: any, pagination: any) => {
                 whereParams['$Unit.name$'] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
             } else if (fieldName === 'status') {
                 value = value.map((v: any) => {
+                    // Handle both numeric and string status values
+                    if (typeof v === 'number' || !isNaN(Number(v))) {
+                        return Number(v);
+                    }
                     // @ts-expect-error any type
                     return Number(mapStatusesRuLocale[v.trim()]);
                 });
@@ -126,10 +130,34 @@ const getAllRequests = async (filter: any, order: any, pagination: any) => {
                 whereParams[fieldName] = { [Op.is]: value.includes('true') };
             } else if (fieldName === 'managerTgId') {
                 logger.info(`Filtering by managerTgId: ${filter.managerTgId}`);
-                whereParams[fieldName] = filter.managerTgId;
+                // Ensure managerTgId is treated as string
+                whereParams[fieldName] = String(filter.managerTgId);
             } else if (fieldName === 'managerId') {
                 logger.info(`Filtering by managerId: ${filter.managerId}`);
-                whereParams[fieldName] = filter.managerId;
+                // Handle both UUID string and numeric managerId for backward compatibility
+                const managerIdValue = filter.managerId;
+                if (typeof managerIdValue === 'string' && managerIdValue.includes('-')) {
+                    // UUID format
+                    whereParams[fieldName] = managerIdValue;
+                } else {
+                    // For legacy numeric IDs, we need to search both as string and number
+                    // since some old records might have numeric managerId
+                    const managerConditions = [
+                        { [fieldName]: String(managerIdValue) },
+                        { [fieldName]: Number(managerIdValue) }
+                    ];
+                    
+                    // If there's already an Op.or condition, merge with it
+                    if (whereParams[Op.or]) {
+                        whereParams[Op.and] = [
+                            { [Op.or]: whereParams[Op.or] },
+                            { [Op.or]: managerConditions }
+                        ];
+                        delete whereParams[Op.or];
+                    } else {
+                        whereParams[Op.or] = managerConditions;
+                    }
+                }
             } else {
                 whereParams[fieldName] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
             }

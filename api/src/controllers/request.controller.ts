@@ -7,6 +7,7 @@ import pick from '../utils/pick';
 import prepare from '../utils/prepare';
 import TgUser from '../models/tgUser';
 import logger from '../utils/logger';
+import { migrateManagerIds, validateManagerIds } from '../utils/migrationUtils';
 
 const getAll = catchAsync(async (req, res) => {
     const filter = prepare(
@@ -398,6 +399,16 @@ const setManager = catchAsync(async (req, res) => {
     res.json({ status: 'OK' });
 });
 
+const migrateManagerData = catchAsync(async (req, res) => {
+    await migrateManagerIds();
+    res.json({ status: 'OK', message: 'Manager ID migration completed' });
+});
+
+const validateManagerData = catchAsync(async (req, res) => {
+    await validateManagerIds();
+    res.json({ status: 'OK', message: 'Manager ID validation completed' });
+});
+
 export default {
     getAll,
     getOne,
@@ -424,4 +435,6 @@ export default {
     getStat,
     changeUrgency,
     setManager,
+    migrateManagerData,
+    validateManagerData,
 };
