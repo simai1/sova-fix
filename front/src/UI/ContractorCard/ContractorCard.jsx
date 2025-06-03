@@ -18,7 +18,7 @@ const ContractorCard = (props) => {
 
   const whyColor = () =>{
     let count =  0
-    props?.namePodnoSorted.map((el) => el === props?.name && count++)
+    props?.namePodnoSorted.map((el) => el?.name === props?.name?.name && count++)
     return count
   }
 
