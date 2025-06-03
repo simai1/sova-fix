@@ -104,6 +104,7 @@ function Table() {
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [sliderPhotos, setSliderPhotos] = useState([]);
   const [showSlider, setShowSlider] = useState(false);
+  const tableWrapperRef = useRef()
 
   useEffect(() => {
     GetextContractorsAll().then((response) => {
@@ -358,26 +359,51 @@ function Table() {
     getCountList();
   }, [context.Dataitinerary]);
 
-  const getPopupClassName = (index, totalRows) => {
-    const isNearBottom = index > (totalRows * 2/3);
-    
+  const getPopupClassName = (triggerEl, index, totalRows) => {
+    const isNearBottom = index > (totalRows * 2 / 3);
     let classNames = [styles.shovStatusPop];
-    
+
     if (isNearBottom) {
       classNames.push(styles['top-aligned'] || 'top-aligned');
     }
-    
-    // Проверяем, находится ли элемент близко к правому краю экрана
-    // Это можно определить по позиции в таблице или другим способом
-    // Пока используем простую логику - каждый второй элемент
-    const shouldAlignRight = index % 4 === 3; // каждый 4-й элемент
-    
-    if (shouldAlignRight) {
-      classNames.push(styles['right-aligned'] || 'right-aligned');
+  
+    if (triggerEl) {
+      const rect = triggerEl.getBoundingClientRect();
+      const spaceRight = window.innerWidth - rect.right;
+      if (spaceRight < 370) {
+        classNames.push(styles['right-aligned'] || 'right-aligned');
+      }
     }
-    
+  
     return classNames.join(' ');
   };
+
+  useEffect(() => {
+    const el = tableWrapperRef.current;
+    if (!el) return;
+  
+    let lastScrollLeft = el.scrollLeft;
+  
+    const handleScroll = () => {
+      const currentScrollLeft = el.scrollLeft;
+  
+      if (currentScrollLeft !== lastScrollLeft) {
+        // горизонтальный скролл
+        setshovStatusPop("");
+        setshovBulderPop("");
+        setshovUrgencyPop("");
+        setItineraryOrderPop("");
+        lastScrollLeft = currentScrollLeft;
+      }
+    };
+  
+    el.addEventListener('scroll', handleScroll);
+  
+    return () => {
+      el.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+  
 
   const clickTh = (key, index, el) => {
     if (
@@ -619,7 +645,7 @@ function Table() {
             {value}
             {shovStatusPop === row.id && (
               <div
-                className={getPopupClassName(index, totalRows)}
+                className={getPopupClassName(statusPopRef.current, index, totalRows)}
               >
                 <ul>
                   {Object.values(status).map((statusValue, statusIndex) => (
@@ -652,7 +678,7 @@ function Table() {
             {getItemBuilder(row)}
             {shovBulderPop === row.id && (
               <div
-                className={getPopupClassName(index, totalRows)}
+                className={getPopupClassName(builderPopRef.current, index, totalRows)}
               >
                 <ul>
                   <li className={styles.listHeader}>Действия:</li>
@@ -696,7 +722,7 @@ function Table() {
             {row?.builder || "Не назначен"}
             {shovExtPop === row.id && (
               <div
-                className={getPopupClassName(index, totalRows)}
+                className={getPopupClassName(extPopRef.current, index, totalRows)}
               >
                 <ul>
                   {row?.isExternal && row?.builder && (
@@ -744,7 +770,7 @@ function Table() {
             {value || "___"}
             {shovUrgencyPop === row.id && (
               <div
-                className={getPopupClassName(index, totalRows)}
+                className={getPopupClassName(urgencyPopRef.current, index, totalRows)}
               >
                 <ul>
                   {context?.urgencyList?.map((value, index) => (
@@ -908,7 +934,7 @@ function Table() {
           >
             {value || "___"}
             {itineraryOrderPop === row.id && (
-              <div className={getPopupClassName(index, totalRows)}>
+              <div className={getPopupClassName(ItineraryOrderPopRef.current, index, totalRows)}>
                 <ul>
                   {arrCount?.map((el) => (
                     <li
@@ -1042,6 +1068,7 @@ function Table() {
         style={{
           overflow: context?.dataTableHomePage.length === 0 ? "hidden" : "auto",
         }}
+        ref={tableWrapperRef}
       >
         <table className={styles.TableInner} ref={tableRef}>
           <thead>
