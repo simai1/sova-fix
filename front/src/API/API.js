@@ -568,9 +568,9 @@ export const EditUnit = async (data, id) => {
   }
 };
 
-export const GetObjectsAll = async () => {
+export const GetObjectsAll = async (param) => {
   try {
-    const response = await http.get(`${server}/objects`, {
+    const response = await http.get(`${server}/objects${param ? param : ``}`, {
       headers: {
         Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
       },

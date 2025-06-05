@@ -8,6 +8,7 @@ import sendMail from './email.service';
 import userService from './user.service';
 import jwtUtils from '../utils/jwt';
 import { encrypt, isMatch } from '../utils/encryption';
+import tgUserService from './tgUser.service';
 
 type data = {
     accessToken: string;
@@ -74,10 +75,34 @@ const refresh = async (refreshToken: string): Promise<data> => {
     return await jwtUtils.refresh(refreshToken);
 };
 
+const registerCustomerCrm = async (login: string, tgId: string): Promise<UserDto> => {
+    const checkUser = await userService.getUserByEmail(login);
+    if (checkUser) throw new ApiError(httpStatus.BAD_REQUEST, 'User with this email already exists');
+    const tgUser = await tgUserService.findUserByTgId(tgId)
+
+    const password = generator.generate({
+        length: 10,
+        numbers: true,
+    });
+
+    const encryptedPassword = await encrypt(password);
+    const user = await User.create({
+        login,
+        name: '',
+        password: encryptedPassword,
+        tgManagerId: tgUser?.id,
+        role: 3
+    });
+
+    sendMail(login, 'registration', password, `${process.env.WEB_URL}`);
+    return new UserDto(user);
+}
+
 export default {
     register,
     login,
     activate,
     logout,
     refresh,
+    registerCustomerCrm,
 };

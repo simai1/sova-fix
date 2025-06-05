@@ -18,7 +18,8 @@ async def send_customer_menu(message: Message) -> None:
             IKB(text='Мои заявки *️⃣', callback_data='customer_requests:status=1,2,5'),
             IKB(text='Выполненные заявки ✅', callback_data='customer_requests:status=3')
         ],
-        [IKB(text='Найти заявку по номеру 🔎', callback_data='request_by_number')]
+        [IKB(text='Найти заявку по номеру 🔎', callback_data='request_by_number')],
+        [IKB(text='Получить доступ к CRM', callback_data='get_crm_access')]
     ])
 
     file = FSInputFile(path=f"./{cf.IMG_PATH}/photo_2024-08-21_17-47-14.jpg", filename="фото.jpg")

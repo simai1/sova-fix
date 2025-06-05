@@ -49,11 +49,15 @@ const getAll = catchAsync(async (req, res) => {
             'exclude_checkPhoto',
         ])
     );
+    let userId: string | undefined = undefined;
+    if (typeof req.query.userId === 'string') {
+    userId = req.query.userId;
+    }
     const order = prepare(pick(req.query, ['col', 'type']));
     const pagination = prepare(pick(req.query, ['limit', 'offset']));
     if (order.type && ['asc', 'desc'].indexOf(order.type) === -1)
         throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid order type');
-    const [requestsDtos, maxCount] = await requestService.getAllRequests(filter, order, pagination);
+    const [requestsDtos, maxCount] = await requestService.getAllRequests(filter, order, pagination, userId);
     res.json({ maxCount, data: requestsDtos });
 });
 

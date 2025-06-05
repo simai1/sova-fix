@@ -25,6 +25,7 @@ from command.common.send_request_by_number import router as request_by_number_ro
 from command.common.show_without_check import router as show_without_check_router
 from command.admin.set_contractor_command import router as set_contractor_router
 from command.common.show_manager_requests import router as show_manager_requests_router
+from command.common.get_crm_access import router as get_crm_access
 from inline_query.base_inline_query_handler import router as base_inline_query_router
 from util import logger
 
@@ -46,7 +47,8 @@ routers = [
     show_without_check_router,
     set_contractor_router,
     show_manager_requests_router,
-    base_inline_query_router
+    base_inline_query_router,
+    get_crm_access,
 ]
 
 dp = Dispatcher()

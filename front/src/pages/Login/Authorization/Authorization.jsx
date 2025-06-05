@@ -60,6 +60,7 @@ function Authorization() {
             context.setDataUsers(resp);
             localStorage.setItem("userData", JSON.stringify(resp.data));
             navigate("/");
+            context?.setDataTableHomePage([])
           }
         } else {
           setErrorAuth(true);
@@ -72,6 +73,7 @@ function Authorization() {
     context.setTableData([]);
     context.settableHeader(tableHeadAppoint);
     context.setSelectedTable("Заявки");
+    context.setDataAppointment([])
   }, []);
 
   return (

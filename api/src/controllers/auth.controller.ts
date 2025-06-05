@@ -42,10 +42,18 @@ const refresh = catchAsync(async (req, res) => {
     res.json(data);
 });
 
+const registerCustomerCrm = catchAsync(async (req, res) => {
+    const { login, user_id } = req.body
+    console.log(typeof user_id, user_id)
+    const userDto = await authService.registerCustomerCrm(login, String(user_id))
+    res.json(userDto);
+})
+
 export default {
     registerViaEmail,
     login,
     activate,
     logout,
     refresh,
+    registerCustomerCrm,
 };
