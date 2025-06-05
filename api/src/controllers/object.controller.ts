@@ -2,14 +2,24 @@ import catchAsync from '../utils/catchAsync';
 import objectService from '../services/object.service';
 import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
+import User from '../models/user';
 
 const getAll = catchAsync(async (req, res) => {
-    const { tgUserId } = req.query;
+    const { tgUserId, userId } = req.query;
     
     // Если передан tgUserId, получаем только объекты этого пользователя
     if (tgUserId) {
         const userObjects = await objectService.getUserObjects(tgUserId as string);
         return res.json(userObjects);
+    }
+
+    if(userId) {
+        const user = await User.findOne({where: {id: userId}})
+        if(!user) throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+        const userObjects = await objectService.getUserObjects(user?.tgManagerId as string)
+        if(userObjects.length) {
+            return res.json(userObjects)
+        }
     }
     
     // Иначе получаем все объекты

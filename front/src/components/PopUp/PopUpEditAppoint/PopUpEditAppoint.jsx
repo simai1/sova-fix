@@ -71,7 +71,7 @@ function PopUpEditAppoint(props) {
     //   }
     // );
     updGetData(context.moreSelect[0] || context.selectedTr);
-    GetObjectsAll().then((response) => {
+    GetObjectsAll(`?userId=${JSON.parse(sessionStorage.getItem("userData"))?.user?.id}`).then((response) => {
       setDataObject(response.data);
     });
 

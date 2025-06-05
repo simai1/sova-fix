@@ -117,7 +117,15 @@ return (
   <div className={styles.headerButton}>
   
     {process.env?.REACT_APP_PICTURE_NAME &&  <img src={getLinkImg()} /> }
-    {!getLinkPatchname() ?  <button className={styles.buttonMenu} onClick={toggleMenu}>Меню</button> : <button className={styles.buttonMenu} onClick={() => navigate(-1)}> Назад</button>}
+    {JSON.parse(sessionStorage.getItem("userData"))?.user?.role !== "CUSTOMER" ? (
+      !getLinkPatchname() ? (
+        <button className={styles.buttonMenu} onClick={toggleMenu}>Меню</button>
+      ) : (
+        <button className={styles.buttonMenu} onClick={() => navigate(-1)}>Назад</button>
+      )
+    ) : (
+      <button className={styles.buttonMenu} onClick={() => Exit()}>Выход</button>
+    )}
    
   </div>
     

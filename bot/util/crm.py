@@ -1003,3 +1003,29 @@ async def get_all_urgencies() -> list | None:
     data = request.json()
 
     return data
+
+async def register_customer_crm(login: str, user_id: int) -> bool:
+    """
+    Регистрирует пользователя для доступа к CRM по логину.
+
+    Args:
+        login: Логин пользователя
+
+    Returns:
+        True если успешно, False иначе
+    """
+    url = f'{cf.API_URL}/auth/registerCustomerCrm'
+    data = {'login': login, 'user_id': user_id}
+
+    try:
+        response = requests.post(url, json=data)
+
+        if response.status_code == 200:
+            logger.info(f"CRM access requested successfully for login={login}")
+            return True
+        else:
+            logger.warn(f"CRM access request failed for login={login}, status={response.status_code}")
+            return False
+    except Exception as e:
+        logger.error(f"Exception while requesting CRM access for login={login}: {str(e)}")
+        return False

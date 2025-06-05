@@ -19,11 +19,32 @@ import logger from '../utils/logger';
 import { models } from '../models';
 import Urgency from '../models/urgency';
 import User from '../models/user';
+import TgUserObject from '../models/tgUserObject';
 
-const getAllRequests = async (filter: any, order: any, pagination: any) => {
+const getAllRequests = async (filter: any, order: any, pagination: any, userId?: string) => {
     try {
         let requests;
         const whereParams: any = {};
+        
+        if (userId) {
+            let objectIdsForUser: string[] | null = null;
+            const user = await User.findOne({ where: {id: userId}})
+            if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'User is Not Founded');
+            const tgUser = await TgUser.findOne({ where: { id: user?.tgManagerId } });
+          
+            if (tgUser?.role === 3) {
+              const userObjects = await TgUserObject.findAll({ where: { tg_user_id: user?.tgManagerId } });
+              objectIdsForUser = userObjects.map(obj => obj.objectId);
+          
+              // Если пользователь с ролью 3 и нет привязанных объектов — фильтруем по пустому массиву (не вернёт ничего)
+              if (objectIdsForUser.length === 0) {
+                whereParams['$Object.id$'] = { [Op.in]: [] };
+              } else {
+                whereParams['$Object.id$'] = { [Op.in]: objectIdsForUser };
+              }
+              console.log("==========",userObjects)
+            }
+          }
         Object.keys(filter).forEach((key: string) => {
             if (key === 'search') {
                 return;

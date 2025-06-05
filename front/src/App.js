@@ -1,5 +1,5 @@
 import Authorization from "./pages/Login/Authorization/Authorization";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import DataContext from "./context";
 import "./styles/style.css";
@@ -112,7 +112,7 @@ const GetDataEquipment = (id) =>{
 }
 
 const UpdateForse = () =>{
-  let url = `?offset=${ofset}&limit=${limit}`;
+  let url = `?offset=${ofset}&limit=${limit}&userId=${JSON.parse(sessionStorage.getItem("userData"))?.user?.id}`;
   
   GetAllRequests(url).then((resp) => {
     if (resp) {
@@ -294,7 +294,7 @@ const UpdateUrgency = () => {
 
   
   function UpdateTableReguest() {
-    let url = `?offset=${ofset}&limit=${limit}&isAutoCreated=${Boolean(enabledTo)}`;
+    let url = `?offset=${ofset}&limit=${limit}&isAutoCreated=${Boolean(enabledTo)}&userId=${JSON.parse(sessionStorage.getItem("userData"))?.user?.id}`;
     
     const uniqueData = getUniqueItems(storeFilter.isChecked);
     if (uniqueData.length !== 0) {
@@ -310,10 +310,10 @@ const UpdateUrgency = () => {
     GetAllRequests(url).then((resp) => {
       if (resp) {
         setTotalCount(resp?.data?.maxCount);
-  
+        
         // Обрабатываем и объединяем новые данные
         const newData = funFixEducator(resp?.data?.data);
-  
+        
         setDataTableHomePage((prev) => {
           const combinedData = [...prev, ...newData];
           const uniqueDataSet = new Map(combinedData.map((item) => [item.id, item])); // Удаляем дубликаты по id
@@ -329,12 +329,14 @@ const UpdateUrgency = () => {
   }
   
   useEffect(() => {
+    setDataAppointment([])
     GetAllСontractors().then((resp) => {
       if(resp) {
         setDataContractors(resp?.data);
       }
     })
-    GetAllRequests("").then((resp) => {
+    const url = JSON.parse(sessionStorage.getItem("userData"))?.user?.id ? `?offset=${ofset}&limit=${limit}&isAutoCreated=${Boolean(enabledTo)}&userId=${JSON.parse(sessionStorage.getItem("userData"))?.user?.id}` : '';
+    GetAllRequests(url).then((resp) => {
       setDataAppointment(funFixEducator(resp?.data?.data));
     });
   }, [dataUsers]);
@@ -360,26 +362,35 @@ const UpdateUrgency = () => {
             <Route path="/ReportFinansing" element={<ReportFinansing />}></Route>
             <Route path="/RepotYour" element={<RepotYour />}></Route>
             
-            <Route path="/Directory/*" element={<Directory />}>
-              <Route path="BusinessUnitReference" element={<BusinessUnitReference />}></Route>
-              <Route path="DirectoryLegalEntities" element={<DirectoryLegalEntities />}></Route>
-              <Route path="ReferenceObjects" element={<ReferenceObjects />}></Route>
-              <Route path="ThePerformersDirectory" element={<ThePerformersDirectory />}></Route>
-              <Route path="UsersDirectory" element={<UsersDirectory />}></Route>
-              <Route path="TgUserObjects" element={<TgUserObjects />}></Route>
-              <Route path="Urgency" element={<DirectoryUrgency />}></Route>
-            </Route>
+            {JSON.parse(sessionStorage.getItem("userData"))?.user?.role === "CUSTOMER" ? null : (
+              <Route path="/Directory/*" element={<Directory />}>
+               <Route path="BusinessUnitReference" element={<BusinessUnitReference />}></Route>
+               <Route path="DirectoryLegalEntities" element={<DirectoryLegalEntities />}></Route>
+               <Route path="ReferenceObjects" element={<ReferenceObjects />}></Route>
+               <Route path="ThePerformersDirectory" element={<ThePerformersDirectory />}></Route>
+               <Route path="UsersDirectory" element={<UsersDirectory />}></Route>
+               <Route path="TgUserObjects" element={<TgUserObjects />}></Route>
+               <Route path="Urgency" element={<DirectoryUrgency />}></Route>
+             </Route>
+            )}
 
-            <Route path="/CardPage/*" element={<CardPage />}>
-              <Route path="Card" element={<PageCardContractors />}></Route>
-              <Route path="CardPageModule" element={<CardPageModule />}></Route>
-            </Route>
-            <Route path="/Equipment/*" element={<Equipment />}>
-              <Route path="GraphicEquipment" element={<GraphicEquipment />}></Route>
-              <Route path="CategoryEquipment" element={<CategoryEquipment />}></Route>
-              <Route path="RangeEquipment" element={<RangeEquipment />}></Route>
-              <Route path="EquipmentInfo" element={<EquipmentInfo />}></Route>
-            </Route>
+            {JSON.parse(sessionStorage.getItem("userData"))?.user?.role === "CUSTOMER" ? null : (
+              <Route path="/CardPage/*" element={<CardPage />}>
+               <Route path="Card" element={<PageCardContractors />}></Route>
+               <Route path="CardPageModule" element={<CardPageModule />}></Route>
+             </Route>
+            )}
+
+            {JSON.parse(sessionStorage.getItem("userData"))?.user?.role === "CUSTOMER" ? null : (
+              <Route path="/Equipment/*" element={<Equipment />}>
+                <Route path="GraphicEquipment" element={<GraphicEquipment />}></Route>
+                <Route path="CategoryEquipment" element={<CategoryEquipment />}></Route>
+                <Route path="RangeEquipment" element={<RangeEquipment />}></Route>
+                <Route path="EquipmentInfo" element={<EquipmentInfo />}></Route>
+              </Route>
+            )}
+
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
       </BrowserRouter>
