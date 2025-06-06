@@ -107,6 +107,14 @@ const confirmTgUser = async (userId: string): Promise<void> => {
     } as WsMsgData);
 };
 
+const getUserByTgId = async(tgId: string) => {
+    const tgUser = await TgUser.findOne({where: {tg_id: tgId}})
+    if (!tgUser) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found tgUser with tgId' + tgId);
+    const user = await User.findOne({where: {tg_manager_id: tgUser.id}})
+    if (!user) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found user with tg_manager_id' + tgUser.id);
+    return new UserDto(user);
+}
+
 export default {
     getUserById,
     getUserByEmail,
@@ -117,4 +125,5 @@ export default {
     deleteUser,
     deleteDirUser,
     confirmTgUser,
+    getUserByTgId,
 };
