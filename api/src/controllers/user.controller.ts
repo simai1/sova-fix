@@ -33,9 +33,17 @@ const confirmTgUser = catchAsync(async (req, res) => {
     res.json({ status: 'OK' });
 });
 
+const getUserByTgId = catchAsync(async (req, res) => {
+    const { tgId } = req.params
+    if (!tgId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing tgId');
+    const user = await userService.getUserByTgId(tgId)
+    res.json(user)
+})
+
 export default {
     setRole,
     getAll,
     destroy,
     confirmTgUser,
+    getUserByTgId,
 };

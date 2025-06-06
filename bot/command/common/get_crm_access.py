@@ -3,6 +3,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 from util.crm import register_customer_crm
+import config as cf
 
 router = Router(name=__name__)
 
@@ -34,3 +35,15 @@ async def handle_crm_login(message: Message, state: FSMContext) -> None:
         await message.answer("❌ Не удалось отправить заявку. Повторите попытку позже.")
 
     await state.clear()
+
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+
+@router.callback_query(F.data == 'open_crm')
+async def handle_open_crm(callback: CallbackQuery):
+    await callback.answer()
+    kb = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="Перейти в CRM", url=cf.WEB_URL)]
+        ]
+    )
+    await callback.message.answer("🔗 Нажмите кнопку ниже для перехода в CRM", reply_markup=kb)
