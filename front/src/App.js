@@ -335,7 +335,7 @@ const UpdateUrgency = () => {
         setDataContractors(resp?.data);
       }
     })
-    const url = JSON.parse(sessionStorage.getItem("userData"))?.user?.id ? `?offset=${ofset}&limit=${limit}&isAutoCreated=${Boolean(enabledTo)}&userId=${JSON.parse(sessionStorage.getItem("userData"))?.user?.id}` : '';
+    const url = JSON.parse(sessionStorage.getItem("userData"))?.user?.id ? `?userId=${JSON.parse(sessionStorage.getItem("userData"))?.user?.id}` : '';
     GetAllRequests(url).then((resp) => {
       setDataAppointment(funFixEducator(resp?.data?.data));
     });
