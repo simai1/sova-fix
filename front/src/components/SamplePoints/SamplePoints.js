@@ -81,12 +81,8 @@ function SamplePoints(props) {
     const fd = Array.from(
       new Set(
         uniquePunkts
-          .map((el) => (typeof el === "object" && el !== null ? el.name : el)) // вытаскиваем name или оставляем строку
-          .filter(
-            (name) =>
-              typeof name === "string" &&
-              name.toLowerCase().includes(search?.toLowerCase())
-          )
+          .filter((el) => typeof el === "object" && el?.name?.toLowerCase().includes(search?.toLowerCase()))
+          .map((el) => el.name)
       )
     );
   
