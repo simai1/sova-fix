@@ -10,7 +10,6 @@ function SamplePoints(props) {
   const [filtredPunkts, setFiltredPunkts] = useState([]);
   const {context} = useContext(DataContext);
 
-
   const store = useSelector(
     (state) => state.isSamplePoints[props.tableName].isChecked
   );
@@ -79,12 +78,17 @@ function SamplePoints(props) {
 
   useEffect(() => {
     const uniquePunkts = Array.from(new Set(props.punkts));
-    const fd = uniquePunkts.filter((el) => {
-      if (typeof el !== "boolean") {
-        const elString = typeof el === "number" ? el.toString() : el;
-        return elString?.toLowerCase().includes(search?.toLowerCase());
-      }
-    });
+    const fd = Array.from(
+      new Set(
+        uniquePunkts
+          .map((el) => (typeof el === "object" && el !== null ? el.name : el)) // вытаскиваем name или оставляем строку
+          .filter(
+            (name) =>
+              typeof name === "string" &&
+              name.toLowerCase().includes(search?.toLowerCase())
+          )
+      )
+    );
   
     // Function to parse custom date format "dd.MM.yy"
     const parseDate = (dateString) => {
@@ -127,7 +131,6 @@ function SamplePoints(props) {
       }
     });
     
-  
     setFiltredPunkts(sortedFd);
   }, [search, props.punkts]);
 

@@ -1134,11 +1134,23 @@ function Table() {
                             basickData={context.dataApointment}
                             tableBodyData={context.dataApointment}
                             punkts={[
-                              ...context.dataApointment.map((it) =>
-                                it[item.key] === null ? "___" : it[item.key]
-                              ),
+                              ...context.dataApointment.flatMap((it) => {
+                                if (item.key === "contractor" && it[item.key] !== "___") {
+                                  return it[item.key].name;
+                                } else if (item.key === "contractor" && it[item.key] === "___" && it["contractorManager"] !== 'Укажите подрядчика') {
+                                  return [it["contractorManager"]]
+                                } else if (it["contractorManager"] === 'Укажите подрядчика' && it[item.key] === "___") {
+                                  return 
+                                }
+                                return [it[item.key]];
+                              }).map((val) => (val === null ? "___" : val)),
+                            
                               ...store
-                                .filter((it) => it.itemKey === item.key)
+                                .filter((it) =>
+                                  item.key === "contractor"
+                                    ? it.itemKey === "contractor" || it.itemKey === "contractorManager"
+                                    : it.itemKey === item.key
+                                )
                                 .map((it) => it.value),
                             ].sort((a, b) => {
                               return String(a).localeCompare(String(b));
