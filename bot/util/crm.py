@@ -587,18 +587,19 @@ async def get_all_managers() -> list | None:
         return None
 
 
-async def get_all_manager_tg_ids() -> list | None:
+async def get_all_manager_tg_ids() -> list[int] | None:
     managers = await get_all_managers()
 
-    if managers is None:
-        return
+    if not managers:
+        return None
 
-    manager_ids = []
+    admin_ids = [
+        int(manager['tgId'])
+        for manager in managers
+        if manager.get('role') == "ADMIN"
+    ]
 
-    for manager in managers:
-        manager_ids.append(int(manager['tgId']))
-
-    return manager_ids
+    return admin_ids if admin_ids else None
 
 
 async def get_user_by_id(_id: str) -> dict | None:
