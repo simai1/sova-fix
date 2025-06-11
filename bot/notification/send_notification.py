@@ -134,7 +134,7 @@ async def from_websocket_message(bot: Bot, message_string: str) -> None:
     # Отслеживаем кому уже отправили уведомление для избежания дублирования
     notified_users = set()
 
-    if customer_id is not None:
+    if customer_id is not None and event != "REQUEST_CREATE":
         kb = get_simple_notification_kb(event, msg, crm.roles.CUSTOMER)
         await bot.send_message(customer_id, text, reply_markup=kb)
         notified_users.add(customer_id)
