@@ -693,7 +693,7 @@ function Table() {
                   
                   <li className={styles.listHeader}>Менеджеры:</li>
                   {managers && managers.length > 0 && 
-                    managers.map((manager, idx) => (
+                    managers.map((manager, idx) => manager.role === 'ADMIN' && (
                       <li onClick={() => SetManager(manager.id, row.id)} key={`manager-${idx}`}>
                         {manager.name}
                       </li>
