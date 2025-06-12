@@ -49,10 +49,22 @@ function SamplePoints(props) {
       dispatch(setChecked({ tableName: props.tableName, checked: checked }));
       dispatch(dropFilters({ tableName: props.tableName }));
     } else {
-      const bd = [...props.tableBodyData].map((el) => ({
-        itemKey: props.itemKey,
-        value: el[props.itemKey],
-      }));
+      const bd = [...props.tableBodyData].map((el) => {
+        const isContractorEmpty = props.itemKey === 'contractor' && el.contractor === '___';
+        if(isContractorEmpty && (el.contractorManager === 'Внешний подрядчик' || el.contractorManager === 'Укажите подрядчика')) {
+          return {
+            itemKey: null,
+            value: null
+          }
+        }
+        return {
+          itemKey: props.itemKey,
+          value: (() => {
+            const rawValue = isContractorEmpty ? el.contractorManager : el[props.itemKey];
+            return typeof rawValue === 'object' && rawValue !== null ? rawValue.name : rawValue;
+          })(),
+        };
+      });
       dispatch(
         setChecked({
           tableName: props.tableName,
@@ -85,6 +97,7 @@ function SamplePoints(props) {
           .filter(
             (name) =>
               typeof name === "string" &&
+              name !== "___" && // исключаем "___"
               name.toLowerCase().includes(search?.toLowerCase())
           )
       )
