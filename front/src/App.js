@@ -299,7 +299,16 @@ const UpdateUrgency = () => {
     const uniqueData = getUniqueItems(storeFilter.isChecked);
     if (uniqueData.length !== 0) {
       const filterParams = uniqueData
-        .map((item) => `exclude_${item.itemKey}=${getParam(item.value, item.itemKey)}`)
+        .flatMap((item) => {
+          const param = getParam(item.value, item.itemKey);
+          if (item.itemKey === 'contractor') {
+            return [
+              `exclude_contractor=${param}`,
+              `exclude_builder=Менеджер: ${param}`
+            ];
+          }
+          return [`exclude_${item.itemKey}=${param}`];
+        })
         .join("&");
       url += `&${filterParams}`;
     }
