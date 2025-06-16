@@ -499,7 +499,7 @@ const setContractor = async (requestId: string, contractorId: string, managerId?
                     status: 2,
                     daysAtWork: 1,
                     contractorId: null,
-                    ExtContractorId: null,
+                    extContractorId: null,
                     isExternal: false,
                     builder: `Менеджер: ${manager.name}`
                 });
@@ -577,7 +577,7 @@ const setContractor = async (requestId: string, contractorId: string, managerId?
                     builder: 'Внутренний сотрудник',
                     status: 2,
                     daysAtWork: 1,
-                    ExtContractorId: null,
+                    extContractorId: null,
                     isExternal: false,
                 });
                 
@@ -632,7 +632,7 @@ const setExtContractor = async (requestId: string, extContractorId: string): Pro
         // Обновляем заявку
         logger.info(`Updating request ${requestId} with external contractor ${extContractor.name}`);
         await request.update({
-            ExtContractorId: extContractorId,
+            extContractorId: extContractorId,
             contractorId: null,
             managerId: null,
             managerTgId: null,
@@ -656,7 +656,7 @@ const setExtContractor = async (requestId: string, extContractorId: string): Pro
             },
             event: 'STATUS_UPDATE',
         } as WsMsgData);
-        
+
         logger.info(`Successfully set external contractor ${extContractor.name} for request ${requestId}`);
     } catch (error) {
         logger.error(`Error in setExtContractor for request ${requestId}: ${error}`);
@@ -704,14 +704,14 @@ const removeContractor = async (requestId: string): Promise<void> => {
         contractorId: null,
         builder: 'Укажите подрядчика',
         isExternal: false,
-        ExtContractorId: null,
+        extContractorId: null,
     });
 };
 
 const removeExtContractor = async (requestId: string): Promise<void> => {
     const request = await RepairRequest.findByPk(requestId);
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
-    await request.update({ ExtContractorId: null, isExternal: false, builder: 'Укажите подрядчика' });
+    await request.update({ extContractorId: null, isExternal: false, builder: 'Укажите подрядчика' });
 };
 
 const setStatus = async (requestId: string, status: number): Promise<void> => {
