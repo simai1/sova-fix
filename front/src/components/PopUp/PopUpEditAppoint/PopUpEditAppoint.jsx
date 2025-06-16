@@ -81,12 +81,17 @@ function PopUpEditAppoint(props) {
   const planCompleteDate = dataApStart?.planCompleteDateRaw;
   const DateplanCompleteDate = planCompleteDate ? new Date(dataApStart?.planCompleteDateRaw).toISOString().split("T")[0] : '';
 
+  const getStatusValue = (statusNumber) => {
+    const statusFromDb = context?.statusList.find(status => status.number === statusNumber)
+    return statusFromDb;
+  }
+
   useEffect(() => {
     if (dataApStart) {
       setdataApointment({
         contractorId: dataApStart?.contractor?.id,
         builder: dataApStart?.builder,
-        status: dataApStart?.status,
+        status: getStatusValue(dataApStart?.status).number,
         planCompleteDate:  DateplanCompleteDate,
         unit: dataApStart?.unit,
         objectId: dataApStart?.objectId,
@@ -115,12 +120,16 @@ function PopUpEditAppoint(props) {
     setdataApointment((prevState) => ({ ...prevState, [name]: value }));
   };
   const handleListData = (name, value) => {
-    setdataApointment((prevState) => ({ ...prevState, [name]: value }));
     if(name === "urgency") {
       const urgency = context?.urgencyList?.find(item => item.name === value)
-      setdataApointment((prevState) => ({ ...prevState, urgencyId: urgency?.id }));
-
+      return setdataApointment((prevState) => ({ ...prevState, urgencyId: urgency?.id }));
     }
+    
+    if(name === "status") {
+      const status = context?.statusList?.find(item => item.id === value)
+      return setdataApointment((prevState) => ({ ...prevState, statusId: status?.id, status: status.number }));
+    }
+    setdataApointment((prevState) => ({ ...prevState, [name]: value }));
   };
   const getObjectNameById = (id) => {
     const objectItem = dataObject.find((item) => item.id === id);
@@ -155,7 +164,7 @@ function PopUpEditAppoint(props) {
           })
         }
       else {
-        alert("Заполните правльно все поля!");
+        alert("Заполните правильно все поля!");
       }
     });
   };
@@ -244,8 +253,8 @@ function PopUpEditAppoint(props) {
               Textlabel={"Статус заявки"}
               handleListData={handleListData}
               name="status"
-              dataList={DataStatus}
-              value={dataApointment.status}
+              dataList={context?.statusList}
+              value={getStatusValue(dataApointment.status)?.name}
               placeholder="Выберите статус"
               isActive={activeDropdown === "status"}
               toggleDropdown={() => toggleDropdown("status")}

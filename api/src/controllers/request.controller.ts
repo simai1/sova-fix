@@ -8,6 +8,7 @@ import prepare from '../utils/prepare';
 import TgUser from '../models/tgUser';
 import logger from '../utils/logger';
 import { migrateManagerIds, validateManagerIds } from '../utils/migrationUtils';
+import Status from '../models/status';
 
 const getAll = catchAsync(async (req, res) => {
     const filter = prepare(
@@ -187,8 +188,9 @@ const setStatus = catchAsync(async (req, res) => {
     const { requestId, status } = req.body;
     if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
     if (!status) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing status');
-    if (!Object.values(statuses).includes(status)) throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid status');
-    await requestService.setStatus(requestId, status);
+    const statusFromDb = await Status.findOne({where: {number: status}})
+    if (!statusFromDb) throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid status');
+    await requestService.setStatus(requestId, status, statusFromDb.id);
     res.json({ status: 'OK' });
 });
 
@@ -281,6 +283,8 @@ const getCustomersRequests = catchAsync(async (req, res) => {
             'checkPhoto',
         ])
     );
+
+    console.log('===============', filter)
     if (!tgUserId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing tgUserId');
     const requestsDtos = await requestService.getCustomersRequests(tgUserId, filter);
     res.json(requestsDtos);
@@ -413,6 +417,13 @@ const validateManagerData = catchAsync(async (req, res) => {
     res.json({ status: 'OK', message: 'Manager ID validation completed' });
 });
 
+const changeStatus = catchAsync(async (req, res) => {
+    const { prevNumber, statusId } = req.body;
+    if (!prevNumber || !statusId) throw new ApiError(httpStatus.BAD_REQUEST, 'missing prevName or statusId');
+    await requestService.changeStatus(prevNumber, statusId);
+    res.json({ status: 'OK' });
+})
+
 export default {
     getAll,
     getOne,
@@ -441,4 +452,5 @@ export default {
     setManager,
     migrateManagerData,
     validateManagerData,
+    changeStatus,
 };
