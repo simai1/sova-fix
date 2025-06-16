@@ -301,13 +301,15 @@ const UpdateUrgency = () => {
       const filterParams = uniqueData
         .flatMap((item) => {
           const param = getParam(item.value, item.itemKey);
-          if (item.itemKey === 'contractor') {
-            return [
-              `exclude_contractor=${param}`,
-              `exclude_builder=Менеджер: ${param}`
-            ];
+          if (param) {
+            if (item.itemKey === 'contractor') {
+              return [
+                `exclude_contractor=${param}`,
+                `exclude_builder=Менеджер: ${param}`
+              ];
+            }
+            return [`exclude_${item.itemKey}=${param}`];
           }
-          return [`exclude_${item.itemKey}=${param}`];
         })
         .join("&");
       url += `&${filterParams}`;
