@@ -1199,7 +1199,7 @@ const changeUrgency = async(prevName: string, urgencyId: string) => {
 
 const changeStatus = async(prevNumber: number, statusId: string) => {
     const status = await Status.findByPk(statusId);
-    if (!status) throw new Error(`Urgency with id ${statusId} not found`);
+    if (!status) throw new Error(`Status with id ${statusId} not found`);
 
     // Обновить все заявки, где старый номер совпадает
     await RepairRequest.update(
