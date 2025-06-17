@@ -7,6 +7,7 @@ export default class RequestDto {
     id!: string;
     number!: number;
     status!: number;
+    statusId?: string;
     unit?: string;
     builder!: string;
     object?: string;
@@ -40,6 +41,7 @@ export default class RequestDto {
         this.id = model.id;
         this.number = model.number;
         this.status = model.status;
+        this.statusId = model.statusId;
         this.unit = model.Unit ? model.Unit.name : undefined;
         this.builder = model.builder;
         this.object = model.Object ? model.Object.name : undefined;

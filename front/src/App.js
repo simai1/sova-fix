@@ -5,7 +5,7 @@ import DataContext from "./context";
 import "./styles/style.css";
 import { tableHeadAppoint, tableList, tableUser } from "./components/Table/Data";
 import HomePageAdmin from "./pages/AdminPages/HomePageAdmin/HomePageAdmin";
-import { GetAllCategories, GetAllEquipment, GetAllNomenclatures, GetAllRequests, GetAllUrgensies, GetAllUsers, GetAllСontractors, GetContractorsItenerarity, GetOneEquipment } from "./API/API";
+import { GetAllCategories, GetAllEquipment, GetAllNomenclatures, GetAllRequests, GetAllStatuses, GetAllUrgensies, GetAllUsers, GetAllСontractors, GetContractorsItenerarity, GetOneEquipment } from "./API/API";
 import Activate from "./pages/Login/Activate/Activate";
 import { useDispatch, useSelector } from "react-redux";
 import { FilteredSample, funFixEducator } from "./UI/SamplePoints/Function";
@@ -27,6 +27,7 @@ import EquipmentInfo from "./modules/EquipmentInfo/EquipmentInfo";
 import PageCardContractors from "./pages/AdminPages/PageCardContractors/PageCardContractors";
 import TgUserObjects from "./pages/AdminPages/Directory/TgUserObjects";
 import DirectoryUrgency from "./modules/DirectoryUrgencies/DirectoryUrgency";
+import DirectoryStatuses from "./modules/DirectoryStatuses/DirectoryStatuses";
 
 function App() {
   const [selectContructor, setSelectContractor] = useState("")
@@ -72,6 +73,7 @@ function App() {
   const [dataTableHomePage, setDataTableHomePage] = useState([]);
   const [enabledTo, setEnabledTo] = useState(false);
   const [urgencyList, setUrgencyList] = useState([])
+  const [statusList, setStatusList] = useState([])
   const checkedAllFunc = () => {
     if(moreSelect.length > 0){
       setCheckedAll(true)
@@ -125,9 +127,16 @@ const UpdateForse = () =>{
 
 const UpdateUrgency = () => {
   GetAllUrgensies().then(response => {
-    console.log(response)
     if(response) {
       setUrgencyList(response.data)
+    }
+  })
+}
+
+const UpdateStatus = () => {
+  GetAllStatuses().then(response => {
+    if (response?.status === 200) {
+      setStatusList(response.data)
     }
   })
 }
@@ -227,6 +236,9 @@ const UpdateUrgency = () => {
     urgencyList,
     setUrgencyList,
     UpdateUrgency,
+    statusList,
+    setStatusList,
+    UpdateStatus,
   };
 
   const storeFilter = useSelector((state) => state.isSamplePoints["table9"]);
@@ -382,6 +394,7 @@ const UpdateUrgency = () => {
                <Route path="UsersDirectory" element={<UsersDirectory />}></Route>
                <Route path="TgUserObjects" element={<TgUserObjects />}></Route>
                <Route path="Urgency" element={<DirectoryUrgency />}></Route>
+               <Route path="Status" element={<DirectoryStatuses />}></Route>
              </Route>
             )}
 

@@ -1,0 +1,242 @@
+.DirectoryStatuses {
+    .Functional__header {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        .text__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 350px;
+
+            p {
+                font-size: 24px;
+                margin: 0;
+            }
+        }
+
+        .clear {
+            margin-left: 10px;
+            button {
+                border-radius: 8px;
+                background-color: var(--turquoise-color);
+                height: 44px;
+                width: 40px;
+                transition: 0.1s linear all;
+                border: none;
+                cursor: pointer;
+
+                &:hover {
+                    border: 0.5px solid #000000;
+                }
+            }
+        }
+    }
+
+    .button__header {
+        display: flex;
+        button {
+            display: flex;
+            background-color: var(--turquoise-color);
+            outline: none;
+            color: #000;
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-weight: 300;
+            font-size: 16px;
+            border: none;
+            transition: all 0.1s linear;
+            width: 150px !important;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-left: 10px;
+            cursor: pointer;
+
+            &:hover {
+                border: 0.5px solid #000000;
+            }
+        }
+    }
+}
+
+.PopUpInput {
+    width: 90%;
+    outline: none;
+    background-color: #fff;
+    color: #353535;
+    padding: 15px 15px;
+    border: 1px solid #adadad;
+    margin-top: 3px;
+    border-radius: 8px;
+    font-size: 18px;
+    margin: 10px 0px;
+}
+
+.ColorInput {
+    display: flex;
+    align-items: center;
+    margin-left: 5px;
+    margin-top: 5px;
+
+    label {
+        font-size: 18px;
+        margin-right: 10px;
+    }
+
+    .PopUpColorInput {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        width: 80px;
+        height: 20px;
+        border-radius: 12px;
+        border: 2px solid #ccc;
+        background-color: transparent;
+        cursor: pointer;
+        transition: border-color 0.3s ease, transform 0.2s ease;
+
+        &:hover {
+            border-color: #888;
+            transform: scale(1.02);
+        }
+
+        &:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        &::-webkit-color-swatch-wrapper {
+            padding: 0;
+            border-radius: 12px;
+        }
+
+        &::-webkit-color-swatch {
+            border: none;
+            border-radius: 12px;
+        }
+
+        &::-moz-color-swatch {
+            border: none;
+            border-radius: 12px;
+        }
+    }
+}
+
+.CreateButton {
+    margin: 40px auto 0 !important;
+    background-color: #b7ab9e !important;
+    width: 70%;
+    height: 42px;
+    border-radius: 8px;
+    margin-top: 20px;
+
+    &:hover {
+        background-color: #9f8b7b !important;
+        color: #fff !important;
+    }
+}
+
+.ErrorStatus {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--Red-color);
+    // background-color: var(--Red-color);
+    color: #3b2a23;
+    max-width: 320px;
+    width: 90%;
+    padding: 16px 20px 12px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 9999;
+    animation: slideDown 0.5s ease-out forwards;
+
+    .content {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .errorText {
+        margin: 0;
+        margin-right: 20px;
+        font-size: 14px;
+        line-height: 1.4;
+    }
+
+    .closeButton {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-weight: bold;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    .progressBar {
+        height: 4px;
+        background-color: #d84418;
+        border-radius: 4px;
+        animation: progressFade 4s linear forwards;
+        margin-top: 8px;
+    }
+
+    .contentBox {
+        padding-right: 40px;
+    }
+
+    &.hide {
+        animation: slideUp 0.5s ease-in forwards;
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -30px);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+    to {
+        opacity: 0;
+        transform: translate(-50%, -30px);
+    }
+}
+
+@keyframes progressFade {
+    from {
+        width: 100%;
+    }
+    to {
+        width: 0%;
+    }
+}
+
+
+.disabledDelete {
+    opacity: 0.5;
+
+    &:hover {
+        border: none !important;
+    }
+}
+
+.buttonContainer {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}

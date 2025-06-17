@@ -56,7 +56,8 @@ async def get_simple_notification_text(event: str, msg: dict):
     match event:
         case "STATUS_UPDATE":
             rr_number = await crm.get_repair_request_number(msg["requestId"])
-            return f"<b>❗️ИЗМЕНЕНИЕ СТАТУСА ЗАЯВКИ❗️</b>\nСтатус заявки №{rr_number} был изменён на \"{const.statuses_ru_locale[msg['newStatus']]}\""
+            status = await crm.get_status_name(msg['newStatus'])
+            return f"<b>❗️ИЗМЕНЕНИЕ СТАТУСА ЗАЯВКИ❗️</b>\nСтатус заявки №{rr_number} был изменён на \"{status}\""
         case "URGENCY_UPDATE":
             rr_number = await crm.get_repair_request_number(msg["requestId"])
             return f"<b>❗ИЗМЕНЕНИЕ СРОЧНОСТИ ЗАЯВКИ❗️</b>\nСрочность завки №{rr_number} была изменена на \"{msg['newUrgency']}\""

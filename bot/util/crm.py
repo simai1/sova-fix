@@ -1030,3 +1030,11 @@ async def register_customer_crm(login: str, user_id: int) -> bool:
     except Exception as e:
         logger.error(f"Exception while requesting CRM access for login={login}: {str(e)}")
         return False
+
+async def get_status_name(statusNumber: int) -> str | None:
+    url = f"{cf.API_URL}/status/{statusNumber}"
+
+    request = requests.get(url)
+    data = request.json()
+
+    return data.get("name")

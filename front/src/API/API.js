@@ -1455,3 +1455,88 @@ export const ChangeUrgency = async (data) => {
     }
   }
 };
+
+export const CreateStatus = async (data) => {
+  try {
+    const response = await http.post(`${server}/status`, data, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при получении карты пользователя!");
+    }
+  }
+};
+
+export const EditStatus = async (data, id) => {
+  try {
+    const response = await http.patch(`${server}/status/${id}`, data, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при получении карты пользователя!");
+    }
+  }
+};
+
+export const DeleteStatus = async (id) => {
+  try {
+    const response = await http.delete(`${server}/status/${id}`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при удалении номенклатуры!");
+    }
+  }
+};
+
+export const GetAllStatuses = async () => {
+  try {
+    const response = await http.get(`${server}/status`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при получении списка срочностей!");
+    }
+  }
+};
+
+export const ChangeStatus = async (data) => {
+  try {
+    const response = await http.post(`${server}/requests/changeStatus`, data, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при получении карты пользователя!");
+    }
+  }
+};

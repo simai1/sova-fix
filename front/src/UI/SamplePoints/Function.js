@@ -9,22 +9,29 @@ export function FilteredSample(data, isChecked, sesionName = "") {
   }
 }
 
+// export const getStatus = (statusNumber) => {
+//   const statusFromDirectory = context?.setStatusList.find(status => status.number === statusNumber)
+//   if (!statusFromDirectory) return "___"
+//   return statusFromDirectory?.name
+// }
 //! функция замены преподавательского массива на его имя
 export function funFixEducator(data) {
-  const status = {
-    1: "Новая заявка",
-    2: "В работе",
-    3: "Выполнена",
-    4: "Неактуальна",
-    5: "Выезд без выполнения",
-  };
+  // const status = {
+  //   1: "Новая заявка",
+  //   2: "В работе",
+  //   3: "Выполнена",
+  //   4: "Неактуальна",
+  //   5: "Выезд без выполнения",
+  // };
+
+
   if(Array.isArray(data)){
     return data?.map((item) => {
 
       return {
         ...item,
         contractor: item?.contractor || "___",
-        status: status[item?.status] || "___",
+        status: item?.status || "___",
         number: item?.number || "___",
         object: item?.object || "___",
         builder: item?.builder || "___",
@@ -47,7 +54,7 @@ export function funFixEducator(data) {
     return {
       ...data,
       contractor: data?.contractor || "___",
-      status: status[data?.status] || "___",
+      status: data?.status || "___",
       number: data?.number || "___",
       object: data?.object || "___",
       builder: data?.builder || "___",

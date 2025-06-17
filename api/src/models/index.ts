@@ -15,6 +15,7 @@ import Nomenclature from './nomenclature';
 import TechService from './techService';
 import TgUserObject from './tgUserObject';
 import Urgency from './urgency';
+import Status from './status';
 
 const { DB_USER, DB_PWD, DB_HOST, DB_PORT, DB_NAME } = process.env;
 export const models = {
@@ -26,6 +27,7 @@ export const models = {
     LegalEntity,
     ExtContractor,
     ObjectDir,
+    Status,
     Urgency,
     RepairRequest,
     ApiKey,

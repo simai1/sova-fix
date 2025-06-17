@@ -93,9 +93,9 @@ function FunctionReportTop(props) {
             
                 <div className={styles.ReportFinansingMenu}>
                     <div className={styles.ReportFinansingList}>
-                    <CountInfoBlock dataCount={filterBasickData(props?.dataTable, storeIndicators)} keys="status" value="Новая заявка" color="#d69a81" name="Новых"/>
-                    <CountInfoBlock dataCount={filterBasickData(props?.dataTable, storeIndicators)} keys="status" value="В работе" color="#ffe78f" name="В работе"/>
-                    <CountInfoBlock dataCount={filterBasickData(props?.dataTable, storeIndicators)} keys="status" value="Выполнена" color="#C5E384" name="Выполнены"/>
+                    <CountInfoBlock dataCount={filterBasickData(props?.dataTable, storeIndicators)} keys="status" value="1" color="#d69a81" name="Новых"/>
+                    <CountInfoBlock dataCount={filterBasickData(props?.dataTable, storeIndicators)} keys="status" value="2" color="#ffe78f" name="В работе"/>
+                    <CountInfoBlock dataCount={filterBasickData(props?.dataTable, storeIndicators)} keys="status" value="3" color="#C5E384" name="Выполнены"/>
                     <div className={styles.clear}>
                             <button onClick={() => dispatch(resetFilters({tableName: "table6"}))} ><img src={ClearImg} /></button>
                         </div>

@@ -20,6 +20,7 @@ import { models } from '../models';
 import Urgency from '../models/urgency';
 import User from '../models/user';
 import TgUserObject from '../models/tgUserObject';
+import Status from '../models/status';
 
 const getAllRequests = async (filter: any, order: any, pagination: any, userId?: string) => {
     try {
@@ -739,7 +740,7 @@ const removeExtContractor = async (requestId: string): Promise<void> => {
     await request.update({ extContractorId: null, isExternal: false, builder: 'Укажите подрядчика' });
 };
 
-const setStatus = async (requestId: string, status: number): Promise<void> => {
+const setStatus = async (requestId: string, status: number, statusId: string): Promise<void> => {
     const request = await RepairRequest.findByPk(requestId);
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
     const customer = await TgUser.findByPk(request.createdBy);
@@ -757,6 +758,7 @@ const setStatus = async (requestId: string, status: number): Promise<void> => {
     const dateNow = new Date();
     await request.update({
         status,
+        statusId,
         completeDate: status === 3 ? dateNow : null,
         daysAtWork:
             status === 3
@@ -1013,7 +1015,9 @@ const getCustomersRequests = async (tgUserId: string, filter: any): Promise<Requ
 
 const addCheck = async (requestId: string, fileName: string): Promise<void> => {
     await RepairRequest.update({ checkPhoto: fileName }, { where: { id: requestId } });
-    await setStatus(requestId, 3);
+    const status = await Status.findOne({where: {number: 3}})
+    if (!status) throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid status');
+    await setStatus(requestId, 3, status.id);
 };
 
 const bulkDeleteRequests = async (ids: object): Promise<void> => {
@@ -1193,6 +1197,22 @@ const changeUrgency = async(prevName: string, urgencyId: string) => {
     );
 }
 
+const changeStatus = async(prevNumber: number, statusId: string) => {
+    const status = await Status.findByPk(statusId);
+    if (!status) throw new Error(`Status with id ${statusId} not found`);
+
+    // Обновить все заявки, где старый номер совпадает
+    await RepairRequest.update(
+        {
+            status: status.number,       // обновляем номер статуса
+            statusId: status.id,       // присваиваем новый ID срочности
+        },
+        {
+            where: { status: prevNumber } // по совпадению старого номера
+        }
+    );
+}
+
 export default {
     getAllRequests,
     getRequestById,
@@ -1218,4 +1238,5 @@ export default {
     copyRequest,
     changeUrgency,
     setManager,
+    changeStatus,
 };
