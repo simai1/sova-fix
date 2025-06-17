@@ -62,7 +62,7 @@ export default class RequestDto {
         this.createdAt = model.createdAt ? strftime('%d.%m.%y', model.createdAt) : '';
         this.createdAtRaw = model.createdAt;
         this.contractor = model.Contractor ? new ContractorDto(model.Contractor) : null;
-        this.contractorManager = model.managerId && model.TgUser ? model.TgUser.name : null ;
+        this.contractorManager = model.managerId && model.TgUser ? model.TgUser.name : model.ExtContractor?.name ? "Внешний подрядчик" : null;
         this.extContractor = model.ExtContractor ? new ExtContractorDto(model.ExtContractor) : null;
         this.isExternal = model.isExternal;
         this.copiedRequestId = model.copiedRequestId;

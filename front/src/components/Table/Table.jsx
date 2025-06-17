@@ -497,7 +497,7 @@ function Table() {
     (state) => state.editColumTableSlice.ActiveColumTable
   );
 
-  const getItemBuilder = (row) => {
+  const getItemBuilder = (row, isBuilderColumn) => {
     // Если есть подрядчик с именем
     if (row?.contractor && typeof row.contractor === 'object' && row.contractor.name) {
       return row.contractor.name;
@@ -508,9 +508,12 @@ function Table() {
       const manager = managers.find(m => m.id === row.managerId);
       return manager ? manager.name : "Менеджер";
     } 
+    else if (row?.isExternal && isBuilderColumn) {
+      return row?.extContractor?.name
+    }
     // Если это внешний подрядчик
     else if (row?.isExternal) {
-      return row?.builder || "Внешний подрядчик";
+      return "Внешний подрядчик";
     } 
     // В остальных случаях
     else {
@@ -721,7 +724,7 @@ function Table() {
             ref={extPopRef}
             key={key + row.id}
           >
-            {row?.builder || "Не назначен"}
+            {getItemBuilder(row, true) || "Не назначен"}
             {shovExtPop === row.id && (
               <div
                 className={getPopupClassName(extPopRef.current, index, totalRows)}
@@ -1137,6 +1140,9 @@ function Table() {
                             tableBodyData={context.dataApointment}
                             punkts={[
                               ...context.dataApointment.flatMap((it) => {
+                                if (item.key === "contractor" && it[item.key] === "___" && it["contractorManager"] === "Внешний подрядчик" && it['extContractor'] !== null) {
+                                  return it["contractorManager"]
+                                }
                                 if (item.key === "contractor" && it[item.key] !== "___") {
                                   return it[item.key].name;
                                 } else if (item.key === "contractor" && it[item.key] === "___" && it["contractorManager"] !== 'Укажите подрядчика' && it["contractorManager"] !== 'Внешний подрядчик') {

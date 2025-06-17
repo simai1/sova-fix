@@ -65,6 +65,10 @@ function SamplePoints(props) {
           })(),
         };
       });
+
+      if (props.itemKey === 'contractor') {
+        bd.push({itemKey: props.itemKey, value: "Внешний подрядчик"})
+      }
       dispatch(
         setChecked({
           tableName: props.tableName,
