@@ -63,11 +63,12 @@ function SamplePoints(props) {
             const rawValue = isContractorEmpty ? el.contractorManager : el[props.itemKey];
             return typeof rawValue === 'object' && rawValue !== null ? rawValue.name : rawValue;
           })(),
-        };
+        };к
       });
 
       if (props.itemKey === 'contractor') {
         bd.push({itemKey: props.itemKey, value: "Внешний подрядчик"})
+        bd.push({itemKey: props.itemKey, value: "Укажите подрядчика"})
       }
       dispatch(
         setChecked({

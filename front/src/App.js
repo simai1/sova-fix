@@ -305,7 +305,7 @@ const UpdateUrgency = () => {
             if (item.itemKey === 'contractor') {
               return [
                 `exclude_contractor=${param}`,
-                `exclude_builder=Менеджер: ${param}`
+                param === "Укажите подрядчика" ? `exclude_builder=${param}` : `exclude_builder=Менеджер: ${param}`
               ];
             }
             return [`exclude_${item.itemKey}=${param}`];
