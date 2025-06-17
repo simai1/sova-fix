@@ -87,7 +87,7 @@ async def make_articles_for_rrs(rr_list: list, content_filter: str = "") -> list
             items.append(item)
             continue
 
-        status = const.statuses_ru_locale[rr['status']]
+        status = crm.get_status_name(rr['status'])
         info = f"{rr['number']}{rr['unit']}{rr['object']}{rr['problemDescription']}{status}{rr['urgency']}"
 
         if content_filter in info.strip().lower().replace(" ", ""):

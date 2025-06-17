@@ -13,13 +13,14 @@ import {
   SetcontractorRequest,
   GetAllManagers,
   GetAllAdmins,
+  GetAllStatuses,
 } from "../../API/API";
 import { useSelector } from "react-redux";
 import СonfirmDelete from "./../СonfirmDelete/СonfirmDelete";
 import Contextmenu from "../../UI/Contextmenu/Contextmenu";
 import SamplePoints from "../SamplePoints/SamplePoints";
 import FilteImg from "./../../assets/images/filterColumn.svg";
-import { status, DataUrgency } from "./Data";
+import { status } from "./Data";
 import { funFixEducator } from "../../UI/SamplePoints/Function";
 
 function Table() {
@@ -610,26 +611,16 @@ function Table() {
     // }
   }
 
-  const getStatusColor = (statusValue) => {
-    switch (statusValue) {
-      case "Новая заявка":
-        return "#d69a81";
-      case "В работе":
-        return "#ffe78f";
-      case "Выполнена":
-        return "#C5E384";
-      case "Выезд без выполнения":
-        return "#f9ab23";
-      default:
-        return "";
-    }
-  };
-
   const getUrgencyById = (id, value) => {
     if(!id) return value
     const findedUrgency = context?.urgencyList?.find(urgency => urgency.id === id)
 
     return findedUrgency.name
+  }
+
+  const getStatusValue = (statusNumber) => {
+    const statusFromDb = context?.statusList.find(status => status.number === statusNumber)
+    return statusFromDb;
   }
 
   const getValue = (value, key, index, row) => {
@@ -638,27 +629,28 @@ function Table() {
     switch (key) {
       case "id":
         return index + 1;
-      case "status":
+        case "status":
+        const statusFromDb = getStatusValue(value)
         return (
           <div
             onClick={() => funSetStatus(row.id)}
             className={styles.statusClick}
-            style={{ backgroundColor: getStatusColor(value) }}
+            style={{ backgroundColor: statusFromDb?.color }}
             ref={statusPopRef}
             key={key + row.id}
           >
-            {value}
+            {statusFromDb?.name}
             {shovStatusPop === row.id && (
               <div
                 className={getPopupClassName(statusPopRef.current, index, totalRows)}
               >
                 <ul>
-                  {Object.values(status).map((statusValue, statusIndex) => (
+                  {context?.statusList.map((statusValue, statusIndex) => (
                     <li
                       onClick={() => editStatus(statusIndex + 1, row.id)}
                       key={statusIndex}
                     >
-                      {statusValue}
+                      {statusValue.name}
                     </li>
                   ))}
                 </ul>
@@ -1021,6 +1013,11 @@ function Table() {
   useEffect(() => {
     GetAllUrgensies().then(response => {
       context?.setUrgencyList(response.data)
+    })
+    GetAllStatuses().then(response => {
+      if (response?.status === 200) {
+        context?.setStatusList(response.data)
+      }
     })
   }, [])
 

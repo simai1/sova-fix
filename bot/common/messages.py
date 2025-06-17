@@ -68,7 +68,7 @@ async def add_media_to_album(media_filename: str, caption: str, album: MediaGrou
 async def send_repair_request(message: Message, repair_request: dict, kb: IKM | None = None) -> None:
     user_id = message.chat.id
     
-    text = repair_request_text(repair_request)
+    text = await repair_request_text(repair_request)
 
     file_filename = repair_request['fileName']
     rr_check_filename = repair_request['checkPhoto']

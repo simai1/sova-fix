@@ -12,6 +12,7 @@ export default class RepairRequest extends Model {
     id!: string;
     number!: number;
     status!: number;
+    statusId?: string;
     unit!: string;
     builder!: string;
     problemDescription?: string;
@@ -62,10 +63,11 @@ export default class RepairRequest extends Model {
                 status: {
                     type: DataTypes.SMALLINT,
                     allowNull: false,
-                    validate: {
-                        isIn: [Object.values(statuses)],
-                    },
                     defaultValue: 1,
+                },
+                stasusId: {
+                    type: DataTypes.UUID,
+                    allowNull: true,
                 },
                 builder: {
                     type: DataTypes.STRING,

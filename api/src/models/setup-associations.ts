@@ -1,4 +1,5 @@
 import { models } from './index';
+import Status from './status';
 import Urgency from './urgency';
 
 const {
@@ -93,4 +94,7 @@ export default function () {
 
     Urgency.hasMany(RepairRequest, {foreignKey: 'urgencyId'});
     RepairRequest.belongsTo(Urgency, { foreignKey: 'urgencyId' });
+
+    Status.hasMany(RepairRequest, {foreignKey: 'statusId'});
+    RepairRequest.belongsTo(Status, { foreignKey: 'statusId' });
 }
