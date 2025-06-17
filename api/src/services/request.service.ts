@@ -4,7 +4,7 @@ import RequestDto from '../dtos/request.dto';
 import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
 import contractorService from './contractor.service';
-import { Op } from 'sequelize';
+import { literal, Op, Sequelize, where } from 'sequelize';
 import { mapStatusesRuLocale, statusesRuLocale } from '../config/statuses';
 import sequelize from 'sequelize';
 import { sendMsg, WsMsgData } from '../utils/ws';
@@ -179,7 +179,32 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
                         whereParams[Op.or] = managerConditions;
                     }
                 }
-            } else {
+            } else if (fieldName === 'builder') {
+                const isExternalManager = value.includes('Менеджер: Внешний подрядчик');
+            
+                if (isExclusion) {
+                    if (isExternalManager) {
+                        // Исключаем все заявки, где есть внешний подрядчик
+                        whereParams[Op.and] = [
+                            { '$ExtContractor.name$': { [Op.is]: null } },
+                            { builder: { [Op.notIn]: value.filter((v: any) => v !== 'Менеджер: Внешний подрядчик') } },
+                        ];
+                    } else {
+                        whereParams[fieldName] = { [Op.notIn]: value };
+                    }
+                } else {
+                    if (isExternalManager) {
+                        // Включаем те, где есть внешний подрядчик ИЛИ builder совпадает
+                        whereParams[Op.or] = [
+                            { '$ExtContractor.name$': { [Op.not]: null } },
+                            { builder: { [Op.in]: value } },
+                        ];
+                    } else {
+                        whereParams[fieldName] = { [Op.in]: value };
+                    }
+                }
+            }
+            else {
                 whereParams[fieldName] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
             }
         });
@@ -1193,5 +1218,4 @@ export default {
     copyRequest,
     changeUrgency,
     setManager,
-
 };
