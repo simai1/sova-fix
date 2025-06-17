@@ -517,7 +517,7 @@ function Table() {
     } 
     // В остальных случаях
     else {
-      return "Не назначен";
+      return "Укажите подрядчика";
     }
   };
 
@@ -1140,6 +1140,9 @@ function Table() {
                             tableBodyData={context.dataApointment}
                             punkts={[
                               ...context.dataApointment.flatMap((it) => {
+                                if (item.key === "contractor" && it[item.key] === "___" && it["contractorManager"] === null && it['extContractor'] === null) {
+                                  return "Укажите подрядчика"
+                                }
                                 if (item.key === "contractor" && it[item.key] === "___" && it["contractorManager"] === "Внешний подрядчик" && it['extContractor'] !== null) {
                                   return it["contractorManager"]
                                 }
