@@ -1,8 +1,9 @@
 from data.const import statuses_ru_with_emoji
 from util import logger
+from util.crm import get_status_name
 
 
-def repair_request_text(repair_request: dict) -> str:
+async def repair_request_text(repair_request: dict) -> str:
     """
     Форматирует текст заявки для отображения с HTML разметкой
     
@@ -24,6 +25,7 @@ def repair_request_text(repair_request: dict) -> str:
         executor = repair_request.get('builder', 'Менеджер')
     
     status = repair_request.get('status')
+    status_name = await get_status_name(status)
     if isinstance(status, str):
         try:
             status = int(status)
@@ -47,7 +49,7 @@ def repair_request_text(repair_request: dict) -> str:
 
 <b>Плановая дата выполнения:</b> {f"<u>{repair_request.get('planCompleteDate')}</u>" if repair_request.get('planCompleteDate') else "<i>не указано</i>"}
 
-<b>▶️Статус заявки</b>: {statuses_ru_with_emoji.get(status, f"Статус {status}")}
+<b>▶️Статус заявки</b>: { f"{status_name}"}
 {("<b>💰Цена ремонта: </b>" + str(repair_request.get('repairPrice')) + "\n") if repair_request.get('repairPrice') is not None else ""}
 <b>❗️Срочность</b>: <i>{repair_request.get('urgency', 'Не указана')}</i>
 <b>💬Комментарии</b>:
