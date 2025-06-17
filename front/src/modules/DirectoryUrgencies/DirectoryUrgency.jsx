@@ -27,11 +27,20 @@ function DirectoryUrgency(props) {
     const [validationError, setValidationError] = useState(false);
     const [isError, setIsError] = useState(false);
     const [errorText, setErrorText] = useState("");
-    const [errorHeader, setErrorHeader] = useState("")
+    const [errorHeader, setErrorHeader] = useState("");
     const [isHiding, setIsHiding] = useState(false);
     const [isDeleteButtonDisabled, setIsDeleteButtonDisabled] = useState(false);
     const { context } = useContext(DataContext);
     const dispatch = useDispatch();
+
+    const closeErrorPopUpFun = (header, text) => {
+        setErrorHeader(header);
+        setErrorText(text);
+        setIsError(true);
+        setTimeout(() => {
+            handleClose();
+        }, 4000);
+    };
 
     const getData = () => {
         GetAllUrgensies().then((response) => {
@@ -65,14 +74,11 @@ function DirectoryUrgency(props) {
                 context?.UpdateUrgency();
                 closePopUp();
             } else {
-                const currentUrgency = tableBodyUrgency.find(urgency => urgency.id === context?.selectRowDirectory)
+                const currentUrgency = tableBodyUrgency.find(
+                    (urgency) => urgency.id === context?.selectRowDirectory
+                );
                 closePopUp();
-                setIsError(true);
-                setErrorHeader(`Срочность "${currentUrgency.name}" не может быть удалена ❌`)
-                setErrorText(`Срочность "${currentUrgency.name}" не может быть удалена, есть связанные заявки.`);
-                setTimeout(() => {
-                    handleClose();
-                }, 4000);
+                closeErrorPopUpFun(`Срочность "${currentUrgency.name}" не может быть удалена ❌`, `Срочность "${currentUrgency.name}" не может быть удалена, есть связанные заявки.` )
             }
         });
     };
@@ -121,18 +127,11 @@ function DirectoryUrgency(props) {
                     });
                 } else {
                     closePopUp();
-                    setErrorHeader("Ошибка редактирования ❌")
-                    setErrorText(
-                        "Срочность «Маршрут» не может быть изменена или удалена"
-                    );
-                    setIsError(true);
-                    setTimeout(() => {
-                        handleClose();
-                    }, 4000);
+                    closeErrorPopUpFun("Ошибка редактирования ❌", "Срочность «Маршрут» не может быть изменена или удалена")
                 }
             });
         }
-        if (!name) setValidationError(true);
+        if (!name) closeErrorPopUpFun('Ошибка', 'Заполните все обязательные поля!');
         if (color === "") setColor("#000");
         const createUrgencyData = { name, color };
         CreateUrgency(createUrgencyData).then((response) => {
@@ -155,7 +154,7 @@ function DirectoryUrgency(props) {
         setIsHiding(true);
         setTimeout(() => {
             setErrorText("");
-            setErrorHeader("")
+            setErrorHeader("");
             setIsError(false);
             setIsHiding(false);
         }, 400);
@@ -223,9 +222,6 @@ function DirectoryUrgency(props) {
                     closePopUpFunc={closePopUp}
                 >
                     <div classNmae={styles.PopUpContainerDiv}>
-                        {validationError && (
-                            <p>Заполните все обязательные поля!</p>
-                        )}
                         <input
                             value={popUpEditUrgency ? name : name}
                             placeholder="Введите название"

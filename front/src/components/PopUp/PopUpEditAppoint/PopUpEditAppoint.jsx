@@ -44,15 +44,6 @@ function PopUpEditAppoint(props) {
     { id: 5, name: "Выезд без выполнения" },
   ];
 
-  const DataUrgency = [
-    { id: 1, name: "В течении часа" },
-    { id: 2, name: "В течении текущего дня" },
-    { id: 3, name: "В течении 3-х дней" },
-    { id: 4, name: "В течении недели" },
-    { id: 5, name: "Маршрут" },
-    { id: 6, name: "Выполнено" },
-  ];
-
   const updGetData = (id) => {
     GetOneRequests(id).then((response) => {
       if (response?.status === 200) {
@@ -122,7 +113,7 @@ function PopUpEditAppoint(props) {
   const handleListData = (name, value) => {
     if(name === "urgency") {
       const urgency = context?.urgencyList?.find(item => item.name === value)
-      return setdataApointment((prevState) => ({ ...prevState, urgencyId: urgency?.id }));
+      return setdataApointment((prevState) => ({ ...prevState, urgencyId: urgency?.id, urgency: urgency?.name }));
     }
     
     if(name === "status") {
@@ -135,10 +126,6 @@ function PopUpEditAppoint(props) {
     const objectItem = dataObject.find((item) => item.id === id);
     return objectItem ? objectItem.name : id;
   };
-  const getUrgencyNameById = (id) => {
-    const urgencyItem = DataUrgency.find((item) => item.id === id);
-    return urgencyItem ? urgencyItem.name : id;
-  };
 
    //!При обновлении обновляет только 1 запись 
    const UpdateRequest = (updatedRequest) => {
@@ -150,10 +137,9 @@ function PopUpEditAppoint(props) {
   };
 
   const EditAppoint = () => {
-    const urgencyName = getUrgencyNameById(dataApointment.urgency);
     const newplanCompleteDate = new Date(dataApointment.planCompleteDate);
 
-    const updatedDataApointment = { ...dataApointment, urgency: urgencyName, planCompleteDate: newplanCompleteDate };
+    const updatedDataApointment = { ...dataApointment, planCompleteDate: newplanCompleteDate };
     ReseachDataRequest(selectId, updatedDataApointment).then((resp) => {
       if(resp?.status === 200){
         GetOneRequests(selectId).then((resp) => {
