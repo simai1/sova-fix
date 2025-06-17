@@ -63,7 +63,7 @@ function SamplePoints(props) {
             const rawValue = isContractorEmpty ? el.contractorManager : el[props.itemKey];
             return typeof rawValue === 'object' && rawValue !== null ? rawValue.name : rawValue;
           })(),
-        };к
+        };
       });
 
       if (props.itemKey === 'contractor') {
