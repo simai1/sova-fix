@@ -20,13 +20,10 @@ import PopUpContainer from "../../UI/PopUpContainer/PopUpContainer";
 const DirectoryStatuses = () => {
     const [tableBodyStatuses, setTableBodyStatuses] = useState([]);
     const [popUpCreateStatuses, setPopUpCreateStatuses] = useState(false);
-    const [validationError, setValidationError] = useState(false);
     const [popUpEditStatus, setPopUpEditStatus] = useState(false);
     const [deletedModalOpen, setDeletedModalOpen] = useState(false);
     const [isError, setIsError] = useState(false);
     const [isHiding, setIsHiding] = useState(false);
-    const [popUpCreateUrgency, setPopUpCreateUrgency] = useState(false);
-    const [popUpEditUrgency, setPopUpEditUrgency] = useState(false);
 
     const [errorHeader, setErrorHeader] = useState("");
 
@@ -38,6 +35,15 @@ const DirectoryStatuses = () => {
     const { context } = useContext(DataContext);
 
     const [isDeleteButtonDisabled, setIsDeleteButtonDisabled] = useState(false);
+
+    const closePopErrorFun = (header, text) => {
+        setErrorHeader(header);
+        setErrorText(text);
+        setIsError(true);
+        setTimeout(() => {
+            handleClose();
+        }, 4000);
+    };
 
     const getData = () => {
         GetAllStatuses().then((response) => {
@@ -102,19 +108,18 @@ const DirectoryStatuses = () => {
                     });
                 } else {
                     closePopUp();
-                    setErrorHeader("Ошибка редактирования ❌");
-                    setErrorText(
+
+                    closePopErrorFun(
+                        "Ошибка редактирования ❌",
                         `Статус "${prev.name}" не может быть изменен или удален`
                     );
-                    setIsError(true);
-                    setTimeout(() => {
-                        handleClose();
-                    }, 4000);
                 }
             });
         }
 
-        if (!name) setValidationError(true);
+        if (!name) {
+            closePopErrorFun("Ошибка", "Заполните все обязательные поля!");
+        }
         if (color === "") setColor("#000");
         const createStatusData = { name, color };
 
@@ -136,16 +141,10 @@ const DirectoryStatuses = () => {
                     (status) => status.id === context?.selectRowDirectory
                 );
                 closePopUp();
-                setIsError(true);
-                setErrorHeader(
-                    `Срочность "${currenStatus.name}" не может быть удалена ❌`
-                );
-                setErrorText(
+                closePopErrorFun(
+                    `Срочность "${currenStatus.name}" не может быть удалена ❌`,
                     `Срочность "${currenStatus.name}" не может быть удалена, есть связанные заявки.`
                 );
-                setTimeout(() => {
-                    handleClose();
-                }, 4000);
             }
         });
     };
@@ -164,7 +163,6 @@ const DirectoryStatuses = () => {
         setPopUpCreateStatuses(false);
         setPopUpEditStatus(false);
         setDeletedModalOpen(false);
-        setValidationError(false);
         setName("");
         setColor("");
     };
@@ -240,9 +238,6 @@ const DirectoryStatuses = () => {
                     closePopUpFunc={closePopUp}
                 >
                     <div classNmae={styles.PopUpContainerDiv}>
-                        {validationError && (
-                            <p>Заполните все обязательные поля!</p>
-                        )}
                         <input
                             value={popUpEditStatus ? name : name}
                             placeholder="Введите название"
