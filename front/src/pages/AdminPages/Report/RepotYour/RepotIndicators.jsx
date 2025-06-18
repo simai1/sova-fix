@@ -315,6 +315,7 @@ function RepotIndicators() {
               <div>
                 <UniversalDashbordSrochn
                   dataDashbord={filterRequestsWithoutCopiedId(filterBasickData(tableDataIndicatorsSort, store))}
+                  urgencyList={context?.urgencyList}
                 />
               </div>
             </div>

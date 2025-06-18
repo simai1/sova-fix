@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import DataContext from "../../context";
 import styles from "./UniversalTable.module.scss";
-import { ReseachDataRequest, SetRole } from "../../API/API";
+import { GetAllStatuses, ReseachDataRequest, SetRole } from "../../API/API";
 import { useDispatch, useSelector } from "react-redux";
 import SamplePoints from "./../../components/SamplePoints/SamplePoints";
 import FilteImg from "./../../assets/images/filterColumn.svg";
@@ -121,6 +121,19 @@ function UniversalTable(props) {
   }
 }
 
+  useEffect(() => {
+    GetAllStatuses().then(response => {
+          if (response?.status === 200) {
+            context?.setStatusList(response.data)
+          }
+        })
+  }, [])
+
+  const getStatusValue = (statusNumber) => {
+    const statusFromDb = context?.statusList.find(status => status.number === statusNumber)
+    return statusFromDb;
+  }
+
   const getValue = (value, key, index, row) => {
     switch (key) {
       case "contractor":
@@ -195,6 +208,14 @@ function UniversalTable(props) {
             <div className={styles.ColorBlock} style={{backgroundColor: value}}></div>
             <p>Код цвета: {value}</p>
           </div> 
+        )
+
+      case "status":
+        const statusFromDb = getStatusValue(value)
+        return (
+          <div>
+            {statusFromDb?.name}
+          </div>
         )
       default:
         return value ?? "___";

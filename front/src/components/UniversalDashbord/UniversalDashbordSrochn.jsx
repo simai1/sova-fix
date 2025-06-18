@@ -5,12 +5,15 @@ function UniversalDashbordSrochn(props) {
   useEffect(() => {
     var chartDom = document.getElementById('UniversalDashbordSrochn');
     var myChart = echarts.init(chartDom);
-    var datas = [
-      { value: 0, name: 'В течение недели' },
-      { value: 0, name: 'В течение 3-х дней' },
-      { value: 0, name: 'В течение текущего дня' },
-      { value: 0, name: 'Маршрут' },
-    ];
+
+    var datas = []
+    var colors = []
+
+    props?.urgencyList.map(urgency => {
+      datas?.push({value: 0, name: urgency?.name})
+      colors?.push(urgency?.color)
+    })
+
 
     props?.dataDashbord.forEach((el) => {
       const index = datas.findIndex(item => item.name === el.urgency);
@@ -54,7 +57,8 @@ function UniversalDashbordSrochn(props) {
           }
         }
       ],
-      color: ['#d69a81', '#ffe78f', '#C5E384', '#B7AB9E'] // Custom colors
+      // color: ['#d69a81', '#ffe78f', '#C5E384', '#B7AB9E'] // Custom colors
+      color: colors
     };
    
     option && myChart.setOption(option);
