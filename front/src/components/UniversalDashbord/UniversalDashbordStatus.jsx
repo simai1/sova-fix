@@ -6,15 +6,15 @@ function UniversalDashboardStatus(props) {
     var chartDom = document.getElementById('UniversalDashboardStatus');
     var myChart = echarts.init(chartDom);
     var datas = [
-      { value: 0, name: 'Новая заявка' },
-      { value: 0, name: 'В работе' },
-      { value: 0, name: 'Выполнена' },
-      { value: 0, name: 'Неактуальна' },
+      { value: 0, name: 'Новая заявка', number: 1 },
+      { value: 0, name: 'В работе', number: 2 },
+      { value: 0, name: 'Выполнена', number: 3 },
+      { value: 0, name: 'Неактуальна', number: 4 },
     ];
 
     // Update data values based on props.dataDashbord
     props?.dataDashbord.forEach((el) => {
-      const index = datas.findIndex(item => item.name === el.status);
+      const index = datas.findIndex(item => item.number === el.status);
       if (index !== -1) {
         datas[index].value += 1;
       }
