@@ -5,12 +5,13 @@ function UniversalDashboardStatus(props) {
   useEffect(() => {
     var chartDom = document.getElementById('UniversalDashboardStatus');
     var myChart = echarts.init(chartDom);
-    var datas = [
-      { value: 0, name: 'Новая заявка', number: 1 },
-      { value: 0, name: 'В работе', number: 2 },
-      { value: 0, name: 'Выполнена', number: 3 },
-      { value: 0, name: 'Неактуальна', number: 4 },
-    ];
+    var datas = []
+    var colors = []
+
+    props?.statusList?.map(status => {
+      datas.push({value: 0, number: status.number, name: status.name})
+      colors.push(status?.color)
+    })
 
     // Update data values based on props.dataDashbord
     props?.dataDashbord.forEach((el) => {
@@ -54,7 +55,7 @@ function UniversalDashboardStatus(props) {
           }
         }
       ],
-      color: ['#d69a81', '#ffe78f', '#C5E384', '#B7AB9E'] // Custom colors
+      color: colors  // Custom colors
     };
    
     option && myChart.setOption(option);
