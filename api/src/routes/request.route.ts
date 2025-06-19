@@ -69,7 +69,7 @@ const requestUpdateSchema = Joi.object({
         builder: Joi.string().optional(),
         planCompleteDate: Joi.date().optional().allow(null),
         managerTgId: Joi.string().optional(),
-        urgencyId: Joi.string().optional(),
+        urgencyId: Joi.string().optional().allow(null),
     }).unknown(true),
     params: Joi.object({
         requestId: Joi.string().required(),
