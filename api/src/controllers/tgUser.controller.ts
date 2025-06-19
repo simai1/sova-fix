@@ -18,12 +18,14 @@ const create = catchAsync(async (req, res) => {
 
 const syncManager = catchAsync(async (req, res) => {
     const { email, password, name, tgId, linkId } = req.body;
+    console.log('DEBUG BODY', email, password, name, tgId, linkId)
     if (!email) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing email');
     if (!password) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing password');
     if (!name) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing name');
     if (!tgId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing tgId');
     // if (!linkId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing linkId');
     const user = await tgUserService.syncManagerToTgUser(email, password, name, tgId, linkId);
+    console.log('DEBUG USER', user)
     res.json(user);
 });
 
