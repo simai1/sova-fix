@@ -25,6 +25,7 @@ function PopUpEditAppoint(props) {
     contractorId: "",
     builder: "",
     status: "",
+    statusId: "",
     // unit:"",
     objectId: "",
     objectName: "",
@@ -36,13 +37,6 @@ function PopUpEditAppoint(props) {
     urgencyId: ""
   });
   const [selectId, setSelectId] = useState(null);
-  const DataStatus = [
-    { id: 1, name: "Новая заявка" },
-    { id: 2, name: "В работе" },
-    { id: 3, name: "Выполнена" },
-    { id: 4, name: "Неактуальна" },
-    { id: 5, name: "Выезд без выполнения" },
-  ];
 
   const updGetData = (id) => {
     GetOneRequests(id).then((response) => {
@@ -83,6 +77,7 @@ function PopUpEditAppoint(props) {
         contractorId: dataApStart?.contractor?.id,
         builder: dataApStart?.builder,
         status: getStatusValue(dataApStart?.status).number,
+        statusId: dataApStart?.statusId,
         planCompleteDate:  DateplanCompleteDate,
         unit: dataApStart?.unit,
         objectId: dataApStart?.objectId,

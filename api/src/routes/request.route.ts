@@ -66,6 +66,7 @@ const requestUpdateSchema = Joi.object({
         itineraryOrder: Joi.number().optional(),
         contractorId: Joi.string().optional(),
         status: Joi.number().optional(),
+        statusId: Joi.string().optional().allow(null), 
         builder: Joi.string().optional(),
         planCompleteDate: Joi.date().optional().allow(null),
         managerTgId: Joi.string().optional(),
