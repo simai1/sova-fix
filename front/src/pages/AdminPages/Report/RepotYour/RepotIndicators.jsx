@@ -310,6 +310,7 @@ function RepotIndicators() {
               <div>
                 <UniversalDashboardStatus
                   dataDashbord={filterRequestsWithoutCopiedId(filterBasickData(tableDataIndicatorsSort, store))}
+                  statusList={context?.statusList}
                 />
               </div>
               <div>
