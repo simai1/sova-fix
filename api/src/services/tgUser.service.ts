@@ -45,13 +45,11 @@ const syncManagerToTgUser = async (
     linkId: string | undefined
 ): Promise<TgUserDto> => {
     const user = await userService.getUserByEmail(email);
-    console.log('DEBUG USER SERVICE', user)
     if (!user || !(await isMatch(password, user.password)))
         throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid login data');
     const tgUser = await TgUser.create({ name, role: 2, isConfirmed: true, tgId, linkId });
     await user.update({ isTgUser: true, tgManagerId: tgUser.id });
     tgUser.User = user;
-    console.log('TGUSER DEBUG', tgUser)
     await tgUser.save();
     return new TgUserDto(tgUser);
 };

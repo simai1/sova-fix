@@ -566,7 +566,6 @@ async def sync_manager(email: str, password: str, name: str, tg_id: int, usernam
         
         if request.status_code == 200:
             logger.info(f'Successfully synced manager with tgId={tg_id}')
-            print(request.json())
             return request.json()
         else:
             logger.error(f'API: could not sync manager with tgId={tg_id}, status={request.status_code}, response={request.text}')

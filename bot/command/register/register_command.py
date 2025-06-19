@@ -107,8 +107,6 @@ async def finish_registration_admin(message: Message, state: FSMContext) -> None
 
     admin = await crm.sync_manager(data['login'], data['password'], data['name'], user_id, username)
 
-    print(data['login'], data['password'], data['name'], user_id, username)
-
     if admin is None:
         await message.answer('Неверные логин или пароль', reply_markup=to_start_kb())
         return
