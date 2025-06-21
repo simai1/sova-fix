@@ -1,4 +1,5 @@
 import { models } from './index';
+import PasswordResetToken from './passwordResetTokens';
 import Status from './status';
 import Urgency from './urgency';
 
@@ -97,4 +98,7 @@ export default function () {
 
     Status.hasMany(RepairRequest, {foreignKey: 'statusId'});
     RepairRequest.belongsTo(Status, { foreignKey: 'statusId' });
+
+    User.hasMany(PasswordResetToken, {foreignKey: 'userId'})
+    PasswordResetToken.belongsTo(User, {foreignKey: 'userId'})
 }

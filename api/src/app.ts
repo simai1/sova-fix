@@ -22,6 +22,7 @@ import nomenclatureRoute from './routes/nomenclature.route';
 import testRoute from './routes/test.route';
 import urgencyRouter from './routes/urgency.route'
 import statusRouter from './routes/status.route'
+import passwordResetTokens from './routes/passwordResetTokens.route'
 
 
 import logger from './utils/logger';
@@ -70,6 +71,7 @@ app.use('/test', testRoute);
 app.use('/raw', rawRoute);
 app.use('/urgency', urgencyRouter)
 app.use('/status', statusRouter)
+app.use('/reset-password-tokens', passwordResetTokens)
 
 // websocket section
 app.ws('/', () => {

@@ -54,6 +54,14 @@
          }
       }
 
+      .resetPassword {
+        color: #000;
+        margin: 10px 0;
+        &:hover{
+          color: var(--ActiveText-color)
+        }
+      }
+
       .button {
         @include button(var(--turquoise-color));
         width: 200px!important;

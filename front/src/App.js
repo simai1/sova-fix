@@ -28,6 +28,8 @@ import PageCardContractors from "./pages/AdminPages/PageCardContractors/PageCard
 import TgUserObjects from "./pages/AdminPages/Directory/TgUserObjects";
 import DirectoryUrgency from "./modules/DirectoryUrgencies/DirectoryUrgency";
 import DirectoryStatuses from "./modules/DirectoryStatuses/DirectoryStatuses";
+import RequestPasswordRequest from "./pages/Login/ResetPasswordRequest/RequestPasswordRequest";
+import ResetPassword from "./pages/Login/ResetPassword/ResetPassword";
 
 function App() {
   const [selectContructor, setSelectContractor] = useState("")
@@ -382,6 +384,8 @@ const UpdateStatus = () => {
             <Route path="/" element={<HomePageAdmin />}></Route>
             <Route path="/Activate" element={<Activate />}></Route>
             <Route path="/Authorization" element={<Authorization />}></Route>
+            <Route path="/reset-password-request" element={<RequestPasswordRequest/>}></Route>
+            <Route path="/reset-password" element={<ResetPassword/>}></Route>
             <Route path="/ReportFinansing" element={<ReportFinansing />}></Route>
             <Route path="/RepotYour" element={<RepotYour />}></Route>
             

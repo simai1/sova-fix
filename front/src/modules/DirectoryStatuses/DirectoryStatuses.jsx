@@ -16,6 +16,7 @@ import DataContext from "../../context";
 import UneversalDelete from "../../components/UneversalDelete/UneversalDelete";
 import { PopUpError } from "../../UI/PopUpError/PopUpError";
 import PopUpContainer from "../../UI/PopUpContainer/PopUpContainer";
+import NotificationError from "../../components/Notification/NotificationError/NotificationError";
 
 const DirectoryStatuses = () => {
     const [tableBodyStatuses, setTableBodyStatuses] = useState([]);
@@ -313,25 +314,12 @@ const DirectoryStatuses = () => {
 
             {context?.popUp === "PopUpError" && <PopUpError />}
             {isError && (
-                <div
-                    className={`${styles.ErrorStatus} ${
-                        isHiding ? styles.hide : ""
-                    }`}
-                >
-                    <div className={styles.content}>
-                        <div
-                            onClick={() => handleClose()}
-                            className={styles.closeButton}
-                        >
-                            X
-                        </div>
-                        <div className={styles.contentBox}>
-                            <p className={styles.errorHeader}>{errorHeader}</p>
-                            <p className={styles.errorText}>{errorText}</p>
-                            <div className={styles.progressBar}></div>
-                        </div>
-                    </div>
-                </div>
+               <NotificationError
+                    handleClose={handleClose}
+                    errorHeader={errorHeader}
+                    errorText={errorText}
+                    isHiding={isHiding}
+                />
             )}
         </div>
     );
