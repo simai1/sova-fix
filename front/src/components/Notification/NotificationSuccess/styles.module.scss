@@ -1,0 +1,87 @@
+.SuccessStatus {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--Light-green-color);
+    // background-color: var(--Red-color);
+    color: var(--Dark-green-color);
+    max-width: 320px;
+    width: 90%;
+    padding: 16px 20px 12px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 9999;
+    animation: slideDown 0.5s ease-out forwards;
+
+    .content {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .successText {
+        margin: 0;
+        margin-right: 20px;
+        font-size: 14px;
+        line-height: 1.4;
+    }
+
+    .closeButton {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-weight: bold;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    .progressBar {
+        height: 4px;
+        background-color: var(--Bright-green-color);
+        border-radius: 4px;
+        animation: progressFade 4s linear forwards;
+        margin-top: 8px;
+    }
+
+    .contentBox {
+        padding-right: 40px;
+    }
+
+    &.hide {
+        animation: slideUp 0.5s ease-in forwards;
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -30px);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+    to {
+        opacity: 0;
+        transform: translate(-50%, -30px);
+    }
+}
+
+@keyframes progressFade {
+    from {
+        width: 100%;
+    }
+    to {
+        width: 0%;
+    }
+}
+

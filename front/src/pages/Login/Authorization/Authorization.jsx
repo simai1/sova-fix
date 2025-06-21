@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styles from "./Authorization.module.scss";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import DataContext from "../../../context";
 import { tableHeadAppoint } from "../../../components/Table/Data";
 import { LoginFunc } from "../../../API/API";
@@ -102,6 +102,7 @@ function Authorization() {
               onChange={handleInputChange}
               style={{ borderColor: errors.password ? "red" : "" }}
             />
+            <Link to={'/reset-password-request'} className={styles.resetPassword}>Забыли пароль?</Link>
             <button className={styles.button} onClick={handleLogin}>
               Войти
             </button>

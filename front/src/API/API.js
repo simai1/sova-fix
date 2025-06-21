@@ -1540,3 +1540,36 @@ export const ChangeStatus = async (data) => {
     }
   }
 };
+
+export const SendRequestToResetPassword = async (email) => {
+  try {
+    const response = await http.post(`${server}/reset-password-tokens`, { email });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при получении карты пользователя!");
+    }
+  }
+} 
+
+export const ResetPasswordByToken = async (tokenId, token, newPassword) => {
+  try {
+    const response = await http.post(
+      `${server}/reset-password-tokens/${tokenId}`,
+      {
+        token,
+        newPassword,
+      }
+    );
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.error("Ошибка при сбросе пароля!", error);
+      throw error;
+    }
+  }
+};

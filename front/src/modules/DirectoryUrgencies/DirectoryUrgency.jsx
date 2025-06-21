@@ -16,6 +16,7 @@ import DataContext from "../../context";
 import PopUpContainer from "../../UI/PopUpContainer/PopUpContainer";
 import UneversalDelete from "../../components/UneversalDelete/UneversalDelete";
 import { PopUpError } from "../../UI/PopUpError/PopUpError";
+import NotificationError from "../../components/Notification/NotificationError/NotificationError";
 
 function DirectoryUrgency(props) {
     const [tableBodyUrgency, setTableBodyUrgency] = useState([]);
@@ -78,7 +79,10 @@ function DirectoryUrgency(props) {
                     (urgency) => urgency.id === context?.selectRowDirectory
                 );
                 closePopUp();
-                closeErrorPopUpFun(`Срочность "${currentUrgency.name}" не может быть удалена ❌`, `Срочность "${currentUrgency.name}" не может быть удалена, есть связанные заявки.` )
+                closeErrorPopUpFun(
+                    `Срочность "${currentUrgency.name}" не может быть удалена ❌`,
+                    `Срочность "${currentUrgency.name}" не может быть удалена, есть связанные заявки.`
+                );
             }
         });
     };
@@ -127,11 +131,15 @@ function DirectoryUrgency(props) {
                     });
                 } else {
                     closePopUp();
-                    closeErrorPopUpFun("Ошибка редактирования ❌", "Срочность «Маршрут» не может быть изменена или удалена")
+                    closeErrorPopUpFun(
+                        "Ошибка редактирования ❌",
+                        "Срочность «Маршрут» не может быть изменена или удалена"
+                    );
                 }
             });
         }
-        if (!name) closeErrorPopUpFun('Ошибка', 'Заполните все обязательные поля!');
+        if (!name)
+            closeErrorPopUpFun("Ошибка", "Заполните все обязательные поля!");
         if (color === "") setColor("#000");
         const createUrgencyData = { name, color };
         CreateUrgency(createUrgencyData).then((response) => {
@@ -297,25 +305,12 @@ function DirectoryUrgency(props) {
 
             {context.popUp === "PopUpError" && <PopUpError />}
             {isError && (
-                <div
-                    className={`${styles.ErrorUrgency} ${
-                        isHiding ? styles.hide : ""
-                    }`}
-                >
-                    <div className={styles.content}>
-                        <div
-                            onClick={() => handleClose()}
-                            className={styles.closeButton}
-                        >
-                            X
-                        </div>
-                        <div className={styles.contentBox}>
-                            <p className={styles.errorHeader}>{errorHeader}</p>
-                            <p className={styles.errorText}>{errorText}</p>
-                            <div className={styles.progressBar}></div>
-                        </div>
-                    </div>
-                </div>
+                <NotificationError
+                    errorText={errorText}
+                    errorHeader={errorHeader}
+                    handleClose={handleClose}
+                    isHiding={isHiding}
+                />
             )}
         </div>
     );

@@ -115,6 +115,18 @@ const getUserByTgId = async(tgId: string) => {
     return new UserDto(user);
 }
 
+const updateUserPassword = async (userId: string, newHashedPassword: string) => {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Пользователь не найден');
+    }
+
+    user.password = newHashedPassword;
+    await user.save();
+
+    return new UserDto(user);
+  };
+
 export default {
     getUserById,
     getUserByEmail,
@@ -126,4 +138,5 @@ export default {
     deleteDirUser,
     confirmTgUser,
     getUserByTgId,
+    updateUserPassword,
 };
