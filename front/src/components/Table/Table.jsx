@@ -1137,6 +1137,7 @@ function Table() {
                             tableBodyData={context.dataApointment}
                             punkts={[
                               ...context.dataApointment.flatMap((it) => {
+                                // все что касается фильтра по исполнителю на фронте написано коряво. ПЕРЕДЕЛАТЬ при возможности.
                                 if (item.key === "contractor" && it[item.key] === "___" && it["contractorManager"] === null && it['extContractor'] === null) {
                                   return "Укажите подрядчика"
                                 }
@@ -1147,6 +1148,8 @@ function Table() {
                                   return it[item.key].name;
                                 } else if (item.key === "contractor" && it[item.key] === "___" && it["contractorManager"] !== 'Укажите подрядчика' && it["contractorManager"] !== 'Внешний подрядчик') {
                                   return [it["contractorManager"]]
+                                } else if (item.key === 'status') {
+                                  return context?.statusList?.find(statusItem => statusItem?.number === it[item.key])?.name
                                 }
                                 return [it[item.key]];
                               }).map((val) => (val === null ? "___" : val)),

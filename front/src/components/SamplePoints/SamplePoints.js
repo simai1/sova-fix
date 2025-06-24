@@ -46,30 +46,39 @@ function SamplePoints(props) {
   const funLiCkickAll = () => {
     if (store?.find((elem) => elem.itemKey === props.itemKey)) {
       const checked = store.filter((elem) => elem.itemKey !== props.itemKey);
-      dispatch(setChecked({ tableName: props.tableName, checked: checked }));
+      dispatch(setChecked({ tableName: props.tableName, checked }));
       dispatch(dropFilters({ tableName: props.tableName }));
     } else {
       const bd = [...props.tableBodyData].map((el) => {
         const isContractorEmpty = props.itemKey === 'contractor' && el.contractor === '___';
-        if(isContractorEmpty && (el.contractorManager === 'Внешний подрядчик' || el.contractorManager === 'Укажите подрядчика')) {
+  
+        if (isContractorEmpty && (el.contractorManager === 'Внешний подрядчик' || el.contractorManager === 'Укажите подрядчика')) {
           return {
             itemKey: null,
             value: null
-          }
+          };
         }
+  
+        let rawValue = isContractorEmpty ? el.contractorManager : el[props.itemKey];
+  
+        if (props.itemKey === 'status') {
+          const statusObj = context?.statusList?.find((status) => status.number === rawValue);
+          rawValue = statusObj ? statusObj.name : rawValue;
+        } else if (typeof rawValue === 'object' && rawValue !== null) {
+          rawValue = rawValue.name;
+        }
+  
         return {
           itemKey: props.itemKey,
-          value: (() => {
-            const rawValue = isContractorEmpty ? el.contractorManager : el[props.itemKey];
-            return typeof rawValue === 'object' && rawValue !== null ? rawValue.name : rawValue;
-          })(),
+          value: rawValue
         };
       });
-
+  
       if (props.itemKey === 'contractor') {
-        bd.push({itemKey: props.itemKey, value: "Внешний подрядчик"})
-        bd.push({itemKey: props.itemKey, value: "Укажите подрядчика"})
+        bd.push({ itemKey: props.itemKey, value: "Внешний подрядчик" });
+        bd.push({ itemKey: props.itemKey, value: "Укажите подрядчика" });
       }
+  
       dispatch(
         setChecked({
           tableName: props.tableName,
@@ -78,6 +87,7 @@ function SamplePoints(props) {
       );
     }
   };
+  
 
   const getChecked = (el) => {
     

@@ -26,6 +26,7 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
     try {
         let requests;
         const whereParams: any = {};
+        const allStatuses = await Status.findAll();
         
         if (userId) {
             let objectIdsForUser: string[] | null = null;
@@ -130,14 +131,16 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
             } else if (fieldName === 'unit') {
                 whereParams['$Unit.name$'] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
             } else if (fieldName === 'status') {
+                const statusMap = Object.fromEntries(
+                    allStatuses.map((s) => [s.name.toLowerCase().trim(), s.number])
+                );
                 value = value.map((v: any) => {
-                    // Handle both numeric and string status values
-                    if (typeof v === 'number' || !isNaN(Number(v))) {
-                        return Number(v);
-                    }
-                    // @ts-expect-error any type
-                    return Number(mapStatusesRuLocale[v.trim()]);
-                });
+                    if (!isNaN(Number(v))) return Number(v);
+            
+                    const mapped = statusMap[v.toLowerCase().trim()];
+                    if (!mapped) throw new Error(`Неизвестный статус: ${v}`);
+                    return mapped;
+                  });
                 whereParams[fieldName] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
             } else if (fieldName === 'checkPhoto') {
                 whereParams[fieldName] = value.includes(null)
