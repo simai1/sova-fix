@@ -195,16 +195,28 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
                     const andConditions: any[] = [];
                   
                     if (isExternalManager) {
-                      console.log('===========', 'tut 1');
-                      andConditions.push(
-                        { '$ExtContractor.name$': { [Op.is]: null } },
-                        {
-                          builder: {
-                            [Op.notIn]: value.filter((v: string) => v !== 'Менеджер: Внешний подрядчик'),
+                        andConditions.push(
+                          // Убираем, если ExtContractor.name = null
+                          { '$ExtContractor.name$': { [Op.is]: null } },
+                          
+                          // Убираем заявки, где и Contractor.name, и ExtContractor.name пустые
+                          {
+                            [Op.not]: {
+                              [Op.and]: [
+                                { '$Contractor.name$': { [Op.is]: null } },
+                                { '$ExtContractor.name$': { [Op.is]: null } },
+                              ],
+                            },
                           },
-                        }
-                      );
-                    }
+                      
+                          // Убираем builder, кроме "Менеджер: Внешний подрядчик"
+                          {
+                            builder: {
+                              [Op.notIn]: value.filter((v: string) => v !== 'Менеджер: Внешний подрядчик'),
+                            },
+                          }
+                        );
+                      }
                   
                     if (hasUnknownBuilder) {
                       andConditions.push(
