@@ -183,31 +183,106 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
                         whereParams[Op.or] = managerConditions;
                     }
                 }
+                // Фильтрация по этой проверке написана не очень хорошо. Возникло из-за того, что в фильтре
+                // по исполнителю необходимо было фильтровать сразу несколько полей
+                // Желательно провести миграцию БД, чтобы все заявки имели общие паттерны поля contractorManager, builder,
+                // так как сейчас написано на костылях
             } else if (fieldName === 'builder') {
                 const isExternalManager = value.includes('Менеджер: Внешний подрядчик');
+                const hasUnknownBuilder = value.includes('Укажите подрядчика');
             
                 if (isExclusion) {
+                    const andConditions: any[] = [];
+                  
                     if (isExternalManager) {
-                        // Исключаем все заявки, где есть внешний подрядчик
-                        whereParams[Op.and] = [
-                            { '$ExtContractor.name$': { [Op.is]: null } },
-                            { builder: { [Op.notIn]: value.filter((v: any) => v !== 'Менеджер: Внешний подрядчик') } },
-                        ];
-                    } else {
-                        whereParams[fieldName] = { [Op.notIn]: value };
+                      console.log('===========', 'tut 1');
+                      andConditions.push(
+                        { '$ExtContractor.name$': { [Op.is]: null } },
+                        {
+                          builder: {
+                            [Op.notIn]: value.filter((v: string) => v !== 'Менеджер: Внешний подрядчик'),
+                          },
+                        }
+                      );
                     }
-                } else {
+                  
+                    if (hasUnknownBuilder) {
+                      andConditions.push(
+                        {
+                          builder: {
+                            [Op.notIn]: value,
+                          },
+                        },
+                        {
+                          [Op.not]: {
+                            [Op.and]: [
+                              {
+                                builder: {
+                                  [Op.in]: ['Укажите подрядчика', 'Внутренний сотрудник'],
+                                },
+                              },
+                              {
+                                [Op.or]: [
+                                  { '$Contractor.id$': { [Op.is]: null } },
+                                  { '$Contractor.name$': { [Op.is]: null } },
+                                ],
+                              },
+                            ],
+                          },
+                        }
+                      );
+                    }
+                  
+                    if (!isExternalManager && !hasUnknownBuilder) {
+                      whereParams[fieldName] = {
+                        [Op.notIn]: value,
+                      };
+                    } else {
+                      whereParams[Op.and] = andConditions;
+                    }
+                  } else {
+                    const orConditions: any[] = [];
+            
                     if (isExternalManager) {
-                        // Включаем те, где есть внешний подрядчик ИЛИ builder совпадает
-                        whereParams[Op.or] = [
+                        // Включаем: есть внешний подрядчик ИЛИ builder совпадает
+                        orConditions.push(
                             { '$ExtContractor.name$': { [Op.not]: null } },
-                            { builder: { [Op.in]: value } },
+                            { builder: { [Op.in]: value } }
+                        );
+                    } else {
+                        orConditions.push({ builder: { [Op.in]: value } });
+                    }
+            
+                    if (hasUnknownBuilder) {
+                        // Включаем, но исключаем случаи без contractor
+                        whereParams[Op.and] = [
+                            ...(whereParams[Op.and] || []),
+                            { [Op.or]: orConditions },
+                            {
+                                [Op.not]: {
+                                    [Op.and]: [
+                                        {
+                                            builder: {
+                                                [Op.in]: ['Укажите подрядчика', 'Внутренний сотрудник'],
+                                            },
+                                        },
+                                        {
+                                            [Op.or]: [
+                                                { contractorName: { [Op.is]: null } },
+                                                { '$Contractor.name$': { [Op.is]: null } },
+                                            ],
+                                        },
+                                    ],
+                                },
+                            },
                         ];
                     } else {
-                        whereParams[fieldName] = { [Op.in]: value };
+                        // Простое включение
+                        whereParams[Op.or] = orConditions;
                     }
                 }
             }
+            
             else {
                 whereParams[fieldName] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
             }

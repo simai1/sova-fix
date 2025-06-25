@@ -317,6 +317,13 @@ const UpdateStatus = () => {
           const param = getParam(item.value, item.itemKey);
           if (param) {
             if (item.itemKey === 'contractor') {
+              if (param === 'Внешний подрядчик') {
+                return [
+                    `exclude_contractor=${param}`,
+                    `exclude_builder=${param}`,
+                    `exclude_builder=Менеджер: ${param}`
+                ]
+              }
               return [
                 `exclude_contractor=${param}`,
                 param === "Укажите подрядчика" ? `exclude_builder=${param}` : `exclude_builder=Менеджер: ${param}`
