@@ -513,9 +513,12 @@ function Table() {
       return row?.extContractor?.name
     }
     // Если это внешний подрядчик
-    else if (row?.isExternal) {
+    else if ((row?.isExternal || row?.builder === 'Внешний подрядчик') && !isBuilderColumn) {
       return "Внешний подрядчик";
     } 
+    else if ((!row?.isExternal && row?.builder === 'Внешний подрядчик') && isBuilderColumn) {
+      return 'Не назначен'
+    }
     // В остальных случаях
     else {
       return "Укажите подрядчика";
@@ -709,7 +712,7 @@ function Table() {
           </div>
         );
       case "builder":
-        return row.isExternal ? (
+        return row.isExternal || row.builder === 'Внешний подрядчик' ? (
           <div
             onClick={() => funSetExp(row.id)}
             className={styles.statusClick}
@@ -722,7 +725,7 @@ function Table() {
                 className={getPopupClassName(extPopRef.current, index, totalRows)}
               >
                 <ul>
-                  {row?.isExternal && row?.builder && (
+                  {(row?.isExternal && row?.builder || row.builder === 'Внешний подрядчик') && (
                     <li onClick={() => deleteBilder(row.id)}>
                       Удалить исполнителя
                     </li>
