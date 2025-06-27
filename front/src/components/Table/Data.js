@@ -76,3 +76,16 @@ export const DataUrgency = [
   { id: 5, name: "Маршрут" },
   { id: 6, name: "Выполнено" },
 ];
+
+export function normalizeFileNames(input) {
+  if (!input) return [];
+
+  try {
+      const parsed = JSON.parse(input);
+      if (Array.isArray(parsed)) return parsed;
+  } catch {
+      // если это не JSON — значит просто строка
+  }
+
+  return [input];
+}
