@@ -21,6 +21,7 @@ import Urgency from '../models/urgency';
 import User from '../models/user';
 import TgUserObject from '../models/tgUserObject';
 import Status from '../models/status';
+import { normalizeFileNames } from '../utils/normalizeData';
 
 const getAllRequests = async (filter: any, order: any, pagination: any, userId?: string) => {
     try {
@@ -565,8 +566,8 @@ const createRequestWithMultiplePhotos = async (
         repairPrice,
         comment,
         legalEntityId: objectDir.LegalEntity.id,
-        fileName: mainPhoto,
-        commentAttachment: additionalPhotos.length > 0 ? JSON.stringify(additionalPhotos) : undefined,
+        fileName: fileNames.length > 1 ? JSON.stringify(fileNames) : fileNames[0],
+        commentAttachment: null,
         createdBy: tgUserId,
         number: 0,
     });
@@ -808,8 +809,17 @@ const setCommentAttachment = async (requestId: string, filename: string): Promis
             { model: ExtContractor },
         ],
     });
-    if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest with id ' + requestId);
-    await request.update({ commentAttachment: filename });
+
+    if (!request) {
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest with id ' + requestId);
+    }
+
+    const currentFiles = normalizeFileNames(request.fileName);
+
+    const updatedFiles = [...currentFiles, filename];
+
+    await request.update({ fileName: JSON.stringify(updatedFiles) });
+
     return new RequestDto(request);
 };
 

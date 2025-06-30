@@ -20,8 +20,9 @@ import СonfirmDelete from "./../СonfirmDelete/СonfirmDelete";
 import Contextmenu from "../../UI/Contextmenu/Contextmenu";
 import SamplePoints from "../SamplePoints/SamplePoints";
 import FilteImg from "./../../assets/images/filterColumn.svg";
-import { status } from "./Data";
+import { normalizeFileNames, status } from "./Data";
 import { funFixEducator } from "../../UI/SamplePoints/Function";
+import PhotoAndVideoSlider from "../../UI/PhotoAndVideoSlider/PhotoAndVideoSlider";
 
 function Table() {
   const isJsonString = (str) => {
@@ -104,7 +105,6 @@ function Table() {
   const [admins, setAdmins] = useState([]);
   const contextmenuRef = useRef(null);
 
-  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [sliderPhotos, setSliderPhotos] = useState([]);
   const [showSlider, setShowSlider] = useState(false);
   const tableWrapperRef = useRef()
@@ -814,50 +814,43 @@ function Table() {
           </>
         );
       case "fileName":
+        const parsedFileNames = normalizeFileNames(value)
         return value !== null && value !== "___" ? (
           <div className={styles.fileTableContainer} key={key + row.id}>
-            {isVideo(value) ? (
+            {isVideo(parsedFileNames[0]) ? (
               <div className={styles.fileVideoTable}>
                 <video
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    openModal(
-                      `${process.env.REACT_APP_API_URL}/uploads/${value}`
-                    );
+                    if (parsedFileNames.length === 1) {
+                      return openModal(
+                        `${process.env.REACT_APP_API_URL}/uploads/${parsedFileNames[0]}`
+                      );
+                    } 
+                    openPhotoSlider(parsedFileNames);
                   }}
                   style={{ cursor: "pointer" }}
                   className={styles.videoTable}
                 >
                   <source
-                    src={`${process.env.REACT_APP_API_URL}/uploads/${value}`}
+                    src={`${process.env.REACT_APP_API_URL}/uploads/${parsedFileNames[0]}`}
                   />
                   Your browser does not support the video tag.
                 </video>
               </div>
             ) : (
               <img
-                src={`${process.env.REACT_APP_API_URL}/uploads/${value}`}
+                src={`${process.env.REACT_APP_API_URL}/uploads/${isVideo(parsedFileNames[0]) ? parsedFileNames[1] : parsedFileNames[0]}`}
                 alt="Uploaded file"
                 onClick={() => {
                   if (
-                    row.commentAttachment &&
-                    isJsonString(row.commentAttachment)
+                    parsedFileNames.length > 1
                   ) {
-                    const additionalPhotos = JSON.parse(row.commentAttachment);
-                    if (
-                      Array.isArray(additionalPhotos) &&
-                      additionalPhotos.length > 0
-                    ) {
-                      openPhotoSlider([value, ...additionalPhotos]);
-                    } else {
-                      openModal(
-                        `${process.env.REACT_APP_API_URL}/uploads/${value}`
-                      );
-                    }
+                    openPhotoSlider(parsedFileNames);
                   } else {
                     openModal(
-                      `${process.env.REACT_APP_API_URL}/uploads/${value}`
+                      `${process.env.REACT_APP_API_URL}/uploads/${parsedFileNames[0]}`
                     );
                   }
                 }}
@@ -994,18 +987,7 @@ function Table() {
 
   const openPhotoSlider = (photos) => {
     setSliderPhotos(photos);
-    setCurrentSlideIndex(0);
     setShowSlider(true);
-  };
-
-  const nextSlide = () => {
-    setCurrentSlideIndex((prev) => (prev + 1) % sliderPhotos.length);
-  };
-
-  const prevSlide = () => {
-    setCurrentSlideIndex(
-      (prev) => (prev - 1 + sliderPhotos.length) % sliderPhotos.length
-    );
   };
 
   const closeSlider = () => {
@@ -1267,29 +1249,10 @@ function Table() {
       )}
 
       {showSlider && (
-        <div className={styles.photoSlider}>
-          <div className={styles.sliderContent}>
-            <button className={styles.closeSlider} onClick={closeSlider}>
-              ×
-            </button>
-            <div className={styles.sliderControls}>
-              <button className={styles.prevButton} onClick={prevSlide}>
-                ❮
-              </button>
-              <img
-                src={`${process.env.REACT_APP_API_URL}/uploads/${sliderPhotos[currentSlideIndex]}`}
-                alt={`Slide ${currentSlideIndex + 1}`}
-                className={styles.sliderImage}
-              />
-              <button className={styles.nextButton} onClick={nextSlide}>
-                ❯
-              </button>
-            </div>
-            <div className={styles.sliderIndicator}>
-              {currentSlideIndex + 1} / {sliderPhotos.length}
-            </div>
-          </div>
-        </div>
+        <PhotoAndVideoSlider 
+            sliderPhotos={sliderPhotos} 
+            closeSlider={closeSlider}
+          />
       )}
       {context.popUp === "СonfirmDelete" && <СonfirmDelete />}
       {openConextMenu && (

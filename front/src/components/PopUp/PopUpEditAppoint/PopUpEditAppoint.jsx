@@ -16,6 +16,8 @@ import List from "../../../UI/List/List";
 import ListInput from "../../../UI/ListInput/ListInput";
 import notPhoto from "./../../../assets/images/notPhoto.png";
 import { funFixEducator } from "../../../UI/SamplePoints/Function";
+import { normalizeFileNames } from "../../Table/Data";
+import PhotoAndVideoSlider from "../../../UI/PhotoAndVideoSlider/PhotoAndVideoSlider";
 function PopUpEditAppoint(props) {
   const { context } = React.useContext(DataContext);
   const [dataApStart, setDataApStart] = useState(null);
@@ -34,9 +36,12 @@ function PopUpEditAppoint(props) {
     repairPrice: "",
     comment: "",
     // legalEntity:"",
-    urgencyId: ""
+    urgencyId: "",
+    fileName: "",
   });
   const [selectId, setSelectId] = useState(null);
+  const [parsedFiles, setParsedFiles] = useState(null)
+  const [showSlider, setShowSlider] = useState(false)
 
   const updGetData = (id) => {
     GetOneRequests(id).then((response) => {
@@ -87,7 +92,8 @@ function PopUpEditAppoint(props) {
         repairPrice: dataApStart?.repairPrice,
         comment: dataApStart?.comment,
         legalEntity: dataApStart?.legalEntity,
-        urgencyId: dataApStart?.urgencyId
+        urgencyId: dataApStart?.urgencyId,
+        fileName: dataApStart?.fileName
       });
     }
   }, [dataApStart]);
@@ -197,12 +203,23 @@ function PopUpEditAppoint(props) {
     setModalImage(src);
   };
   const isVideo = (fileName) => {
+    if (typeof fileName !== 'string') return false;
     const videoExtensions = ['.mp4', '.avi', '.mov', '.wmv', '.mkv'];
     return videoExtensions.some(ext => fileName.endsWith(ext));
   };
   const closeModal = () => {
     setModalImage(null);
   };
+
+  const closeSlider = () => {
+    setShowSlider(false);
+  };
+
+  useEffect(() => {
+    const parsedFileNames = normalizeFileNames(dataApointment?.fileName)
+    setParsedFiles(parsedFileNames)
+  }, [dataApointment])
+
   return (
     <PopUpContainer width={true} title={"Редактирование заявки"} mT={75}>
       <div className={styles.popBox}>
@@ -267,27 +284,35 @@ function PopUpEditAppoint(props) {
           </div>
           <div className={styles.SecondBlock}>
           <div className={styles.commentBlock}>
-  {dataApStart?.commentAttachment ? (
-    isVideo(dataApStart.commentAttachment) ? (
+  {parsedFiles ? (
+     isVideo(parsedFiles[parsedFiles?.length - 1]) ? (
       <div className={styles.soursBg}>
         <video
           onClick={(e) => {
             e.preventDefault(); // Prevent the modal from closing
             e.stopPropagation();
-            openModal(`${process.env.REACT_APP_API_URL}/uploads/${dataApStart.commentAttachment}`);
+            if (parsedFiles?.length === 1 ) {
+              return openModal(`${process.env.REACT_APP_API_URL}/uploads/${parsedFiles[parsedFiles?.length - 1]}`);
+            }
+            setShowSlider(true)
           }}
           style={{ cursor: "pointer" }}
           className={styles.videoTable}
         >
-          <source src={`${process.env.REACT_APP_API_URL}/uploads/${dataApStart.commentAttachment}`} />
+          <source src={`${process.env.REACT_APP_API_URL}/uploads/${parsedFiles[0]}`} />
           Your browser does not support the video tag.
         </video>
       </div>
     ) : (
       <img
-        src={`${process.env.REACT_APP_API_URL}/uploads/${dataApStart.commentAttachment}`}
+        src={`${process.env.REACT_APP_API_URL}/uploads/${parsedFiles[parsedFiles?.length - 1]}`}
         alt="Uploaded file"
-        onClick={() => openModal(`${process.env.REACT_APP_API_URL}/uploads/${dataApStart.commentAttachment}`)}
+        onClick={() => {
+          if (parsedFiles?.length === 1 ) {
+            return openModal(`${process.env.REACT_APP_API_URL}/uploads/${parsedFiles[parsedFiles?.length - 1]}`);
+          }
+          setShowSlider(true)
+        }}
         style={{ cursor: "pointer" }}
         className={styles.imgTable}
       />
@@ -364,15 +389,21 @@ function PopUpEditAppoint(props) {
         </video>
       ) : (
         <div onClick={closeModal}>
-
-        <img
-          className={styles.modalContent}
-          src={modalImage}
-          alt="Full size"
-        />
+          <img
+            className={styles.modalContent}
+            src={modalImage}
+            alt="Full size"
+          />
         </div>
       )}
     </div>
+      )}
+      {showSlider && (
+        <PhotoAndVideoSlider
+          sliderPhotos={parsedFiles}
+          closeSlider={closeSlider}
+          initialIndex={parsedFiles.length - 1 }
+        />
       )}
     </PopUpContainer>
   );
