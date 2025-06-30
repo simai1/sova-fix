@@ -285,14 +285,14 @@ function PopUpEditAppoint(props) {
           <div className={styles.SecondBlock}>
           <div className={styles.commentBlock}>
   {parsedFiles ? (
-     isVideo(parsedFiles[0]) ? (
+     isVideo(parsedFiles[parsedFiles?.length - 1]) ? (
       <div className={styles.soursBg}>
         <video
           onClick={(e) => {
             e.preventDefault(); // Prevent the modal from closing
             e.stopPropagation();
             if (parsedFiles?.length === 1 ) {
-              return openModal(`${process.env.REACT_APP_API_URL}/uploads/${parsedFiles[0]}`);
+              return openModal(`${process.env.REACT_APP_API_URL}/uploads/${parsedFiles[parsedFiles?.length - 1]}`);
             }
             setShowSlider(true)
           }}
@@ -389,12 +389,11 @@ function PopUpEditAppoint(props) {
         </video>
       ) : (
         <div onClick={closeModal}>
-
-        <img
-          className={styles.modalContent}
-          src={modalImage}
-          alt="Full size"
-        />
+          <img
+            className={styles.modalContent}
+            src={modalImage}
+            alt="Full size"
+          />
         </div>
       )}
     </div>
@@ -403,7 +402,7 @@ function PopUpEditAppoint(props) {
         <PhotoAndVideoSlider
           sliderPhotos={parsedFiles}
           closeSlider={closeSlider}
-          initialIndex={isVideo(parsedFiles[0]) ? 0 : parsedFiles.length - 1 }
+          initialIndex={parsedFiles.length - 1 }
         />
       )}
     </PopUpContainer>
