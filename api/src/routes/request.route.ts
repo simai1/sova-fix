@@ -114,6 +114,8 @@ router.route('/changeUrgency').post(requestController.changeUrgency)
 
 router.route('/changeStatus').post(requestController.changeStatus)
 
+router.route('/files/:requestId').get(requestController.getCountFilesRequest)
+
 // Migration endpoints (should be protected in production)
 router.route('/migrate/manager-ids').post(requestController.migrateManagerData);
 router.route('/validate/manager-ids').post(requestController.validateManagerData);

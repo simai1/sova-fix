@@ -424,6 +424,13 @@ const changeStatus = catchAsync(async (req, res) => {
     res.json({ status: 'OK' });
 })
 
+const getCountFilesRequest = catchAsync(async (req, res) => {
+    const { requestId } = req.params
+    if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'missing requestId');
+    const count = await requestService.countOfRepairRequest(requestId)
+    res.json({count})
+})
+
 export default {
     getAll,
     getOne,
@@ -453,4 +460,5 @@ export default {
     migrateManagerData,
     validateManagerData,
     changeStatus,
+    getCountFilesRequest,
 };

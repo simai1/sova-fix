@@ -42,6 +42,7 @@ function PopUpEditAppoint(props) {
   const [selectId, setSelectId] = useState(null);
   const [parsedFiles, setParsedFiles] = useState(null)
   const [showSlider, setShowSlider] = useState(false)
+  const [isAddFileAllow, setIsAddFileAllow] = useState(true)
 
   const updGetData = (id) => {
     GetOneRequests(id).then((response) => {
@@ -218,6 +219,11 @@ function PopUpEditAppoint(props) {
   useEffect(() => {
     const parsedFileNames = normalizeFileNames(dataApointment?.fileName)
     setParsedFiles(parsedFileNames)
+    if(parsedFileNames.length === 5) {
+      setIsAddFileAllow(false)
+    } else {
+      setIsAddFileAllow(true)
+    }
   }, [dataApointment])
 
   return (
@@ -339,7 +345,7 @@ function PopUpEditAppoint(props) {
 </div>
             <div className={styles.addPhoto}>
               <div>
-                <button onClick={handleButtonClick}>Добавить медиафайл</button>
+                {isAddFileAllow ? (<button onClick={handleButtonClick}>Добавить медиафайл</button>) : null}
               </div>
               <div>
                 <input

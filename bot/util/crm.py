@@ -1038,3 +1038,11 @@ async def get_status_name(statusNumber: int) -> str | None:
     data = request.json()
 
     return data.get("name")
+
+async def get_count_of_files_in_request(requestId: str) -> int | None:
+    url = f"{cf.API_URL}/requests/files/{requestId}"
+
+    request = requests.get(url)
+    data = request.json()
+    
+    return data.get("count")

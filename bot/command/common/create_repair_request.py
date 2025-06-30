@@ -253,42 +253,54 @@ async def finish_adding_photos(query: CallbackQuery, state: FSMContext) -> None:
 
 @router.message(FSMRepairRequest.multiple_photos_input)
 async def add_more_photos(message: Message, state: FSMContext) -> None:
-    if message.content_type == ContentType.PHOTO:
-        index = -1
+    if message.content_type != ContentType.PHOTO:
+        await message.answer("Пришлите фото или нажмите 'Пропустить', чтобы продолжить", reply_markup=skip_kb())
+        return
+
+    # Получаем наименьшее по размеру фото
+    index = -1
+    file = message.photo[index]
+    while file.file_size > MAX_VIDEO_SIZE_BYTES and -index <= len(message.photo):
+        index -= 1
         file = message.photo[index]
-        while file.file_size > MAX_VIDEO_SIZE_BYTES and -index <= len(message.photo):
-            index -= 1
-            file = message.photo[index]
 
-        if file.file_size > MAX_VIDEO_SIZE_BYTES:
-            await message.answer(f"Файл слишком большой (больше {MAX_VIDEO_SIZE_MB}Мб)\nПопробуйте другой", reply_markup=skip_kb())
-            return
+    if file.file_size > MAX_VIDEO_SIZE_BYTES:
+        await message.answer(f"Файл слишком большой (больше {MAX_VIDEO_SIZE_MB}Мб)\nПопробуйте другой", reply_markup=skip_kb())
+        return
 
-        data = await state.get_data()
-        photos = data.get('photos', [])
-        media_group_id = message.media_group_id
-        
-        # Сохраняем информацию о группе фотографий
-        if media_group_id:
-            processed_groups = data.get('processed_media_groups', [])
-            
-            # Добавляем фото в список
-            photos.append({"file_id": file.file_id, "content_type": ContentType.PHOTO})
-            await state.update_data({"photos": photos, "file_id": file.file_id, "file_content_type": ContentType.PHOTO})
-            
-            # Если это первое фото из новой группы, отправляем сообщение и запоминаем группу
-            if media_group_id not in processed_groups:
-                processed_groups.append(media_group_id)
-                await state.update_data({"processed_media_groups": processed_groups})
-                await message.answer("Фото добавлено. Хотите добавить ещё фото?", reply_markup=skip_kb())
-        else:
-            # Одиночное фото (не в группе)
-            photos.append({"file_id": file.file_id, "content_type": ContentType.PHOTO})
-            await state.update_data({"photos": photos, "file_id": file.file_id, "file_content_type": ContentType.PHOTO})
+    # Получаем данные из состояния
+    data = await state.get_data()
+    photos = data.get('photos', [])
+    processed_groups = data.get('processed_media_groups', [])
+    media_group_id = message.media_group_id
+
+    # Добавляем фото в список
+    updated_photos = photos + [{"file_id": file.file_id, "content_type": ContentType.PHOTO}]
+    await state.update_data({
+        "photos": updated_photos,
+        "file_id": file.file_id,
+        "file_content_type": ContentType.PHOTO
+    })
+
+    print(f"Добавлено фото. Текущее количество: {len(updated_photos)}")
+
+    # Если достигли лимита — переходим к следующему шагу, ничего не отвечаем
+    if len(updated_photos) >= 5:
+        if media_group_id and media_group_id not in processed_groups:
+            processed_groups.append(media_group_id)
+            await state.update_data({"processed_media_groups": processed_groups})
+        await ask_urgency(message, state)
+        return
+
+    # Обработка группы: отвечаем только 1 раз на группу
+    if media_group_id:
+        if media_group_id not in processed_groups:
+            processed_groups.append(media_group_id)
+            await state.update_data({"processed_media_groups": processed_groups})
             await message.answer("Фото добавлено. Хотите добавить ещё фото?", reply_markup=skip_kb())
     else:
-        await message.answer("Пришлите фото или нажмите 'Пропустить', чтобы продолжить", reply_markup=skip_kb())
-
+        # Одиночное фото — всегда отвечаем
+        await message.answer("Фото добавлено. Хотите добавить ещё фото?", reply_markup=skip_kb())
 
 async def ask_urgency(message: Message, state: FSMContext) -> None:
     urgencies = await crm.get_all_urgencies()

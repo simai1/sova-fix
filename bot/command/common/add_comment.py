@@ -35,7 +35,9 @@ async def send_send_photo_msg(message: Message) -> None:
 
 @router.message(FSMComment.ask_comment)
 async def store_comment_text(message: Message, state: FSMContext) -> None:
-
+    data = await state.get_data()
+    request_id = data.get('request_id')
+    count_files = await crm.get_count_of_files_in_request(request_id)
     if not message.text:
         await message.answer("Введите текст комментария ✏️")
         return
@@ -43,6 +45,11 @@ async def store_comment_text(message: Message, state: FSMContext) -> None:
     comment_text = message.text
 
     await state.update_data({'comment_text': comment_text})
+
+    if count_files >= 5:
+        await write_comment(message.from_user.id, message, state)
+        await state.clear()
+        return
 
     await state.set_state(FSMComment.ask_media)
 

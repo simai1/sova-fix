@@ -1313,6 +1313,13 @@ const changeStatus = async(prevNumber: number, statusId: string) => {
     );
 }
 
+const countOfRepairRequest = async (repairId: string) => {
+    const request = await RepairRequest.findByPk(repairId)
+    if (!request) throw new Error(`Repair Request with id ${repairId} not found`);
+    const currentFiles = normalizeFileNames(request.fileName);
+    return currentFiles.length;
+}
+
 export default {
     getAllRequests,
     getRequestById,
@@ -1339,4 +1346,5 @@ export default {
     changeUrgency,
     setManager,
     changeStatus,
+    countOfRepairRequest,
 };
