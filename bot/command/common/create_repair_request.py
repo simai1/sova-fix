@@ -191,8 +191,13 @@ async def check_photo(message: Message, state: FSMContext) -> None:
                 await message.answer(f"Файл слишком большой (больше {MAX_VIDEO_SIZE_MB}Мб)\nПопробуйте другой", reply_markup=skip_kb())
                 return
 
-            await state.update_data({"file_id": file.file_id, "file_content_type": ContentType.VIDEO})
+            await state.update_data({
+                "file_id": file.file_id,
+                "file_content_type": ContentType.VIDEO,
+                "urgency_asked": True  # сразу спрашиваем срочность
+            })
             await ask_urgency(message, state)
+            return
 
         case ContentType.PHOTO:
             index = -1
@@ -208,59 +213,50 @@ async def check_photo(message: Message, state: FSMContext) -> None:
             data = await state.get_data()
             photos = data.get('photos', [])
             processed_groups = data.get('processed_media_groups', [])
+            urgency_asked = data.get('urgency_asked', False)
             media_group_id = message.media_group_id
 
-            # Добавляем фото в список
-            updated_photos = photos + [{"file_id": file.file_id, "content_type": ContentType.PHOTO}]
+            # Если уже спрашивали срочность — не продолжаем
+            if urgency_asked:
+                return
+
+            # Добавляем фото
+            photos.append({"file_id": file.file_id, "content_type": ContentType.PHOTO})
+            photos = photos[:5]
             await state.update_data({
-                "photos": updated_photos,
+                "photos": photos,
                 "file_id": file.file_id,
                 "file_content_type": ContentType.PHOTO
             })
 
-            print(f"Добавлено фото. Текущее количество: {len(updated_photos)}")
+            print(f"Добавлено фото. Текущее количество: {len(photos)}")
 
-            # Если достигли лимита — переходим к следующему шагу, ничего не отвечаем
-            if len(updated_photos) >= 5:
+            # Если лимит достигнут, спрашиваем срочность (только 1 раз)
+            if len(photos) >= 5:
                 if media_group_id and media_group_id not in processed_groups:
                     processed_groups.append(media_group_id)
                     await state.update_data({"processed_media_groups": processed_groups})
+                await state.update_data({"urgency_asked": True})
+                await message.answer("Достигнут лимит фото📸\nПожалуйста выберите срочность👇")
                 await ask_urgency(message, state)
                 return
-            
-            # Сохраняем информацию о группе фотографий
+
+            # Если фото из группы — отправляем сообщение один раз на всю группу
             if media_group_id:
-                processed_groups = data.get('processed_media_groups', [])
-                
-                # Добавляем фото в список
-                photos.append({"file_id": file.file_id, "content_type": ContentType.PHOTO})
-                await state.update_data({
-                    "photos": photos, 
-                    "file_id": file.file_id, 
-                    "file_content_type": ContentType.PHOTO
-                })
-                
-                # Если это первое фото из группы, отправляем сообщение и запоминаем группу
                 if media_group_id not in processed_groups:
                     processed_groups.append(media_group_id)
                     await state.update_data({"processed_media_groups": processed_groups})
                     await state.set_state(FSMRepairRequest.multiple_photos_input)
                     await message.answer("Фото добавлено. Хотите добавить ещё фото?", reply_markup=skip_kb())
             else:
-                # Одиночное фото (не в группе)
-                photos.append({"file_id": file.file_id, "content_type": ContentType.PHOTO})
-                await state.update_data({
-                    "photos": photos, 
-                    "file_id": file.file_id, 
-                    "file_content_type": ContentType.PHOTO
-                })
-                
+                # Одиночное фото
                 await state.set_state(FSMRepairRequest.multiple_photos_input)
                 await message.answer("Фото добавлено. Хотите добавить ещё фото?", reply_markup=skip_kb())
+            return
 
         case _:
             await message.answer('Что-то не так, попробуйте ещё раз 🔄️', reply_markup=skip_kb())
-            return
+
 
 
 @router.callback_query(FSMRepairRequest.multiple_photos_input, F.data == "skip")
@@ -369,6 +365,11 @@ async def create_request(query: CallbackQuery, state: FSMContext) -> None:
             await query.answer()
             return
 
+        if len(files) > 5:
+            await query.message.answer('Превышено максимальное количество фото — 5 📸', reply_markup=to_start_kb())
+            await query.answer()
+            return
+
         rr = await crm.create_repair_request(
             tg_user_id,
             file,
@@ -386,6 +387,11 @@ async def create_request(query: CallbackQuery, state: FSMContext) -> None:
 
         if not files:
             await query.message.answer('Ошибка при загрузке файлов')
+            await query.answer()
+            return
+
+        if len(files) > 5:
+            await query.message.answer('Превышено максимальное количество фото — 5 📸', reply_markup=to_start_kb())
             await query.answer()
             return
 
