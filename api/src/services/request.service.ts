@@ -817,8 +817,7 @@ const setCommentAttachment = async (requestId: string, filename: string): Promis
     const currentFiles = normalizeFileNames(request.fileName);
 
     const updatedFiles = [...currentFiles, filename];
-
-    await request.update({ fileName: JSON.stringify(updatedFiles) });
+    await request.update({ fileName: updatedFiles.length >= 5 ? JSON.stringify(currentFiles) : JSON.stringify(updatedFiles) });
 
     return new RequestDto(request);
 };
