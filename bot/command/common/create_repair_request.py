@@ -207,7 +207,26 @@ async def check_photo(message: Message, state: FSMContext) -> None:
 
             data = await state.get_data()
             photos = data.get('photos', [])
+            processed_groups = data.get('processed_media_groups', [])
             media_group_id = message.media_group_id
+
+            # Добавляем фото в список
+            updated_photos = photos + [{"file_id": file.file_id, "content_type": ContentType.PHOTO}]
+            await state.update_data({
+                "photos": updated_photos,
+                "file_id": file.file_id,
+                "file_content_type": ContentType.PHOTO
+            })
+
+            print(f"Добавлено фото. Текущее количество: {len(updated_photos)}")
+
+            # Если достигли лимита — переходим к следующему шагу, ничего не отвечаем
+            if len(updated_photos) >= 5:
+                if media_group_id and media_group_id not in processed_groups:
+                    processed_groups.append(media_group_id)
+                    await state.update_data({"processed_media_groups": processed_groups})
+                await ask_urgency(message, state)
+                return
             
             # Сохраняем информацию о группе фотографий
             if media_group_id:
