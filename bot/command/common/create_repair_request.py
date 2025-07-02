@@ -184,8 +184,13 @@ async def skip_photo_handler(query: CallbackQuery, state: FSMContext) -> None:
 
 @router.message(FSMRepairRequest.photo_input)
 async def check_photo(message: Message, state: FSMContext) -> None:
+    is_without_photo = await crm.get_setting_by_name("is_repair_request_without_photo")
     match message.content_type:
         case ContentType.TEXT:
+            if is_without_photo: 
+                await state.set_state(FSMRepairRequest.photo_input)
+                await message.answer('Пришлите фото или видео 📸')
+                return
             await message.answer("Пришлите фото или видео 📸", reply_markup=skip_kb())
             return
 
