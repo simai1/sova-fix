@@ -1,4 +1,5 @@
 import { models, sequelize } from '../models';
+import { seedInitialSettings } from '../models/seedSettings';
 import setupAssociations from '../models/setup-associations';
 
 async function initializeDbModels() {
@@ -6,6 +7,10 @@ async function initializeDbModels() {
     setupAssociations();
     for (const model of Object.values(models)) await model.sync({ alter: true });
     console.log('models initialized');
+
+    await seedInitialSettings();
+
+    console.log('initial settings initialized')
 }
 
 export default {
