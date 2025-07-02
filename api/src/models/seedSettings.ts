@@ -3,7 +3,7 @@ import Settings from "./settings";
 export const seedInitialSettings = async () => {
   const defaultSettings = [
     {
-      setting: 'is_repair_request_with_photo',
+      setting: 'is_repair_request_without_photo',
       value: true,
       name: 'Заявка без фото'
     },

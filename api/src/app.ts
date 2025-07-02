@@ -73,7 +73,7 @@ app.use('/raw', rawRoute);
 app.use('/urgency', urgencyRoute)
 app.use('/status', statusRoute)
 app.use('/reset-password-tokens', passwordResetTokensRoute)
-app.use('/reset-password-tokens', settingsRoute)
+app.use('/settings', settingsRoute)
 
 // websocket section
 app.ws('/', () => {

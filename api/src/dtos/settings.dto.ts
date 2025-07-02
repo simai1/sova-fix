@@ -11,5 +11,6 @@ export class SettingsDto {
         this.id = model.id;
         this.name = model.name;
         this.setting = model.setting;
+        this.value = model.value;
     }
 }

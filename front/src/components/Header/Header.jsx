@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef, useContext } from 'react';
 import './Menu.css'; // Импортируем стили
 import { useNavigate } from "react-router-dom";
 import DataContext from "../../context";
-import { LogOut } from "../../API/API";
+import { GetAllSettings, LogOut } from "../../API/API";
 import { addTableHeader } from "../../store/editColumTable/editColumTable.slice";
 import { tableHeadAppoint, tableList, tableUser } from "../Table/Data";
 import { useDispatch } from "react-redux";
@@ -119,6 +119,12 @@ function Header() {
         return false;
     }
   }
+
+  useEffect(() => {
+    GetAllSettings().then(res => {
+      context?.setSettingsList(res.data)
+    })
+  }, [])
 
 return (
   <div className={styles.Header}>
@@ -239,15 +245,17 @@ return (
                     transition: 'max-height 0.3s ease'
                 }}
               >
-                <li className={styles.menuSettingLi}>
-                  <div className={styles.settingToggle}>
-                      <Toggle
-                        label='Заявки без фото'
-                        checked={isRepairWithPhotoSetting}
-                        onChange={setIsRepairWithPhotoSettings}
-                      />
-                  </div>
+                {context?.settingsList?.map(setting => (
+                  <li className={styles.menuSettingLi}>
+                    <div className={styles.settingToggle}>
+                        <Toggle
+                          label={setting.name}
+                          initialValue={setting.value}
+                          settingId={setting.id}
+                        />
+                    </div>
                 </li>
+                ))}
               </ul>
           </ul>
         <div className={styles.ButonFunc}>

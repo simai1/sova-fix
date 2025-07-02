@@ -1046,3 +1046,17 @@ async def get_count_of_files_in_request(requestId: str) -> int | None:
     data = request.json()
     
     return data.get("count")
+
+async def get_setting_by_name(settingName: str) -> bool | None:
+    url = f"{cf.API_URL}/settings/{settingName}"
+
+    response = requests.get(url)
+    try:
+        data = response.json()
+    except ValueError:
+        return None
+
+    if isinstance(data, dict):
+        return data.get("value")
+
+    return None
