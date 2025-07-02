@@ -168,7 +168,8 @@ async def ask_photo(message: Message, state: FSMContext) -> None:
 
     is_without_photo = await crm.get_setting_by_name("is_repair_request_without_photo")
     if is_without_photo: 
-        await ask_urgency(message, state)
+        await state.set_state(FSMRepairRequest.photo_input)
+        await message.answer('Пришлите фото или видео 📸')
         return
     await state.set_state(FSMRepairRequest.photo_input)
     await message.answer('Пришлите фото или видео 📸', reply_markup=skip_kb())

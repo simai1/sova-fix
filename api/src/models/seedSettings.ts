@@ -5,18 +5,21 @@ export const seedInitialSettings = async () => {
     {
       setting: 'is_repair_request_without_photo',
       value: true,
-      name: 'Заявка без фото'
+      name: 'Обязательно с фото',
     },
   ];
 
-  for (const setting of defaultSettings) {
-    const [record, created] = await Settings.findOrCreate({
-      where: { setting: setting.setting },
-      defaults: setting,
+  for (const defaultSetting of defaultSettings) {
+    const existing = await Settings.findOne({
+      where: { setting: defaultSetting.setting },
     });
 
-    if (created) {
-      console.log(`INFO: Setting "${setting.setting}" created.`);
+    if (!existing) {
+      await Settings.create(defaultSetting);
+      console.log(`INFO: Setting "${defaultSetting.setting}" created.`);
+    } else if (existing.name !== defaultSetting.name) {
+      await existing.update({ name: defaultSetting.name });
+      console.log(`INFO: Setting "${defaultSetting.setting}" name updated.`);
     }
   }
 };
