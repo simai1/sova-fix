@@ -48,7 +48,7 @@ async def store_comment_text(message: Message, state: FSMContext) -> None:
 
     is_without_photo = await crm.get_setting_by_name("is_repair_request_without_photo")
 
-    if count_files >= 5 or is_without_photo:
+    if count_files >= 5:
         await write_comment(message.from_user.id, message, state)
         await state.clear()
         return
