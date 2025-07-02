@@ -365,11 +365,6 @@ async def create_request(query: CallbackQuery, state: FSMContext) -> None:
             await query.answer()
             return
 
-        if len(files) > 5:
-            await query.message.answer('Превышено максимальное количество фото — 5 📸', reply_markup=to_start_kb())
-            await query.answer()
-            return
-
         rr = await crm.create_repair_request(
             tg_user_id,
             file,
