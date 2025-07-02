@@ -1573,3 +1573,37 @@ export const ResetPasswordByToken = async (tokenId, token, newPassword) => {
     }
   }
 };
+
+export const GetAllSettings = async () => {
+  try {
+    const response = await http.get(`${server}/settings`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при получении списка срочностей!");
+    }
+  }
+}
+
+export const ChangeSetting = async (settingId, value) => {
+  try {
+    const response = await http.post(`${server}/settings/change/${settingId}`, {value}, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при получении карты пользователя!");
+    }
+  }
+}
