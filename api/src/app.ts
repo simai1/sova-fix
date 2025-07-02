@@ -20,9 +20,10 @@ import equipmentRoute from './routes/equipment.route';
 import categoryRoute from './routes/category.route';
 import nomenclatureRoute from './routes/nomenclature.route';
 import testRoute from './routes/test.route';
-import urgencyRouter from './routes/urgency.route'
-import statusRouter from './routes/status.route'
-import passwordResetTokens from './routes/passwordResetTokens.route'
+import urgencyRoute from './routes/urgency.route'
+import statusRoute from './routes/status.route'
+import passwordResetTokensRoute from './routes/passwordResetTokens.route'
+import settingsRoute from './routes/settings.route'
 
 
 import logger from './utils/logger';
@@ -69,9 +70,10 @@ app.use('/categories', categoryRoute);
 app.use('/nomenclatures', nomenclatureRoute);
 app.use('/test', testRoute);
 app.use('/raw', rawRoute);
-app.use('/urgency', urgencyRouter)
-app.use('/status', statusRouter)
-app.use('/reset-password-tokens', passwordResetTokens)
+app.use('/urgency', urgencyRoute)
+app.use('/status', statusRoute)
+app.use('/reset-password-tokens', passwordResetTokensRoute)
+app.use('/reset-password-tokens', settingsRoute)
 
 // websocket section
 app.ws('/', () => {

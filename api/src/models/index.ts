@@ -17,6 +17,7 @@ import TgUserObject from './tgUserObject';
 import Urgency from './urgency';
 import Status from './status';
 import PasswordResetToken from './passwordResetTokens';
+import Settings from './settings';
 
 const { DB_USER, DB_PWD, DB_HOST, DB_PORT, DB_NAME } = process.env;
 export const models = {
@@ -38,6 +39,7 @@ export const models = {
     Equipment,
     TechService,
     TgUserObject,
+    Settings,
 };
 
 export const sequelize = new Sequelize(`${DB_NAME}`, `${DB_USER}`, `${DB_PWD}`, {

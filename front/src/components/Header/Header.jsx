@@ -11,6 +11,7 @@ import imgClose from "./../../assets/images/x.svg";
 import arrowBottom from "./../../assets/images/arrow_bottom.svg";
 import Logo from "./../../assets/images/SovaFixLogo.svg"
 import { env } from "echarts";
+import Toggle from "../../UI/Toggle/Toggle";
 
 function Header() {
     const { context } = useContext(DataContext);
@@ -22,10 +23,17 @@ function Header() {
     const [isOpenFinans, setIsOpenFinans] = useState(false);
     const [isOpenSystem, setIsOpenSystem] = useState(false);
     const [isOpenTo, setIsOpenTo] = useState(false);
+    const [isOpenSettings, setIsOpenSettings] = useState(false)
     const spravRef = useRef(null);
     const finansRef = useRef(null);
     const systemRef = useRef(null);
     const ToRef = useRef(null);
+    const settingsRef = useRef(null)
+
+    // Список значений настроек, при большом количестве настроек в будуще, необходимо будет вынести данный
+    // компонент настроек в отдельный отдельный компонент. Обсуждали сделать отдельную страницу, поняли, что пока избыточно,
+    // так как на момент добавления настроек, есть только одна - заявки без фото/с фото
+    const [isRepairWithPhotoSetting, setIsRepairWithPhotoSettings] = useState()
 
     useEffect(()=>{
       if(!sessionStorage.getItem("userData")){navigate("/Authorization")}else{
@@ -215,6 +223,31 @@ return (
                   <a href="https://sova-rest.com/" target="_blank"><li className={styles.menuLi}>SOVA-rest</li></a>
                   <a href="https://sova-tech.com/" target="_blank"><li className={styles.menuLi}>HRD-bot</li></a>
                   <a href="https://sova-fix.com/" target="_blank"><li className={styles.menuLi}>SOVA-fix</li></a>
+              </ul>
+
+              <li className={styles.menuLi} onClick={() => setIsOpenSettings(!isOpenSettings)} style={isOpenSettings ? { backgroundColor: "#FFE20D" } : { backgroundColor: "#e3dfda" }}>
+                  Настройки
+                  <img style={isOpenSettings ? { transform: "rotate(0deg)" } : { transform: "rotate(-90deg)" }} src={arrowBottom} />
+
+              </li>
+              <ul
+                ref={settingsRef}
+                className={styles.menuUlSecond}
+                style={{
+                    maxHeight: isOpenSettings ? `${settingsRef.current.scrollHeight}px` : '0',
+                    overflow: 'hidden',
+                    transition: 'max-height 0.3s ease'
+                }}
+              >
+                <li className={styles.menuSettingLi}>
+                  <div className={styles.settingToggle}>
+                      <Toggle
+                        label='Заявки без фото'
+                        checked={isRepairWithPhotoSetting}
+                        onChange={setIsRepairWithPhotoSettings}
+                      />
+                  </div>
+                </li>
               </ul>
           </ul>
         <div className={styles.ButonFunc}>
