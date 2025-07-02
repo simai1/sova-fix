@@ -413,5 +413,6 @@ async def create_request(query: CallbackQuery, state: FSMContext) -> None:
             reply_markup=to_start_kb()
         )
 
+    await state.clear()
     await query.answer()
     await query.message.edit_reply_markup(reply_markup=None)
