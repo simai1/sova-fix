@@ -17,6 +17,7 @@ import Input from "../../UI/Input/Input";
 import { useDispatch } from "react-redux";
 import ClearImg from "./../../assets/images/ClearFilter.svg"
 import { resetFilters } from "../../store/samplePoints/samplePoits";
+import NotificationError from "../../components/Notification/NotificationError/NotificationError";
 function BusinessUnitReference() {
   const { context } = useContext(DataContext);
   const [tableDataUnit, setTableDataUnit] = useState([]);
@@ -26,6 +27,11 @@ function BusinessUnitReference() {
   const [errorMessage, setErrorMessage] = useState("");
   const [popUpEdit, setPopUpEdit] = useState(false);
   const [selectId, setSelectId] = useState("");
+
+  const [isError, setIsError] = useState(false);
+  const [isHiding, setIsHiding] = useState(false);
+  const [errorHeader, setErrorHeader] = useState("");
+  const [errorText, setErrorText] = useState("");
 
   useEffect(() => {
     getData();
@@ -56,7 +62,14 @@ function BusinessUnitReference() {
       if (response?.status === 200) {
         setDeleteUnitFlag(false);
         getData();
-      }
+      } else {
+        const currentUnit = tableDataUnit?.find(unit => unit.id === context.selectRowDirectory)
+        setDeleteUnitFlag(false)
+        closePopErrorFun(
+            "Ошибка удаления ❌",
+            `Подразделение "${currentUnit.name}" имеет связанные объекты!`
+        );
+    }
     });
   };
 
@@ -107,6 +120,25 @@ function BusinessUnitReference() {
       context.setPopupErrorText("Сначала выберите подразделение!");
       context.setPopUp("PopUpError");
     }
+  };
+
+  const closePopErrorFun = (header, text) => {
+    setErrorHeader(header);
+    setErrorText(text);
+    setIsError(true);
+    setTimeout(() => {
+        handleClose();
+    }, 4000);
+  };
+
+  const handleClose = () => {
+      setIsHiding(true);
+      setTimeout(() => {
+          setErrorText("");
+          setErrorHeader("");
+          setIsError(false);
+          setIsHiding(false);
+      }, 400);
   };
 
   return (
@@ -188,6 +220,14 @@ function BusinessUnitReference() {
             </div>
           </PopUpContainer>
         </div>
+      )}
+      {isError && (
+          <NotificationError
+              handleClose={handleClose}
+              errorHeader={errorHeader}
+              errorText={errorText}
+              isHiding={isHiding}
+          />
       )}
     </div>
   );

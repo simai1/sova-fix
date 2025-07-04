@@ -3,6 +3,7 @@ import httpStatus from 'http-status';
 import LegalEntity from '../models/legalEntity';
 import LegalEntityDto from '../dtos/legalEntity.dto';
 import objectService from './object.service';
+import ObjectDir from '../models/object';
 
 const setCountLegalEntity = async (legalEntityId: string): Promise<void> => {
     const objects = await objectService.getAllObjects();
@@ -39,6 +40,8 @@ const getOneLegalEntity = async (legalEntityId: string): Promise<LegalEntityDto>
 const destroyLegalEntity = async (legalEntityId: string): Promise<void> => {
     const legalEntity = await getLegalEntityById(legalEntityId);
     if (!legalEntity) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found legal entity with id ' + legalEntityId);
+    const objectsWithLegalEntity = await ObjectDir.findAll({ where: { legalEntityId: legalEntity.id } })
+    if (objectsWithLegalEntity.length > 0) throw new ApiError(httpStatus.BAD_REQUEST, 'This legal entity has objects')
     await legalEntity.destroy({ force: true });
 };
 

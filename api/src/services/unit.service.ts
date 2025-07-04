@@ -3,6 +3,7 @@ import httpStatus from 'http-status';
 import Unit from '../models/unit';
 import UnitDto from '../dtos/unit.dto';
 import objectService from './object.service';
+import ObjectDir from '../models/object';
 
 const setCountUnit = async (unitId: string): Promise<void> => {
     const objects = await objectService.getAllObjects();
@@ -38,6 +39,8 @@ const getOneUnit = async (unitId: string): Promise<UnitDto> => {
 const destroyUnit = async (unitId: string): Promise<void> => {
     const unit = await getUnitById(unitId);
     if (!unit) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found unit with id ' + unitId);
+    const objectsWithUnit = await ObjectDir.findAll({ where: { unitId: unit.id } })
+    if (objectsWithUnit.length > 0) throw new ApiError(httpStatus.BAD_REQUEST, 'This unit has objects')
     await unit.destroy({ force: true });
 };
 
