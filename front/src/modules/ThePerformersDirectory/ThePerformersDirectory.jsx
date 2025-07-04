@@ -34,6 +34,7 @@ function ThePerformersDirectory() {
   const [legalFormEcho, setLegalFormEcho] = useState("");
   const [openvaluelegalForm, setOpenvaluelegalForm] = useState(false);
   const containerRef = useRef(null);
+  const [currentPerformers, setCurrentPerformers] = useState({})
   useEffect(() => {
     getData();
   }, []);
@@ -158,6 +159,11 @@ function ThePerformersDirectory() {
   };
   const dispatch = useDispatch();
 
+  useEffect(() => {
+    const currentPerfomers = tableDataUnit?.find(perfomers => perfomers.id === context.selectRowDirectory)
+    setCurrentPerformers(currentPerfomers)
+  }, [context?.selectRowDirectory])
+
   return (
     <div className={styles.ThePerformersDirectory}>
       <div className={styles.ThePerformersDirectoryTop}>
@@ -193,7 +199,7 @@ function ThePerformersDirectory() {
       />
       {deleteUnitFlag && (
         <UneversalDelete
-          text="Внешнего подрядчика"
+          text={`внешнего подрядчика "${currentPerformers.name}"`}
           ClosePopUp={ClosePopUp}
           FunctionDelete={FunctionDelete}
         />

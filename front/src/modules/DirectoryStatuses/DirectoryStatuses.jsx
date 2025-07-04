@@ -37,6 +37,9 @@ const DirectoryStatuses = () => {
 
     const [isDeleteButtonDisabled, setIsDeleteButtonDisabled] = useState(false);
 
+    const [currentStatus, setCurrentStatus] = useState({})
+    
+
     const closePopErrorFun = (header, text) => {
         setErrorHeader(header);
         setErrorText(text);
@@ -178,6 +181,11 @@ const DirectoryStatuses = () => {
         setIsDeleteButtonDisabled(false);
     }, [tableBodyStatuses, context?.selectRowDirectory]);
 
+    useEffect(() => {
+        const currentStatus = tableBodyStatuses?.find(status => status.id === context.selectRowDirectory)
+        setCurrentStatus(currentStatus)
+    }, [context?.selectRowDirectory])
+
     return (
         <div className={styles.DirectoryStatuses}>
             <div className={styles.Functional__header}>
@@ -306,7 +314,7 @@ const DirectoryStatuses = () => {
 
             {deletedModalOpen && (
                 <UneversalDelete
-                    text="этот статус"
+                    text={`статус "${currentStatus.name}"`}
                     ClosePopUp={closePopUp}
                     FunctionDelete={deleteStatus}
                 />
