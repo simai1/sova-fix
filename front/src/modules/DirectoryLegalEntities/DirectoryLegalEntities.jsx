@@ -11,6 +11,7 @@ import arrow from "./../../assets/images/arrow_bottom.svg";
 import { useDispatch } from "react-redux";
 import { resetFilters } from "../../store/samplePoints/samplePoits";
 import ClearImg from "./../../assets/images/ClearFilter.svg"
+import NotificationError from "../../components/Notification/NotificationError/NotificationError";
 function DirectoryLegalEntities() {
     const [tableDataEntries, setTableDataEntries] = useState([]);
     const [popUpCreate, setPopUpCreate] = useState(false);
@@ -25,6 +26,12 @@ function DirectoryLegalEntities() {
     const [openvaluelegalForm, setOpenvaluelegalForm] = useState(false);
     const containerRef = useRef(null);
     const [legalFormEcho, setLegalFormEcho] = useState('');
+
+    const [isError, setIsError] = useState(false);
+    const [isHiding, setIsHiding] = useState(false);
+    const [errorHeader, setErrorHeader] = useState("");
+    const [errorText, setErrorText] = useState("");
+
     useEffect(() => {
         getData();
     }, []);
@@ -53,6 +60,13 @@ function DirectoryLegalEntities() {
             if (response?.status === 200) {
                 setDeleteUnitFlag(false);
                 getData();
+            } else {
+                const currentLegalEntity = tableDataEntries?.find(legalEnt => legalEnt.id === context.selectRowDirectory)
+                setDeleteUnitFlag(false)
+                closePopErrorFun(
+                    "Ошибка удаления ❌",
+                    `Юридическое лицо "${currentLegalEntity.name}" имеет связанные объекты!`
+                );
             }
         });
     };
@@ -130,8 +144,24 @@ function DirectoryLegalEntities() {
         }
     };
     
-    
+    const closePopErrorFun = (header, text) => {
+        setErrorHeader(header);
+        setErrorText(text);
+        setIsError(true);
+        setTimeout(() => {
+            handleClose();
+        }, 4000);
+    };
 
+    const handleClose = () => {
+        setIsHiding(true);
+        setTimeout(() => {
+            setErrorText("");
+            setErrorHeader("");
+            setIsError(false);
+            setIsHiding(false);
+        }, 400);
+    };
 
     return (
         <div className={styles.DirectoryLegalEntities}>
@@ -221,7 +251,14 @@ function DirectoryLegalEntities() {
                     </PopUpContainer>
                 </div>
             )}
-            
+            {isError && (
+               <NotificationError
+                    handleClose={handleClose}
+                    errorHeader={errorHeader}
+                    errorText={errorText}
+                    isHiding={isHiding}
+                />
+            )}
         </div>
     );
 }
