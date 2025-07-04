@@ -33,6 +33,7 @@ function DirectoryUrgency(props) {
     const [isDeleteButtonDisabled, setIsDeleteButtonDisabled] = useState(false);
     const { context } = useContext(DataContext);
     const dispatch = useDispatch();
+    const [currentUrgency, setCurrentUrgency] = useState({})
 
     const closeErrorPopUpFun = (header, text) => {
         setErrorHeader(header);
@@ -168,6 +169,11 @@ function DirectoryUrgency(props) {
         }, 400);
     };
 
+    useEffect(() => {
+        const currentUrgency = tableBodyUrgency?.find(urgency => urgency.id === context.selectRowDirectory)
+        setCurrentUrgency(currentUrgency)
+      }, [context?.selectRowDirectory])
+
     return (
         <div className={styles.DirectoryStatuses}>
             <div className={styles.Functional__header}>
@@ -297,7 +303,7 @@ function DirectoryUrgency(props) {
 
             {deletedModalOpen && (
                 <UneversalDelete
-                    text="эту срочность"
+                    text={`cрочность "${currentUrgency.name}"`}
                     ClosePopUp={closePopUp}
                     FunctionDelete={deleteUrgency}
                 />

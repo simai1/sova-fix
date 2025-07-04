@@ -36,6 +36,8 @@ function ReferenceObjects() {
   const [valueCreateLegalId, setValueCreateLegalId] = useState("");
   const [pupUpEdit, setPupUpEdit] = useState(false);
   const [selectId, setSelectId] = useState("");
+  const [currentObject, setCurrentObject] = useState({})
+
   const dispatch = useDispatch();
   useEffect(() => {
     getData();
@@ -166,6 +168,11 @@ function ReferenceObjects() {
     }
   };
 
+  useEffect(() => {
+    const currentObj = tableDataObject?.find(objectDir => objectDir.id === context.selectRowDirectory)
+    setCurrentObject(currentObj)
+  }, [context?.selectRowDirectory])
+
   return (
     <div className={styles.ReferenceObjects}>
       <div className={styles.ReferenceObjectsTop}>
@@ -197,7 +204,7 @@ function ReferenceObjects() {
       />
       {deleteUnitFlag && (
         <UneversalDelete
-          text="Объект"
+          text={`объект "${currentObject.name}"`}
           ClosePopUp={ClosePopUp}
           FunctionDelete={FunctionDelete}
         />

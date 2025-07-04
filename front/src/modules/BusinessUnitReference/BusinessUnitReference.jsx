@@ -27,6 +27,7 @@ function BusinessUnitReference() {
   const [errorMessage, setErrorMessage] = useState("");
   const [popUpEdit, setPopUpEdit] = useState(false);
   const [selectId, setSelectId] = useState("");
+  const [currentUnit, setCurrentUnit] = useState({})
 
   const [isError, setIsError] = useState(false);
   const [isHiding, setIsHiding] = useState(false);
@@ -141,6 +142,11 @@ function BusinessUnitReference() {
       }, 400);
   };
 
+  useEffect(() => {
+    const currentUnit = tableDataUnit?.find(unit => unit.id === context.selectRowDirectory)
+    setCurrentUnit(currentUnit)
+  }, [context?.selectRowDirectory])
+
   return (
     <div className={styles.BusinessUnitReference}>
       <div className={styles.BusinessUnitReferenceTop}>
@@ -174,7 +180,7 @@ function BusinessUnitReference() {
       />
       {deleteUnitFlag && (
         <UneversalDelete
-          text="Подразделение"
+          text={`подразделение "${currentUnit.name}"`}
           ClosePopUp={ClosePopUp}
           FunctionDelete={FunctionDelete}
         />

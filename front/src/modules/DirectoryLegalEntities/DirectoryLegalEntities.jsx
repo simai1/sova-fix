@@ -32,6 +32,9 @@ function DirectoryLegalEntities() {
     const [errorHeader, setErrorHeader] = useState("");
     const [errorText, setErrorText] = useState("");
 
+    const [currentLegalEntity, setCurrentLegalEntity] = useState({})
+
+        
     useEffect(() => {
         getData();
     }, []);
@@ -163,6 +166,11 @@ function DirectoryLegalEntities() {
         }, 400);
     };
 
+    useEffect(() => {
+        const currentLegalEntity = tableDataEntries?.find(legalEnt => legalEnt.id === context.selectRowDirectory)
+        setCurrentLegalEntity(currentLegalEntity)
+    }, [context?.selectRowDirectory])
+
     return (
         <div className={styles.DirectoryLegalEntities}>
             <div className={styles.DirectoryLegalEntitiesTop}>
@@ -183,7 +191,7 @@ function DirectoryLegalEntities() {
                 }
             </div>
             <UniversalTable FilterFlag={true} tableName="table1" tableHeader={tableLagealEntries} tableBody={tableDataEntries} selectFlag={true} setData={setTableDataEntries} heightTable="calc(100vh - 285px)"/>
-            {deleteUnitFlag && <UneversalDelete text="Юр. лицо" ClosePopUp={ClosePopUp} FunctionDelete={FunctionDelete} />}
+            {deleteUnitFlag && <UneversalDelete text={`юр. лицо "${currentLegalEntity.name}"`} ClosePopUp={ClosePopUp} FunctionDelete={FunctionDelete} />}
             {context.popUp === "PopUpError" && <PopUpError />}
             {popUpCreate && (
                 <div className={styles.PupUpCreate}>

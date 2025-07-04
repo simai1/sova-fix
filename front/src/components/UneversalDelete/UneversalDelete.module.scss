@@ -22,6 +22,7 @@
         text-align: center;
         position: relative;
         font-size: 18px;
+        padding: 10px;
         .ButtonInner{
             width: 100%;
             display: flex;
@@ -34,11 +35,18 @@
                 border-radius: 12px;
                 font-size: 20px;
                 margin: 0 10px;
-                @include button(var(--turquoise-color));
                 text-align: center;
                 display: flex;
                 justify-content: center;
             }
+        }
+
+        .confirmButton {
+            @include button(var(--Main-green-color));
+        }
+
+        .rejectButton {
+            @include button(var(--Red-color));
         }
        
     }

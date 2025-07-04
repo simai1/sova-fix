@@ -19,10 +19,10 @@ function UneversalDelete(props) {
     return ( 
         <div className={styles.UneversalDelete}>
             <div className={styles.СonfirmDeleteInner}>
-                <p>Вы уверены что хотите удалить {props?.text}?</p>
+                <p>Вы уверены, что хотите удалить {props?.text}?</p>
                 <div className={styles.ButtonInner}>
-                    <button onClick={() => props?.FunctionDelete()}>Да</button>
-                    <button onClick={() => props?.ClosePopUp()}>Нет</button>
+                    <button onClick={() => props?.FunctionDelete()} className={styles.confirmButton}>Да</button>
+                    <button onClick={() => props?.ClosePopUp()} className={styles.rejectButton}>Нет</button>
                 </div>
             </div>
         </div>
