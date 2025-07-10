@@ -106,7 +106,7 @@ function BusinessUnitReference() {
             closePopUp();
           } else {
             closePopErrorFun(
-              `Максимальное количество подразделений в системе: ${process.env.OBJECTS_LIMIT}`,
+              `Максимальное количество подразделений в системе: ${process.env.REACT_APP_UNITS_LIMIT}`,
               'Чтобы добавить новый объект - обратитесь к вашему менеджеру SOVA-tech'
           );
             return closePopUp();
