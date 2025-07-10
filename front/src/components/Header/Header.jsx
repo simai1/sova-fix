@@ -265,7 +265,7 @@ return (
                       <p className={styles.objectsHeader}>Объекты</p>
                       <div className={styles.objectsInfo}>
                         <p>Подключено: {objectsLength}</p>
-                        <p>Оплачено: {process.env.REACT_APP_OBJECTS_LIMIT !== null ? process.env.REACT_APP_OBJECTS_LIMIT : "безлимит"}</p>
+                        <p>Оплачено: {process.env.OBJECTS_LIMIT !== null ? process.env.OBJECTS_LIMIT : "безлимит"}</p>
                       </div>
                   </li>
                 </ul>
