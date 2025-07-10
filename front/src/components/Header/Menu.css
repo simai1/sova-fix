@@ -3,8 +3,8 @@
 .menu {
     position: fixed;
     top: 0;
-    left: -345px; /* Скрыто за пределами экрана */
-    width: 300px;
+    left: -400px; /* Скрыто за пределами экрана */
+    width: 340px;
     height: 100%;
     background-color: #e3dfda;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
@@ -15,6 +15,8 @@
 
 .menu.open {
     left: 0; /* Меню выезжает */
+    overflow-y: auto;
+    box-sizing: border-box;
 }
 
 @media (max-height: 370px) {
