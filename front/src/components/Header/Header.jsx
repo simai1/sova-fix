@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef, useContext } from 'react';
 import './Menu.css'; // Импортируем стили
 import { useNavigate } from "react-router-dom";
 import DataContext from "../../context";
-import { GetAllSettings, LogOut } from "../../API/API";
+import { GetAllSettings, GetObjectsAll, LogOut } from "../../API/API";
 import { addTableHeader } from "../../store/editColumTable/editColumTable.slice";
 import { tableHeadAppoint, tableList, tableUser } from "../Table/Data";
 import { useDispatch } from "react-redux";
@@ -29,6 +29,7 @@ function Header() {
     const systemRef = useRef(null);
     const ToRef = useRef(null);
     const settingsRef = useRef(null)
+    const [objectsLength, setObjectsLength] = useState(0)
 
     // Список значений настроек, при большом количестве настроек в будуще, необходимо будет вынести данный
     // компонент настроек в отдельный отдельный компонент. Обсуждали сделать отдельную страницу, поняли, что пока избыточно,
@@ -124,6 +125,9 @@ function Header() {
     GetAllSettings().then(res => {
       context?.setSettingsList(res.data)
     })
+    GetObjectsAll().then(res => {
+      if (res.status === 200) setObjectsLength(res.data?.length)
+    })
   }, [])
 
 return (
@@ -148,123 +152,132 @@ return (
           <div className={styles.close}>
             <img onClick={() =>  closeMenu()} src={imgClose}/>
           </div>
-          <ul className={styles.menuUl}>
-              <li onClick={() => LinkPage()} className={styles.menuLi}>Главная</li>
-              <li onClick={() => LinkPage("CardPage/Card")} className={styles.menuLi}>Маршрутный лист</li>
-              {process.env?.REACT_APP_GLOBAL_OPEN_TO_BLOCK === "open" &&
-              <>
-                <li onClick={() => setIsOpenTo(!isOpenTo)} className={styles.menuLi} style={isOpenTo ? { backgroundColor: "#FFE20D" } : { backgroundColor: "#e3dfda" }}>
-                    Техническое обслуживание
-                    <img style={isOpenTo ? { transform: "rotate(0deg)" } : { transform: "rotate(-90deg)" }} src={arrowBottom} />
+          <div className={styles.menu__container}>
+            <ul className={styles.menuUl}>
+                <li onClick={() => LinkPage()} className={styles.menuLi}>Главная</li>
+                <li onClick={() => LinkPage("CardPage/Card")} className={styles.menuLi}>Маршрутный лист</li>
+                {process.env?.REACT_APP_GLOBAL_OPEN_TO_BLOCK === "open" &&
+                <>
+                  <li onClick={() => setIsOpenTo(!isOpenTo)} className={styles.menuLi} style={isOpenTo ? { backgroundColor: "#FFE20D" } : { backgroundColor: "#e3dfda" }}>
+                      Техническое обслуживание
+                      <img style={isOpenTo ? { transform: "rotate(0deg)" } : { transform: "rotate(-90deg)" }} src={arrowBottom} />
+                  </li>
+                  <ul
+                      ref={ToRef}
+                      className={styles.menuUlSecond}
+                      style={{
+                          maxHeight: isOpenTo ? `${ToRef.current.scrollHeight}px` : '0',
+                          overflow: 'hidden',
+                          transition: 'max-height 0.3s ease'
+                      }}
+                  >
+                      <li className={styles.menuLi} onClick={() => LinkPage("Equipment/GraphicEquipment")}>Графики ТО</li>
+                      <li className={styles.menuLi} onClick={() => LinkPage("Equipment/RangeEquipment")}>Номенклатура оборудования</li>
+                      <li className={styles.menuLi} onClick={() => LinkPage("Equipment/CategoryEquipment")}>Категории оборудования</li>
+                  </ul>
+                </>}
+                <li onClick={() => setIsOpenSprav(!isOpenSprav)} className={styles.menuLi} style={isOpenSprav ? { backgroundColor: "#FFE20D" } : { backgroundColor: "#e3dfda" }}>
+                    Справочники
+                    <img style={isOpenSprav ? { transform: "rotate(0deg)" } : { transform: "rotate(-90deg)" }} src={arrowBottom} />
                 </li>
                 <ul
-                    ref={ToRef}
+                    ref={spravRef}
                     className={styles.menuUlSecond}
                     style={{
-                        maxHeight: isOpenTo ? `${ToRef.current.scrollHeight}px` : '0',
+                        maxHeight: isOpenSprav ? `${spravRef.current.scrollHeight}px` : '0',
                         overflow: 'hidden',
                         transition: 'max-height 0.3s ease'
                     }}
                 >
-                    <li className={styles.menuLi} onClick={() => LinkPage("Equipment/GraphicEquipment")}>Графики ТО</li>
-                    <li className={styles.menuLi} onClick={() => LinkPage("Equipment/RangeEquipment")}>Номенклатура оборудования</li>
-                    <li className={styles.menuLi} onClick={() => LinkPage("Equipment/CategoryEquipment")}>Категории оборудования</li>
+                    <li className={styles.menuLi} onClick={() => LinkPage("Directory/DirectoryLegalEntities")}>Юридические лица</li>
+                    <li className={styles.menuLi} onClick={() => LinkPage("Directory/BusinessUnitReference")}>Подразделения</li>
+                    <li className={styles.menuLi} onClick={() => LinkPage("Directory/ReferenceObjects")}>Объекты</li>
+                    <li className={styles.menuLi} onClick={() => LinkPage("Directory/ThePerformersDirectory")}>Внешние подрядчики</li>
+                    <li className={styles.menuLi} onClick={() => LinkPage("Directory/UsersDirectory")}>Пользователи</li>
+                    <li className={styles.menuLi} onClick={() => LinkPage("Directory/TgUserObjects")}>Доступ к объектам</li>
+                    <li className={styles.menuLi} onClick={() => LinkPage("Directory/Urgency")}>Срочность заявок</li>
+                    <li className={styles.menuLi} onClick={() => LinkPage("Directory/Status")}>Статус заявок</li>
                 </ul>
-              </>}
-              <li onClick={() => setIsOpenSprav(!isOpenSprav)} className={styles.menuLi} style={isOpenSprav ? { backgroundColor: "#FFE20D" } : { backgroundColor: "#e3dfda" }}>
-                  Справочники
-                  <img style={isOpenSprav ? { transform: "rotate(0deg)" } : { transform: "rotate(-90deg)" }} src={arrowBottom} />
-              </li>
-              <ul
-                  ref={spravRef}
-                  className={styles.menuUlSecond}
-                  style={{
-                      maxHeight: isOpenSprav ? `${spravRef.current.scrollHeight}px` : '0',
-                      overflow: 'hidden',
-                      transition: 'max-height 0.3s ease'
-                  }}
-              >
-                  <li className={styles.menuLi} onClick={() => LinkPage("Directory/DirectoryLegalEntities")}>Юридические лица</li>
-                  <li className={styles.menuLi} onClick={() => LinkPage("Directory/BusinessUnitReference")}>Подразделения</li>
-                  <li className={styles.menuLi} onClick={() => LinkPage("Directory/ReferenceObjects")}>Объекты</li>
-                  <li className={styles.menuLi} onClick={() => LinkPage("Directory/ThePerformersDirectory")}>Внешние подрядчики</li>
-                  <li className={styles.menuLi} onClick={() => LinkPage("Directory/UsersDirectory")}>Пользователи</li>
-                  <li className={styles.menuLi} onClick={() => LinkPage("Directory/TgUserObjects")}>Доступ к объектам</li>
-                  <li className={styles.menuLi} onClick={() => LinkPage("Directory/Urgency")}>Срочность заявок</li>
-                  <li className={styles.menuLi} onClick={() => LinkPage("Directory/Status")}>Статус заявок</li>
-              </ul>
-              {process.env?.REACT_APP_GLOBAL_OPEN_REPORT_BLOCK === "open" &&
-              <>
-                <li onClick={() => setIsOpenFinans(!isOpenFinans)} className={styles.menuLi} style={isOpenFinans ? { backgroundColor: "#FFE20D" } : { backgroundColor: "#e3dfda" }}>
-                    Отчеты
-                    <img style={isOpenFinans ? { transform: "rotate(0deg)" } : { transform: "rotate(-90deg)" }} src={arrowBottom} />
+                {process.env?.REACT_APP_GLOBAL_OPEN_REPORT_BLOCK === "open" &&
+                <>
+                  <li onClick={() => setIsOpenFinans(!isOpenFinans)} className={styles.menuLi} style={isOpenFinans ? { backgroundColor: "#FFE20D" } : { backgroundColor: "#e3dfda" }}>
+                      Отчеты
+                      <img style={isOpenFinans ? { transform: "rotate(0deg)" } : { transform: "rotate(-90deg)" }} src={arrowBottom} />
+                  </li>
+                  <ul
+                      ref={finansRef}
+                      className={styles.menuUlSecond}
+                      style={{
+                          maxHeight: isOpenFinans ? `${finansRef.current.scrollHeight}px` : '0',
+                          overflow: 'hidden',
+                          transition: 'max-height 0.3s ease'
+                      }}
+                  >
+                      <li className={styles.menuLi} onClick={() => LinkPage("RepotYour")}>Показатели</li>
+                      <li className={styles.menuLi} onClick={() => LinkPage("ReportFinansing")}>Финансы</li>
+                  </ul>
+                  </>
+                }
+                <li onClick={() => setIsOpenSystem(!isOpenSystem)} className={styles.menuLi} style={isOpenSystem ? { backgroundColor: "#FFE20D" } : { backgroundColor: "#e3dfda" }}>
+                Системы управления
+                    <img style={isOpenSystem ? { transform: "rotate(0deg)" } : { transform: "rotate(-90deg)" }} src={arrowBottom} />
                 </li>
                 <ul
-                    ref={finansRef}
+                    ref={systemRef}
                     className={styles.menuUlSecond}
                     style={{
-                        maxHeight: isOpenFinans ? `${finansRef.current.scrollHeight}px` : '0',
+                        maxHeight: isOpenSystem ? `${systemRef.current.scrollHeight}px` : '0',
                         overflow: 'hidden',
                         transition: 'max-height 0.3s ease'
                     }}
                 >
-                    <li className={styles.menuLi} onClick={() => LinkPage("RepotYour")}>Показатели</li>
-                    <li className={styles.menuLi} onClick={() => LinkPage("ReportFinansing")}>Финансы</li>
+                    <a href="https://sova-rest.com/" target="_blank"><li className={styles.menuLi}>SOVA-rest</li></a>
+                    <a href="https://sova-tech.com/" target="_blank"><li className={styles.menuLi}>HRD-bot</li></a>
+                    <a href="https://sova-fix.com/" target="_blank"><li className={styles.menuLi}>SOVA-fix</li></a>
                 </ul>
-                </>
-              }
-              <li onClick={() => setIsOpenSystem(!isOpenSystem)} className={styles.menuLi} style={isOpenSystem ? { backgroundColor: "#FFE20D" } : { backgroundColor: "#e3dfda" }}>
-              Системы управления
-                  <img style={isOpenSystem ? { transform: "rotate(0deg)" } : { transform: "rotate(-90deg)" }} src={arrowBottom} />
-              </li>
-              <ul
-                  ref={systemRef}
+
+                <li className={styles.menuLi} onClick={() => setIsOpenSettings(!isOpenSettings)} style={isOpenSettings ? { backgroundColor: "#FFE20D" } : { backgroundColor: "#e3dfda" }}>
+                    Настройки
+                    <img style={isOpenSettings ? { transform: "rotate(0deg)" } : { transform: "rotate(-90deg)" }} src={arrowBottom} />
+
+                </li>
+                <ul
+                  ref={settingsRef}
                   className={styles.menuUlSecond}
                   style={{
-                      maxHeight: isOpenSystem ? `${systemRef.current.scrollHeight}px` : '0',
+                      maxHeight: isOpenSettings ? `${settingsRef.current.scrollHeight}px` : '0',
                       overflow: 'hidden',
                       transition: 'max-height 0.3s ease'
                   }}
-              >
-                  <a href="https://sova-rest.com/" target="_blank"><li className={styles.menuLi}>SOVA-rest</li></a>
-                  <a href="https://sova-tech.com/" target="_blank"><li className={styles.menuLi}>HRD-bot</li></a>
-                  <a href="https://sova-fix.com/" target="_blank"><li className={styles.menuLi}>SOVA-fix</li></a>
-              </ul>
-
-              <li className={styles.menuLi} onClick={() => setIsOpenSettings(!isOpenSettings)} style={isOpenSettings ? { backgroundColor: "#FFE20D" } : { backgroundColor: "#e3dfda" }}>
-                  Настройки
-                  <img style={isOpenSettings ? { transform: "rotate(0deg)" } : { transform: "rotate(-90deg)" }} src={arrowBottom} />
-
-              </li>
-              <ul
-                ref={settingsRef}
-                className={styles.menuUlSecond}
-                style={{
-                    maxHeight: isOpenSettings ? `${settingsRef.current.scrollHeight}px` : '0',
-                    overflow: 'hidden',
-                    transition: 'max-height 0.3s ease'
-                }}
-              >
-                {context?.settingsList?.map(setting => (
+                >
+                  {context?.settingsList?.map(setting => (
+                    <li className={styles.menuSettingLi}>
+                      <div className={styles.settingToggle}>
+                          <Toggle
+                            label={setting.name}
+                            initialValue={setting.value}
+                            settingId={setting.id}
+                          />
+                      </div>
+                  </li>
+                  ))}
                   <li className={styles.menuSettingLi}>
-                    <div className={styles.settingToggle}>
-                        <Toggle
-                          label={setting.name}
-                          initialValue={setting.value}
-                          settingId={setting.id}
-                        />
-                    </div>
-                </li>
-                ))}
-              </ul>
-          </ul>
-        <div className={styles.ButonFunc}>
-          <div className={styles.ButonFuncInner}>
-            <a href="https://t.me/SOVA_tech_notification_bot" target="_blank"><button>Тех поддержка</button></a>
-            <button onClick={()=>Exit()}>Выход</button>
+                      <p className={styles.objectsHeader}>Объекты</p>
+                      <div className={styles.objectsInfo}>
+                        <p>Подключено: {objectsLength}</p>
+                        <p>Оплачено: {process.env.REACT_APP_OBJECTS_LIMIT !== null ? process.env.REACT_APP_OBJECTS_LIMIT : "безлимит"}</p>
+                      </div>
+                  </li>
+                </ul>
+            </ul>
+          <div className={styles.ButonFunc}>
+            <div className={styles.ButonFuncInner}>
+              <a href="https://t.me/SOVA_tech_notification_bot" target="_blank"><button>Тех поддержка</button></a>
+              <button onClick={()=>Exit()}>Выход</button>
+            </div>
           </div>
         </div>
-      </div>
+          </div>
       <div className={styles.TitleSitte}>
         <div className={styles.TitleSitteInner}>
         <img src={Logo}/>

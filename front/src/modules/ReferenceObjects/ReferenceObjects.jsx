@@ -20,6 +20,7 @@ import arrow from "./../../assets/images/arrow_bottom.svg";
 import { resetFilters } from "../../store/samplePoints/samplePoits";
 import ClearImg from "./../../assets/images/ClearFilter.svg"
 import { useDispatch } from "react-redux";
+import NotificationError from "../../components/Notification/NotificationError/NotificationError";
 function ReferenceObjects() {
   const [tableDataObject, setTableDataObject] = useState([]);
   const [legalData, setLegalData] = useState([]);
@@ -37,6 +38,10 @@ function ReferenceObjects() {
   const [pupUpEdit, setPupUpEdit] = useState(false);
   const [selectId, setSelectId] = useState("");
   const [currentObject, setCurrentObject] = useState({})
+  const [isError, setIsError] = useState(false);
+  const [isHiding, setIsHiding] = useState(false);
+  const [errorHeader, setErrorHeader] = useState("");
+  const [errorText, setErrorText] = useState("");
 
   const dispatch = useDispatch();
   useEffect(() => {
@@ -117,9 +122,34 @@ function ReferenceObjects() {
           if (response?.status === 200) {
             getData();
             closePopUp();
+          } else {
+              closeErrorPopUpFun(
+                `Максимальное количество объектов в системе: ${process.env.REACT_APP_UNITS_LIMIT}`,
+                'Чтобы добавить новый объект - обратитесь к вашему менеджеру SOVA-tech'
+            );
+              return closePopUp();
           }
         });
   };
+
+  const closeErrorPopUpFun = (header, text) => {
+    setErrorHeader(header);
+    setErrorText(text);
+    setIsError(true);
+    setTimeout(() => {
+        handleClose();
+    }, 4000);
+  };
+
+  const handleClose = () => {
+    setIsHiding(true);
+    setTimeout(() => {
+        setErrorText("");
+        setErrorHeader("");
+        setIsError(false);
+        setIsHiding(false);
+    }, 400);
+};
 
   const closePopUp = () => {
     setPopUpCreate(false);
@@ -337,6 +367,15 @@ function ReferenceObjects() {
           </PopUpContainer>
         </div>
       )}
+
+            {isError && (
+                <NotificationError
+                    errorText={errorText}
+                    errorHeader={errorHeader}
+                    handleClose={handleClose}
+                    isHiding={isHiding}
+                />
+            )}
     </div>
   );
 }

@@ -25,6 +25,9 @@ const getAllUnits = async (): Promise<UnitDto[]> => {
 
 const createUnit = async (name: string, description: string | undefined): Promise<UnitDto> => {
     const checkUnit = await Unit.findOne({ where: { name } });
+    const allObjects = await getAllUnits();
+    if (process.env.UNITS_LIMIT && allObjects.length >= Number(process.env.UNITS_LIMIT))
+        throw new ApiError(httpStatus.BAD_REQUEST, 'The limit for creating units has been exceeded');
     if (checkUnit) throw new ApiError(httpStatus.BAD_REQUEST, 'Already exists unit');
     const unit = await Unit.create({ name, description, number: 1 }, {});
     return new UnitDto(unit);
@@ -39,8 +42,8 @@ const getOneUnit = async (unitId: string): Promise<UnitDto> => {
 const destroyUnit = async (unitId: string): Promise<void> => {
     const unit = await getUnitById(unitId);
     if (!unit) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found unit with id ' + unitId);
-    const objectsWithUnit = await ObjectDir.findAll({ where: { unitId: unit.id } })
-    if (objectsWithUnit.length > 0) throw new ApiError(httpStatus.BAD_REQUEST, 'This unit has objects')
+    const objectsWithUnit = await ObjectDir.findAll({ where: { unitId: unit.id } });
+    if (objectsWithUnit.length > 0) throw new ApiError(httpStatus.BAD_REQUEST, 'This unit has objects');
     await unit.destroy({ force: true });
 };
 

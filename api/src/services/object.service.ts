@@ -42,7 +42,7 @@ const getUserObjects = async (tgUserId: string): Promise<ObjectDto[]> => {
                     model: models.ObjectDir,
                     as: 'Object',
                     required: true,
-                    include: [{ model: Unit }, { model: LegalEntity }]
+                    include: [{ model: Unit }, { model: LegalEntity }],
                 },
             ],
         });
@@ -71,16 +71,16 @@ const getUserObjects = async (tgUserId: string): Promise<ObjectDto[]> => {
             error,
         });
 
-        throw new ApiError(
-            httpStatus.INTERNAL_SERVER_ERROR,
-            `Failed to get objects for user ${tgUserId}`
-        );
+        throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Failed to get objects for user ${tgUserId}`);
     }
 };
 
 const createObject = async (name: string, unitId: string, city: string, legalEntityId: string): Promise<ObjectDto> => {
     const checkObject = await ObjectDir.findOne({ where: { name } });
     if (checkObject) throw new ApiError(httpStatus.BAD_REQUEST, 'Already exists object');
+    const allObjects = await getAllObjects();
+    if (process.env.OBJECTS_LIMIT && allObjects.length >= Number(process.env.OBJECTS_LIMIT))
+        throw new ApiError(httpStatus.BAD_REQUEST, 'The limit for creating objects has been exceeded');
     const legalEntity = await LegalEntity.findByPk(legalEntityId);
     if (!legalEntity) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found legalEntity with id ' + legalEntityId);
     const unit = await Unit.findByPk(unitId);

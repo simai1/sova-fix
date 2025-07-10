@@ -104,6 +104,12 @@ function BusinessUnitReference() {
           if (response?.status === 200) {
             getData();
             closePopUp();
+          } else {
+            closePopErrorFun(
+              `Максимальное количество подразделений в системе: ${process.env.REACT_APP_OBJECTS_LIMIT}`,
+              'Чтобы добавить новый объект - обратитесь к вашему менеджеру SOVA-tech'
+          );
+            return closePopUp();
           }
         });
   };

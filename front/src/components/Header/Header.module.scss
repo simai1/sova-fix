@@ -62,6 +62,14 @@
   .menuUlSecond{
     margin-left: 20px;
   }
+
+  .menu__container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 90vh;
+  }
+
   ul {
     a{
       text-decoration: none;
@@ -89,10 +97,20 @@
         @include font(16px, 300);
         cursor: pointer;
         border-radius: 5px;
+
+        .objectsHeader {
+          margin-top: 0;
+        }
+
+        .objectsInfo {
+          p {
+            padding-left: 15px;
+          }
+        }
       }
   }
   .ButonFunc{
-    position: absolute;
+    // position: absolute;
     bottom: 50px;
     display: flex;
     justify-content: center;
