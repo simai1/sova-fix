@@ -124,7 +124,7 @@ function ReferenceObjects() {
             closePopUp();
           } else {
               closeErrorPopUpFun(
-                `Максимальное количество объектов в системе: ${process.env.REACT_APP_OBJECTS_LIMIT}`,
+                `Максимальное количество объектов в системе: ${tableDataObject.length}`,
                 'Чтобы добавить новый объект - обратитесь к вашему менеджеру SOVA-tech'
             );
               return closePopUp();
