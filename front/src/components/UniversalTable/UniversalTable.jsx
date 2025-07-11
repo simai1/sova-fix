@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import DataContext from "../../context";
 import styles from "./UniversalTable.module.scss";
-import { GetAllStatuses, ReseachDataRequest, SetRole } from "../../API/API";
+import { GetAllManagers, GetAllStatuses, ReseachDataRequest, SetRole } from "../../API/API";
 import { useDispatch, useSelector } from "react-redux";
 import SamplePoints from "./../../components/SamplePoints/SamplePoints";
 import FilteImg from "./../../assets/images/filterColumn.svg";
@@ -30,12 +30,12 @@ function UniversalTable(props) {
   const dropdownRef = useRef(null);
   const contextCopyMenuRef = useRef(null)
   const navigate = useNavigate();
+  const [managers, setManagers] = useState([]);
 
   useEffect(() => {
     setTableHeaderData(props?.tableHeader);
     setTableBodyData(filterBasickData(props?.tableBody, store));
     setBasickData(props?.tableBody);
-   
   }, [props?.tableHeader, props?.tableBody, store]);
 
   useEffect(() => {
@@ -70,7 +70,17 @@ function UniversalTable(props) {
       let tb = [...data];
       let mass = [];
       tb?.filter((el) => {
-        if (chekeds.find((it) => el[it.itemKey] === it?.value)) {
+        if (chekeds.find((it) => {
+          if (it.itemKey === 'contractor') {
+            if (el[it.itemKey]?.name === it?.value) return true
+            if (el[it.itemKey] === "___") {
+              if(el['extContractor'] !== null && it.value === 'Внешний подрядчик' || it.value === 'Внешний подрядчик' &&  el['builder'] === 'Внешний подрядчик') return true
+              if(el['builder'] === 'Укажите подрядчика' && it.value === 'Укажите подрядчика') return true
+              if(el['builder'] === `Менеджер: ${it.value}`) return true
+            }
+          }
+          return el[it.itemKey] === it?.value
+        })) {
           return;
         } else {
           mass.push(el);
@@ -127,6 +137,12 @@ function UniversalTable(props) {
             context?.setStatusList(response.data)
           }
         })
+
+    GetAllManagers().then((response) => {
+          if (response && response.data) {
+            setManagers(response.data);
+          }
+        });
   }, [])
 
   const getStatusValue = (statusNumber) => {
@@ -134,11 +150,37 @@ function UniversalTable(props) {
     return statusFromDb;
   }
 
+  const getItemBuilder = (row, isBuilderColumn) => {
+    // Если есть подрядчик с именем
+    if (row?.contractor && typeof row.contractor === 'object' && row.contractor.name) {
+      return row.contractor.name;
+    } 
+    // Если это менеджер-исполнитель
+    else if (row?.managerId) {
+      // Ищем менеджера среди списка всех менеджеров
+      const manager = managers.find(m => m.id === row.managerId);
+      return manager ? manager.name : "Менеджер";
+    } 
+    else if (row?.isExternal && isBuilderColumn) {
+      return row?.extContractor?.name
+    }
+    // Если это внешний подрядчик
+    else if ((row?.isExternal || row?.builder === 'Внешний подрядчик') && !isBuilderColumn) {
+      return "Внешний подрядчик";
+    } 
+    else if ((!row?.isExternal && row?.builder === 'Внешний подрядчик') && isBuilderColumn) {
+      return 'Не назначен'
+    }
+    // В остальных случаях
+    else {
+      return "Укажите подрядчика";
+    }
+  };
+
   const getValue = (value, key, index, row) => {
     switch (key) {
       case "contractor":
-        if (value?.name) return value.name ?? row.extContractor;
-        return value ?? row.extContractor;
+        return getItemBuilder(row)
       case "itineraryOrder":
         return null;
       case "tgId":
@@ -456,23 +498,41 @@ function UniversalTable(props) {
                     basickData={basickData} // нефильтрованные данные
                     tableBodyData={tableBodyData} // фильтрованные данные
                     punkts={[
-                      ...tableBodyData.map((it) =>
-                        it[el.key] === null ? "___" : String(it[el.key]) // Ensure it's a string
-                      ),
+                      ...basickData.map((it) =>{
+                        // все что касается фильтра по исполнителю на фронте написано коряво. ПЕРЕДЕЛАТЬ при возможности.
+                        if (el.key === "contractor" && it[el.key] === "___" && it["contractorManager"] === null && it['extContractor'] === null) {
+                          return "Укажите подрядчика"
+                        }
+                        if (el.key === "contractor" && it[el.key] === "___" && it["contractorManager"] === "Внешний подрядчик" && it['extContractor'] !== null) {
+                          return it["contractorManager"]
+                        }
+                        if (el.key === "contractor" && it[el.key] !== "___") {
+                          return it[el.key].name;
+                        } else if (el.key === "contractor" && it[el.key] === "___" && it["contractorManager"] !== 'Укажите подрядчика' && it["contractorManager"] !== 'Внешний подрядчик') {
+                          return it["contractorManager"]
+                        } else if (el.key === 'status') {
+                          return context?.statusList?.find(statusItem => statusItem?.number === it[el.key])?.name
+                        }
+                        return it[el.key];
+                      }).map((val) => (val === null ? "___" : val)),
                       ...store
-                        .filter((it) => it.itemKey === el.key)
+                        .filter((it) =>
+                          el.key === "contractor"
+                            ? it.itemKey === "contractorManager"
+                            : it.itemKey === el.key
+                          )
                         .map((it) => String(it.value)), // Ensure it's a string
                     ].sort((a, b) => {
                       // Handle cases where a or b might not be a string
-                      if (typeof a === "string" && typeof b === "string") {
-                        return a.localeCompare(b);
-                      } else if (a == null) {
-                        return 1; // Place nulls at the end
-                      } else if (b == null) {
-                        return -1; // Place nulls at the end
-                      } else {
+                      // if (typeof a === "string" && typeof b === "string") {
+                      //   return a.localeCompare(b);
+                      // } else if (a == null) {
+                      //   return 1; // Place nulls at the end
+                      // } else if (b == null) {
+                      //   return -1; // Place nulls at the end
+                      // } else {
                         return String(a).localeCompare(String(b)); // Convert to string for comparison
-                      }
+                      // }
                     })}
                     itemKey={el.key} // ключь пунта
                     tableName={props?.tableName}
