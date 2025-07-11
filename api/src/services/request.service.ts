@@ -202,14 +202,31 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
                           
                           // Убираем заявки, где и Contractor.name, и ExtContractor.name пустые
                           {
-                            [Op.not]: {
-                              [Op.and]: [
-                                { '$Contractor.name$': { [Op.is]: null } },
-                                { '$ExtContractor.name$': { [Op.is]: null } },
-                              ],
-                            },
-                          },
-                      
+                            [Op.or]: [
+                              {
+                                [Op.or]: [
+                                  { '$Contractor.name$': { [Op.not]: null } },
+                                  { '$ExtContractor.name$': { [Op.not]: null } },
+                                ],
+                              },
+                              {
+                                builder: {
+                                  [Op.and]: [
+                                    { [Op.iLike]: 'Менеджер:%' },
+                                    { [Op.notILike]: 'Менеджер: Внешний подрядчик' },
+                                  ],
+                                },
+                              },
+                              {
+                                builder: {
+                                  [Op.or]: [
+                                    { [Op.notILike]: 'Укажите подрядчика' }, // для случаев без 'Менеджер:'
+                                    { [Op.notILike]: 'Менеджер: Внешний подрядчик' },
+                                  ],
+                                },
+                              },
+                            ],
+                          },                          
                           // Убираем builder, кроме "Менеджер: Внешний подрядчик"
                           {
                             builder: {
