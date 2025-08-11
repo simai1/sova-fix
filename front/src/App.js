@@ -30,6 +30,7 @@ import DirectoryUrgency from "./modules/DirectoryUrgencies/DirectoryUrgency";
 import DirectoryStatuses from "./modules/DirectoryStatuses/DirectoryStatuses";
 import RequestPasswordRequest from "./pages/Login/ResetPasswordRequest/RequestPasswordRequest";
 import ResetPassword from "./pages/Login/ResetPassword/ResetPassword";
+import DirectoryCategory from './modules/DirectoryCategory/DirectoryCategory'
 
 function App() {
   const [selectContructor, setSelectContractor] = useState("")
@@ -409,6 +410,7 @@ const UpdateStatus = () => {
                <Route path="TgUserObjects" element={<TgUserObjects />}></Route>
                <Route path="Urgency" element={<DirectoryUrgency />}></Route>
                <Route path="Status" element={<DirectoryStatuses />}></Route>
+               <Route path="Category" element={<DirectoryCategory />}></Route>
              </Route>
             )}
 
