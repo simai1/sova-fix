@@ -18,9 +18,11 @@ import Urgency from './urgency';
 import Status from './status';
 import PasswordResetToken from './passwordResetTokens';
 import Settings from './settings';
+import DirectoryCategory from './directoryCategory';
 
 const { DB_USER, DB_PWD, DB_HOST, DB_PORT, DB_NAME } = process.env;
 export const models = {
+    DirectoryCategory,
     TgUser,
     User,
     PasswordResetToken,

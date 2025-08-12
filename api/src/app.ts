@@ -24,6 +24,7 @@ import urgencyRoute from './routes/urgency.route'
 import statusRoute from './routes/status.route'
 import passwordResetTokensRoute from './routes/passwordResetTokens.route'
 import settingsRoute from './routes/settings.route'
+import directoryCategory from './routes/directoryCategory.route'
 
 
 import logger from './utils/logger';
@@ -74,6 +75,7 @@ app.use('/urgency', urgencyRoute)
 app.use('/status', statusRoute)
 app.use('/reset-password-tokens', passwordResetTokensRoute)
 app.use('/settings', settingsRoute)
+app.use('/directoryCategory', directoryCategory)
 
 // websocket section
 app.ws('/', () => {

@@ -10,7 +10,7 @@ import { isNotification } from "../types/typesguards/notification";
 const baseQuery = fetchBaseQuery({
     credentials: "include",
     prepareHeaders: (headers) => {
-        const token = localStorage.getItem('token')
+        const token = sessionStorage.getItem('accessToken')
 
         if (token) {
             headers.set("Authorization", `Bearer ${token}`);
@@ -41,7 +41,7 @@ const fetchMainBaseQuery =
         extraOptions,
       );
       if (isRefreshResponse(refreshResponse.data)) 
-        localStorage.setItem("token", refreshResponse.data.accessToken);
+        sessionStorage.setItem("accessToken", refreshResponse.data.accessToken);
       if (!refreshResponse.error) {
         result = await baseQuery(updatedArgs, api, extraOptions);
       }
