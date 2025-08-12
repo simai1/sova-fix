@@ -6,12 +6,15 @@ import { resetFilters } from "../../store/samplePoints/samplePoits";
 // @ts-ignore
 import UniversalTable from "../../components/UniversalTable/UniversalTable.jsx";
 import { tableColumn } from "./constant";
+import { useGetAllDirectoryCategoryQuery } from "./directoryCategory.api";
 
 const DirectoryCategory: FC = () => {
     const dispatch = useAppDispatch();
 
     const rawUserData = localStorage.getItem("userData");
     const userRole = rawUserData ? JSON.parse(rawUserData)?.user?.role : null;
+
+    const {data: directoryCategories} = useGetAllDirectoryCategoryQuery()
 
     return (
         <div className={styles.container}>
@@ -43,7 +46,7 @@ const DirectoryCategory: FC = () => {
                     <UniversalTable
                         tableName="table16"
                         tableHeader={tableColumn}
-                        tableBody={[]}
+                        tableBody={directoryCategories}
                         selectFlag={true}
                         FilterFlag={true}
                         heightTable="calc(100vh - 285px)"

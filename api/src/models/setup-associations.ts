@@ -1,3 +1,4 @@
+import DirectoryCategory from './directoryCategory';
 import { models } from './index';
 import PasswordResetToken from './passwordResetTokens';
 import Status from './status';
@@ -101,4 +102,9 @@ export default function () {
 
     User.hasMany(PasswordResetToken, {foreignKey: 'userId'})
     PasswordResetToken.belongsTo(User, {foreignKey: 'userId'})
+
+    DirectoryCategory.hasMany(TgUser, {foreignKey: "customersIds"})
+    TgUser.belongsTo(DirectoryCategory, {foreignKey: "customersIds"})
+
+    
 }

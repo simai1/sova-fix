@@ -14,12 +14,14 @@ import {
 } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import editColumTableSlice from "./editColumTable/editColumTable.slice.js";
+import { directoryCategoryApi } from "../modules/DirectoryCategory/directoryCategory.api";
 
 const rootReducer = combineReducers({
     isCheckedSlice: isCheckedSlice,
     editInputChecked: editInputChecked,
     editColumTableSlice: editColumTableSlice,
     isSamplePoints: isSamplePoints,
+    [directoryCategoryApi.reducerPath]: directoryCategoryApi.reducer,
 });
 
 const persistConfig = {
@@ -44,7 +46,7 @@ const store = configureStore({
                     REGISTER,
                 ],
             },
-        }),
+        }).concat([directoryCategoryApi.middleware]),
 });
 
 export const persistor = persistStore(store);
