@@ -1,14 +1,15 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
+import User from './user';
+import ExtContractor from './externalContractor';
+import Contractor from './contractor';
 
 export default class DirectoryCategory extends Model {
     id!: string;
     number!: number;
     name!: string;
     color!: string;
-    builderId?: string | null;
-    builderName?: string | null;
-    customersIds?: string[] | null;
-    customersName?: string[] | null;
+    builder?: ExtContractor | Contractor | null;
+    customers?: User[] | null;
 
     static initialize(sequelize: Sequelize) {
         DirectoryCategory.init(
@@ -36,16 +37,8 @@ export default class DirectoryCategory extends Model {
                     type: DataTypes.UUID,
                     allowNull: true,
                 },
-                builderName: {
-                    type: DataTypes.STRING,
-                    allowNull: true,
-                },
                 customersIds: {
                     type: DataTypes.ARRAY(DataTypes.UUID),
-                    allowNull: true,
-                },
-                customersName: {
-                    type: DataTypes.ARRAY(DataTypes.STRING),
                     allowNull: true,
                 },
             },

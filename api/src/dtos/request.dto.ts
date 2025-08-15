@@ -2,6 +2,7 @@ import RepairRequest from '../models/repairRequest';
 import ContractorDto from './contractor.dto';
 import strftime from 'strftime';
 import ExtContractorDto from './extContractor.dto';
+import { DirectoryCategoryDto } from './directoryCategory.dto';
 
 export default class RequestDto {
     id!: string;
@@ -36,6 +37,7 @@ export default class RequestDto {
     copiedRequestId?: string;
     managerId?: string | null;
     managerTgId?: string | null;
+    directoryCategory?: DirectoryCategoryDto | null; 
 
     constructor(model: RepairRequest) {
         this.id = model.id;
@@ -70,5 +72,6 @@ export default class RequestDto {
         this.copiedRequestId = model.copiedRequestId;
         this.managerId = model.managerId;
         this.managerTgId = model.managerTgId;
+        this.directoryCategory = model.directoryCategory ? new DirectoryCategoryDto(model.directoryCategory) : null
     }
 }

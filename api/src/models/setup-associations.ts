@@ -94,17 +94,18 @@ export default function () {
     TgUserObject.belongsTo(TgUser, { foreignKey: 'tgUserId', as: 'User' });
     TgUserObject.belongsTo(ObjectDir, { foreignKey: 'objectId', as: 'Object' });
 
-    Urgency.hasMany(RepairRequest, {foreignKey: 'urgencyId'});
+    Urgency.hasMany(RepairRequest, { foreignKey: 'urgencyId' });
     RepairRequest.belongsTo(Urgency, { foreignKey: 'urgencyId' });
 
-    Status.hasMany(RepairRequest, {foreignKey: 'statusId'});
+    Status.hasMany(RepairRequest, { foreignKey: 'statusId' });
     RepairRequest.belongsTo(Status, { foreignKey: 'statusId' });
 
-    User.hasMany(PasswordResetToken, {foreignKey: 'userId'})
-    PasswordResetToken.belongsTo(User, {foreignKey: 'userId'})
+    User.hasMany(PasswordResetToken, { foreignKey: 'userId' });
+    PasswordResetToken.belongsTo(User, { foreignKey: 'userId' });
 
-    DirectoryCategory.hasMany(TgUser, {foreignKey: "customersIds"})
-    TgUser.belongsTo(DirectoryCategory, {foreignKey: "customersIds"})
+    DirectoryCategory.hasMany(TgUser, { foreignKey: 'customersIds' });
+    TgUser.belongsTo(DirectoryCategory, { foreignKey: 'customersIds' });
 
-    
+    DirectoryCategory.hasMany(RepairRequest, { foreignKey: "directoryCategory" });
+        RepairRequest.belongsTo(DirectoryCategory, { foreignKey: 'directoryCategory' });
 }

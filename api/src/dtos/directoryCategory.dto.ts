@@ -1,4 +1,7 @@
 import DirectoryCategory from "../models/directoryCategory";
+import ContractorDto from "./contractor.dto";
+import ExtContractorDto from "./extContractor.dto";
+import UserDto from "./user.dto";
 
 
 export class DirectoryCategoryDto {
@@ -6,19 +9,15 @@ export class DirectoryCategoryDto {
     number!: number;
     name!: string;
     color!: string;
-    builderId?: string | null;
-    builderName?: string | null;
-    customersIds?: string[] | null;
-    customersName?: string[] | null;
+    builder?: ExtContractorDto | ContractorDto | null;
+    customers?: UserDto[] | null;
     
     constructor(model: DirectoryCategory) {
         this.id = model.id;
         this.number = model.number;
         this.name = model.name;
         this.color = model.color;
-        this.builderId = model.builderId;
-        this.builderName = model.builderName;
-        this.customersIds = model.customersIds;
-        this.customersName = model.customersName;
+        this.builder = model.builder;
+        this.customers = model.customers;
     }
 }
