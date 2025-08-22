@@ -1607,3 +1607,37 @@ export const ChangeSetting = async (settingId, value) => {
     }
   }
 }
+
+export const GetAllDirectoryCategories = async () => {
+  try {
+    const response = await http.get(`${server}/directoryCategory`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при получении списка срочностей!");
+    }
+  }
+}
+
+export const SetNewsetNewDirectoryCategory = async (id, data) => {
+  try {
+    const response = await http.post(`${server}/requests/directoryCategory/${id}`, data, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+    } else {
+      console.log("Ошибка при получении списка срочностей!");
+    }
+  }
+}

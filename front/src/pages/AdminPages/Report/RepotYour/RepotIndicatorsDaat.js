@@ -23,6 +23,7 @@ export const DataList = [
     { key: "contractor", value: "Исполнитель", isActive: true  },
     { key: "builder", value: "Подрядчик", isActive: true  },
     { key: "status", value: "Статус заявки", isActive: true  },
+    { key: "directoryCategory", value: "Категория", isActive: true },
     { key: "problemDescription", value: "Описание проблемы", isActive: true  },
     { key: "fileName", value: "Фото/Видео проблемы", isActive: true  },
     { key: "urgency", value: "Срочность", isActive: true  },

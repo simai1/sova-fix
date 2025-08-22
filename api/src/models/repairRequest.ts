@@ -1,12 +1,11 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
-import statuses from '../config/statuses';
 import Contractor from './contractor';
 import ObjectDir from './object';
 import Unit from './unit';
 import LegalEntity from './legalEntity';
 import ExtContractor from './externalContractor';
-import Urgency from './urgency';
 import TgUser from './tgUser';
+import DirectoryCategory from './directoryCategory';
 
 export default class RepairRequest extends Model {
     id!: string;
@@ -45,6 +44,8 @@ export default class RepairRequest extends Model {
     isExternal!: boolean;
     isAutoCreated!: boolean;
     copiedRequestId?: string;
+    DirectoryCategory?: DirectoryCategory;
+    directoryCategoryId?: string | null
 
     static initialize(sequelize: Sequelize) {
         RepairRequest.init(
@@ -143,6 +144,10 @@ export default class RepairRequest extends Model {
                 },
                 managerTgId: {
                     type: DataTypes.STRING,
+                    allowNull: true,
+                },
+                directoryCategoryId: {
+                    type: DataTypes.UUID,
                     allowNull: true,
                 },
             },

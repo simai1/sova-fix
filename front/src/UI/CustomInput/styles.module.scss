@@ -1,0 +1,42 @@
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 14px;
+  
+    .label {
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+  
+    .input {
+      width: 420px;
+      padding: 10px 15px;
+      border: 1px solid #adadad;
+      border-radius: 8px;
+      font-size: 16px;
+      &:focus {
+        outline: none;
+        border-color: #353535;
+      }
+    }
+  
+    .textarea {
+      width: 420px;
+      min-height: 105px;
+      max-height: 150px;
+      border-radius: 8px;
+      padding: 15px;
+      font-size: 16px;
+      border: 1px solid #adadad;
+      resize: vertical;
+      &:focus {
+        outline: none;
+        border-color: #353535;
+      }
+    }
+  
+    .invalid {
+      border: 1px solid red;
+    }
+  }
+  

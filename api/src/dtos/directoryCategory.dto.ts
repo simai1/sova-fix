@@ -1,24 +1,43 @@
-import DirectoryCategory from "../models/directoryCategory";
-
+import DirectoryCategory from '../models/directoryCategory';
+import ContractorDto from './contractor.dto';
+import ExtContractorDto from './extContractor.dto';
+import TgUserDto from './tgUser.dto';
+import UserDto from './user.dto';
 
 export class DirectoryCategoryDto {
     id!: string;
     number!: number;
     name!: string;
     color!: string;
-    builderId?: string | null;
-    builderName?: string | null;
-    customersIds?: string[] | null;
-    customersName?: string[] | null;
-    
+    builder?: ContractorDto | null;
+    customers?: TgUserDto[] | null;
+    manager?: TgUserDto | null;
+    isExternal?: boolean;
+    builderExternal?: ExtContractorDto;
+    isManager?: boolean;
+
     constructor(model: DirectoryCategory) {
         this.id = model.id;
         this.number = model.number;
         this.name = model.name;
         this.color = model.color;
-        this.builderId = model.builderId;
-        this.builderName = model.builderName;
-        this.customersIds = model.customersIds;
-        this.customersName = model.customersName;
+        this.isExternal = model.isExternal;
+        this.isManager = model.isManager;
+
+        if (model.builder) {
+            this.builder = new ContractorDto(model.builder);
+        }
+
+        if (model.builderExternal) {
+            this.builderExternal = new ExtContractorDto(model.builderExternal);
+        }
+
+        if (model.manager) {
+            this.manager = new TgUserDto(model.manager);
+        }
+
+        if (model.customers) {
+            this.customers = model.customers.length > 0 ? model.customers.map(c => new TgUserDto(c)) : null;
+        }
     }
 }

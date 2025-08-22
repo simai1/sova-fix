@@ -11,15 +11,16 @@ const areAllColumnsActive = (columns) => {
   return columns.every(column => column.isActive);
 };
 
+const initialState = {
+  AllColumTable: tableHeadAppoint, // Original data without flags
+  ActiveColumTable: initializeColumns(), // Initialize with flags set to true
+  AllCheckbox: true, // Initially set to true since all columns are active
+  HistoryTableData: [],
+}
+
 const editColumTable = createSlice({
   name: "ColumTable",
-  initialState: {
-    AllColumTable: tableHeadAppoint, // Original data without flags
-    ActiveColumTable: initializeColumns(), // Initialize with flags set to true
-    AllCheckbox: true, // Initially set to true since all columns are active
-    HistoryTableData: [],
-  },
-
+  initialState,
   reducers: {
     addTableHeader: (state, action) => {
       state.ActiveColumTable = action.payload;

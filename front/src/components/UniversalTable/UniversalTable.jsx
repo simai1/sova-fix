@@ -10,6 +10,7 @@ import ClearImg from "./../../assets/images/ClearFilter.svg";
 import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import EquipmentContextMenu from "../../UI/EquipmentContextMenu/EquipmentContextMenu";
+import { getStatusValue } from "./utils";
 
 function UniversalTable(props) {
   const store = useSelector(
@@ -79,6 +80,12 @@ function UniversalTable(props) {
               if(el['builder'] === `Менеджер: ${it.value}`) return true
             }
           }
+          if (it.itemKey === 'status') {
+            return getStatusValue(el[it.itemKey], context?.statusList)?.name === it?.value
+          }
+          if (it.itemKey === 'directoryCategory') {
+            return el[it.itemKey]?.name === it?.value
+          }
           return el[it.itemKey] === it?.value
         })) {
           return;
@@ -144,11 +151,6 @@ function UniversalTable(props) {
           }
         });
   }, [])
-
-  const getStatusValue = (statusNumber) => {
-    const statusFromDb = context?.statusList.find(status => status.number === statusNumber)
-    return statusFromDb;
-  }
 
   const getItemBuilder = (row, isBuilderColumn) => {
     // Если есть подрядчик с именем
@@ -253,12 +255,14 @@ function UniversalTable(props) {
         )
 
       case "status":
-        const statusFromDb = getStatusValue(value)
+        const statusFromDb = getStatusValue(value, context?.statusList)
         return (
           <div>
             {statusFromDb?.name}
           </div>
         )
+      case "directoryCategory":
+        return value?.name ?? '____'
       default:
         return value ?? "___";
     }

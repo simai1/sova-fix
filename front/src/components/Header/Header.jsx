@@ -197,7 +197,7 @@ return (
                     <li className={styles.menuLi} onClick={() => LinkPage("Directory/TgUserObjects")}>Доступ к объектам</li>
                     <li className={styles.menuLi} onClick={() => LinkPage("Directory/Urgency")}>Срочность заявок</li>
                     <li className={styles.menuLi} onClick={() => LinkPage("Directory/Status")}>Статус заявок</li>
-                    {/* <li className={styles.menuLi} onClick={() => LinkPage("Directory/Category")}>Категории</li> */}
+                    <li className={styles.menuLi} onClick={() => LinkPage("Directory/Category")}>Категории</li>
                 </ul>
                 {process.env?.REACT_APP_GLOBAL_OPEN_REPORT_BLOCK === "open" &&
                 <>
