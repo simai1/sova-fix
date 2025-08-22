@@ -2,6 +2,7 @@ import { FC, useState, useRef, useEffect } from "react";
 import { useController, Control } from "react-hook-form";
 import styles from "./styles.module.scss";
 import { Option } from "../../types/uiTypes";
+import Tooltip from "../Tooltip/Tooltip";
 
 interface MultiDropdownProps {
     name: string;
@@ -9,8 +10,9 @@ interface MultiDropdownProps {
     options: Option[];
     placeholder?: string;
     label?: string;
-    allValue?: string;
+    allValue?: string | null;
     required?: boolean | string;
+    disabled?: boolean;
 }
 
 const MultiDropdown: FC<MultiDropdownProps> = ({
@@ -21,6 +23,7 @@ const MultiDropdown: FC<MultiDropdownProps> = ({
     label,
     allValue,
     required,
+    disabled,
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
@@ -70,52 +73,58 @@ const MultiDropdown: FC<MultiDropdownProps> = ({
     return (
         <div className={styles.List}>
             {label && <label>{label}</label>}
-            <div className={styles.ListCont} ref={dropdownRef}>
-                <input
-                    readOnly
-                    onClick={() => setIsOpen(!isOpen)}
-                    value={selectedOptions.map((opt) => opt.label).join(", ")}
-                    placeholder={placeholder}
-                    style={isOpen ? { borderRadius: "5px 5px 0 0" } : undefined}
-                    className={error ? styles.error : undefined}
-                />
-                <span
-                    className={styles.arrowBot}
-                    onClick={() => setIsOpen(!isOpen)}
-                >
-                    <img
-                        style={{
-                            transform: isOpen
-                                ? "rotate(0deg)"
-                                : "rotate(-90deg)",
-                        }}
-                        src="/img/arrow_bottom.svg"
-                        alt="dropdown arrow"
+            <Tooltip condition={disabled ?? false} text='Включите настройку "Автоматизация"'>
+                <div className={styles.ListCont} ref={dropdownRef}>
+                    <input
+                        readOnly
+                        onClick={disabled ? () => {} : () => setIsOpen(!isOpen)}
+                        value={selectedOptions
+                            .map((opt) => opt.label)
+                            .join(", ")}
+                        placeholder={placeholder}
+                        style={
+                            isOpen ? { borderRadius: "5px 5px 0 0" } : undefined
+                        }
+                        className={error ? styles.error : undefined}
                     />
-                </span>
-                {isOpen && (
-                    <div className={styles.ListData}>
-                        {options.map((option) => (
-                            <p
-                                key={option.value}
-                                className={
-                                    value.includes(option.value)
-                                        ? `${styles.NameForList} ${styles.selected}`
-                                        : styles.NameForList
-                                }
-                                onClick={() => toggleOption(option)}
-                                style={{
-                                    fontWeight: value.includes(option.value)
-                                        ? "bold"
-                                        : "normal",
-                                }}
-                            >
-                                {option.label}
-                            </p>
-                        ))}
-                    </div>
-                )}
-            </div>
+                    <span
+                        className={styles.arrowBot}
+                        onClick={() => setIsOpen(!isOpen)}
+                    >
+                        <img
+                            style={{
+                                transform: isOpen
+                                    ? "rotate(0deg)"
+                                    : "rotate(-90deg)",
+                            }}
+                            src="/img/arrow_bottom.svg"
+                            alt="dropdown arrow"
+                        />
+                    </span>
+                    {isOpen && (
+                        <div className={styles.ListData}>
+                            {options.map((option) => (
+                                <p
+                                    key={option.value}
+                                    className={
+                                        value.includes(option.value)
+                                            ? `${styles.NameForList} ${styles.selected}`
+                                            : styles.NameForList
+                                    }
+                                    onClick={() => toggleOption(option)}
+                                    style={{
+                                        fontWeight: value.includes(option.value)
+                                            ? "bold"
+                                            : "normal",
+                                    }}
+                                >
+                                    {option.label}
+                                </p>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </Tooltip>
         </div>
     );
 };

@@ -1,4 +1,5 @@
 import DirectoryCategory from './directoryCategory';
+import DirectoryCategoryCustomer from './directoryCategoryCustomer';
 import { models } from './index';
 import PasswordResetToken from './passwordResetTokens';
 import Status from './status';
@@ -100,12 +101,47 @@ export default function () {
     Status.hasMany(RepairRequest, { foreignKey: 'statusId' });
     RepairRequest.belongsTo(Status, { foreignKey: 'statusId' });
 
-    User.hasMany(PasswordResetToken, { foreignKey: 'userId' });
-    PasswordResetToken.belongsTo(User, { foreignKey: 'userId' });
+    DirectoryCategory.belongsTo(Contractor, {
+        as: 'builder',
+        foreignKey: 'builderId',
+    });
+    Contractor.hasMany(DirectoryCategory, {
+        as: 'categories',
+        foreignKey: 'builderId',
+    });
 
-    DirectoryCategory.hasMany(TgUser, { foreignKey: 'customersIds' });
-    TgUser.belongsTo(DirectoryCategory, { foreignKey: 'customersIds' });
+    DirectoryCategory.belongsTo(ExtContractor, {
+        as: 'builderExternal',
+        foreignKey: 'builderExternalId',
+    });
+    ExtContractor.hasMany(DirectoryCategory, {
+        as: 'categories',
+        foreignKey: 'builderExternalId',
+    });
 
-    DirectoryCategory.hasMany(RepairRequest, { foreignKey: "directoryCategory" });
-        RepairRequest.belongsTo(DirectoryCategory, { foreignKey: 'directoryCategory' });
+    DirectoryCategory.belongsTo(TgUser, {
+        as: 'manager',
+        foreignKey: 'managerId',
+    });
+    TgUser.hasMany(DirectoryCategory, {
+        as: 'managedCategories',
+        foreignKey: 'managerId',
+    });
+
+    DirectoryCategory.belongsToMany(TgUser, {
+        through: DirectoryCategoryCustomer,
+        foreignKey: 'directoryCategoryId',
+        otherKey: 'tgUserId',
+        as: 'customers',
+    });
+
+    TgUser.belongsToMany(DirectoryCategory, {
+        through: DirectoryCategoryCustomer,
+        foreignKey: 'tgUserId',
+        otherKey: 'directoryCategoryId',
+        as: 'categories',
+    });
+
+    DirectoryCategory.hasMany(RepairRequest, { foreignKey: 'directoryCategoryId' });
+    RepairRequest.belongsTo(DirectoryCategory, { foreignKey: 'directoryCategoryId' });
 }

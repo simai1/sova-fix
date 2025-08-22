@@ -5,11 +5,15 @@ import ClearImg from "./../../assets/images/ClearFilter.svg";
 import { resetFilters } from "../../store/samplePoints/samplePoits";
 // @ts-ignore
 import UniversalTable from "../../components/UniversalTable/UniversalTable.jsx";
-import { tableColumn } from "./constant";
-import { useGetAllDirectoryCategoryQuery } from "./directoryCategory.api";
+import { normalizeDataRender, tableColumn } from "./constant";
+import {
+    useDeleteDirectoryCategoryMutation,
+    useGetAllDirectoryCategoryQuery,
+} from "./directoryCategory.api";
 import DirectoryCategoryModal from "./DirectoryCategoryModal/DirectoryCategoryModal";
-import { ModalState } from "./types";
+import { GetDirectoryCategoryResponse, ModalState } from "./types";
 import DataContext from "../../context";
+import Confirm from "../../UI/Confirm/Confirm";
 
 const DirectoryCategory: FC = () => {
     const [modalState, setModalState] = useState<ModalState>({
@@ -20,6 +24,10 @@ const DirectoryCategory: FC = () => {
         useState<boolean>(false);
     const [isDeleteButtonDisabled, setIsDeleteButtonDisabled] =
         useState<boolean>(false);
+    const [selectedRowState, setSelectedRowState] =
+        useState<GetDirectoryCategoryResponse | null>(null);
+    const [isConfirmDeleteVisible, setIsConfirmDeleteVisible] =
+        useState<boolean>(false);
 
     const dispatch = useAppDispatch();
     const { context } = useContext(DataContext);
@@ -27,7 +35,9 @@ const DirectoryCategory: FC = () => {
     const rawUserData = localStorage.getItem("userData");
     const userRole = rawUserData ? JSON.parse(rawUserData)?.user?.role : null;
 
-    const { data: directoryCategories } = useGetAllDirectoryCategoryQuery();
+    const { data: directoryCategories, refetch: refetchAllDirectoryCategory } =
+        useGetAllDirectoryCategoryQuery();
+    const [deleteDirectoryCategory] = useDeleteDirectoryCategoryMutation();
 
     const handleOpenAddModal = () => {
         setModalState({ open: true, type: "add" });
@@ -41,15 +51,42 @@ const DirectoryCategory: FC = () => {
         setModalState({ open: false, type: "add" });
     };
 
+    const handleOpenConfirm = () => {
+        setIsConfirmDeleteVisible(true);
+    };
+
+    const handleCloseConfrim = () => {
+        setIsConfirmDeleteVisible(false);
+    };
+
+    const handleDeleteCategory = async () => {
+        if (selectedRowState) {
+            await deleteDirectoryCategory({
+                directoryCategoryId: selectedRowState.id,
+            });
+            handleCloseConfrim();
+            refetchAllDirectoryCategory();
+            context?.setSelectRowDirectory(null)
+        }
+    };
+
     useEffect(() => {
         if (!context?.selectRowDirectory) {
             setIsEditButtonDisabled(true);
             setIsDeleteButtonDisabled(true);
         } else {
+            const selectedRow = directoryCategories?.find(
+                (category) => category.id === context?.selectRowDirectory
+            );
+            if (selectedRow) {
+                setSelectedRowState(selectedRow)
+            } else {
+                setSelectedRowState(null)
+            }; 
             setIsEditButtonDisabled(false);
             setIsDeleteButtonDisabled(false);
         }
-    }, [context?.selectRowDirectory]);
+    }, [context?.selectRowDirectory, directoryCategories]);
 
     return (
         <div className={styles.container}>
@@ -79,7 +116,7 @@ const DirectoryCategory: FC = () => {
 
                         <button
                             disabled={isDeleteButtonDisabled}
-                            onClick={() => {}}
+                            onClick={handleOpenConfirm}
                         >
                             Удалить
                         </button>
@@ -91,7 +128,7 @@ const DirectoryCategory: FC = () => {
                     <UniversalTable
                         tableName="table16"
                         tableHeader={tableColumn}
-                        tableBody={directoryCategories}
+                        tableBody={normalizeDataRender(directoryCategories ?? [])}
                         selectFlag={true}
                         FilterFlag={true}
                         heightTable="calc(100vh - 285px)"
@@ -101,8 +138,17 @@ const DirectoryCategory: FC = () => {
 
             <DirectoryCategoryModal
                 state={modalState}
-                selectedRow={context?.selectRowDirectory}
+                selectedRow={selectedRowState}
                 onClose={handleCloseModal}
+            />
+
+            <Confirm
+                isVisible={isConfirmDeleteVisible}
+                message={`Вы уверены, что хотите удалить категорию "${selectedRowState?.name}"?`}
+                handleCancel={handleCloseConfrim}
+                handleConfirm={handleDeleteCategory}
+                confirmText="Удалить"
+                danger
             />
         </div>
     );

@@ -37,9 +37,8 @@ export const directoryCategoryApi = createApi({
             UpdateDirectoryCategoryPayload
         >({
             query: ({ body, params }) => ({
-                url: "/",
+                url: `/${params.directoryCategoryId}`,
                 method: "PATCH",
-                params,
                 body,
             }),
         }),
@@ -48,18 +47,17 @@ export const directoryCategoryApi = createApi({
             DeleteDirectoryCategoryPayload
         >({
             query: (params) => ({
-                url: "/",
+                url: `/${params.directoryCategoryId}`,
                 method: "DELETE",
-                params,
             }),
         }),
-        getAllBuilders: builder.query<GetAllBuildersResponse, void>({
+        getAllBuilders: builder.query<GetAllBuildersResponse[], void>({
             query: () => ({
                 url: "/all_builders",
                 method: "GET",
             }),
         }),
-        getAllCustomers: builder.query<GetAllCutomersResponse, void>({
+        getAllCustomers: builder.query<GetAllCutomersResponse[], void>({
             query: () => ({
                 url: "/all_customers",
                 method: "GET",
@@ -75,4 +73,5 @@ export const {
     useDeleteDirectoryCategoryMutation,
     useGetAllBuildersQuery,
     useGetAllCustomersQuery,
+    useLazyGetAllDirectoryCategoryQuery,
 } = directoryCategoryApi;

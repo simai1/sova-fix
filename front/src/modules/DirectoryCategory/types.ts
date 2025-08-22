@@ -5,8 +5,31 @@ export interface GetDirectoryCategoryResponse {
     color: string;
     name: string;
     number: number;
-    builder: BuilderInterface;
-    customers: string[];
+    builder?: BuilderInterface;
+    customers?: CustromerI[];
+    isExternal?: boolean;
+    isManager?: boolean;
+    manager: ManagerI;
+    builderExternal?: ExtContractorI,
+}
+
+export interface ManagerI {
+    id: string;
+    login: string;
+    name: string;
+    isActivated: boolean;
+    role: string;
+}
+
+export interface CustromerI {
+    id: string;
+    name: string;
+    role: string;
+    tgId: string;
+    linkId: string;
+    isConfirmed: boolean;
+    contractor: any;
+    manager: any;
 }
 
 export interface ExtContractorI {
@@ -23,14 +46,23 @@ export type BuilderInterface = ContractorI | ExtContractorI;
 
 export interface CreateDirectoryCategoryPayload
     extends Pick<GetDirectoryCategoryResponse, "name" | "color"> {
-    builderId?: string;
-    customersId?: string[];
+    builderId?: string | null;
+    customersIds?: string[] | null[] | null;
+    builderExternalId?: string | null;
+    managerId?: string | null;
+    isExternal?: boolean;
+    isManager?: boolean;
 }
 
 export interface UpdateDirectoryCategoryBodyPayload
     extends Pick<
         CreateDirectoryCategoryPayload,
-        "name" | "color" | "builderId" | "customersId"
+        | "name"
+        | "color"
+        | "builderId"
+        | "customersIds"
+        | "isExternal"
+        | "builderExternalId"
     > {}
 
 export interface UpdateDirectoryCategoryPayload {
@@ -51,17 +83,31 @@ export interface ModalState {
 
 export interface DirectoryCategoryModalProps {
     state: ModalState;
-    selectedRow: string;
+    selectedRow: GetDirectoryCategoryResponse | null;
     onClose: () => void;
 }
 
 export interface DirectoryCategoryModalFormI {
-    builder: string
-    name: string
-    color: string
-    customersIds: string[]
+    builder: string;
+    name: string;
+    color: string;
+    customersIds: string[] | null[];
 }
 
-export type GetAllBuildersResponse = Option[]
+export interface GetAllBuildersResponse
+    extends Pick<Option, "value" | "label"> {
+    isExternal: boolean;
+    isManager: boolean;
+}
 
-export type GetAllCutomersResponse = GetAllBuildersResponse
+export type GetAllCutomersResponse = GetAllBuildersResponse;
+
+export interface NormalizedDataI
+    extends Pick<
+        GetDirectoryCategoryResponse,
+        "name" | "number" | "color" 
+    > {
+        customers: string | null
+        builder: string | null
+        id: string
+    }

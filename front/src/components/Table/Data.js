@@ -9,6 +9,7 @@ export const tableHeadAppoint = [
   { key: "fileName", value: "Фото/Видео проблемы", isActive: true  },
   { key: "itineraryOrder", value: "Порядок маршрута", isActive: true  },
   { key: "urgency", value: "Срочность", isActive: true  },
+  { key: "directoryCategory", value: "Категория", isActive: true },
   { key: "createdAt", value: "Дата создания заявки", isActive: true  },
   { key: "daysAtWork", value: "Дней в работе", isActive: true  },
   { key: "planCompleteDate", value: "Плановая дата выполнения", isActive: true  },

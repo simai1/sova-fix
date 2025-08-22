@@ -22,6 +22,8 @@ import User from '../models/user';
 import TgUserObject from '../models/tgUserObject';
 import Status from '../models/status';
 import { normalizeFileNames } from '../utils/normalizeData';
+import DirectoryCategory from '../models/directoryCategory';
+import Settings from '../models/settings';
 
 const getAllRequests = async (filter: any, order: any, pagination: any, userId?: string) => {
     try {
@@ -45,7 +47,6 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
               } else {
                 whereParams['$Object.id$'] = { [Op.in]: objectIdsForUser };
               }
-              console.log("==========",userObjects)
             }
           }
         Object.keys(filter).forEach((key: string) => {
@@ -127,6 +128,10 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
                         ];
                     }
                 }
+            } else if (fieldName === 'directoryCategory') {
+                whereParams['$DirectoryCategory.name$'] = isExclusion
+                    ? { [Op.notIn]: value }
+                    : { [Op.in]: value };
             } else if (fieldName === 'object') {
                 whereParams['$Object.name$'] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
             } else if (fieldName === 'unit') {
@@ -369,6 +374,7 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
                     { model: LegalEntity },
                     { model: ExtContractor },
                     { model: TgUser, as: 'TgUser' },
+                    { model: DirectoryCategory },
                 ],
                 order:
                     order.col && order.type
@@ -407,6 +413,7 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
                     {
                         model: TgUser,
                     },
+                    { model: DirectoryCategory },
                 ],
             });
         } else {
@@ -419,6 +426,7 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
                     { model: LegalEntity },
                     { model: ExtContractor },
                     { model: TgUser },
+                    { model: DirectoryCategory },
                 ],
                 order:
                     order.col && order.type
@@ -438,6 +446,7 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
                     { model: LegalEntity },
                     { model: ExtContractor },
                     { model: TgUser },
+                    { model: DirectoryCategory },
                 ],
             });
         }
@@ -469,6 +478,7 @@ const getRequestById = async (requestId: string): Promise<RequestDto> => {
             { model: LegalEntity },
             { model: ExtContractor },
             { model: TgUser },
+            { model: DirectoryCategory },
         ],
     });
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
@@ -482,14 +492,15 @@ const createRequest = async (
     repairPrice: number | undefined,
     comment: string | undefined,
     fileName: string,
-    tgUserId: string
+    tgUserId: string,
+    directoryCategoryId: string | undefined,
 ): Promise<RequestDto> => {
     const objectDir = await objectService.getObjectById(objectId);
     if (!objectDir) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found object with id ' + objectId);
     if (!objectDir.Unit) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found unit');
     if (!objectDir.LegalEntity) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found LegalEntity');
     const urgencyRecord = await Urgency.findOne({ where: { name: urgency } });
-    if (!urgencyRecord) throw new ApiError(httpStatus.BAD_REQUEST, `Urgency "${urgency}" not found`);
+    if (!urgencyRecord) throw new ApiError(httpStatus.BAD_REQUEST, `Urgency "${urgency}" not found`)
 
     const request = await RepairRequest.create({
         unitId: objectDir.Unit.id,
@@ -503,10 +514,14 @@ const createRequest = async (
         createdBy: tgUserId,
         number: 0,
         urgencyId: urgencyRecord.id,
+        directoryCategoryId,
     });
     request.Object = objectDir;
     request.Unit = objectDir.Unit;
     request.LegalEntity = objectDir.LegalEntity;
+
+    if (directoryCategoryId) await updateDirectoryCategoryBuilder(request.id, directoryCategoryId)
+
     sendMsg({
         msg: {
             requestId: request.id,
@@ -523,7 +538,8 @@ const createRequestWithoutPhoto = async (
     urgency: string,
     repairPrice: number | undefined,
     comment: string | undefined,
-    tgUserId: string
+    tgUserId: string,
+    directoryCategoryId: string | undefined,
 ): Promise<RequestDto> => {
     const objectDir = await objectService.getObjectById(objectId);
     if (!objectDir) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found object with id ' + objectId);
@@ -541,11 +557,14 @@ const createRequestWithoutPhoto = async (
         fileName: null,
         createdBy: tgUserId,
         number: 0,
+        directoryCategoryId: directoryCategoryId ? directoryCategoryId : null,
     });
     
     request.Object = objectDir;
     request.Unit = objectDir.Unit;
     request.LegalEntity = objectDir.LegalEntity;
+
+    if (directoryCategoryId) await updateDirectoryCategoryBuilder(request.id, directoryCategoryId)
     
     sendMsg({
         msg: {
@@ -565,7 +584,8 @@ const createRequestWithMultiplePhotos = async (
     repairPrice: number | undefined,
     comment: string | undefined,
     fileNames: string[],
-    tgUserId: string
+    tgUserId: string,
+    directoryCategoryId: string | undefined,
 ): Promise<RequestDto> => {
     const objectDir = await objectService.getObjectById(objectId);
     if (!objectDir) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found object with id ' + objectId);
@@ -587,11 +607,14 @@ const createRequestWithMultiplePhotos = async (
         commentAttachment: null,
         createdBy: tgUserId,
         number: 0,
+        directoryCategoryId: directoryCategoryId ? directoryCategoryId : null
     });
     
     request.Object = objectDir;
     request.Unit = objectDir.Unit;
     request.LegalEntity = objectDir.LegalEntity;
+
+    if (directoryCategoryId) await updateDirectoryCategoryBuilder(request.id, directoryCategoryId)
     
     sendMsg({
         msg: {
@@ -824,6 +847,7 @@ const setCommentAttachment = async (requestId: string, filename: string): Promis
             { model: LegalEntity },
             { model: Contractor },
             { model: ExtContractor },
+            { model: DirectoryCategory },
         ],
     });
 
@@ -882,6 +906,35 @@ const setStatus = async (requestId: string, status: number, statusId: string): P
                 : undefined,
     });
 };
+
+const updateDirectoryCategoryBuilder = async (requestId: string, directoryCategoryId: string) => {
+    const autoSetting = await Settings.findOne({where: {setting: 'is_auto_set_category'}})
+    if (!autoSetting) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found is_auto_set_category');
+    if (!autoSetting?.value) return
+    const directoryCategory = await DirectoryCategory.findByPk(directoryCategoryId)
+    if (!directoryCategory) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found directoryCategory');
+
+    if (!directoryCategory.isExternal && directoryCategory.builderId) {
+        return await setContractor(requestId, directoryCategory.builderId)
+    }
+
+    if (directoryCategory.isExternal && directoryCategory.builderExternalId) {
+        return await setExtContractor(requestId, directoryCategory.builderExternalId)
+    }
+
+    if (directoryCategory.isManager && directoryCategory.managerId) {
+        return await setManager(requestId, directoryCategory.managerId)
+    }
+}
+
+const setNewDirectoryCategory = async (requestId: string, directoryCategoryId: string) => {
+    const request = await RepairRequest.findByPk(requestId);
+    if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
+
+    await updateDirectoryCategoryBuilder(requestId, directoryCategoryId)
+
+    await request.update({directoryCategoryId})
+}
 
 const deleteRequest = async (requestId: string): Promise<void> => {
     const request = await RepairRequest.findByPk(requestId);
@@ -1095,6 +1148,7 @@ const getCustomersRequests = async (tgUserId: string, filter: any): Promise<Requ
                     { model: LegalEntity },
                     { model: ExtContractor },
                     { model: TgUser },
+                    { model: DirectoryCategory },
                 ],
                 order: [['number', 'desc']],
             });
@@ -1108,6 +1162,7 @@ const getCustomersRequests = async (tgUserId: string, filter: any): Promise<Requ
                     { model: LegalEntity },
                     { model: ExtContractor },
                     { model: TgUser },
+                    { model: DirectoryCategory },
                 ],
                 order: [['number', 'desc']],
             });
@@ -1363,4 +1418,5 @@ export default {
     setManager,
     changeStatus,
     countOfRepairRequest,
+    setNewDirectoryCategory,
 };

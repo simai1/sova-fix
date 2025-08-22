@@ -13,5 +13,6 @@ router
     .delete(directoryCategoryController.deleteDirectoryCategory);
 router.route('/all_builders').get(directoryCategoryController.getAllBuilders);
 router.route('/all_customers').get(directoryCategoryController.getAllCustomers)
+router.route('/customers/:tgId').get(directoryCategoryController.getUsersDirectoryCategories)
 
 export default router;

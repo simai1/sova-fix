@@ -72,6 +72,6 @@ export default class RequestDto {
         this.copiedRequestId = model.copiedRequestId;
         this.managerId = model.managerId;
         this.managerTgId = model.managerTgId;
-        this.directoryCategory = model.directoryCategory ? new DirectoryCategoryDto(model.directoryCategory) : null
+        this.directoryCategory = model.DirectoryCategory ? new DirectoryCategoryDto(model.DirectoryCategory) : null
     }
 }

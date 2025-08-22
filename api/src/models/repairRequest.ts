@@ -44,7 +44,8 @@ export default class RepairRequest extends Model {
     isExternal!: boolean;
     isAutoCreated!: boolean;
     copiedRequestId?: string;
-    directoryCategory?: DirectoryCategory;
+    DirectoryCategory?: DirectoryCategory;
+    directoryCategoryId?: string | null
 
     static initialize(sequelize: Sequelize) {
         RepairRequest.init(
@@ -145,7 +146,7 @@ export default class RepairRequest extends Model {
                     type: DataTypes.STRING,
                     allowNull: true,
                 },
-                directoryCategory: {
+                directoryCategoryId: {
                     type: DataTypes.UUID,
                     allowNull: true,
                 },

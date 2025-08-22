@@ -82,7 +82,7 @@ router.route('/stats').get(requestController.getStat);
 router.route('/').get(requestController.getAll).post(uploadImageOrVideo.single('file'), requestController.create);
 router.route('/without-photo').post(requestController.createWithoutPhoto);
 router.route('/multiple-photos').post(uploadMultipleImages.array('file', 10), requestController.createWithMultiplePhotos);
-router.route('/:requestId').get(requestController.getOne);
+router.route('/:requestId').get(requestController.getOne)
 router.route('/:requestId/delete').delete(requestController.deleteRequest);
 router.route('/:requestId/update').patch(validator(requestUpdateSchema), requestController.update);
 
@@ -115,6 +115,8 @@ router.route('/changeUrgency').post(requestController.changeUrgency)
 router.route('/changeStatus').post(requestController.changeStatus)
 
 router.route('/files/:requestId').get(requestController.getCountFilesRequest)
+
+router.route('/directoryCategory/:requestId').post(requestController.setNewDirectoryCategory);
 
 // Migration endpoints (should be protected in production)
 router.route('/migrate/manager-ids').post(requestController.migrateManagerData);

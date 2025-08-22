@@ -223,6 +223,7 @@ async def create_repair_request(
         object_id: str,
         problem_description: str,
         urgency: str,
+        category_id: str | None,
         repair_price: str | None = None,
         comment: str | None = None,
         legal_entity: str | None = None
@@ -234,7 +235,8 @@ async def create_repair_request(
         'objectId': object_id,
         'problemDescription': problem_description,
         'urgency': urgency,
-        'tgUserId': tg_user_id
+        'tgUserId': tg_user_id,
+        'directoryCategoryId': category_id
     }
 
     if repair_price is not None:
@@ -263,6 +265,7 @@ async def create_repair_request_without_photo(
         object_id: str,
         problem_description: str,
         urgency: str,
+        category_id: str | None,
         repair_price: str | None = None,
         comment: str | None = None,
         legal_entity: str | None = None
@@ -276,7 +279,8 @@ async def create_repair_request_without_photo(
         'objectId': object_id,
         'problemDescription': problem_description,
         'urgency': urgency,
-        'tgUserId': tg_user_id
+        'tgUserId': tg_user_id,
+        'directoryCategoryId': category_id
     }
 
     if repair_price is not None:
@@ -302,6 +306,7 @@ async def create_repair_request_multiple_photos(
         object_id: str,
         problem_description: str,
         urgency: str,
+        category_id: str | None,
         repair_price: str | None = None,
         comment: str | None = None,
         legal_entity: str | None = None
@@ -315,7 +320,8 @@ async def create_repair_request_multiple_photos(
         'objectId': object_id,
         'problemDescription': problem_description,
         'urgency': urgency,
-        'tgUserId': tg_user_id
+        'tgUserId': tg_user_id,
+        'directoryCategoryId': category_id
     }
 
     if repair_price is not None:
@@ -1060,3 +1066,12 @@ async def get_setting_by_name(settingName: str) -> bool | None:
         return data.get("value")
 
     return None
+
+async def get_customer_directory_category(tg_id: str) -> list:
+    url = f"{cf.API_URL}/directoryCategory/customers/{tg_id}"
+
+    response = requests.get(url)
+    data = response.json()
+
+    return data
+    

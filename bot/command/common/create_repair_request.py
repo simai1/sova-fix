@@ -99,6 +99,42 @@ async def ask_unit(message: Message, state: FSMContext, user_id: int) -> None:
         
         await message.answer("Выберите подразделение", reply_markup=kb)
 
+@router.callback_query(FSMRepairRequest.category_input, F.data.startswith('category'))
+async def ask_problem_description(query: CallbackQuery, state: FSMContext) -> None:
+    category_id = await pagination.get_selected_value(query, state)
+    await state.update_data(category_id=category_id)
+
+    await state.set_state(FSMRepairRequest.problemn_description_input)
+    await query.message.answer('Введите описание проблемы')
+
+    await query.answer()
+    await query.message.edit_reply_markup(reply_markup=None)
+
+async def ask_category(message: Message, state: FSMContext, user_id: int) -> None:
+    categories = await crm.get_customer_directory_category(user_id)
+
+    if not categories:
+        # нет категорий → сразу к описанию
+        await state.update_data(category_id=None)
+        await state.set_state(FSMRepairRequest.problemn_description_input)
+        await message.answer("Введите описание проблемы")
+        return
+
+    print("=====", categories)
+    if len(categories) == 1:
+        category_id = categories[0]['id']  # вот так
+        await state.update_data(category_id=category_id)
+        await state.set_state(FSMRepairRequest.problemn_description_input)
+        await message.answer("Введите описание проблемы")
+        return
+
+    # несколько категорий → выбор
+    categories_dict = {cat['name']: cat['id'] for cat in categories}
+    names_pages = await pagination.set_pages_data(categories_dict, state)
+    kb = pagination.make_kb(0, names_pages, prefix="category")
+
+    await state.set_state(FSMRepairRequest.category_input)
+    await message.answer("Выберите категорию", reply_markup=kb)
 
 @router.callback_query(FSMRepairRequest.unit_input, F.data.startswith('unit'))
 async def ask_object(query: CallbackQuery, state: FSMContext) -> None:
@@ -146,11 +182,11 @@ async def ask_object(query: CallbackQuery, state: FSMContext) -> None:
 
 
 @router.callback_query(FSMRepairRequest.object_input, F.data.startswith('object'))
-async def ask_problem_description(query: CallbackQuery, state: FSMContext) -> None:
+async def ask_category_after_object(query: CallbackQuery, state: FSMContext) -> None:
     await state.update_data(object=await pagination.get_selected_value(query, state))
 
-    await state.set_state(FSMRepairRequest.problemn_description_input)
-    await query.message.answer('Введите описание проблемы')
+    user_id = query.from_user.id
+    await ask_category(query.message, state, user_id)
 
     await query.answer()
     await query.message.edit_reply_markup(reply_markup=None)
@@ -363,7 +399,8 @@ async def create_request(query: CallbackQuery, state: FSMContext) -> None:
             tg_user_id,
             data['object'],
             data['problem_description'],
-            data['urgency']
+            data['urgency'],
+            data['category_id'],
         )
     elif len(photos) <= 1:
         file_id = data['file_id']
@@ -375,13 +412,16 @@ async def create_request(query: CallbackQuery, state: FSMContext) -> None:
             await query.answer()
             return
 
+        print(data)
+
         rr = await crm.create_repair_request(
             tg_user_id,
             file,
             file_content_type,
             data['object'],
             data['problem_description'],
-            data['urgency']
+            data['urgency'],
+            data['category_id'],
         )
     else:
         files = []
@@ -405,7 +445,8 @@ async def create_request(query: CallbackQuery, state: FSMContext) -> None:
             files,
             data['object'],
             data['problem_description'],
-            data['urgency']
+            data['urgency'],
+            data['category_id'],
         )
 
     if rr is None:
