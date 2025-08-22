@@ -1,0 +1,90 @@
+@import "./../../styles/color.scss";
+@import "./../../styles/mixins.scss";
+
+.List {
+    display: flex;
+    box-sizing: border-box;
+    flex-direction: column;
+    font-size: 16px;
+    position: relative;
+    align-items: center;
+    margin-bottom: 14px;
+
+    label {
+        margin-bottom: 6px;
+        font-weight: 500;
+        align-self: flex-start;
+    }
+
+    input {
+        width: 100% !important;
+        height: 52px !important;
+        @media (max-width: 580px) {
+            width: 300px !important;
+        }
+        @include input-text(420px, 8px);
+        font-size: 16px;
+        color: #000;
+        padding-right: 30px;
+        box-sizing: border-box;
+        margin: 0;
+        &:hover {
+            cursor: pointer;
+        }
+    }
+
+    span {
+        cursor: pointer;
+    }
+
+    .ListCont {
+        position: relative;
+        width: 100%;
+    }
+
+    .arrowBot img {
+        position: absolute;
+        right: 10px;
+        top: 45%;
+        transform: translateY(-50%) rotate(-90deg);
+        transition: 0.2s linear all;
+    }
+
+    .ListData {
+        width: 100%;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        z-index: 9900;
+        box-sizing: border-box;
+        padding-top: 10px;
+        padding-left: 10px;
+        border-radius: 0px 0px 8px 8px;
+        border: 1px solid #adadad;
+        background-color: #ffffff;
+
+        @media (max-width: 580px) {
+            width: 100%;
+        }
+
+        .NameForList {
+            font-size: 16px;
+            margin-left: 0;
+            padding: 5px 0;
+            transition: 0.1s linear all;
+            cursor: pointer;
+
+            &:first-child {
+                margin-top: 0;
+            }
+
+            &:hover {
+                color: var(--ActiveText-color);
+            }
+        }
+    }
+}
+
+.error {
+    border: 1px solid red !important;
+}

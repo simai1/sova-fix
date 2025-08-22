@@ -14,9 +14,11 @@ import {
   GetAllManagers,
   GetAllAdmins,
   GetAllStatuses,
+  GetAllDirectoryCategories,
+  SetNewsetNewDirectoryCategory,
 } from "../../API/API";
 import { useSelector } from "react-redux";
-import СonfirmDelete from "./../СonfirmDelete/СonfirmDelete";
+import СonfirmDelete from "../СonfirmDelete/СonfirmDelete";
 import Contextmenu from "../../UI/Contextmenu/Contextmenu";
 import SamplePoints from "../SamplePoints/SamplePoints";
 import FilteImg from "./../../assets/images/filterColumn.svg";
@@ -92,11 +94,13 @@ function Table() {
   const [shovBulderPop, setshovBulderPop] = useState("");
   const [shovUrgencyPop, setshovUrgencyPop] = useState("");
   const [shovExtPop, setshovExtPop] = useState("");
+  const [showDirectoryCategory, setShowDirectoryCategory] = useState("")
   const [itineraryOrderPop, setItineraryOrderPop] = useState("");
   const [modalImage, setModalImage] = useState(null);
   const statusPopRef = useRef(null);
   const builderPopRef = useRef(null);
   const urgencyPopRef = useRef(null);
+  const directoryCategoryPopRef = useRef(null)
   const extPopRef = useRef(null);
   const ItineraryOrderPopRef = useRef(null);
   const [arrCount, setArrCount] = useState([]);
@@ -104,6 +108,8 @@ function Table() {
   const [managers, setManagers] = useState([]);
   const [admins, setAdmins] = useState([]);
   const contextmenuRef = useRef(null);
+
+  const [directoryCategories, setDirectoryCategories] = useState([])
 
   const [sliderPhotos, setSliderPhotos] = useState([]);
   const [showSlider, setShowSlider] = useState(false);
@@ -125,6 +131,12 @@ function Table() {
         setAdmins(response.data);
       }
     });
+
+    GetAllDirectoryCategories().then((response) => {
+      if(response && response.data) {
+        setDirectoryCategories(response.data)
+      }
+    })
     
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
@@ -162,6 +174,8 @@ function Table() {
     setshovUrgencyPop("");
     setshovBulderPop("");
     setItineraryOrderPop("");
+    setShowDirectoryCategory("")
+
   };
 
   const funSetBulder = (data) => {
@@ -169,6 +183,7 @@ function Table() {
     setshovStatusPop("");
     setshovUrgencyPop("");
     setItineraryOrderPop("");
+    setShowDirectoryCategory("")
   };
 
   const funSetUrgency = (data) => {
@@ -176,6 +191,7 @@ function Table() {
     setshovStatusPop("");
     setshovBulderPop("");
     setItineraryOrderPop("");
+    setShowDirectoryCategory("")
   };
 
   const funSetExp = (data) => {
@@ -184,8 +200,16 @@ function Table() {
     setshovBulderPop("");
     setshovUrgencyPop("");
     setItineraryOrderPop("");
+    setShowDirectoryCategory("")
   };
 
+  const funDirectoryCategory = (data) => {
+    togglePopupState(setShowDirectoryCategory, data);
+    setshovStatusPop("");
+    setshovBulderPop("");
+    setshovUrgencyPop("");
+    setItineraryOrderPop("");
+  }
   const openModal = (url) => {
     setModalImage(url);
   };
@@ -261,6 +285,19 @@ function Table() {
       }
     });
   };
+
+  const SetDirectoryCategory = (requestId, idDirectory) => {
+    const data = {directoryCategoryId: idDirectory}
+    SetNewsetNewDirectoryCategory(requestId, data).then(response => {
+      if (response?.status === 200) {
+        GetOneRequests(requestId).then(response => {
+          if (response?.status === 200) {
+            UpdateRequest(response?.data)
+          }
+        })
+      }
+    })
+  }
 
   const setPerformersDirectory = (requestId) => {
     const data = {
@@ -348,6 +385,7 @@ function Table() {
     clickOutside(urgencyPopRef, setshovUrgencyPop);
     clickOutside(ItineraryOrderPopRef, setItineraryOrderPop);
     clickOutside(extPopRef, setshovExtPop);
+    clickOutside(directoryCategoryPopRef, setShowDirectoryCategory)
   };
 
   const checkHeights = (arr, index) =>
@@ -499,7 +537,7 @@ function Table() {
   );
 
   const getItemBuilder = (row, isBuilderColumn) => {
-    // Если есть подрядчик с именем
+    // Если есть поßдрядчик с именем
     if (row?.contractor && typeof row.contractor === 'object' && row.contractor.name) {
       return row.contractor.name;
     } 
@@ -624,6 +662,12 @@ function Table() {
   const getStatusValue = (statusNumber) => {
     const statusFromDb = context?.statusList.find(status => status.number === statusNumber)
     return statusFromDb;
+  }
+
+  const getDirectoryCategoryColor = (value) => {
+    const directoryCategory = directoryCategories.find(category => category.id === value)
+    if (directoryCategory) return directoryCategory.color
+    return '#b7ab9e'
   }
 
   const getValue = (value, key, index, row) => {
@@ -756,7 +800,7 @@ function Table() {
             }
           })()
         );
-      case "urgency":
+      case "urgency": 
         return (
           <div
             onClick={() => funSetUrgency(row.id)}
@@ -940,6 +984,34 @@ function Table() {
                 </ul>
               </div>
             )}
+          </div>
+        );
+      case "directoryCategory":
+        return (
+          <div
+            onClick={() => funDirectoryCategory(row.id)}
+            key={key + row.id}
+            ref={directoryCategoryPopRef}
+            style={{
+              backgroundColor: getDirectoryCategoryColor(row?.directoryCategory?.id)
+            }}
+            className={styles.directoryCategory}
+          >
+              {value?.name || 'Выбрать'}
+              {showDirectoryCategory === row.id && (
+                <div className={getPopupClassName(directoryCategoryPopRef.current, index, totalRows)}>
+                  <ul>
+                    {directoryCategories.map((category, index) => (
+                      <li
+                        onClick={() => SetDirectoryCategory(row?.id, category.id)}
+                        key={index}
+                      >
+                        {category.name}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
           </div>
         );
       default:

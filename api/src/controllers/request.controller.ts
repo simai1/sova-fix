@@ -48,6 +48,7 @@ const getAll = catchAsync(async (req, res) => {
             'exclude_createdAt',
             'exclude_contractor',
             'exclude_checkPhoto',
+            'exclude_directoryCategory',
         ])
     );
     let userId: string | undefined = undefined;
@@ -69,7 +70,7 @@ const getOne = catchAsync(async (req, res) => {
 });
 
 const create = catchAsync(async (req, res) => {
-    const { objectId, problemDescription, urgency, repairPrice, comment, tgUserId } = req.body;
+    const { objectId, problemDescription, urgency, repairPrice, comment, tgUserId, directoryCategoryId } = req.body;
     const fileName = req.file?.filename;
     if (!fileName) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing file');
     if (!tgUserId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing tgUserId');
@@ -85,13 +86,14 @@ const create = catchAsync(async (req, res) => {
         repairPrice,
         comment,
         fileName,
-        tgUserId
+        tgUserId,
+        directoryCategoryId,
     );
     res.json({ requestDto });
 });
 
 const createWithoutPhoto = catchAsync(async (req, res) => {
-    const { objectId, problemDescription, urgency, repairPrice, comment, tgUserId } = req.body;
+    const { objectId, problemDescription, urgency, repairPrice, comment, tgUserId, directoryCategoryId } = req.body;
     if (!tgUserId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing tgUserId');
     if (!objectId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing object');
     if (!urgency) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing urgency');
@@ -104,13 +106,14 @@ const createWithoutPhoto = catchAsync(async (req, res) => {
         urgency,
         repairPrice,
         comment,
-        tgUserId
+        tgUserId,
+        directoryCategoryId,
     );
     res.json({ requestDto });
 });
 
 const createWithMultiplePhotos = catchAsync(async (req, res) => {
-    const { objectId, problemDescription, urgency, repairPrice, comment, tgUserId } = req.body;
+    const { objectId, problemDescription, urgency, repairPrice, comment, tgUserId, directoryCategoryId } = req.body;
     const files = (req as any).files as Express.Multer.File[];
 
     if (!files || files.length === 0) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing files');
@@ -131,7 +134,8 @@ const createWithMultiplePhotos = catchAsync(async (req, res) => {
         repairPrice,
         comment,
         fileNames,
-        tgUserId
+        tgUserId,
+        directoryCategoryId,
     );
 
     res.json({ requestDto });
@@ -284,7 +288,6 @@ const getCustomersRequests = catchAsync(async (req, res) => {
         ])
     );
 
-    console.log('===============', filter)
     if (!tgUserId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing tgUserId');
     const requestsDtos = await requestService.getCustomersRequests(tgUserId, filter);
     res.json(requestsDtos);
@@ -424,6 +427,16 @@ const changeStatus = catchAsync(async (req, res) => {
     res.json({ status: 'OK' });
 })
 
+const setNewDirectoryCategory = catchAsync(async (req, res) => {
+    const { requestId } = req.params
+    const { directoryCategoryId } = req.body
+    if(!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'missing requestId')
+    if(!directoryCategoryId) throw new ApiError(httpStatus.BAD_REQUEST, 'missing directoryCategoryId')
+
+    await requestService.setNewDirectoryCategory(requestId, directoryCategoryId)
+    res.json({status: 'OK'})
+})
+
 const getCountFilesRequest = catchAsync(async (req, res) => {
     const { requestId } = req.params
     if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'missing requestId');
@@ -461,4 +474,5 @@ export default {
     validateManagerData,
     changeStatus,
     getCountFilesRequest,
+    setNewDirectoryCategory,
 };

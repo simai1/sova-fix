@@ -7,6 +7,11 @@ export const seedInitialSettings = async () => {
       value: true,
       name: 'Обязательно с фото',
     },
+    {
+      setting: 'is_auto_set_category',
+      value: false,
+      name: 'Автоматизация'
+    }
   ];
 
   for (const defaultSetting of defaultSettings) {

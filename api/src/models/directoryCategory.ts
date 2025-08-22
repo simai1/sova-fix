@@ -1,15 +1,31 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
+import User from './user';
+import ExtContractor from './externalContractor';
+import Contractor from './contractor';
+import TgUser from './tgUser';
 
 export default class DirectoryCategory extends Model {
     id!: string;
     number!: number;
     name!: string;
     color!: string;
-    builderId?: string | null;
-    builderName?: string | null;
-    customersIds?: string[] | null;
-    customersName?: string[] | null;
 
+    builderId?: string | null;
+    builderExternalId?: string | null;
+    managerId?: string | null;
+    customersIds?: string[] | null;
+
+    builder?: Contractor | null;
+    builderExternal?: ExtContractor | null;
+    manager?: TgUser | null;
+    customers?: TgUser[] | null;
+
+    isExternal?: boolean;
+    isManager?: boolean;
+
+    public setCustomers!: (customers: string[] | TgUser[], options?: any) => Promise<void>;
+    public addCustomer!: (customer: string | TgUser, options?: any) => Promise<void>;
+    public getCustomers!: (options?: any) => Promise<TgUser[]>;
     static initialize(sequelize: Sequelize) {
         DirectoryCategory.init(
             {
@@ -36,18 +52,28 @@ export default class DirectoryCategory extends Model {
                     type: DataTypes.UUID,
                     allowNull: true,
                 },
-                builderName: {
-                    type: DataTypes.STRING,
+                builderExternalId: {
+                    type: DataTypes.UUID,
                     allowNull: true,
                 },
-                customersIds: {
-                    type: DataTypes.ARRAY(DataTypes.UUID),
+                isForAllCustomers: {
+                    type: DataTypes.BOOLEAN,
+                    defaultValue: false,
+                    allowNull: false
+                },
+                isExternal: {
+                    type: DataTypes.BOOLEAN,
                     allowNull: true,
                 },
-                customersName: {
-                    type: DataTypes.ARRAY(DataTypes.STRING),
+                isManager: {
+                    type: DataTypes.BOOLEAN,
                     allowNull: true,
+                    field: 'is_manager',
                 },
+                managerId: {
+                    type: DataTypes.UUID,
+                    allowNull: true,
+                }
             },
             {
                 sequelize,

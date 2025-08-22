@@ -2,6 +2,7 @@ import { DataTypes, Model, Sequelize } from 'sequelize';
 import Contractor from './contractor';
 import roles from '../config/roles';
 import User from './user';
+import DirectoryCategory from './directoryCategory';
 
 export default class TgUser extends Model {
     id!: string;
@@ -14,6 +15,7 @@ export default class TgUser extends Model {
     Contractor?: Contractor;
     userId?: string;
     User?: User;
+    categories?: DirectoryCategory[]; 
 
     static initialize(sequelize: Sequelize) {
         TgUser.init(

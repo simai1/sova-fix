@@ -123,7 +123,7 @@
       #statusGreen {
         background-color: red !important;
       }
-      .statusClick {
+      .statusClick, .directoryCategory {
         padding: 4px 8px;
         border-radius: 8px;
         background-color: var(--dark-grey-color);
@@ -502,6 +502,14 @@ input[type="checkbox"]:checked:before {
     height: 60px;
     animation: spin 1s linear infinite;
   }
+}
+
+.directoryCategory {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  padding: 4px 8px;
 }
 
 @keyframes spin {
