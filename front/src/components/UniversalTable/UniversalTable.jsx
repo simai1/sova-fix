@@ -84,7 +84,8 @@ function UniversalTable(props) {
             return getStatusValue(el[it.itemKey], context?.statusList)?.name === it?.value
           }
           if (it.itemKey === 'directoryCategory') {
-            return el[it.itemKey]?.name === it?.value
+            console.log(el[it.itemKey], it?.value)
+            return el[it.itemKey]?.name  ? el[it.itemKey]?.name === it?.value :  el[it.itemKey] === it?.value
           }
           return el[it.itemKey] === it?.value
         })) {
