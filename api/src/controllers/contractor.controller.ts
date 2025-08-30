@@ -70,9 +70,19 @@ const getContractorsItinerary = catchAsync(async (req, res) => {
     res.json(requests);
 });
 
+const getContractorsActualRequests = catchAsync(async (req, res) => {
+    const { contractorId, unitId, objectId } = req.params;
+    if (!contractorId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing contractorId');
+    if (!unitId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing unitId');
+
+    const requests = await contractorService.getContractorsActualRequests(contractorId, unitId, objectId);
+    res.json(requests);
+});
+
 export default {
     getAll,
     create,
     getContractorsRequests,
     getContractorsItinerary,
+    getContractorsActualRequests,
 };

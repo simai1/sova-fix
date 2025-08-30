@@ -1075,3 +1075,32 @@ async def get_customer_directory_category(tg_id: str) -> list:
 
     return data
     
+import requests
+
+async def get_actual_admin_requests_by_objects(tg_user_id: int, unit_id: int, object_id: str | None = None) -> list:
+    """
+    Получить заявки для администратора по подразделению и объекту.
+    Если object_id=None — возвращаем заявки по всем объектам подразделения.
+    """
+    url = f"{cf.API_URL}/requests/actual/{tg_user_id}/{unit_id}"
+    if object_id:
+        url += f"/{object_id}"
+
+    response = requests.get(url)
+    data = response.json()
+    return data.get("requests", [])
+
+
+    
+async def get_actual_contractor_requests_by_objects(user_id: str, unit_id: str, object_id: str | None = None) -> list:
+    contractor_id = await get_contractor_id(user_id)
+
+    url = f"{cf.API_URL}/contractors/{contractor_id}/{unit_id}"
+    if object_id:
+        url += f"/{object_id}"
+
+    response = requests.get(url)
+    response.raise_for_status()
+    data = response.json()
+
+    return data

@@ -118,6 +118,8 @@ router.route('/files/:requestId').get(requestController.getCountFilesRequest)
 
 router.route('/directoryCategory/:requestId').post(requestController.setNewDirectoryCategory);
 
+router.route('/actual/:tgUserId/:unitId/:objectId?').get(requestController.getActualRequestsByObjectId);
+
 // Migration endpoints (should be protected in production)
 router.route('/migrate/manager-ids').post(requestController.migrateManagerData);
 router.route('/validate/manager-ids').post(requestController.validateManagerData);
