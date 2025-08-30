@@ -53,7 +53,7 @@ const getAll = catchAsync(async (req, res) => {
     );
     let userId: string | undefined = undefined;
     if (typeof req.query.userId === 'string') {
-    userId = req.query.userId;
+        userId = req.query.userId;
     }
     const order = prepare(pick(req.query, ['col', 'type']));
     const pagination = prepare(pick(req.query, ['limit', 'offset']));
@@ -78,7 +78,8 @@ const create = catchAsync(async (req, res) => {
     if (!urgency) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing urgency');
     const tgUser = await TgUser.findByPk(tgUserId);
 
-    if (!tgUser || tgUser.role !== 3 && tgUser.role !== 2 && tgUser.role !== 1) throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid tgUser');
+    if (!tgUser || (tgUser.role !== 3 && tgUser.role !== 2 && tgUser.role !== 1))
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid tgUser');
     const requestDto = await requestService.createRequest(
         objectId,
         problemDescription,
@@ -87,7 +88,7 @@ const create = catchAsync(async (req, res) => {
         comment,
         fileName,
         tgUserId,
-        directoryCategoryId,
+        directoryCategoryId
     );
     res.json({ requestDto });
 });
@@ -99,7 +100,8 @@ const createWithoutPhoto = catchAsync(async (req, res) => {
     if (!urgency) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing urgency');
     const tgUser = await TgUser.findByPk(tgUserId);
 
-    if (!tgUser || tgUser.role !== 3 && tgUser.role !== 2 && tgUser.role !== 1) throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid tgUser');
+    if (!tgUser || (tgUser.role !== 3 && tgUser.role !== 2 && tgUser.role !== 1))
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid tgUser');
     const requestDto = await requestService.createRequestWithoutPhoto(
         objectId,
         problemDescription,
@@ -107,7 +109,7 @@ const createWithoutPhoto = catchAsync(async (req, res) => {
         repairPrice,
         comment,
         tgUserId,
-        directoryCategoryId,
+        directoryCategoryId
     );
     res.json({ requestDto });
 });
@@ -123,7 +125,8 @@ const createWithMultiplePhotos = catchAsync(async (req, res) => {
 
     const tgUser = await TgUser.findByPk(tgUserId);
 
-    if (!tgUser || tgUser.role !== 3 && tgUser.role !== 2 && tgUser.role !== 1) throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid tgUser');
+    if (!tgUser || (tgUser.role !== 3 && tgUser.role !== 2 && tgUser.role !== 1))
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid tgUser');
 
     const fileNames = files.map(file => file.filename);
 
@@ -135,7 +138,7 @@ const createWithMultiplePhotos = catchAsync(async (req, res) => {
         comment,
         fileNames,
         tgUserId,
-        directoryCategoryId,
+        directoryCategoryId
     );
 
     res.json({ requestDto });
@@ -192,7 +195,7 @@ const setStatus = catchAsync(async (req, res) => {
     const { requestId, status } = req.body;
     if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
     if (!status) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing status');
-    const statusFromDb = await Status.findOne({where: {number: status}})
+    const statusFromDb = await Status.findOne({ where: { number: status } });
     if (!statusFromDb) throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid status');
     await requestService.setStatus(requestId, status, statusFromDb.id);
     res.json({ status: 'OK' });
@@ -425,24 +428,34 @@ const changeStatus = catchAsync(async (req, res) => {
     if (!prevNumber || !statusId) throw new ApiError(httpStatus.BAD_REQUEST, 'missing prevName or statusId');
     await requestService.changeStatus(prevNumber, statusId);
     res.json({ status: 'OK' });
-})
+});
 
 const setNewDirectoryCategory = catchAsync(async (req, res) => {
-    const { requestId } = req.params
-    const { directoryCategoryId } = req.body
-    if(!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'missing requestId')
-    if(!directoryCategoryId) throw new ApiError(httpStatus.BAD_REQUEST, 'missing directoryCategoryId')
+    const { requestId } = req.params;
+    const { directoryCategoryId } = req.body;
+    if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'missing requestId');
+    if (!directoryCategoryId) throw new ApiError(httpStatus.BAD_REQUEST, 'missing directoryCategoryId');
 
-    await requestService.setNewDirectoryCategory(requestId, directoryCategoryId)
-    res.json({status: 'OK'})
-})
+    await requestService.setNewDirectoryCategory(requestId, directoryCategoryId);
+    res.json({ status: 'OK' });
+});
 
 const getCountFilesRequest = catchAsync(async (req, res) => {
-    const { requestId } = req.params
+    const { requestId } = req.params;
     if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'missing requestId');
-    const count = await requestService.countOfRepairRequest(requestId)
-    res.json({count})
-})
+    const count = await requestService.countOfRepairRequest(requestId);
+    res.json({ count });
+});
+
+const getActualRequestsByObjectId = catchAsync(async (req, res) => {
+    const { tgUserId, unitId, objectId } = req.params;
+
+    if (!tgUserId) throw new ApiError(httpStatus.BAD_REQUEST, 'missing tgUserId');
+    if (!unitId) throw new ApiError(httpStatus.BAD_REQUEST, 'missing unitId');
+
+    const requests = await requestService.getActualRequestsByObjectId(tgUserId, unitId, objectId);
+    res.json({ requests });
+});
 
 export default {
     getAll,
@@ -475,4 +488,5 @@ export default {
     changeStatus,
     getCountFilesRequest,
     setNewDirectoryCategory,
+    getActualRequestsByObjectId,
 };

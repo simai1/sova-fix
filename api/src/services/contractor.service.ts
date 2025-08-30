@@ -10,6 +10,8 @@ import ObjectDir from '../models/object';
 import Unit from '../models/unit';
 import LegalEntity from '../models/legalEntity';
 import ExtContractor from '../models/externalContractor';
+import DirectoryCategory from '../models/directoryCategory';
+import TgUser from '../models/tgUser';
 
 const getAllContractors = async (): Promise<ContractorDto[]> => {
     const contractors = await Contractor.findAll({ order: [['name', 'asc']] });
@@ -196,10 +198,52 @@ const getContractorsItinerary = async (id: string, filter: any): Promise<Request
     return requests.map(request => new RequestDto(request));
 };
 
+// Поиск актуальных заявок по объектам  - 1, 2 и 5 статусы
+export const getContractorsActualRequests = async (contractorId: string, unitId: string, objectId?: string) => {
+    const actualStatuses = [1, 2, 5];
+
+    const unitObjects = await ObjectDir.findAll({
+        where: { unitId },
+        attributes: ['id'],
+    });
+    const unitObjectIds = unitObjects.map(uo => uo.id);
+
+    const whereClause: any = {
+        status: { [Op.in]: actualStatuses },
+        contractorId,
+    };
+
+    if (objectId) {
+        if (unitObjectIds.includes(objectId)) {
+            whereClause.objectId = objectId;
+        } else {
+            return [];
+        }
+    } else {
+        whereClause.objectId = { [Op.in]: unitObjectIds };
+    }
+
+    const requests = await RepairRequest.findAll({
+        where: whereClause,
+        include: [
+            { model: Unit },
+            { model: Contractor },
+            { model: TgUser },
+            { model: DirectoryCategory },
+            { model: ObjectDir },
+        ],
+        order: [['createdAt', 'DESC']],
+    });
+
+    return requests.map(r => new RequestDto(r));
+};
+
+
 export default {
     getAllContractors,
     createContractor,
     getOneContractorById,
     getContractorsRequests,
     getContractorsItinerary,
+    getContractorsActualRequests,
 };

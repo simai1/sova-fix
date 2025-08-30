@@ -1391,6 +1391,64 @@ const countOfRepairRequest = async (repairId: string) => {
     return currentFiles.length;
 }
 
+// Поиск актуальных заявок по объектам  - 1, 2 и 5 статусы
+export const getActualRequestsByObjectId = async (tgUserId: string, unitId: string, objectId?: string) => {
+    const actualStatuses = [1, 2, 5];
+
+    const unitObjects = await ObjectDir.findAll({
+        where: { unitId },
+        attributes: ['id'],
+    });
+    const unitObjectIds = unitObjects.map(uo => uo.id);
+
+    let userObjectIds: string[] = [];
+    if (tgUserId) {
+        const usersObjects = await TgUserObject.findAll({
+            where: { tgUserId },
+            attributes: ['objectId'],
+        });
+        userObjectIds = usersObjects.map(uo => uo.objectId);
+
+        userObjectIds = userObjectIds.filter(id => unitObjectIds.includes(id));
+    }
+
+    const whereClause: any = {
+        status: { [Op.in]: actualStatuses },
+    };
+
+    if (tgUserId) {
+        if (objectId) {
+            if (userObjectIds.includes(objectId)) {
+                whereClause.objectId = objectId;
+            } else {
+                return [];
+            }
+        } else {
+            whereClause.objectId = { [Op.in]: userObjectIds };
+        }
+    } else {
+        if (objectId) {
+            whereClause.objectId = objectId;
+        } else {
+            whereClause.objectId = { [Op.in]: unitObjectIds };
+        }
+    }
+
+    const requests = await RepairRequest.findAll({
+        where: whereClause,
+        include: [
+            { model: Unit },
+            { model: Contractor },
+            { model: TgUser },
+            { model: DirectoryCategory },
+            { model: ObjectDir },
+        ],
+        order: [['createdAt', 'DESC']],
+    });
+
+    return requests.map(r => new RequestDto(r));
+};
+
 export default {
     getAllRequests,
     getRequestById,
@@ -1419,4 +1477,5 @@ export default {
     changeStatus,
     countOfRepairRequest,
     setNewDirectoryCategory,
+    getActualRequestsByObjectId,
 };
