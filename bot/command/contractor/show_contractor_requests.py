@@ -55,8 +55,7 @@ async def ask_unit(message: Message, state: FSMContext, user_id: int) -> None:
             reply_markup=to_start_kb()
         )
         return
-
-    units_with_objects = await data_loader.get_user_objects_by_units(tg_user_id)
+    units_with_objects = await data_loader.get_user_objects_by_units_with_count_request_contractor(tg_user_id)
     if not units_with_objects:
         await message.answer(
             "У вас нет доступа к объектам. Обратитесь к менеджеру для получения доступа.",
@@ -122,7 +121,7 @@ async def ask_object(query: CallbackQuery, state: FSMContext):
         await state.clear()
         return
 
-    units_with_objects = await data_loader.get_user_objects_by_units(tg_user_id)
+    units_with_objects = await data_loader.get_user_objects_by_units_with_count_request_contractor(tg_user_id)
     if unit_id not in units_with_objects:
         await query.message.answer(
             "У вас нет доступа к объектам в этом подразделении. Обратитесь к менеджеру.",

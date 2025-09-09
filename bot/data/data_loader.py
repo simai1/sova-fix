@@ -101,3 +101,83 @@ async def get_user_objects_by_units(tg_user_id: str) -> Dict[str, Dict[str, str]
         units_with_objects[unit_id][obj_name] = obj_id
     return units_with_objects
 
+async def get_user_objects_by_units_with_count_request_manager(tg_user_id: str) -> Dict[str, Dict[str, str]]:
+    """
+    Группирует объекты менеджера по подразделениям с числом заявок по статусам 1 2 5.
+    
+    Args:
+        tg_user_id: ID пользователя Telegram
+    
+    Returns:
+        Словарь с ID подразделений в качестве ключей и словарями объектов в качестве значений
+    """
+    units_with_objects = {}
+    
+    user_objects = await crm.get_user_objects_with_count_requests_manager(tg_user_id)
+    
+    if not user_objects or len(user_objects) == 0:
+        logger.warn(f"Не найдено объектов для пользователя {tg_user_id}")
+        return units_with_objects
+    
+    logger.info(f"Получено {len(user_objects)} объектов для пользователя {tg_user_id}")
+    
+    valid_objects = 0
+    
+    for obj in user_objects:
+        obj_name = obj.get('name')
+        obj_id = obj.get('id')
+        
+        unit_id = None
+        if isinstance(obj.get('unit'), dict):
+            unit_id = obj.get('unit', {}).get('id')
+        elif isinstance(obj.get('unitId'), str):
+            unit_id = obj.get('unitId')
+        
+        valid_objects += 1
+        
+        if unit_id not in units_with_objects:
+            units_with_objects[unit_id] = {}
+            
+        units_with_objects[unit_id][obj_name] = obj_id
+    return units_with_objects
+
+async def get_user_objects_by_units_with_count_request_contractor(tg_user_id: str) -> Dict[str, Dict[str, str]]:
+    """
+    Группирует объекты исполнителя по подразделениям с числом заявок по статусам 1 2 5.
+    
+    Args:
+        tg_user_id: ID пользователя Telegram
+    
+    Returns:
+        Словарь с ID подразделений в качестве ключей и словарями объектов в качестве значений
+    """
+    units_with_objects = {}
+    
+    user_objects = await crm.get_user_objects_with_count_requests_contractor(tg_user_id)
+    
+    if not user_objects or len(user_objects) == 0:
+        logger.warn(f"Не найдено объектов для пользователя {tg_user_id}")
+        return units_with_objects
+    
+    logger.info(f"Получено {len(user_objects)} объектов для пользователя {tg_user_id}")
+    
+    valid_objects = 0
+    
+    for obj in user_objects:
+        obj_name = obj.get('name')
+        obj_id = obj.get('id')
+        
+        unit_id = None
+        if isinstance(obj.get('unit'), dict):
+            unit_id = obj.get('unit', {}).get('id')
+        elif isinstance(obj.get('unitId'), str):
+            unit_id = obj.get('unitId')
+        
+        valid_objects += 1
+        
+        if unit_id not in units_with_objects:
+            units_with_objects[unit_id] = {}
+            
+        units_with_objects[unit_id][obj_name] = obj_id
+    return units_with_objects
+

@@ -863,6 +863,111 @@ async def get_user_objects(tg_user_id: str) -> list | None:
         logger.error(f"Исключение при запросе объектов: {str(e)}, tg_user_id={tg_user_id}")
         return None
 
+async def get_user_objects_with_count_requests_manager(tg_user_id: str) -> list | None:
+    """
+    Получает список объектов, доступных пользователю Telegram через публичный API.
+    
+    Args:
+        tg_user_id: ID пользователя Telegram в базе данных
+        
+    Returns:
+        Список объектов, доступных пользователю, или None в случае ошибки
+    """
+    url = f"{cf.API_URL}/tgUsers/{tg_user_id}/manager/count"
+    
+    try:
+        request = requests.get(url)
+        
+        if request.status_code == 200:
+            response = request.json()
+            
+            if isinstance(response, dict) and 'objects' in response:
+                objects = response['objects']
+                logger.info(f"Получено объектов для пользователя {tg_user_id}: {len(objects)}")
+                
+                if not objects or len(objects) == 0:
+                    logger.warn(f"Пустой список объектов для пользователя {tg_user_id}")
+                    return []
+                
+                if len(objects) > 0:
+                    sample_obj = objects[0]
+                    logger.info(f"Пример структуры объекта: {sample_obj}")
+                
+                return objects
+            elif isinstance(response, list):
+                logger.info(f"Получено объектов для пользователя {tg_user_id}: {len(response)}")
+                
+                if not response or len(response) == 0:
+                    logger.warn(f"Пустой список объектов для пользователя {tg_user_id}")
+                    return []
+                
+                if len(response) > 0:
+                    sample_obj = response[0]
+                    logger.info(f"Пример структуры объекта: {sample_obj}")
+                
+                return response
+            else:
+                logger.error(f"Неожиданный формат ответа API: {type(response)}")
+                return []
+        else:
+            logger.error(f"Ошибка при запросе объектов: {request.status_code}, tg_user_id={tg_user_id}")
+            return None
+    except Exception as e:
+        logger.error(f"Исключение при запросе объектов: {str(e)}, tg_user_id={tg_user_id}")
+        return None
+
+async def get_user_objects_with_count_requests_contractor(tg_user_id: str) -> list | None:
+    """
+    Получает список объектов, доступных пользователю Telegram через публичный API.
+    
+    Args:
+        tg_user_id: ID пользователя Telegram в базе данных
+        
+    Returns:
+        Список объектов, доступных пользователю, или None в случае ошибки
+    """
+    url = f"{cf.API_URL}/tgUsers/{tg_user_id}/contractor/count"
+    
+    try:
+        request = requests.get(url)
+        
+        if request.status_code == 200:
+            response = request.json()
+            
+            if isinstance(response, dict) and 'objects' in response:
+                objects = response['objects']
+                logger.info(f"Получено объектов для пользователя {tg_user_id}: {len(objects)}")
+                
+                if not objects or len(objects) == 0:
+                    logger.warn(f"Пустой список объектов для пользователя {tg_user_id}")
+                    return []
+                
+                if len(objects) > 0:
+                    sample_obj = objects[0]
+                    logger.info(f"Пример структуры объекта: {sample_obj}")
+                
+                return objects
+            elif isinstance(response, list):
+                logger.info(f"Получено объектов для пользователя {tg_user_id}: {len(response)}")
+                
+                if not response or len(response) == 0:
+                    logger.warn(f"Пустой список объектов для пользователя {tg_user_id}")
+                    return []
+                
+                if len(response) > 0:
+                    sample_obj = response[0]
+                    logger.info(f"Пример структуры объекта: {sample_obj}")
+                
+                return response
+            else:
+                logger.error(f"Неожиданный формат ответа API: {type(response)}")
+                return []
+        else:
+            logger.error(f"Ошибка при запросе объектов: {request.status_code}, tg_user_id={tg_user_id}")
+            return None
+    except Exception as e:
+        logger.error(f"Исключение при запросе объектов: {str(e)}, tg_user_id={tg_user_id}")
+        return None
 
 async def get_tguser_object_relations(tg_user_id: str) -> list | None:
     """

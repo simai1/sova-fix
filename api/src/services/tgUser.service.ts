@@ -7,10 +7,13 @@ import userService from './user.service';
 import { isMatch } from '../utils/encryption';
 import User from '../models/user';
 import { sendMsg, WsMsgData } from '../utils/ws';
-import { Op } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
 import logger from '../utils/logger';
 import { models } from '../models';
 import TgUserObject from '../models/tgUserObject';
+import RepairRequest from '../models/repairRequest';
+import Unit from '../models/unit';
+import ObjectDir from '../models/object';
 
 const create = async (name: string, role: number, tgId: string, linkId: string | undefined): Promise<TgUserDto> => {
     role = parseInt(String(role));
@@ -65,19 +68,19 @@ const getAll = async (): Promise<TgUserDto[]> => {
 };
 
 const getAllManagers = async (): Promise<TgUserDto[]> => {
-    const users = await User.findAll({ 
-        where: { 
-            tgManagerId: { [Op.ne]: null } 
-        }, 
-        include: [{ 
-            model: TgUser,
-            required: true
-        }] 
+    const users = await User.findAll({
+        where: {
+            tgManagerId: { [Op.ne]: null },
+        },
+        include: [
+            {
+                model: TgUser,
+                required: true,
+            },
+        ],
     });
-    
-    return users
-        .filter(user => user.TgUser)
-        .map(user => new TgUserDto(user.TgUser as TgUser));
+
+    return users.filter(user => user.TgUser).map(user => new TgUserDto(user.TgUser as TgUser));
 };
 
 const getOneUser = async (tgUserId: string): Promise<TgUserDto> => {
@@ -347,6 +350,134 @@ const getUserObjects = async (tgUserId: string): Promise<any[]> => {
     }
 };
 
+const getManagersObjectsWithCountRequests = async (tgUserId: string) => {
+    if (!tgUserId) {
+        throw new ApiError(httpStatus.BAD_REQUEST, 'tgUserId is required');
+    }
+
+    const user = await TgUser.findByPk(tgUserId);
+
+    if (!user) {
+        throw new ApiError(httpStatus.BAD_REQUEST, 'user is not found');
+    }
+
+    const userObjects = await TgUserObject.findAll({
+        where: { tgUserId: user.id },
+        include: [
+            {
+                model: models.ObjectDir,
+                as: 'Object',
+                required: true,
+            },
+        ],
+    });
+
+    if (!userObjects || userObjects.length === 0) {
+        throw new ApiError(httpStatus.BAD_REQUEST, 'userObjects is not found');
+    }
+    const objects = userObjects
+        .map((relation: any) => relation.Object)
+        .filter((object: any) => object !== null && object !== undefined);
+
+    const objectIds = objects.map((o: any) => o.id);
+
+    if (objectIds.length === 0) {
+        return [];
+    }
+    // запрос для подсчёта заявок
+    const actualStatuses = [1, 2, 5];
+
+    // считаем заявки только с нужными статусами
+    const requestsCount = await RepairRequest.findAll({
+        attributes: ['objectId', [Sequelize.fn('COUNT', Sequelize.col('id')), 'count']],
+        where: {
+            objectId: { [Op.in]: objectIds },
+            status: { [Op.in]: actualStatuses },
+        },
+        group: ['objectId'],
+        raw: true,
+    });
+
+    const countsMap = requestsCount.reduce((acc: any, item: any) => {
+        acc[item.objectId] = Number(item.count);
+        return acc;
+    }, {});
+
+    return objects.map((obj: any) => ({
+        id: obj.id.toString(),
+        name: `(${countsMap[obj.id] || 0}) ${obj.name}`,
+        unit: obj.unit ? { id: obj.unit.id.toString() } : null,
+        unitId: obj.unitId ? obj.unitId.toString() : null,
+    }));
+};
+
+const getContractorsObjectsWithCountRequests = async (tgUserId: string) => {
+    if (!tgUserId) {
+        throw new ApiError(httpStatus.BAD_REQUEST, 'tgUserId is required');
+    }
+    const user = await TgUser.findByPk(tgUserId);
+    if (!user) {
+        throw new ApiError(httpStatus.BAD_REQUEST, 'user is not found');
+    }
+
+    const userObjects = await TgUserObject.findAll({
+        where: { tgUserId: user.id },
+        include: [
+            {
+                model: ObjectDir,
+                as: 'Object',
+                required: true,
+            },
+        ],
+    });
+
+    if (!userObjects || userObjects.length === 0) {
+        throw new ApiError(httpStatus.BAD_REQUEST, 'userObjects is not found');
+    }
+
+    const objects = userObjects
+        .map((relation: any) => relation.Object)
+        .filter((object: any) => object !== null && object !== undefined);
+
+    const objectIds = objects.map((o: any) => o.id);
+
+    if (objectIds.length === 0) {
+        return [];
+    }
+    // запрос для подсчёта заявок
+    const actualStatuses = [1, 2, 5];
+
+    const contractor = await Contractor.findOne({ where: { tgUserId: user.id } });
+
+    if (!contractor) {
+        throw new ApiError(httpStatus.BAD_REQUEST, 'contractor is not found');
+    }
+
+    // считаем заявки только с нужными статусами
+    const requestsCount = await RepairRequest.findAll({
+        attributes: ['objectId', [Sequelize.fn('COUNT', Sequelize.col('id')), 'count']],
+        where: {
+            objectId: { [Op.in]: objectIds },
+            status: { [Op.in]: actualStatuses },
+            contractorId: contractor.id,
+        },
+        group: ['objectId'],
+        raw: true,
+    });
+
+    const countsMap = requestsCount.reduce((acc: any, item: any) => {
+        acc[item.objectId] = Number(item.count);
+        return acc;
+    }, {});
+
+    return objects.map((obj: any) => ({
+        id: obj.id.toString(),
+        name: `(${countsMap[obj.id] || 0}) ${obj.name}`,
+        unit: obj.unit ? { id: obj.unit.id.toString() } : null,
+        unitId: obj.unitId ? obj.unitId.toString() : null,
+    }));
+};
+
 export default {
     create,
     syncManagerToTgUser,
@@ -357,4 +488,6 @@ export default {
     addObjectToUser,
     removeObjectFromUser,
     getUserObjects,
+    getManagersObjectsWithCountRequests,
+    getContractorsObjectsWithCountRequests,
 };
