@@ -24,4 +24,9 @@ router.route('/:tgUserId/objects/:objectId')
 router.route('/').post(tgUserController.create).get(tgUserController.getAll);
 router.route('/:tgId').get(tgUserController.findOneByTgId);
 
+// Получение объектов пользователя (менеджера) с количеством заявок
+router.route('/:tgUserId/manager/count').get(tgUserController.getManagersObjectsWithCountRequests)
+// Получение объектов пользователя (исполнителя) с количеством заявок
+router.route('/:tgUserId/contractor/count').get(tgUserController.getContractorsObjectsWithCountRequests)
+
 export default router;
