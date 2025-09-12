@@ -11,6 +11,7 @@ from util.crm import roles
 from util.verification import VerificationError
 from util.verification import verify_user
 from data import data_loader
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 router = Router(name=__name__)
 
@@ -84,6 +85,15 @@ async def ask_unit(message: Message, state: FSMContext, user_id: int) -> None:
         buttons.update(objects_data)
         names = await pagination.set_pages_data(buttons, state)
         kb = pagination.make_kb(0, names, prefix='object')
+
+        # Если подразделений больше одного, добавляем кнопку "Назад"
+        if len(units_with_objects) > 1:
+            back_btn = InlineKeyboardButton(text="⬅️ Назад", callback_data="object:back")
+            kb.inline_keyboard.append([back_btn])
+            
+        home_btn = InlineKeyboardButton(text="На главную ↩️", callback_data="start_remove_kb")
+        kb.inline_keyboard.append([home_btn])
+
         await state.set_state(FSMContractorRequestsFilter.object_input)
         await message.answer("Выберите объект", reply_markup=kb)
 
@@ -154,17 +164,51 @@ async def ask_object(query: CallbackQuery, state: FSMContext):
     buttons.update(objects_data)
     names = await pagination.set_pages_data(buttons, state)
     kb = pagination.make_kb(0, names, prefix='object')
+
+    back_btn = InlineKeyboardButton(text="⬅️ Назад", callback_data="object:back")
+    kb.inline_keyboard.append([back_btn])
+
     await state.set_state(FSMContractorRequestsFilter.object_input)
     await query.message.answer("Выберите объект", reply_markup=kb)
     await query.answer()
     await query.message.edit_reply_markup(reply_markup=None)
 
-
-
-@router.callback_query(FSMContractorRequestsFilter.object_input, F.data.startswith('object'))
+@router.callback_query(
+    FSMContractorRequestsFilter.object_input,
+    F.data.startswith('object'),
+    ~F.data.endswith('back')   # исключаем "Назад"
+)
 async def after_object_selected(query: CallbackQuery, state: FSMContext) -> None:
     object_id = await pagination.get_selected_value(query, state)
     await process_object_selection(query.message, state, object_id, query.from_user.id)
+    await query.answer()
+    await query.message.edit_reply_markup(reply_markup=None)
+
+@router.callback_query(FSMContractorRequestsFilter.object_input, F.data == "object:back")
+async def back_to_units(query: CallbackQuery, state: FSMContext):
+    await state.set_state(FSMContractorRequestsFilter.unit_input)
+
+    units_data = await data_loader.get_units_data()
+    user_id = query.from_user.id
+    tg_user_id = await crm.get_tg_user_id(user_id)
+
+    if not tg_user_id:
+        await query.message.answer(
+            "Не удалось найти вашу учетную запись. Свяжитесь с поддержкой.",
+            reply_markup=to_start_kb()
+        )
+        await query.answer()
+        await query.message.edit_reply_markup(reply_markup=None)
+        await state.clear()
+        return
+
+    units_with_objects = await data_loader.get_user_objects_by_units_with_count_request_contractor(tg_user_id)
+    filtered_units_data = {k: v for k, v in units_data.items() if v in units_with_objects}
+
+    names = await pagination.set_pages_data(filtered_units_data, state)
+    kb = pagination.make_kb(0, names, prefix='unit')
+
+    await query.message.answer("Выберите подразделение", reply_markup=kb)
     await query.answer()
     await query.message.edit_reply_markup(reply_markup=None)
 

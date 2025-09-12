@@ -14,6 +14,7 @@ from data.const import statuses_keys
 from util import logger
 from data import data_loader
 from common.keyboard import to_start_kb
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 router = Router(name=__name__)
 
@@ -75,6 +76,15 @@ async def ask_unit(message: Message, state: FSMContext, user_id: int) -> None:
         buttons.update(objects_data)
         names = await pagination.set_pages_data(buttons, state)
         kb = pagination.make_kb(0, names, prefix='object')
+        
+        # Если подразделений больше одного, добавляем кнопку "Назад"
+        if len(units_with_objects) > 1:
+            back_btn = InlineKeyboardButton(text="⬅️ Назад", callback_data="object:back")
+            kb.inline_keyboard.append([back_btn])
+        
+        home_btn = InlineKeyboardButton(text="На главную ↩️", callback_data="start_remove_kb")
+        kb.inline_keyboard.append([home_btn])
+
         await state.set_state(FSMAdminRequestsFilter.object_input)
         await message.answer("Выберите объект", reply_markup=kb)
 
@@ -122,12 +132,62 @@ async def ask_object(query: CallbackQuery, state: FSMContext) -> None:
     buttons.update(objects_data)
     names = await pagination.set_pages_data(buttons, state)
     kb = pagination.make_kb(0, names, prefix='object')
+    
+    back_btn = InlineKeyboardButton(text="⬅️ Назад", callback_data="object:back")
+    kb.inline_keyboard.append([back_btn])
+    
     await state.set_state(FSMAdminRequestsFilter.object_input)
     await query.message.answer("Выберите объект", reply_markup=kb)
     await query.answer()
 
 
-@router.callback_query(FSMAdminRequestsFilter.object_input, F.data.startswith('object'))
+# обработка выбора объекта (исключаем кнопку "Назад")
+@router.callback_query(
+    FSMAdminRequestsFilter.object_input,
+    F.data.startswith('object'),
+    ~F.data.endswith('back')
+)
+async def after_object_selected(query: CallbackQuery, state: FSMContext) -> None:
+    object_id = await pagination.get_selected_value(query, state)
+    await process_object_selection(query.message, state, object_id, query.from_user.id)
+    await query.answer()
+
+
+# обработка кнопки "Назад" на экране выбора объекта
+@router.callback_query(FSMAdminRequestsFilter.object_input, F.data == "object:back")
+async def back_to_units(query: CallbackQuery, state: FSMContext) -> None:
+    user_id = query.from_user.id
+    tg_user_id = await crm.get_tg_user_id(user_id)
+
+    # получаем доступные подразделения
+    units_with_objects = await data_loader.get_user_objects_by_units_with_count_request_manager(tg_user_id)
+    if not units_with_objects:
+        await query.message.answer(
+            "У вас нет доступа к объектам. Обратитесь к менеджеру.",
+            reply_markup=to_start_kb()
+        )
+        await state.clear()
+        await query.answer()
+        return
+
+    await state.set_state(FSMAdminRequestsFilter.unit_input)
+    units_data = await data_loader.get_units_data()
+    filtered_units_data = {k: v for k, v in units_data.items() if v in units_with_objects}
+
+    if not filtered_units_data:
+        await query.message.answer(
+            "Ошибка при получении списка подразделений. Обратитесь в поддержку.",
+            reply_markup=to_start_kb()
+        )
+        await query.answer()
+        return
+
+    names = await pagination.set_pages_data(filtered_units_data, state)
+    kb = pagination.make_kb(0, names, prefix='unit')
+
+    await query.message.edit_text("Выберите подразделение", reply_markup=kb)
+    await query.answer()
+
 async def after_object_selected(query: CallbackQuery, state: FSMContext) -> None:
     object_id = await pagination.get_selected_value(query, state)
     await process_object_selection(query.message, state, object_id, query.from_user.id)
