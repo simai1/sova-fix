@@ -356,6 +356,24 @@ async def get_contractors_dict() -> dict:
     contractors_list = await get_all_contractors()
     return {contractor['name']: contractor['id'] for contractor in contractors_list}
 
+async def get_all_contractors_and_managers() -> list:
+    url = f'{cf.API_URL}/contractors/getAllContractorsAndManagers'
+    response = requests.get(url)
+    data = response.json()
+    return data
+
+
+async def get_contractors_and_managers_dict() -> dict:
+    performers_list = await get_all_contractors_and_managers()
+    return {
+        performer['name']: {
+            'id': performer['id'],
+            'isManager': performer['isManager']
+        }
+        for performer in performers_list
+    }
+
+
 
 async def get_contractor_id(user_id: int) -> str | None:
     user = await get_user(user_id)
@@ -738,6 +756,26 @@ async def set_contractor(request_id: str, contractor_id: str) -> bool:
         logger.error("could not set contractor", f"{req.status_code}  data: {data}")
         return False
 
+async def set_performer(request_id: str, performer_id: str, is_manager: bool) -> bool:
+    url = f"{cf.API_URL}/requests/set/contractor"
+
+    data = {
+        "requestId": request_id,
+    }
+
+    if is_manager:
+        data["managerId"] = performer_id
+    else:
+        data["contractorId"] = performer_id
+
+    req = requests.patch(url, data)
+
+    if req.status_code == 200:
+        logger.info("successfully set performer", f"data: {data}")
+        return True
+    else:
+        logger.error("could not set performer", f"{req.status_code} data: {data}")
+        return False
 
 async def get_rrs_for_user(user_data: dict, params: str = "") -> list:
     user = User(user_data)

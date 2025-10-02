@@ -7,4 +7,5 @@ router.route('/').get(contractorController.getAll).post(contractorController.cre
 router.route('/:contractorId/requests').get(contractorController.getContractorsRequests);
 router.route('/:contractorId/itinerary').get(contractorController.getContractorsItinerary);
 router.route('/:contractorId/:unitId/:objectId?').get(contractorController.getContractorsActualRequests);
+router.route('/getAllContractorsAndManagers').get(contractorController.getAllContractorsAndManagers)
 export default router;

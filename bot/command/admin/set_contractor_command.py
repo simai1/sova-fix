@@ -28,7 +28,7 @@ async def set_contractor_handler(query: CallbackQuery, state: FSMContext) -> Non
 
     await state.update_data(request_id=request_id)
 
-    contractors_data = await crm.get_contractors_dict()
+    contractors_data = await crm.get_contractors_and_managers_dict()
     names = await pagination.set_pages_data(contractors_data, state)
     kb = pagination.make_kb(0, names, prefix="contractor_id")
 
@@ -40,12 +40,12 @@ async def set_contractor_handler(query: CallbackQuery, state: FSMContext) -> Non
 
 @router.callback_query(FSMSetContractor.await_contractor_id)
 async def set_selected_contractor(query: CallbackQuery, state: FSMContext) -> None:
-    contractor_id = await pagination.get_selected_value(query, state)
+    performer = await pagination.get_selected_value(query, state)  
     request_id = (await state.get_data())['request_id']
 
     await pagination.remove_page_list(state)
 
-    success = await crm.set_contractor(request_id, contractor_id)
+    success = await crm.set_performer(request_id, performer["id"], performer["isManager"])
 
     if success:
         await query.message.answer("Исполнитель успешно был назначен ✅", reply_markup=to_start_kb())

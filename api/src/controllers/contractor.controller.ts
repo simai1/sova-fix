@@ -10,6 +10,11 @@ const getAll = catchAsync(async (req, res) => {
     res.json(contractors);
 });
 
+const getAllContractorsAndManagers = catchAsync(async (req, res) => {
+    const contractorsAndManagers = await contractorService.getAllContractorsAndManagers();
+    res.json(contractorsAndManagers)
+})
+
 const create = catchAsync(async (req, res) => {
     const { name } = req.body;
     if (!name) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing name');
@@ -85,4 +90,5 @@ export default {
     getContractorsRequests,
     getContractorsItinerary,
     getContractorsActualRequests,
+    getAllContractorsAndManagers,
 };

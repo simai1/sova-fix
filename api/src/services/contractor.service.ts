@@ -12,10 +12,24 @@ import LegalEntity from '../models/legalEntity';
 import ExtContractor from '../models/externalContractor';
 import DirectoryCategory from '../models/directoryCategory';
 import TgUser from '../models/tgUser';
+import { ContractorManagerDto } from '../dtos/contractorManager.dto';
 
 const getAllContractors = async (): Promise<ContractorDto[]> => {
     const contractors = await Contractor.findAll({ order: [['name', 'asc']] });
     return contractors.map(contractor => new ContractorDto(contractor));
+};
+
+const getAllContractorsAndManagers = async (): Promise<ContractorManagerDto[]> => {
+    const contractors = await Contractor.findAll({ order: [['name', 'asc']] });
+    const contractorDtos = contractors.map(c => new ContractorManagerDto(c, false));
+
+    const managers = await TgUser.findAll({
+        where: { role: 2 },
+        order: [['name', 'asc']],
+    });
+    const managerDtos = managers.map(m => new ContractorManagerDto(m, true));
+
+    return [...contractorDtos, ...managerDtos];
 };
 
 const createContractor = async (name: string): Promise<ContractorDto> => {
@@ -238,7 +252,6 @@ export const getContractorsActualRequests = async (contractorId: string, unitId:
     return requests.map(r => new RequestDto(r));
 };
 
-
 export default {
     getAllContractors,
     createContractor,
@@ -246,4 +259,5 @@ export default {
     getContractorsRequests,
     getContractorsItinerary,
     getContractorsActualRequests,
+    getAllContractorsAndManagers,
 };
