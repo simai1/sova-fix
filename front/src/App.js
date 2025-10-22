@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { FilteredSample, funFixEducator } from "./UI/SamplePoints/Function";
 import ReportFinansing from "./pages/AdminPages/Report/ReportFinansing/ReportFinansing";
 import RepotYour from "./pages/AdminPages/Report/RepotYour/RepotIndicators";
+import ReportsContainer from './pages/AdminPages/Reports/Reports.container.tsx'
 import BusinessUnitReference from "./modules/BusinessUnitReference/BusinessUnitReference";
 import DirectoryLegalEntities from "./modules/DirectoryLegalEntities/DirectoryLegalEntities";
 import ReferenceObjects from "./modules/ReferenceObjects/ReferenceObjects";
@@ -399,6 +400,7 @@ const UpdateStatus = () => {
             <Route path="/reset-password" element={<ResetPassword/>}></Route>
             <Route path="/ReportFinansing" element={<ReportFinansing />}></Route>
             <Route path="/RepotYour" element={<RepotYour />}></Route>
+            <Route path="/reports" element={<ReportsContainer />}/>
             
             {JSON.parse(sessionStorage.getItem("userData"))?.user?.role === "CUSTOMER" ? null : (
               <Route path="/Directory/*" element={<Directory />}>

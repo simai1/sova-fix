@@ -75,7 +75,13 @@ const getUserObjects = async (tgUserId: string): Promise<ObjectDto[]> => {
     }
 };
 
-const createObject = async (name: string, unitId: string, city: string, legalEntityId: string): Promise<ObjectDto> => {
+const createObject = async (
+    name: string,
+    unitId: string,
+    city: string,
+    legalEntityId: string,
+    budgetPlan?: number
+): Promise<ObjectDto> => {
     const checkObject = await ObjectDir.findOne({ where: { name } });
     if (checkObject) throw new ApiError(httpStatus.BAD_REQUEST, 'Already exists object');
     const allObjects = await getAllObjects();
@@ -85,7 +91,7 @@ const createObject = async (name: string, unitId: string, city: string, legalEnt
     if (!legalEntity) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found legalEntity with id ' + legalEntityId);
     const unit = await Unit.findByPk(unitId);
     if (!unit) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found unit with id ' + unitId);
-    const objectDir = await ObjectDir.create({ name, unitId, city, number: 1, legalEntityId });
+    const objectDir = await ObjectDir.create({ name, unitId, city, number: 1, legalEntityId, budgetPlan });
     await legalEntityService.setCountLegalEntity(legalEntityId);
     await unitService.setCountUnit(unitId);
     sendMsg({
@@ -118,7 +124,8 @@ const updateObject = async (
     name: string | undefined,
     unitId: string | undefined,
     city: string | undefined,
-    legalEntityId: string | undefined
+    legalEntityId: string | undefined,
+    budgetPlan: number | undefined
 ): Promise<void> => {
     const checkObject = await getObjectById(objectId);
     if (!checkObject) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found object with id ' + objectId);
@@ -130,7 +137,7 @@ const updateObject = async (
         const legalEntity = await LegalEntity.findByPk(legalEntityId);
         if (!legalEntity) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found legalEntity with id ' + legalEntity);
     }
-    await checkObject.update({ name, unitId, city, legalEntityId });
+    await checkObject.update({ name, unitId, city, legalEntityId, budgetPlan });
     if (legalEntityId) await legalEntityService.setCountLegalEntity(legalEntityId);
     if (unitId) await unitService.setCountUnit(unitId);
 };

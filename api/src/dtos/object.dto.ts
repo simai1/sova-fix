@@ -9,6 +9,7 @@ export default class ObjectDto {
     city!: string;
     unit?: UnitDto;
     legalEntity?: LegalEntityDto;
+    budgetPlan?: number; 
 
     constructor(model: ObjectDir) {
         this.id = model.id;
@@ -17,5 +18,6 @@ export default class ObjectDto {
         this.city = model.city;
         this.unit = model.Unit ? new UnitDto(model.Unit) : undefined;
         this.legalEntity = model.LegalEntity ? new LegalEntityDto(model.LegalEntity) : undefined;
+        this.budgetPlan = model.budgetPlan
     }
 }

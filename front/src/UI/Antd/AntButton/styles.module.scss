@@ -1,0 +1,11 @@
+@import "../../../styles/color.scss";
+
+.button {
+    &.brown {
+        background-color: var(--brown-dark) !important;
+    }
+}
+
+.brown {
+    background-color: var(--brown-dark) !important;
+}

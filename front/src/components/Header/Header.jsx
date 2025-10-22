@@ -200,24 +200,7 @@ return (
                     <li className={styles.menuLi} onClick={() => LinkPage("Directory/Category")}>Категории</li>
                 </ul>
                 {process.env?.REACT_APP_GLOBAL_OPEN_REPORT_BLOCK === "open" &&
-                <>
-                  <li onClick={() => setIsOpenFinans(!isOpenFinans)} className={styles.menuLi} style={isOpenFinans ? { backgroundColor: "#FFE20D" } : { backgroundColor: "#e3dfda" }}>
-                      Отчеты
-                      <img style={isOpenFinans ? { transform: "rotate(0deg)" } : { transform: "rotate(-90deg)" }} src={arrowBottom} />
-                  </li>
-                  <ul
-                      ref={finansRef}
-                      className={styles.menuUlSecond}
-                      style={{
-                          maxHeight: isOpenFinans ? `${finansRef.current.scrollHeight}px` : '0',
-                          overflow: 'hidden',
-                          transition: 'max-height 0.3s ease'
-                      }}
-                  >
-                      <li className={styles.menuLi} onClick={() => LinkPage("RepotYour")}>Показатели</li>
-                      <li className={styles.menuLi} onClick={() => LinkPage("ReportFinansing")}>Финансы</li>
-                  </ul>
-                  </>
+                    <li className={styles.menuLi} onClick={() => LinkPage('reports')}>Отчеты</li>
                 }
                 <li onClick={() => setIsOpenSystem(!isOpenSystem)} className={styles.menuLi} style={isOpenSystem ? { backgroundColor: "#FFE20D" } : { backgroundColor: "#e3dfda" }}>
                 Системы управления
