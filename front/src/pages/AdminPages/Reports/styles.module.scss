@@ -1,0 +1,41 @@
+.container {
+    height: 95vh;
+    width: 100%;
+
+    .content {
+        width: 100%;
+        height: 100%;
+        .additionalParametrs {
+            background-color: #fff;
+            width: 100%;
+        }
+
+        .additionalParametrs, .column {
+            border: 1px solid lightgray;
+        }
+
+        .workZoneContainer {
+            display: grid;
+            grid-template-columns: 1fr 3.5fr 1fr;
+            align-items: center;
+            height: 95%;
+            width: 100%;
+            gap: 10px;
+            .columnTitle {
+                text-align: center;
+            }
+        
+            .column {
+                background-color: #fff;
+                height: 100%;
+                overflow-y: auto;
+            }
+            .listContainer :global(.ant-list-items) {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+        }
+    }
+}

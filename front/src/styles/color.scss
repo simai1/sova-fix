@@ -1,38 +1,40 @@
 :root {
-  --tableTdBg: #f7f7f7;
-  --tableTrHover: hwb(0 94% 6%);
-  --tableTh: #B7AB9E;
-  --dark-grey-color: #B7AB9E;
-  --selectedTr: #ababab24;
-  --white-color: #fff;
-  --turquoise-color: #FFE20D;
-  --black-color: #1D1D1B; //! просто чёрный
-  --light-gray-color: #B7AB9E; //! можно попробовать использовать для выделения объектов (подсветка строки при наведение на неё и т.п.)
-  --Active-gray-color: #cabfb4; //! активный
-  --beige-color: #e3dfda; //!цвет фона
-  --ActiveText-color: #bd966c; //! активный текст
-  --Red-color: #d69a81; //! красный цувет
-  --Light-green-color: #D1FAE5;
-  --Dark-green-color: #065F46;
-  --Bright-green-color: #10B981;
-  --Main-green-color: #c5e384;
+    --tableTdBg: #f7f7f7;
+    --tableTrHover: hwb(0 94% 6%);
+    --tableTh: #b7ab9e;
+    --dark-grey-color: #b7ab9e;
+    --selectedTr: #ababab24;
+    --white-color: #fff;
+    --turquoise-color: #ffe20d;
+    --black-color: #1d1d1b; //! просто чёрный
+    --light-gray-color: #b7ab9e; //! можно попробовать использовать для выделения объектов (подсветка строки при наведение на неё и т.п.)
+    --Active-gray-color: #cabfb4; //! активный
+    --beige-color: #e3dfda; //!цвет фона
+    --ActiveText-color: #bd966c; //! активный текст
+    --Red-color: #d69a81; //! красный цувет
+    --Light-green-color: #d1fae5;
+    --Dark-green-color: #065f46;
+    --Bright-green-color: #10b981;
+    --Main-green-color: #c5e384;
+    --brown-light: #d8cdc1ff;
+    --brown-dark: #b7ab9e;
+    --turquoise-light: #ffe1018e;
+    --turquoise-lighter: #fff28f8d;
 
+    //#665a4e - уще цвет какой то нашел прикольный
 
-
-  //#665a4e - уще цвет какой то нашел прикольный 
-
-  //!вот так было
-  // --tableTdBg: #f7f7f7;
-  // --tableTrHover: #f0efef;
-  // --tableTh: #e1dede;
-  // --selectedTr: #c0edf1;
-  // --gray-color: #dedcdc;
-  // --white-color: #fff;
-  // --turquoise-color: #4693a4;
-  // --light-grey-color: #dbdbdb;
-  // --light-turquoise-color: #badee5;
-  // --dark-turquoise-color: #aad2da;
-  // --gray--button--color: #afbbbd;
-  // --black--border: #101415;
-  // --dark-grey-color: #afbbbd;
+    //!вот так было
+    // --tableTdBg: #f7f7f7;
+    // --tableTrHover: #f0efef;
+    // --tableTh: #e1dede;
+    // --selectedTr: #c0edf1;
+    // --gray-color: #dedcdc;
+    // --white-color: #fff;
+    // --turquoise-color: #4693a4;
+    // --light-grey-color: #dbdbdb;
+    // --light-turquoise-color: #badee5;
+    // --dark-turquoise-color: #aad2da;
+    // --gray--button--color: #afbbbd;
+    // --black--border: #101415;
+    // --dark-grey-color: #afbbbd;
 }

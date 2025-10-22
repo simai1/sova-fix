@@ -15,6 +15,8 @@ import {
 import storage from "redux-persist/lib/storage";
 import editColumTableSlice from "./editColumTable/editColumTable.slice.js";
 import { directoryCategoryApi } from "../modules/DirectoryCategory/directoryCategory.api";
+import { reportsApi } from "../pages/AdminPages/Reports/reports.api";
+import reportReducer from '../pages/AdminPages/Reports/slice'
 
 const rootReducer = combineReducers({
     isCheckedSlice: isCheckedSlice,
@@ -22,6 +24,8 @@ const rootReducer = combineReducers({
     editColumTableSlice: editColumTableSlice,
     isSamplePoints: isSamplePoints,
     [directoryCategoryApi.reducerPath]: directoryCategoryApi.reducer,
+    [reportsApi.reducerPath]: reportsApi.reducer,
+    reportReducer,
 });
 
 const persistConfig = {
@@ -46,7 +50,7 @@ const store = configureStore({
                     REGISTER,
                 ],
             },
-        }).concat([directoryCategoryApi.middleware]),
+        }).concat([directoryCategoryApi.middleware, reportsApi.middleware]),
 });
 
 export const persistor = persistStore(store);

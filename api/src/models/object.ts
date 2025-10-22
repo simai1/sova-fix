@@ -11,6 +11,7 @@ export default class ObjectDir extends Model {
     unitId?: string;
     LegalEntity?: LegalEntity; // legal entity rel
     legalEntityId?: string;
+    budgetPlan?: number
 
     static initialize(sequelize: Sequelize) {
         ObjectDir.init(
@@ -34,6 +35,10 @@ export default class ObjectDir extends Model {
                     type: DataTypes.STRING,
                     allowNull: false,
                 },
+                budgetPlan: {
+                    type: DataTypes.INTEGER,
+                    allowNull: true,
+                }
             },
             {
                 sequelize,
