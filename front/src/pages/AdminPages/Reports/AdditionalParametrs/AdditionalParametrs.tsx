@@ -28,8 +28,10 @@ import dayjs from "dayjs";
 import isoWeek from "dayjs/plugin/isoWeek";
 import { SyncOutlined } from "@ant-design/icons";
 import { AdditionalParametrsProps } from "./types";
+import "dayjs/locale/ru";
 
 dayjs.extend(isoWeek);
+dayjs.locale("ru");
 const { RangePicker } = DatePicker;
 
 const AdditionalParametrs: FC<AdditionalParametrsProps> = ({
@@ -175,6 +177,7 @@ const AdditionalParametrs: FC<AdditionalParametrsProps> = ({
                                 name="periodPicker"
                             >
                                 <RangePicker
+                                    
                                     className={styles.rangePicker}
                                     placeholder={["Начало", "Конец"]}
                                     format={"DD.MM.YYYY"}
