@@ -267,7 +267,14 @@ export const calculateIndicators = async (
     indicators: ReportInidicators,
     additional: AdditionalParametrsI
 ) => {
-    const allRequestsCount = indicators.percentOfTotalCountRequest ? await RepairRequest.count() : 0;
+    const where: any = {};
+
+    if (additional.dateStart && additional.dateEnd) {
+        where.createdAt = {
+            [Op.between]: [additional.dateStart, additional.dateEnd],
+        };
+    }
+    const allRequestsCount = indicators.percentOfTotalCountRequest ? await RepairRequest.count({ where }) : 0;
     const result = await Promise.all(
         filtered.map(async row => {
             const filterIds = await buildFilterIds(row, parametrs, additional);
@@ -330,38 +337,36 @@ const buildIndicators = async (
     }
 
     if (indicators.budget) {
-        const budgets = await RepairRequest.findAll({ where: filterIds, attributes: ['repairPrice'] });
-        result.budget =
-            budgets.length > 0
-                ? Number((budgets.reduce((sum, r) => sum + (r.repairPrice ?? 0), 0) / budgets.length).toFixed(0))
-                : 0;
+        const budgets = await RepairRequest.findAll({
+            where: filterIds,
+            attributes: ['repairPrice'],
+        });
+
+        result.budget = budgets.length > 0 ? budgets.reduce((sum, r) => sum + (r.repairPrice ?? 0), 0) : 0;
     }
 
     if (indicators.percentOfBudgetPlan && row.objectId) {
         const object = await ObjectDir.findByPk(row.objectId, { attributes: ['budgetPlan'] });
         const objectBudgetPlan = object?.budgetPlan ?? 0;
         const budgets = await RepairRequest.findAll({ where: filterIds, attributes: ['repairPrice'] });
-        const avgBudget =
-            budgets.length > 0 ? budgets.reduce((sum, r) => sum + (r.repairPrice ?? 0), 0) / budgets.length : 0;
+        const sumBudgets = budgets.length > 0 ? budgets.reduce((sum, r) => sum + (r.repairPrice ?? 0), 0) : 0;
         result.percentOfBudgetPlan =
-            objectBudgetPlan > 0 ? Number(((avgBudget / objectBudgetPlan) * 100).toFixed(0)) : 0;
+            objectBudgetPlan > 0 ? Number(((sumBudgets / objectBudgetPlan) * 100).toFixed(0)) : 0;
     }
 
     if (indicators.closingSpeedOfRequests) {
         const requests = await RepairRequest.findAll({
             where: { ...filterIds, completeDate: { [Op.ne]: null } },
-            attributes: ['createdAt', 'completeDate'],
+            attributes: ['daysAtWork'],
         });
+
         if (requests.length > 0) {
-            const avgDays =
-                requests.reduce((sum, r) => {
-                    const created = r.createdAt ? new Date(r.createdAt).getTime() : null;
-                    const completed = r.completeDate ? new Date(r.completeDate).getTime() : null;
-                    if (!created || !completed) return sum;
-                    return sum + (completed - created) / (1000 * 60 * 60 * 24);
-                }, 0) / requests.length;
+            const totalDays = requests.reduce((sum, r) => sum + (r.daysAtWork || 0), 0);
+            const avgDays = totalDays / requests.length;
             result.closingSpeedOfRequests = Number(avgDays.toFixed(1));
-        } else result.closingSpeedOfRequests = 0;
+        } else {
+            result.closingSpeedOfRequests = 0;
+        }
     }
 
     return result;
@@ -457,15 +462,14 @@ export const addDynamics = async (
                 const currentValue = Number(row[key] ?? 0);
                 const prevValue = Number(prevRow[key] ?? 0);
 
-                const dynamics =
-                    prevValue === 0 ? 0 : Number((((currentValue - prevValue) / prevValue) * 100).toFixed(1));
+                const dynamics = prevValue === 0 ? 0 : Number(((currentValue / prevValue - 1) * 100).toFixed(1));
 
                 row[`${key}${type[0].toUpperCase() + type.slice(1)}Dynamics`] = dynamics;
             }
         }
     }
 
-    // --- 📊 Вычисляем динамику для итоговой строки (последняя строка)
+    // Вычисляем динамику для итоговой строки
     const totalRow = newRows[newRows.length - 1];
     if (totalRow && totalRow[Object.keys(parametrs)[0]] === 'Итого') {
         for (const type of dynamicsTypes) {
@@ -481,8 +485,7 @@ export const addDynamics = async (
                 const currentValue = Number(totalRow[key] ?? 0);
                 const prevValue = Number(prevTotal[key] ?? 0);
 
-                const dynamics =
-                    prevValue === 0 ? 0 : Number((((currentValue - prevValue) / prevValue) * 100).toFixed(1));
+                const dynamics = prevValue === 0 ? 0 : Number(((currentValue / prevValue - 1) * 100).toFixed(1));
 
                 totalRow[`${key}${type[0].toUpperCase() + type.slice(1)}Dynamics`] = dynamics;
             }

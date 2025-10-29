@@ -41,9 +41,16 @@ const ReportTable: FC = () => {
             </thead>
             <tbody>
                 {table.getRowModel().rows.map((row) => (
-                    <tr key={row.id} className={isResult ? styles.trTable : ''}>
+                    <tr key={row.id} className={isResult ? styles.trTable : ""}>
                         {row.getVisibleCells().map((cell) => (
-                            <td key={cell.id}>
+                            <td
+                                key={cell.id}
+                                style={{
+                                    textAlign:
+                                        cell.column.columnDef.meta?.align ||
+                                        "left",
+                                }}
+                            >
                                 {flexRender(
                                     cell.column.columnDef.cell,
                                     cell.getContext()

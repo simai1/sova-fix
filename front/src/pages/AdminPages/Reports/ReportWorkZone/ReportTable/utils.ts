@@ -41,6 +41,16 @@ const dynamicsLabels: Record<string, string> = {
     year: "год",
 };
 
+// Список ключей, которые считаются числовыми (для выравнивания вправо)
+const numericKeys: (keyof ReportTable)[] = [
+    "totalCountRequests",
+    "closingSpeedOfRequests",
+    "percentOfTotalCountRequest",
+    "budgetPlan",
+    "budget",
+    "percentOfBudgetPlan",
+];
+
 export const getReportTableColumns = (data: ReportTable[]) => {
     const columnHelper = createColumnHelper<ReportTable>();
 
@@ -64,18 +74,17 @@ export const getReportTableColumns = (data: ReportTable[]) => {
         const isPercent =
             key === "percentOfTotalCountRequest" ||
             key === "percentOfBudgetPlan";
+
+        const isNumeric = numericKeys.includes(key);
+
         columns.push(
             columnHelper.accessor(key, {
                 header: () => columnsNames[key],
                 cell: (info) => {
                     const value = info.getValue();
 
-                    if (
-                        value === "-" ||
-                        value === null ||
-                        value === undefined ||
-                        value === ""
-                    )
+                    if (value === "-") return "";
+                    if (value === null || value === undefined || value === "")
                         return "0";
 
                     const numericValue = Number(value);
@@ -83,9 +92,13 @@ export const getReportTableColumns = (data: ReportTable[]) => {
 
                     return formatNumber(numericValue, isPercent);
                 },
+                meta: {
+                    align: isNumeric ? "right" : "left",
+                },
             })
         );
 
+        // Динамические поля
         for (const dynKey of Object.keys(dynamicsLabels)) {
             const dynField = dynKey
                 ? `${key}${dynKey?.[0]?.toUpperCase() ?? ""}${
@@ -106,6 +119,9 @@ export const getReportTableColumns = (data: ReportTable[]) => {
                         if (isNaN(num)) return "";
                         const formatted = formatNumber(num, true);
                         return formatted;
+                    },
+                    meta: {
+                        align: "right",
                     },
                 })
             );
@@ -129,7 +145,9 @@ export const exportToExcel = (data: ReportTable[], fileName?: string) => {
         allKeys.push({ key, label: columnsNames[key] });
 
         for (const dynKey of Object.keys(dynamicsLabels)) {
-            const dynField = `${key}${(dynKey[0] ?? "").toUpperCase()}${dynKey.slice(1)}Dynamics`;
+            const dynField = `${key}${(
+                dynKey[0] ?? ""
+            ).toUpperCase()}${dynKey.slice(1)}Dynamics`;
             if (dynField in firstRow) {
                 allKeys.push({
                     key: dynField,
