@@ -70,7 +70,7 @@ const getTotalCountRepairRequest = async (filters: Record<string, any>) => {
 
 const getAllContractorsFromRequests = async () => {
     const requests = await RepairRequest.findAll({
-        attributes: ['id', 'contractorId', 'extContractorId', 'managerId'],
+        attributes: ['id', 'contractorId', 'extContractorId', 'managerId', 'isExternal'],
         include: [
             { model: Contractor, attributes: ['id', 'name'], required: false },
             { model: ExtContractor, attributes: ['id', 'name'], required: false },
@@ -87,6 +87,7 @@ const getAllContractorsFromRequests = async () => {
             contractor?: string;
             extContractorId?: string | null;
             managerId?: string | null;
+            isExternal?: boolean;
         }
     >();
 
@@ -106,12 +107,21 @@ const getAllContractorsFromRequests = async () => {
                 contractorId: r.Contractor.id,
                 contractor: r.Contractor.name,
             });
-        } else if (!r.Contractor?.id && !r.ExtContractor?.id && !r.managerId) {
+        } else if (!r.Contractor?.id && !r.ExtContractor?.id && !r.managerId && !r.isExternal) {
             result.set('none', {
                 contractorId: null,
                 managerId: null,
                 extContractorId: null,
                 contractor: 'Укажите подрядчика',
+                isExternal: false,
+            });
+        } else if (!r.Contractor?.id && !r.ExtContractor?.id && !r.managerId && r.isExternal) {
+            result.set('extNone', {
+                contractorId: null,
+                managerId: null,
+                extContractorId: null,
+                contractor: 'Внешний подрядчик',
+                isExternal: true,
             });
         }
     }
@@ -232,6 +242,7 @@ export const filterRealBuilderContractorPairs = async (parametrs: Record<string,
     return combined.filter(row => {
         if (!row.builder) return false;
         if (row.contractor === 'Укажите подрядчика' && row.builder !== 'Укажите подрядчика') return false;
+        if (row.contractor === 'Внешний подрядчик' && row.builder !== 'Внешний подрядчик') return false;
 
         const builder = String(row.builder).trim().toLowerCase();
         const keys: string[] = [];
@@ -301,8 +312,10 @@ const buildFilterIds = async (row: any, parametrs: Record<string, boolean>, addi
     if (row.contractorId) filterIds.contractorId = row.contractorId;
     if (row.extContractorId) filterIds.extContractorId = row.extContractorId;
     if (row.managerId) filterIds.managerId = row.managerId;
-    if (parametrs.contractor && !row.contractorId && !row.extContractorId && !row.managerId)
+    if (parametrs.contractor && !row.contractorId && !row.extContractorId && !row.managerId && !row.isExternal)
         filterIds.builder = 'Укажите подрядчика';
+    if (parametrs.contractor && !row.contractorId && !row.extContractorId && !row.managerId && row.isExternal)
+        filterIds.builder = 'Внешний подрядчик';
     if (row.builder) filterIds.builder = row.builder;
 
     if (additional.dateStart || additional.dateEnd) {
@@ -361,7 +374,13 @@ const buildIndicators = async (
         });
 
         if (requests.length > 0) {
-            const totalDays = requests.reduce((sum, r) => sum + (r.daysAtWork || 0), 0);
+            const totalDays = requests.reduce((sum, r) => {
+                const days = r.daysAtWork ?? 0;
+                // если заявка закрыта в тот же день или меньше 1 дня — считаем 1
+                const corrected = days <= 0 ? 1 : days;
+                return sum + corrected;
+            }, 0);
+
             const avgDays = totalDays / requests.length;
             result.closingSpeedOfRequests = Number(avgDays.toFixed(1));
         } else {
@@ -384,7 +403,15 @@ export const addTotalRow = (rows: any[], parametrs: Record<string, boolean>, ind
 
     const addField = (key: string, isPercent = false) => {
         const totalValue = rows.reduce((sum, r) => sum + getValue(r, key), 0);
-        totalRow[key] = isPercent ? Number(totalValue.toFixed(1)) : totalValue;
+
+        let value = isPercent ? Number(totalValue.toFixed(1)) : totalValue;
+
+        if (isPercent) {
+            if (value > 99 && value < 100.4) value = 100;
+            value = Math.min(value, 100);
+        }
+
+        totalRow[key] = value;
     };
 
     if (indicators.totalCountRequests) addField('totalCountRequests');
@@ -392,7 +419,7 @@ export const addTotalRow = (rows: any[], parametrs: Record<string, boolean>, ind
     if (indicators.budgetPlan) addField('budgetPlan');
     if (indicators.budget) addField('budget');
     if (indicators.percentOfBudgetPlan) addField('percentOfBudgetPlan', true);
-    if (indicators.closingSpeedOfRequests) addField('closingSpeedOfRequests', true);
+    if (indicators.closingSpeedOfRequests) addField('closingSpeedOfRequests');
 
     rows.push(totalRow);
     return rows;
@@ -425,9 +452,23 @@ export const addDynamics = async (
     const prevPeriods = Object.fromEntries(
         await Promise.all(
             dynamicsTypes.map(async type => {
-                const shift = shiftMap[type];
-                const prevStart = today.subtract(shift.value, shift.unit).startOf('day');
-                const prevEnd = today.subtract(shift.value, shift.unit).endOf('day');
+                let prevStart: dayjs.Dayjs | undefined;
+                let prevEnd: dayjs.Dayjs | undefined;
+
+                if (type === 'week') {
+                    prevStart = today.subtract(1, 'week').startOf('week');
+                    prevEnd = today.subtract(1, 'week').endOf('week');
+                } else if (type === 'month') {
+                    prevStart = today.subtract(1, 'month').startOf('month');
+                    prevEnd = today.subtract(1, 'month').endOf('month');
+                } else if (type === 'year') {
+                    prevStart = today.subtract(1, 'year').startOf('year');
+                    prevEnd = today.subtract(1, 'year').endOf('year');
+                }
+
+                if (!prevStart || !prevEnd) {
+                    return [type, []];
+                }
 
                 const data = await getTableReportData(parametrs, indicators, {
                     ...additional,

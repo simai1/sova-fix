@@ -11,6 +11,7 @@ import {
 } from "@tanstack/react-table";
 import { getReportTableColumns } from "./utils";
 import styles from "./styles.module.scss";
+import { type ReportTable as ReportTableI } from "../../types";
 
 const ReportTable: FC = () => {
     const tableReportData = useAppSelector(tableReportDataSelector);
@@ -40,25 +41,40 @@ const ReportTable: FC = () => {
                 ))}
             </thead>
             <tbody>
-                {table.getRowModel().rows.map((row) => (
-                    <tr key={row.id} className={isResult ? styles.trTable : ""}>
-                        {row.getVisibleCells().map((cell) => (
-                            <td
-                                key={cell.id}
-                                style={{
-                                    textAlign:
-                                        cell.column.columnDef.meta?.align ||
-                                        "left",
-                                }}
-                            >
-                                {flexRender(
-                                    cell.column.columnDef.cell,
-                                    cell.getContext()
-                                )}
-                            </td>
-                        ))}
-                    </tr>
-                ))}
+                {table.getRowModel().rows.map((row) => {
+                    const firstKey = Object.keys(
+                        row.original
+                    )[0] as keyof ReportTableI;
+                    const isTotalRow =
+                        Object.values(row.original).some(
+                            (v) => v === "Итого"
+                        ) || row.original[firstKey] === "Итого";
+
+                    return (
+                        <tr
+                            key={row.id}
+                            className={`${isResult ? styles.trTable : ""} ${
+                                isTotalRow ? styles.totalRow : ""
+                            }`}
+                        >
+                            {row.getVisibleCells().map((cell) => (
+                                <td
+                                    key={cell.id}
+                                    style={{
+                                        textAlign:
+                                            cell.column.columnDef.meta?.align ||
+                                            "left",
+                                    }}
+                                >
+                                    {flexRender(
+                                        cell.column.columnDef.cell,
+                                        cell.getContext()
+                                    )}
+                                </td>
+                            ))}
+                        </tr>
+                    );
+                })}
             </tbody>
         </table>
     );
