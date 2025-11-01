@@ -20,7 +20,6 @@ const applyFilterData = (combined: any[], filterData: Record<string, any[]>) => 
             if (!values || !values.length) return false;
 
             const rowValue = row[key] ?? row[`${key}Id`] ?? row[key.toLowerCase()];
-            console.log(values.includes(rowValue))
             return values.includes(rowValue);
         });
     });

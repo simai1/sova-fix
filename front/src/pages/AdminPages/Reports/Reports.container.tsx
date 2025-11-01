@@ -16,7 +16,6 @@ import {
 
 const ReportsContainer: FC = () => {
     const filterDataValues = useAppSelector(filterDataValuesSelector);
-    console.log(filterDataValues)
 
     const [isReloadButtonLoading, setIsReloadButtonLoading] =
         useState<boolean>(false);
@@ -137,7 +136,6 @@ const ReportsContainer: FC = () => {
         )[0] as keyof ParametrsFormInstance;
         const value = changedValues[key];
         
-        if (filterDataValues) console.log(value, key, filterDataValues, filterDataValues[key])
         if (value === false && filterDataValues && filterDataValues[key]) {
             // создаём новый объект без этого ключа
             const newFilterData = { ...filterDataValues };
@@ -148,7 +146,6 @@ const ReportsContainer: FC = () => {
                 Object.keys(newFilterData).length > 0 ? newFilterData : null;
 
             if (setFilterDataValues) {
-                console.log('result', result)
                 dispatch(setFilterDataValues(result));
             }
         }
