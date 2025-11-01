@@ -1,13 +1,23 @@
 import { FC, useEffect, useMemo, useRef, useState } from "react";
 import ReportsComponent from "./Reports.component";
 import { useForm, useWatch } from "antd/es/form/Form";
-import { IndicatorsFormInstance, ParametrsFormInstance } from "./types";
+import {
+    IndicatorsFormInstance,
+    ParametrsFormInstance,
+    ReportTable,
+} from "./types";
 import { useLazyGetTableReportDataQuery } from "./reports.api";
 import { useAppDispatch, useAppSelector } from "../../../hooks/store";
-import { setIsReloadButtonLoadingAction, setTableReportData } from "./slice";
-import { additionalParametrsSelector } from "./selectors";
+import { setFilterDataValues, setIsReloadButtonLoadingAction } from "./slice";
+import {
+    additionalParametrsSelector,
+    filterDataValuesSelector,
+} from "./selectors";
 
 const ReportsContainer: FC = () => {
+    const filterDataValues = useAppSelector(filterDataValuesSelector);
+    console.log(filterDataValues)
+
     const [isReloadButtonLoading, setIsReloadButtonLoading] =
         useState<boolean>(false);
     const currentRequestRef = useRef<any>(null);
@@ -19,10 +29,8 @@ const ReportsContainer: FC = () => {
 
     const dispatch = useAppDispatch();
 
-    const [
-        getTableReportData,
-        { data: reportTableData, isFetching: isLoadingTableData },
-    ] = useLazyGetTableReportDataQuery();
+    const [getTableReportData, { isFetching: isLoadingTableData }] =
+        useLazyGetTableReportDataQuery();
 
     const parametrs = useWatch([], parametrsForm);
     const indicators = useWatch([], indicatorsForm);
@@ -53,6 +61,9 @@ const ReportsContainer: FC = () => {
     const handleResetFilters = () => {
         parametrsForm.resetFields();
         indicatorsForm.resetFields();
+        if (setFilterDataValues) {
+            dispatch(setFilterDataValues(null));
+        }
     };
 
     const reloadTableData = () => {
@@ -60,6 +71,7 @@ const ReportsContainer: FC = () => {
             parametrs,
             indicators,
             additionalParametrs,
+            filterData: filterDataValues,
         });
     };
 
@@ -100,13 +112,7 @@ const ReportsContainer: FC = () => {
         }, 500);
 
         return () => clearTimeout(handler);
-    }, [parametrs, indicators, additionalParametrs]);
-
-    useEffect(() => {
-        if (setTableReportData) {
-            dispatch(setTableReportData(reportTableData ?? []));
-        }
-    }, [reportTableData, dispatch]);
+    }, [parametrs, indicators, additionalParametrs, filterDataValues]);
 
     useEffect(() => {
         if (setIsReloadButtonLoadingAction) {
@@ -116,15 +122,49 @@ const ReportsContainer: FC = () => {
         }
     }, [isReloadButtonLoading, dispatch]);
 
+    const handleSetFilterDataValues = (
+        fieldName: keyof ReportTable,
+        values: string[]
+    ) => {
+        if (setFilterDataValues) {
+            dispatch(setFilterDataValues({ ...filterDataValues, [fieldName]: values }));
+        }
+    };
+
+    const onValuesChange = (changedValues: ParametrsFormInstance) => {
+        const key = Object.keys(
+            changedValues
+        )[0] as keyof ParametrsFormInstance;
+        const value = changedValues[key];
+        
+        if (filterDataValues) console.log(value, key, filterDataValues, filterDataValues[key])
+        if (value === false && filterDataValues && filterDataValues[key]) {
+            // создаём новый объект без этого ключа
+            const newFilterData = { ...filterDataValues };
+            delete newFilterData[key];
+
+            // если объект пустой после удаления → null
+            const result =
+                Object.keys(newFilterData).length > 0 ? newFilterData : null;
+
+            if (setFilterDataValues) {
+                console.log('result', result)
+                dispatch(setFilterDataValues(result));
+            }
+        }
+    };
+
     return (
         <ReportsComponent
             parametrsForm={parametrsForm}
             indicatorsForm={indicatorsForm}
             isEmptyReport={isEmptyReport}
             isLoadingTableData={isLoadingTableData}
+            handleSetFilterDataValues={handleSetFilterDataValues}
             isDisabledIndicators={isDisabledIndicators}
             handleReloadTableData={handleReloadTableData}
             handleResetFilters={handleResetFilters}
+            onValuesChange={onValuesChange}
         />
     );
 };

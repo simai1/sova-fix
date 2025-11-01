@@ -9,6 +9,8 @@ export interface ReportsComponentProps {
     isDisabledIndicators: (name: string) => boolean;
     handleReloadTableData: () => void;
     handleResetFilters: () => void;
+    handleSetFilterDataValues: (fieldName: keyof ReportTable, values: any) => void
+    onValuesChange: (changedValues: ParametrsFormInstance) => void
 }
 
 export interface ParametrI {
@@ -60,6 +62,7 @@ export interface GetTableReportDataPayload {
     parametrs: ReportParametrs;
     indicators: ReportInidicators;
     additionalParametrs: AdditionalParametrsI;
+    filterData: Record<string, any> | null
 }
 
 export interface ReportTable {
@@ -83,7 +86,10 @@ export interface IndicatorWithDynamicsI {
     dynamics: number;
 }
 
-export type GetTableReportDataResponse = ReportTable[];
+export type GetTableReportDataResponse = {
+    resultRows: ReportTable[]
+    filterData: any
+};
 
 export interface AdditionalParametrsI {
     isResult: boolean;
@@ -97,6 +103,8 @@ export interface ReportInitialState {
     tableReportData: ReportTable[];
     isReloadButtonLoading: boolean;
     additionalParametrs: AdditionalParametrsI;
+    filterDataValues: Record<keyof ReportTable, string[]> | null
+    filterData: FilterDataI | null
 }
 
 export interface AdditionalParametrsForm
@@ -106,4 +114,52 @@ export interface AdditionalParametrsForm
     > {
     periodPicker: Dayjs[] | null;
     periodDropdown: string | null;
+}
+
+export interface UnitI {
+    unit: string;
+    unitId: string;
+}
+
+export interface ObjectI {
+    object: string;
+    objectId: string;
+}
+
+export interface ContractorI {
+    contractor: string;
+    contractorId?: string | null;
+    extContractorId?: string | null;
+    managerId?: string | null;
+    isExternal?: boolean;
+}
+
+export interface BuilderI {
+    builder: string;
+    builderId?: string | undefined;
+}
+
+export interface StatusI {
+    status: string;
+    statusId: string;
+}
+
+export interface UrgencyI {
+    urgency: string;
+    urgencyId: string;
+}
+
+export interface LegalEntityI {
+    legalEntity: string;
+    legalEntityId: string;
+}
+
+export interface FilterDataI {
+    unit?: UnitI[];
+    object?: ObjectI[];
+    contractor?: ContractorI[];
+    builder?: BuilderI[];
+    status?: StatusI[];
+    urgency?: UrgencyI[];
+    legalEntity?: LegalEntityI[];
 }

@@ -12,10 +12,25 @@ import ExtContractor from '../models/externalContractor';
 import TgUser from '../models/tgUser';
 import dayjs from 'dayjs';
 
+const applyFilterData = (combined: any[], filterData: Record<string, any[]>) => {
+    if (!filterData) return combined;
+
+    return combined.filter(row => {
+        return Object.entries(filterData).every(([key, values]) => {
+            if (!values || !values.length) return false;
+
+            const rowValue = row[key] ?? row[`${key}Id`] ?? row[key.toLowerCase()];
+            console.log(values.includes(rowValue))
+            return values.includes(rowValue);
+        });
+    });
+};
+
 const getTableReportData = async (
     parametrs: Record<string, boolean>,
     indicators: ReportInidicators,
-    additionalParametrs: AdditionalParametrsI
+    additionalParametrs: AdditionalParametrsI,
+    filterData: any
 ) => {
     try {
         const data: Record<string, any[]> = {};
@@ -37,6 +52,11 @@ const getTableReportData = async (
         // 4. Фильтруем по связям (legalEntity/unit/object)
         let filtered = filterByRelations(parametrs, combined, relatedData);
 
+        // 4.1 Фильтруем по выбранным пользователем значениям
+        if (filterData) {
+            filtered = applyFilterData(filtered, filterData);
+        }
+
         // 5. Добавляем индикаторы
         let resultRows = await calculateIndicators(filtered, parametrs, indicators, additionalParametrs);
 
@@ -47,10 +67,12 @@ const getTableReportData = async (
 
         // 7. Добавляем "Динамику"
         if (additionalParametrs?.dynamicsTypes && additionalParametrs?.dynamicsTypes?.length > 0) {
-            resultRows = await addDynamics(resultRows, parametrs, indicators, additionalParametrs);
+            resultRows = await addDynamics(resultRows, parametrs, indicators, additionalParametrs, filterData);
         }
-
-        return resultRows;
+        return {
+            resultRows,
+            filterData: data,
+        };
     } catch (e) {
         console.error('getTableReportData error:', e);
         return [];
@@ -468,7 +490,8 @@ export const addDynamics = async (
     rows: any[],
     parametrs: Record<string, boolean>,
     indicators: ReportInidicators,
-    additional: AdditionalParametrsI
+    additional: AdditionalParametrsI,
+    filterData: any
 ) => {
     const { dynamicsTypes = [] } = additional;
     if (!dynamicsTypes.length) return rows;
@@ -503,13 +526,18 @@ export const addDynamics = async (
                     return [type, []];
                 }
 
-                const data = await getTableReportData(parametrs, indicators, {
-                    ...additional,
-                    dateStart: prevStart.toISOString(),
-                    dateEnd: prevEnd.toISOString(),
-                    dynamicsTypes: [],
-                    isResult: false,
-                });
+                const data = await getTableReportData(
+                    parametrs,
+                    indicators,
+                    {
+                        ...additional,
+                        dateStart: prevStart.toISOString(),
+                        dateEnd: prevEnd.toISOString(),
+                        dynamicsTypes: [],
+                        isResult: false,
+                    },
+                    filterData
+                );
 
                 return [type, data];
             })
