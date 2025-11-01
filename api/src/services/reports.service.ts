@@ -42,7 +42,7 @@ const getTableReportData = async (
 
         // 6. Добавляем строку "Итого"
         if (additionalParametrs.isResult) {
-            resultRows = addTotalRow(resultRows, parametrs, indicators);
+            resultRows = await addTotalRow(resultRows, parametrs, indicators, additionalParametrs);
         }
 
         // 7. Добавляем "Динамику"
@@ -391,7 +391,12 @@ const buildIndicators = async (
     return result;
 };
 
-export const addTotalRow = (rows: any[], parametrs: Record<string, boolean>, indicators: ReportInidicators) => {
+export const addTotalRow = async (
+    rows: any[],
+    parametrs: Record<string, boolean>,
+    indicators: ReportInidicators,
+    additional: AdditionalParametrsI
+) => {
     if (rows.length === 0) return rows;
 
     const totalRow: Record<string, any> = {};
@@ -401,6 +406,7 @@ export const addTotalRow = (rows: any[], parametrs: Record<string, boolean>, ind
 
     const getValue = (r: any, key: string) => (r[key] && typeof r[key] === 'object' ? r[key].value ?? 0 : r[key] ?? 0);
 
+    // Суммируем обычные показатели
     const addField = (key: string, isPercent = false) => {
         const totalValue = rows.reduce((sum, r) => sum + getValue(r, key), 0);
 
@@ -416,10 +422,33 @@ export const addTotalRow = (rows: any[], parametrs: Record<string, boolean>, ind
 
     if (indicators.totalCountRequests) addField('totalCountRequests');
     if (indicators.percentOfTotalCountRequest) addField('percentOfTotalCountRequest', true);
+    if (indicators.closingSpeedOfRequests) addField('closingSpeedOfRequests');
     if (indicators.budgetPlan) addField('budgetPlan');
     if (indicators.budget) addField('budget');
-    if (indicators.percentOfBudgetPlan) addField('percentOfBudgetPlan', true);
-    if (indicators.closingSpeedOfRequests) addField('closingSpeedOfRequests');
+
+    // --- Рассчитываем percentOfBudgetPlan отдельно через базу ---
+    if (indicators.percentOfBudgetPlan) {
+        // Суммарный budgetPlan всех объектов
+        const totalBudgetPlan = await ObjectDir.sum('budgetPlan');
+        // Суммарный budget всех RepairRequest
+        const totalBudget = await RepairRequest.sum('repairPrice', {
+            where:
+                additional.dateStart || additional.dateEnd
+                    ? {
+                          createdAt: {
+                              ...(additional.dateStart ? { [Op.gte]: new Date(additional.dateStart) } : {}),
+                              ...(additional.dateEnd ? { [Op.lte]: new Date(additional.dateEnd) } : {}),
+                          },
+                      }
+                    : {},
+        });
+
+        let percent = totalBudgetPlan ? (totalBudget / totalBudgetPlan) * 100 : 0;
+        if (percent > 99 && percent < 100.4) percent = 100;
+        percent = Math.min(percent, 100);
+
+        totalRow['percentOfBudgetPlan'] = Number(percent.toFixed(1));
+    }
 
     rows.push(totalRow);
     return rows;
@@ -435,12 +464,6 @@ export const addDynamics = async (
     if (!dynamicsTypes.length) return rows;
 
     const today = dayjs();
-
-    const shiftMap = {
-        week: { value: 7, unit: 'day' },
-        month: { value: 1, unit: 'month' },
-        year: { value: 1, unit: 'year' },
-    } as const;
 
     const enabledIndicators = Object.entries(indicators)
         .filter(([, enabled]) => enabled)
@@ -518,7 +541,7 @@ export const addDynamics = async (
             if (!prevRows?.length) continue;
 
             // Находим соответствующую итоговую строку из прошлых данных
-            const prevTotal = addTotalRow(structuredClone(prevRows), parametrs, indicators).at(-1);
+            const prevTotal = (await addTotalRow(structuredClone(prevRows), parametrs, indicators, additional)).at(-1);
 
             if (!prevTotal) continue;
 
