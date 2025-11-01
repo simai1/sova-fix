@@ -422,7 +422,17 @@ export const addTotalRow = async (
 
     if (indicators.totalCountRequests) addField('totalCountRequests');
     if (indicators.percentOfTotalCountRequest) addField('percentOfTotalCountRequest', true);
-    if (indicators.closingSpeedOfRequests) addField('closingSpeedOfRequests');
+    if (indicators.closingSpeedOfRequests) {
+        const values = rows
+            .map(r => {
+                const v = r.closingSpeedOfRequests;
+                return typeof v === 'number' ? v : 0;
+            })
+            .filter(v => !isNaN(v));
+
+        const avg = values.length > 0 ? values.reduce((sum, v) => sum + v, 0) / values.length : 0;
+        totalRow.closingSpeedOfRequests = Number(avg.toFixed(1));
+    }
     if (indicators.budgetPlan) addField('budgetPlan');
     if (indicators.budget) addField('budget');
 
