@@ -536,9 +536,9 @@ export const addDynamics = async (
                         isResult: false,
                     },
                     filterData
-                );
+                ) as { resultRows?: Record<string, any>[]; filterData?: Record<string, any[]> };;
 
-                return [type, data];
+                return [type, data?.resultRows ?? []];
             })
         )
     ) as Record<'week' | 'month' | 'year', any[]>;
