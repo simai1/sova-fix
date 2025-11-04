@@ -15,3 +15,14 @@ export const isReloadButtonLoadingSelector = createSelector(
     (state: RootState) => state.reportReducer.isReloadButtonLoading,
     (isReloadButtonLoading) => isReloadButtonLoading
 );
+
+
+export const filterDataSelector = createSelector(
+    (state: RootState) => state.reportReducer.filterData,
+    (filterData) => filterData ?? null
+);
+
+export const filterDataValuesSelector = createSelector(
+    (state: RootState) => state.reportReducer.filterDataValues,
+    (filterDataValues) => filterDataValues ?? null
+);

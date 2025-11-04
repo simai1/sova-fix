@@ -263,6 +263,13 @@ function UniversalTable(props) {
         )
       case "directoryCategory":
         return value?.name ?? '____'
+      case "budgetPlan":
+        return (
+          <div className={styles.budgetPlan}>
+            {Number(value).toLocaleString('ru-RU')}
+          </div>
+
+        )
       default:
         return value ?? "___";
     }
