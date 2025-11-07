@@ -509,7 +509,7 @@ export const addDynamics = async (
     const prevPeriods = Object.fromEntries(
         await Promise.all(
             dynamicsTypes.map(async type => {
-                const diff = baseDateEnd.diff(baseDateStart);
+                const diffMs = baseDateEnd.valueOf() - baseDateStart.valueOf();
 
                 let prevStart: dayjs.Dayjs;
                 let prevEnd: dayjs.Dayjs;
@@ -520,8 +520,8 @@ export const addDynamics = async (
                         prevEnd = baseDateEnd.subtract(7, 'days');
                         break;
                     case 'month':
-                        prevStart = baseDateStart.subtract(diff + 1, 'ms'); // +1ms чтобы не пересекался
-                        prevEnd = baseDateEnd.subtract(diff + 1, 'ms');
+                        prevEnd = baseDateStart.subtract(1, 'ms');
+                        prevStart = prevEnd.subtract(diffMs);
                         break;
                     case 'year':
                         prevStart = baseDateStart.subtract(1, 'year');
