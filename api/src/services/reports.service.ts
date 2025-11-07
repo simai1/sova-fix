@@ -496,7 +496,6 @@ export const addDynamics = async (
     if (!dynamicsTypes.length) return rows;
 
     const baseDateStart = dateStart ? dayjs(dateStart) : dayjs();
-    const baseDateEnd = dateEnd ? dayjs(dateEnd) : dayjs();
 
     const enabledIndicators = Object.entries(indicators)
         .filter(([, enabled]) => enabled)
@@ -524,7 +523,7 @@ export const addDynamics = async (
                 }
 
                 const prevStart = baseDateStart.subtract(daysOffset, 'days').startOf('day');
-                const prevEnd = baseDateEnd.subtract(daysOffset, 'day').endOf('day');
+                const prevEnd = baseDateStart.subtract(1, 'day').endOf('day');
 
                 const data = (await getTableReportData(
                     parametrs,
