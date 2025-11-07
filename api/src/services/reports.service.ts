@@ -495,7 +495,6 @@ export const addDynamics = async (
     const { dynamicsTypes = [], dateStart, dateEnd } = additional;
     if (!dynamicsTypes.length) return rows;
 
-    // Используем даты из фронта или текущие
     const baseDateStart = dateStart ? dayjs(dateStart) : dayjs();
     const baseDateEnd = dateEnd ? dayjs(dateEnd) : dayjs();
 
@@ -509,25 +508,12 @@ export const addDynamics = async (
     const prevPeriods = Object.fromEntries(
         await Promise.all(
             dynamicsTypes.map(async type => {
-                let prevStart: dayjs.Dayjs;
-                let prevEnd: dayjs.Dayjs;
+                // Вычисляем разницу текущего периода
+                const diff = baseDateEnd.diff(baseDateStart); // в миллисекундах
 
-                switch (type) {
-                    case 'week':
-                        prevStart = baseDateStart.subtract(7, 'days');
-                        prevEnd = baseDateEnd.subtract(7, 'days');
-                        break;
-                    case 'month':
-                        prevStart = baseDateStart.subtract(1, 'month');
-                        prevEnd = baseDateEnd.subtract(1, 'month');
-                        break;
-                    case 'year':
-                        prevStart = baseDateStart.subtract(1, 'year');
-                        prevEnd = baseDateEnd.subtract(1, 'year');
-                        break;
-                    default:
-                        return [type, []];
-                }
+                // Сдвигаем предыдущий период на длину текущего, чтобы периоды не пересекались
+                const prevStart = baseDateStart.subtract(diff + 1, 'ms');
+                const prevEnd = baseDateEnd.subtract(diff + 1, 'ms');
 
                 const data = (await getTableReportData(
                     parametrs,
