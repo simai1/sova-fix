@@ -495,8 +495,8 @@ export const addDynamics = async (
     const { dynamicsTypes = [], dateStart, dateEnd } = additional;
     if (!dynamicsTypes.length) return rows;
 
-    const baseDateStart = dateStart ? dayjs(dateStart) : dayjs()
-    const baseDateEnd = dateEnd ? dayjs(dateEnd) : dayjs()
+    const baseDateStart = dateStart ? dayjs(dateStart) : dayjs();
+    const baseDateEnd = dateEnd ? dayjs(dateEnd) : dayjs();
 
     const enabledIndicators = Object.entries(indicators)
         .filter(([, enabled]) => enabled)
@@ -539,6 +539,14 @@ export const addDynamics = async (
                     filterData
                 )) as { resultRows?: Record<string, any>[] };
 
+                console.log(
+                    'data?.resultRows',
+                    data?.resultRows,
+                    'prevStart.toISOString',
+                    prevStart.toISOString(),
+                    ' prevEnd.toISOString',
+                    prevEnd.toISOString()
+                );
                 return [type, data?.resultRows ?? []];
             })
         )
