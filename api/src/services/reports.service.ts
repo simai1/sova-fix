@@ -495,8 +495,9 @@ export const addDynamics = async (
     const { dynamicsTypes = [], dateStart, dateEnd } = additional;
     if (!dynamicsTypes.length) return rows;
 
+    // Используем даты из фронта или текущие
     const baseDateStart = dateStart ? dayjs(dateStart) : dayjs();
-    const baseDateEnd  = dateEnd ? dayjs(dateEnd) : dayjs()
+    const baseDateEnd = dateEnd ? dayjs(dateEnd) : dayjs();
 
     const enabledIndicators = Object.entries(indicators)
         .filter(([, enabled]) => enabled)
@@ -504,27 +505,29 @@ export const addDynamics = async (
 
     if (!enabledIndicators.length) return rows;
 
+    // --- Загружаем данные предыдущих периодов
     const prevPeriods = Object.fromEntries(
         await Promise.all(
             dynamicsTypes.map(async type => {
-                let daysOffset: number;
+                let prevStart: dayjs.Dayjs;
+                let prevEnd: dayjs.Dayjs;
 
                 switch (type) {
                     case 'week':
-                        daysOffset = 7;
+                        prevStart = baseDateStart.subtract(7, 'days');
+                        prevEnd = baseDateEnd.subtract(7, 'days');
                         break;
                     case 'month':
-                        daysOffset = 30;
+                        prevStart = baseDateStart.subtract(1, 'month');
+                        prevEnd = baseDateEnd.subtract(1, 'month');
                         break;
                     case 'year':
-                        daysOffset = 365;
+                        prevStart = baseDateStart.subtract(1, 'year');
+                        prevEnd = baseDateEnd.subtract(1, 'year');
                         break;
                     default:
                         return [type, []];
                 }
-
-                const prevStart = baseDateStart.subtract(daysOffset, 'days');
-                const prevEnd = baseDateEnd.subtract(daysOffset, 'days');
 
                 const data = (await getTableReportData(
                     parametrs,
@@ -544,9 +547,10 @@ export const addDynamics = async (
                     data?.resultRows,
                     'prevStart.toISOString',
                     prevStart.toISOString(),
-                    ' prevEnd.toISOString',
+                    'prevEnd.toISOString',
                     prevEnd.toISOString()
                 );
+
                 return [type, data?.resultRows ?? []];
             })
         )
@@ -586,7 +590,6 @@ export const addDynamics = async (
             if (!prevRows?.length) continue;
 
             const prevTotal = (await addTotalRow(structuredClone(prevRows), parametrs, indicators, additional)).at(-1);
-
             if (!prevTotal) continue;
 
             for (const key of enabledIndicators) {
