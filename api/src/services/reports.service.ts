@@ -492,10 +492,11 @@ export const addDynamics = async (
     additional: AdditionalParametrsI,
     filterData: any
 ) => {
-    const { dynamicsTypes = [] } = additional;
+    const { dynamicsTypes = [], dateStart, dateEnd } = additional;
     if (!dynamicsTypes.length) return rows;
 
-    const today = dayjs();
+    const baseDateStart = dateStart ? dayjs(dateStart) : dayjs()
+    const baseDateEnd = dateEnd ? dayjs(dateEnd) : dayjs()
 
     const enabledIndicators = Object.entries(indicators)
         .filter(([, enabled]) => enabled)
@@ -503,29 +504,29 @@ export const addDynamics = async (
 
     if (!enabledIndicators.length) return rows;
 
-    // --- Загружаем данные предыдущих периодов
     const prevPeriods = Object.fromEntries(
         await Promise.all(
             dynamicsTypes.map(async type => {
-                let prevStart: dayjs.Dayjs | undefined;
-                let prevEnd: dayjs.Dayjs | undefined;
+                let daysOffset: number;
 
-                if (type === 'week') {
-                    prevStart = today.subtract(1, 'week').startOf('week');
-                    prevEnd = today.subtract(1, 'week').endOf('week');
-                } else if (type === 'month') {
-                    prevStart = today.subtract(1, 'month').startOf('month');
-                    prevEnd = today.subtract(1, 'month').endOf('month');
-                } else if (type === 'year') {
-                    prevStart = today.subtract(1, 'year').startOf('year');
-                    prevEnd = today.subtract(1, 'year').endOf('year');
+                switch (type) {
+                    case 'week':
+                        daysOffset = 7;
+                        break;
+                    case 'month':
+                        daysOffset = 30;
+                        break;
+                    case 'year':
+                        daysOffset = 365;
+                        break;
+                    default:
+                        return [type, []];
                 }
 
-                if (!prevStart || !prevEnd) {
-                    return [type, []];
-                }
+                const prevStart = baseDateStart.subtract(daysOffset, 'days').startOf('day');
+                const prevEnd = baseDateEnd.subtract(daysOffset, 'day').endOf('day');
 
-                const data = await getTableReportData(
+                const data = (await getTableReportData(
                     parametrs,
                     indicators,
                     {
@@ -536,7 +537,7 @@ export const addDynamics = async (
                         isResult: false,
                     },
                     filterData
-                ) as { resultRows?: Record<string, any>[]; filterData?: Record<string, any[]> };;
+                )) as { resultRows?: Record<string, any>[] };
 
                 return [type, data?.resultRows ?? []];
             })
@@ -562,7 +563,6 @@ export const addDynamics = async (
             for (const key of enabledIndicators) {
                 const currentValue = Number(row[key] ?? 0);
                 const prevValue = Number(prevRow[key] ?? 0);
-
                 const dynamics = prevValue === 0 ? 0 : Number(((currentValue / prevValue - 1) * 100).toFixed(1));
 
                 row[`${key}${type[0].toUpperCase() + type.slice(1)}Dynamics`] = dynamics;
@@ -570,14 +570,13 @@ export const addDynamics = async (
         }
     }
 
-    // Вычисляем динамику для итоговой строки
+    // --- Вычисляем динамику для итоговой строки
     const totalRow = newRows[newRows.length - 1];
     if (totalRow && totalRow[Object.keys(parametrs)[0]] === 'Итого') {
         for (const type of dynamicsTypes) {
             const prevRows = prevPeriods[type];
             if (!prevRows?.length) continue;
 
-            // Находим соответствующую итоговую строку из прошлых данных
             const prevTotal = (await addTotalRow(structuredClone(prevRows), parametrs, indicators, additional)).at(-1);
 
             if (!prevTotal) continue;
@@ -585,7 +584,6 @@ export const addDynamics = async (
             for (const key of enabledIndicators) {
                 const currentValue = Number(totalRow[key] ?? 0);
                 const prevValue = Number(prevTotal[key] ?? 0);
-
                 const dynamics = prevValue === 0 ? 0 : Number(((currentValue / prevValue - 1) * 100).toFixed(1));
 
                 totalRow[`${key}${type[0].toUpperCase() + type.slice(1)}Dynamics`] = dynamics;
