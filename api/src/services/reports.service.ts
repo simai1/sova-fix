@@ -403,8 +403,13 @@ const buildIndicators = async (
             }, 0);
 
             const avgDays = totalDays / requests.length;
+
+            result.totalDaysAtWork = totalDays;
+            result.totalRequestsCount = requests.length;
             result.closingSpeedOfRequests = Number(avgDays.toFixed(1));
         } else {
+            result.totalDaysAtWork = 0;
+            result.totalRequestsCount = 0;
             result.closingSpeedOfRequests = 0;
         }
     }
@@ -444,14 +449,18 @@ export const addTotalRow = async (
     if (indicators.totalCountRequests) addField('totalCountRequests');
     if (indicators.percentOfTotalCountRequest) addField('percentOfTotalCountRequest', true);
     if (indicators.closingSpeedOfRequests) {
-        const values = rows
-            .map(r => {
-                const v = r.closingSpeedOfRequests;
-                return typeof v === 'number' ? v : 0;
-            })
-            .filter(v => !isNaN(v));
+        let totalDays = 0;
+        let totalRequests = 0;
 
-        const avg = values.length > 0 ? values.reduce((sum, v) => sum + v, 0) / values.length : 0;
+        for (const r of rows) {
+            const { totalDaysAtWork, totalRequestsCount } = r;
+            if (typeof totalDaysAtWork === 'number' && typeof totalRequestsCount === 'number') {
+                totalDays += totalDaysAtWork;
+                totalRequests += totalRequestsCount;
+            }
+        }
+
+        const avg = totalRequests > 0 ? totalDays / totalRequests : 0;
         totalRow.closingSpeedOfRequests = Number(avg.toFixed(1));
     }
     if (indicators.budgetPlan) addField('budgetPlan');
@@ -474,10 +483,7 @@ export const addTotalRow = async (
                     : {},
         });
 
-        let percent = totalBudgetPlan ? (totalBudget / totalBudgetPlan) * 100 : 0;
-        if (percent > 99 && percent < 100.4) percent = 100;
-        percent = Math.min(percent, 100);
-
+        const percent = totalBudgetPlan ? (totalBudget / totalBudgetPlan) * 100 : 0;
         totalRow['percentOfBudgetPlan'] = Number(percent.toFixed(1));
     }
 
@@ -541,15 +547,6 @@ export const addDynamics = async (
                     },
                     filterData
                 )) as { resultRows?: Record<string, any>[] };
-
-                console.log(
-                    'data?.resultRows',
-                    data?.resultRows,
-                    'prevStart.toISOString',
-                    prevStart.toISOString(),
-                    'prevEnd.toISOString',
-                    prevEnd.toISOString()
-                );
 
                 return [type, data?.resultRows ?? []];
             })
