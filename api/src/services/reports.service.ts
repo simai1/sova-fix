@@ -404,6 +404,8 @@ const buildIndicators = async (
 
             const avgDays = totalDays / requests.length;
 
+            console.log(totalDays, requests.length, requests)
+
             result.totalDaysAtWork = totalDays;
             result.totalRequestsCount = requests.length;
             result.closingSpeedOfRequests = Number(avgDays.toFixed(1));
