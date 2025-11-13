@@ -390,7 +390,7 @@ const buildIndicators = async (
 
     if (indicators.closingSpeedOfRequests) {
         const requests = await RepairRequest.findAll({
-            where: { ...filterIds, completeDate: { [Op.ne]: null } },
+            where: { ...filterIds, status: 3 },
             attributes: ['daysAtWork'],
         });
 
@@ -403,8 +403,6 @@ const buildIndicators = async (
             }, 0);
 
             const avgDays = totalDays / requests.length;
-
-            console.log(totalDays, requests.length)
 
             result.totalDaysAtWork = totalDays;
             result.totalRequestsCount = requests.length;
