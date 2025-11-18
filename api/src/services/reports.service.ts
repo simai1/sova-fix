@@ -390,7 +390,7 @@ const buildIndicators = async (
 
     if (indicators.closingSpeedOfRequests) {
         const requests = await RepairRequest.findAll({
-            where: { ...filterIds, completeDate: { [Op.ne]: null } },
+            where: { ...filterIds, status: 3 },
             attributes: ['daysAtWork'],
         });
 
@@ -403,8 +403,13 @@ const buildIndicators = async (
             }, 0);
 
             const avgDays = totalDays / requests.length;
+
+            result.totalDaysAtWork = totalDays;
+            result.totalRequestsCount = requests.length;
             result.closingSpeedOfRequests = Number(avgDays.toFixed(1));
         } else {
+            result.totalDaysAtWork = 0;
+            result.totalRequestsCount = 0;
             result.closingSpeedOfRequests = 0;
         }
     }
@@ -444,14 +449,18 @@ export const addTotalRow = async (
     if (indicators.totalCountRequests) addField('totalCountRequests');
     if (indicators.percentOfTotalCountRequest) addField('percentOfTotalCountRequest', true);
     if (indicators.closingSpeedOfRequests) {
-        const values = rows
-            .map(r => {
-                const v = r.closingSpeedOfRequests;
-                return typeof v === 'number' ? v : 0;
-            })
-            .filter(v => !isNaN(v));
+        let totalDays = 0;
+        let totalRequests = 0;
 
-        const avg = values.length > 0 ? values.reduce((sum, v) => sum + v, 0) / values.length : 0;
+        for (const r of rows) {
+            const { totalDaysAtWork, totalRequestsCount } = r;
+            if (typeof totalDaysAtWork === 'number' && typeof totalRequestsCount === 'number') {
+                totalDays += totalDaysAtWork;
+                totalRequests += totalRequestsCount;
+            }
+        }
+
+        const avg = totalRequests > 0 ? totalDays / totalRequests : 0;
         totalRow.closingSpeedOfRequests = Number(avg.toFixed(1));
     }
     if (indicators.budgetPlan) addField('budgetPlan');
@@ -474,10 +483,7 @@ export const addTotalRow = async (
                     : {},
         });
 
-        let percent = totalBudgetPlan ? (totalBudget / totalBudgetPlan) * 100 : 0;
-        if (percent > 99 && percent < 100.4) percent = 100;
-        percent = Math.min(percent, 100);
-
+        const percent = totalBudgetPlan ? (totalBudget / totalBudgetPlan) * 100 : 0;
         totalRow['percentOfBudgetPlan'] = Number(percent.toFixed(1));
     }
 
@@ -495,8 +501,9 @@ export const addDynamics = async (
     const { dynamicsTypes = [], dateStart, dateEnd } = additional;
     if (!dynamicsTypes.length) return rows;
 
-    const baseDateStart = dateStart ? dayjs(dateStart) : dayjs()
-    const baseDateEnd = dateEnd ? dayjs(dateEnd) : dayjs()
+    // Используем даты из фронта или текущие
+    const baseDateStart = dateStart ? dayjs(dateStart) : dayjs();
+    const baseDateEnd = dateEnd ? dayjs(dateEnd) : dayjs();
 
     const enabledIndicators = Object.entries(indicators)
         .filter(([, enabled]) => enabled)
@@ -504,27 +511,29 @@ export const addDynamics = async (
 
     if (!enabledIndicators.length) return rows;
 
+    // --- Загружаем данные предыдущих периодов
     const prevPeriods = Object.fromEntries(
         await Promise.all(
             dynamicsTypes.map(async type => {
-                let daysOffset: number;
+                let prevStart: dayjs.Dayjs;
+                let prevEnd: dayjs.Dayjs;
 
                 switch (type) {
                     case 'week':
-                        daysOffset = 7;
+                        prevStart = baseDateStart.subtract(7, 'days');
+                        prevEnd = baseDateEnd.subtract(7, 'days');
                         break;
                     case 'month':
-                        daysOffset = 30;
+                        prevStart = baseDateStart.subtract(1, 'month');
+                        prevEnd = baseDateEnd.subtract(1, 'month');
                         break;
                     case 'year':
-                        daysOffset = 365;
+                        prevStart = baseDateStart.subtract(1, 'year');
+                        prevEnd = baseDateEnd.subtract(1, 'year');
                         break;
                     default:
                         return [type, []];
                 }
-
-                const prevStart = baseDateStart.subtract(daysOffset, 'days').startOf('day');
-                const prevEnd = baseDateEnd.subtract(daysOffset, 'day').endOf('day');
 
                 const data = (await getTableReportData(
                     parametrs,
@@ -578,7 +587,6 @@ export const addDynamics = async (
             if (!prevRows?.length) continue;
 
             const prevTotal = (await addTotalRow(structuredClone(prevRows), parametrs, indicators, additional)).at(-1);
-
             if (!prevTotal) continue;
 
             for (const key of enabledIndicators) {
