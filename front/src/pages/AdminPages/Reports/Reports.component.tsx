@@ -18,7 +18,8 @@ const ReportsComponent: FC<ReportsComponentProps> = ({
     isDisabledIndicators,
     handleReloadTableData,
     handleResetFilters,
-    onValuesChange,
+    onValuesParametersChange,
+    onValuesIndicatorsChange,
 }) => {
     return (
         <Flex className={styles.container} vertical align="center">
@@ -33,7 +34,10 @@ const ReportsComponent: FC<ReportsComponentProps> = ({
                 <div className={styles.workZoneContainer}>
                     <Flex className={styles.column} vertical>
                         <p className={styles.columnTitle}>Параметры</p>
-                        <Form form={parametrsForm} onValuesChange={onValuesChange}>
+                        <Form
+                            form={parametrsForm}
+                            onValuesChange={onValuesParametersChange}
+                        >
                             <List
                                 dataSource={PARAMETRS_LIST}
                                 className={styles.listContainer}
@@ -43,7 +47,9 @@ const ReportsComponent: FC<ReportsComponentProps> = ({
                                         trigger="contextMenu"
                                         content={
                                             <PopoverParametr
-                                                handleSetFilterDataValues={handleSetFilterDataValues}
+                                                handleSetFilterDataValues={
+                                                    handleSetFilterDataValues
+                                                }
                                                 parametr={
                                                     item.name as keyof FilterDataI
                                                 }
@@ -76,7 +82,10 @@ const ReportsComponent: FC<ReportsComponentProps> = ({
                     />
                     <Flex className={styles.column} vertical>
                         <p className={styles.columnTitle}>Показатели</p>
-                        <Form form={indicatorsForm}>
+                        <Form
+                            form={indicatorsForm}
+                            onValuesChange={onValuesIndicatorsChange}
+                        >
                             <List
                                 dataSource={INDICATOR_LIST}
                                 className={styles.listContainer}
