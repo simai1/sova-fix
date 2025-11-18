@@ -18,6 +18,7 @@ import { useForm, useWatch } from "antd/es/form/Form";
 import { useAppDispatch, useAppSelector } from "../../../../hooks/store";
 import {
     additionalParametrsSelector,
+    isChartsTypeSelector,
     isReloadButtonLoadingSelector,
     tableReportDataSelector,
 } from "../selectors";
@@ -44,6 +45,7 @@ const AdditionalParametrs: FC<AdditionalParametrsProps> = ({
     const additionalInitialValues = useAppSelector(additionalParametrsSelector);
     const tableReportData = useAppSelector(tableReportDataSelector);
     const isReloadButtonLoading = useAppSelector(isReloadButtonLoadingSelector);
+    const isChart = useAppSelector(isChartsTypeSelector);
     const dispatch = useAppDispatch();
 
     useEffect(() => {
@@ -52,7 +54,7 @@ const AdditionalParametrs: FC<AdditionalParametrsProps> = ({
         const payload: AdditionalParametrsI = {
             isResult: additionalParametrs?.isResult ?? false,
             dynamicsTypes: additionalParametrs?.dynamicsTypes ?? [],
-            reportType: additionalParametrs?.reportType ?? 0,
+            reportType: additionalParametrs?.reportType ?? "table",
             dateStart: null,
             dateEnd: null,
         };
@@ -139,6 +141,17 @@ const AdditionalParametrs: FC<AdditionalParametrsProps> = ({
         handleResetFiltersWithAdditionals();
     }, []);
 
+    const onChangeValues = (values: AdditionalParametrsForm) => {
+        if (values.reportType) {
+            form.resetFields();
+            form.setFieldsValue({
+                reportType: values.reportType,
+                dynamicsTypes: [],
+                isResult: false,
+            });
+        }
+    };
+
     return (
         <Flex
             align="center"
@@ -170,6 +183,7 @@ const AdditionalParametrs: FC<AdditionalParametrsProps> = ({
                         className={styles.form}
                         initialValues={additionalInitialValues}
                         form={form}
+                        onValuesChange={onChangeValues}
                     >
                         <Flex align="center" gap={20}>
                             <Form.Item<AdditionalParametrsForm>
@@ -177,7 +191,6 @@ const AdditionalParametrs: FC<AdditionalParametrsProps> = ({
                                 name="periodPicker"
                             >
                                 <RangePicker
-                                    
                                     className={styles.rangePicker}
                                     placeholder={["Начало", "Конец"]}
                                     format={"DD.MM.YYYY"}
@@ -196,26 +209,32 @@ const AdditionalParametrs: FC<AdditionalParametrsProps> = ({
                                 />
                             </Form.Item>
                             <div className={styles.selectContainer}>
-                                <Form.Item<AdditionalParametrsForm>
-                                    name="dynamicsTypes"
-                                    noStyle
-                                >
-                                    <TreeSelect
-                                        treeData={dynamicsTypeOptions}
-                                        placeholder="Динамика"
-                                        className={styles.select}
-                                        treeCheckable
-                                    />
-                                </Form.Item>
+                                {!isChart && (
+                                    <Form.Item<AdditionalParametrsForm>
+                                        name="dynamicsTypes"
+                                        noStyle
+                                    >
+                                        <TreeSelect
+                                            treeData={dynamicsTypeOptions}
+                                            placeholder="Динамика"
+                                            className={styles.select}
+                                            treeCheckable
+                                        />
+                                    </Form.Item>
+                                )}
                             </div>
                             <div style={{ width: 160 }}>
-                                <Form.Item<AdditionalParametrsForm>
-                                    name="isResult"
-                                    noStyle
-                                    valuePropName="checked"
-                                >
-                                    <AntCheckbox>Итог по столбцу</AntCheckbox>
-                                </Form.Item>
+                                {!isChart && (
+                                    <Form.Item<AdditionalParametrsForm>
+                                        name="isResult"
+                                        noStyle
+                                        valuePropName="checked"
+                                    >
+                                        <AntCheckbox>
+                                            Итог по столбцу
+                                        </AntCheckbox>
+                                    </Form.Item>
+                                )}
                             </div>
                         </Flex>
                         <Flex gap={10}>

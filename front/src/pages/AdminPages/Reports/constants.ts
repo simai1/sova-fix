@@ -61,7 +61,11 @@ export const INDICATOR_LIST: IndicatorI[] = [
 
 export const REPORT_TYPES: DefaultOptionType[] = [
     {
-        value: 0,
+        value: 'table',
         label: 'Таблица'
+    },
+    {
+        value: 'chart',
+        label: 'График'
     }
 ]

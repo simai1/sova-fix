@@ -1,0 +1,21 @@
+.tooltipContainer {
+    background-color: #ffffff;
+    color: #333333;
+    border-radius: 8px;
+    padding: 10px 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    font-size: 14px;
+    min-width: 120px;
+    border: 1px solid #e0e0e0;
+}
+
+.label {
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #555555;
+}
+
+.value {
+    color: #d8cdc1ff;
+    font-weight: 500;
+}

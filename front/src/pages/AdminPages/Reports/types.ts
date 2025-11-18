@@ -10,7 +10,8 @@ export interface ReportsComponentProps {
     handleReloadTableData: () => void;
     handleResetFilters: () => void;
     handleSetFilterDataValues: (fieldName: keyof ReportTable, values: any) => void
-    onValuesChange: (changedValues: ParametrsFormInstance) => void
+    onValuesParametersChange: (changedValues: ParametrsFormInstance) => void
+    onValuesIndicatorsChange: (changedValues: IndicatorsFormInstance) => void
 }
 
 export interface ParametrI {
@@ -94,10 +95,12 @@ export type GetTableReportDataResponse = {
 export interface AdditionalParametrsI {
     isResult: boolean;
     dynamicsTypes?: ("week" | "month" | "year")[];
-    reportType: number;
+    reportType: ReportType;
     dateStart?: string | null;
     dateEnd?: string | null;
 }
+
+export type ReportType = "table" | "chart"
 
 export interface ReportInitialState {
     tableReportData: ReportTable[];
@@ -105,6 +108,9 @@ export interface ReportInitialState {
     additionalParametrs: AdditionalParametrsI;
     filterDataValues: Record<keyof ReportTable, string[]> | null
     filterData: FilterDataI | null
+    parameters: ParametrsFormInstance
+    indicators: IndicatorsFormInstance
+
 }
 
 export interface AdditionalParametrsForm
@@ -162,4 +168,14 @@ export interface FilterDataI {
     status?: StatusI[];
     urgency?: UrgencyI[];
     legalEntity?: LegalEntityI[];
+}
+
+export type SetParameterPayload = {
+    type: keyof ParametrsFormInstance;
+    value: boolean
+}
+
+export type SetIndicatorPayload = {
+    type: keyof IndicatorsFormInstance;
+    value: boolean
 }
