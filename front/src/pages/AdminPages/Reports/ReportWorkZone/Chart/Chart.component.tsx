@@ -28,16 +28,23 @@ const ChartComponent: FC<ChartComponentProps> = ({
                     <ResponsiveContainer>
                         <LineChart
                             data={chartReportData}
-                            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                            margin={{ top: 20, right: 30, left: 20, bottom: 100 }}
                         >
                             <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="name" />
+                            <XAxis
+                                dataKey="name"
+                                tick={{ fontSize: 10 }}
+                                angle={-45}
+                                interval={0}
+                                textAnchor="end"
+                            />
                             <YAxis />
                             <Tooltip content={<CustomTooltip />} />
                             <Line
                                 type="monotone"
                                 dataKey="value"
                                 stroke="#d8cdc1ff"
+                                strokeWidth={4}
                             />
                         </LineChart>
                     </ResponsiveContainer>

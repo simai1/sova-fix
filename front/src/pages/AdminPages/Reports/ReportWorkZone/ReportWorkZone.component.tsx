@@ -26,7 +26,7 @@ const ReportWorkZoneComponent: FC<ReportWorkZoneComponentsProps> = ({
 
             {!isLoadingTableData &&
                 (isEmptyReport ? (
-                    <Empty description="Отчёт пуст" />
+                    <Empty description={reportType === 'table' ? "Отчёт пуст" : "Выберите параметр и показатель"} />
                 ) : (
                     <div className={styles.tableWrapper}>
                         {reportWorkZoneType[reportType]}
