@@ -51,6 +51,25 @@ const numericKeys: (keyof ReportTable)[] = [
     "percentOfBudgetPlan",
 ];
 
+export const isRowEmpty = (row: ReportTable) => {
+    // получаем только те ключи, которые реально есть в строке
+    const presentNumericKeys = numericKeys.filter((key) => key in row);
+
+    // если нет числовых ключей — строку считаем НЕ пустой
+    if (presentNumericKeys.length === 0) return false;
+
+    console.log(presentNumericKeys.every((key) => {
+        const value = row[key];
+        return typeof value === "number" && value === 0;
+    }))
+    // проверяем все существующие числовые поля
+    return presentNumericKeys.every((key) => {
+        const value = row[key];
+        return typeof value === "number" && value === 0;
+    });
+};
+
+
 export const getReportTableColumns = (data: ReportTable[]) => {
     const columnHelper = createColumnHelper<ReportTable>();
 

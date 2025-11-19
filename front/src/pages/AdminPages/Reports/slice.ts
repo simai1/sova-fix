@@ -8,6 +8,7 @@ import {
     SetParameterPayload,
 } from "./types";
 import { reportsApi } from "./reports.api";
+import { isRowEmpty } from "./ReportWorkZone/ReportTable/utils";
 
 const initialState: ReportInitialState = {
     tableReportData: [],
@@ -103,7 +104,7 @@ export const reportSlice: Slice<ReportInitialState> = createSlice({
         builder.addMatcher(
             reportsApi.endpoints.getTableReportData.matchFulfilled,
             (state, action) => {
-                state.tableReportData = action.payload.resultRows;
+                state.tableReportData = action.payload.resultRows.filter(row => !isRowEmpty(row));
                 state.filterData = action.payload.filterData;
             }
         );

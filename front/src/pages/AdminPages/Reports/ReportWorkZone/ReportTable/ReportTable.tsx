@@ -9,13 +9,14 @@ import {
     getCoreRowModel,
     useReactTable,
 } from "@tanstack/react-table";
-import { getReportTableColumns } from "./utils";
+import { getReportTableColumns, isRowEmpty } from "./utils";
 import styles from "./styles.module.scss";
 import { type ReportTable as ReportTableI } from "../../types";
 
 const ReportTable: FC = () => {
     const tableReportData = useAppSelector(tableReportDataSelector);
     const { isResult } = useAppSelector(additionalParametrsSelector);
+
 
     const table = useReactTable({
         data: tableReportData,
