@@ -28,7 +28,7 @@ const ChartComponent: FC<ChartComponentProps> = ({
                     <ResponsiveContainer>
                         <LineChart
                             data={chartReportData}
-                            margin={{ top: 20, right: 30, left: 20, bottom: 100 }}
+                            margin={{ top: 20, right: 30, left: 40, bottom: 100 }}
                         >
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis
