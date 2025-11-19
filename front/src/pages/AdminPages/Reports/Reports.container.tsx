@@ -21,6 +21,7 @@ import {
     filterDataValuesSelector,
     isChartsTypeSelector,
     reportTypeSelector,
+    tableReportDataSelector,
 } from "./selectors";
 import { INDICATOR_LIST, PARAMETRS_LIST } from "./constants";
 
@@ -33,6 +34,7 @@ const ReportsContainer: FC = () => {
 
     const additionalParametrs = useAppSelector(additionalParametrsSelector);
     const reportType = useAppSelector(reportTypeSelector);
+    const tableReportData = useAppSelector(tableReportDataSelector)
 
     // Если выбран тип отчета график, то даем возможность выбрать только ОДИН параметр и ОДИН показатель,
     // так как оси на графике две
@@ -116,8 +118,8 @@ const ReportsContainer: FC = () => {
     };
 
     const isEmptyReport = useMemo(
-        () => Object.values(parametrs || {}).every((value) => !value),
-        [parametrs]
+        () => Object.values(parametrs || {}).every((value) => !value) || tableReportData.length === 0,
+        [parametrs, tableReportData]
     );
 
     useEffect(() => {
@@ -155,7 +157,6 @@ const ReportsContainer: FC = () => {
             changedValues
         )[0] as keyof ParametrsFormInstance;
         const value = changedValues[key];
-        console.log(changedValues)
 
         if (value === false && filterDataValues && filterDataValues[key]) {
             // создаём новый объект без этого ключа
