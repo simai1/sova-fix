@@ -3,7 +3,7 @@ import styles from "./styles.module.scss";
 import { ReportWorkZoneComponentsProps } from "./types";
 import classNames from "classnames";
 import AntLoader from "../../../../UI/Antd/AntLoader/AntLoader";
-import { Empty } from "antd";
+import { Empty, Typography } from "antd";
 import ReportTable from "./ReportTable/ReportTable";
 import { useAppSelector } from "../../../../hooks/store";
 import { reportTypeSelector } from "../selectors";
@@ -26,7 +26,15 @@ const ReportWorkZoneComponent: FC<ReportWorkZoneComponentsProps> = ({
 
             {!isLoadingTableData &&
                 (isEmptyReport ? (
-                    <Empty description={reportType === 'table' ? "Отчёт пуст" : "Выберите параметр и показатель"} />
+                    <Empty
+                        description={
+                            reportType === "table" ? (
+                                "Отчёт пуст"
+                            ) : (
+                                <Typography.Title level={4}>Выберите параметр и показатель</Typography.Title>
+                            )
+                        }
+                    />
                 ) : (
                     <div className={styles.tableWrapper}>
                         {reportWorkZoneType[reportType]}
