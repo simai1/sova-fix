@@ -58,10 +58,6 @@ export const isRowEmpty = (row: ReportTable) => {
     // если нет числовых ключей — строку считаем НЕ пустой
     if (presentNumericKeys.length === 0) return false;
 
-    console.log(presentNumericKeys.every((key) => {
-        const value = row[key];
-        return typeof value === "number" && value === 0;
-    }))
     // проверяем все существующие числовые поля
     return presentNumericKeys.every((key) => {
         const value = row[key];

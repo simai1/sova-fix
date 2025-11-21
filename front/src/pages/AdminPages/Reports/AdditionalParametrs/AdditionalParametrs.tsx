@@ -18,7 +18,7 @@ import { useForm, useWatch } from "antd/es/form/Form";
 import { useAppDispatch, useAppSelector } from "../../../../hooks/store";
 import {
     additionalParametrsSelector,
-    isChartsTypeSelector,
+    isGraphicTypeSelector,
     isReloadButtonLoadingSelector,
     tableReportDataSelector,
 } from "../selectors";
@@ -45,7 +45,7 @@ const AdditionalParametrs: FC<AdditionalParametrsProps> = ({
     const additionalInitialValues = useAppSelector(additionalParametrsSelector);
     const tableReportData = useAppSelector(tableReportDataSelector);
     const isReloadButtonLoading = useAppSelector(isReloadButtonLoadingSelector);
-    const isChart = useAppSelector(isChartsTypeSelector);
+    const isGraphic = useAppSelector(isGraphicTypeSelector);
     const dispatch = useAppDispatch();
 
     useEffect(() => {
@@ -209,7 +209,7 @@ const AdditionalParametrs: FC<AdditionalParametrsProps> = ({
                                 />
                             </Form.Item>
                             <div className={styles.selectContainer}>
-                                {!isChart && (
+                                {!isGraphic && (
                                     <Form.Item<AdditionalParametrsForm>
                                         name="dynamicsTypes"
                                         noStyle
@@ -224,7 +224,7 @@ const AdditionalParametrs: FC<AdditionalParametrsProps> = ({
                                 )}
                             </div>
                             <div style={{ width: 160 }}>
-                                {!isChart && (
+                                {!isGraphic && (
                                     <Form.Item<AdditionalParametrsForm>
                                         name="isResult"
                                         noStyle

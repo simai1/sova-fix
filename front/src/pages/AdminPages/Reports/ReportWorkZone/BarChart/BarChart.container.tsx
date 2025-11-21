@@ -1,30 +1,24 @@
 import { useAppSelector } from "../../../../../hooks/store";
+import { useGraphicData } from "../../hooks";
 import {
     selectedIndicatorSelector,
     selectedParameterSelector,
     tableReportDataSelector,
 } from "../../selectors";
-import ChartComponent from "./Chart.component";
-import { useGraphicData } from "../../hooks";
+import BarChartComponent from "./BarChart.component";
 
-const ChartContainer = () => {
+const BarChartContainer = () => {
     const tableReportData = useAppSelector(tableReportDataSelector);
     const selectedParameter = useAppSelector(selectedParameterSelector);
     const selectedIndicator = useAppSelector(selectedIndicatorSelector);
 
-    const { graphicData: chartReportData, isEmptyChart } = useGraphicData({
+    const { graphicData: barChartReportData, isEmptyChart } = useGraphicData({
         tableData: tableReportData,
         selectedParameter,
         selectedIndicator,
     });
 
-    return (
-        <ChartComponent
-            chartReportData={chartReportData}
-            isEmptyChart={isEmptyChart}
-            selectedIndicator={selectedIndicator}
-        />
-    );
+    return <BarChartComponent barChartReportData={barChartReportData} isEmptyChart={isEmptyChart} selectedIndicator={selectedIndicator} />;
 };
 
-export default ChartContainer;
+export default BarChartContainer;

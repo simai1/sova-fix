@@ -1,9 +1,12 @@
+import { IndicatorsFormInstance } from "../../types";
+
 export type ChartComponentProps = {
-    chartReportData: ChartItem[];
+    chartReportData: GraphicItem[];
     isEmptyChart: boolean;
+    selectedIndicator: keyof IndicatorsFormInstance | null
 };
 
-export type ChartItem = {
+export type GraphicItem = {
     name: string;
     value: number;
 };

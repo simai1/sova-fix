@@ -19,9 +19,9 @@ export const reportTypeSelector = createSelector(
     (state) => state.additionalParametrs.reportType
 );
 
-export const isChartsTypeSelector = createSelector(
+export const isGraphicTypeSelector = createSelector(
     reportReducerBaseSelector,
-    (state) => state.additionalParametrs.reportType === "chart"
+    (state) => state.additionalParametrs.reportType !== "table"
 );
 
 export const isReloadButtonLoadingSelector = createSelector(
