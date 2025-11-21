@@ -8,6 +8,7 @@ import ReportTable from "./ReportTable/ReportTable";
 import { useAppSelector } from "../../../../hooks/store";
 import { reportTypeSelector } from "../selectors";
 import { reportWorkZoneType } from "./utils";
+import { REPORT_TYPE_TEXT } from "../constants";
 
 const ReportWorkZoneComponent: FC<ReportWorkZoneComponentsProps> = ({
     isEmptyReport,
@@ -31,7 +32,10 @@ const ReportWorkZoneComponent: FC<ReportWorkZoneComponentsProps> = ({
                             reportType === "table" ? (
                                 "Отчёт пуст"
                             ) : (
-                                <Typography.Title level={4}>Выберите параметр и показатель</Typography.Title>
+                                <Typography.Title level={4}>
+                                    Выберите 1 параметр и 1 показатель для
+                                    отображения {REPORT_TYPE_TEXT[reportType]}
+                                </Typography.Title>
                             )
                         }
                     />

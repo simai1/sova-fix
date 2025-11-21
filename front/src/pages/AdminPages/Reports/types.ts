@@ -100,7 +100,7 @@ export interface AdditionalParametrsI {
     dateEnd?: string | null;
 }
 
-export type ReportType = "table" | "chart"
+export type ReportType = "table" | "chart" | "pie"
 
 export interface ReportInitialState {
     tableReportData: ReportTable[];
@@ -178,4 +178,10 @@ export type SetParameterPayload = {
 export type SetIndicatorPayload = {
     type: keyof IndicatorsFormInstance;
     value: boolean
+}
+
+export interface UseGraphicDataProps<T> {
+    tableData: T[];
+    selectedParameter: keyof T | null;
+    selectedIndicator: keyof T | null;
 }

@@ -1,5 +1,5 @@
 import { DefaultOptionType } from "antd/es/select";
-import { IndicatorI, ParametrI } from "./types";
+import { IndicatorI, IndicatorsFormInstance, ParametrI, ReportType } from "./types";
 
 export const PARAMETRS_LIST: ParametrI[] = [
     {
@@ -61,11 +61,31 @@ export const INDICATOR_LIST: IndicatorI[] = [
 
 export const REPORT_TYPES: DefaultOptionType[] = [
     {
-        value: 'table',
-        label: 'Таблица'
+        value: "table",
+        label: "Таблица",
     },
     {
-        value: 'chart',
-        label: 'График'
-    }
-]
+        value: "chart",
+        label: "График",
+    },
+    {
+        value: "pie",
+        label: "Круговая диаграмма",
+    },
+];
+
+export const INDICATOR_LOCALE: Record<keyof IndicatorsFormInstance, string> = {
+    closingSpeedOfRequests: "Скорость закрытия заявок",
+    totalCountRequests: "Общее число заявок",
+    percentOfBudgetPlan: "% от плана бюджет",
+    budgetPlan: "План по бюджету",
+    budget: "Бюджет",
+    percentOfTotalCountRequest: "% заявок от общего числа",
+};
+
+
+export const REPORT_TYPE_TEXT: Record<ReportType, string> = {
+    chart: 'графика',
+    pie: 'круговой диаграммы',
+    table: 'таблицы'
+}

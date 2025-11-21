@@ -16,6 +16,7 @@ import styles from "./styles.module.scss";
 const ChartComponent: FC<ChartComponentProps> = ({
     chartReportData,
     isEmptyChart,
+    selectedIndicator,
 }) => {
     return (
         <>
@@ -24,7 +25,7 @@ const ChartComponent: FC<ChartComponentProps> = ({
                     <Empty
                         description={
                             <Typography.Title level={4}>
-                                Выберите параметр и показатель
+                                Выберите 1 параметр и 1 показатель для отображения графика
                             </Typography.Title>
                         }
                     />
@@ -50,7 +51,7 @@ const ChartComponent: FC<ChartComponentProps> = ({
                                 textAnchor="end"
                             />
                             <YAxis />
-                            <Tooltip content={<CustomTooltip />} />
+                            <Tooltip content={<CustomTooltip selectedIndicator={selectedIndicator} />} />
                             <Line
                                 type="monotone"
                                 dataKey="value"

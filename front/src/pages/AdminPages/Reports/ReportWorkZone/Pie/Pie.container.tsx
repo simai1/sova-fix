@@ -4,27 +4,22 @@ import {
     selectedParameterSelector,
     tableReportDataSelector,
 } from "../../selectors";
-import ChartComponent from "./Chart.component";
+import PieComponent from "./Pie.component";
 import { useGraphicData } from "../../hooks";
 
-const ChartContainer = () => {
+const PieContainer = () => {
     const tableReportData = useAppSelector(tableReportDataSelector);
     const selectedParameter = useAppSelector(selectedParameterSelector);
     const selectedIndicator = useAppSelector(selectedIndicatorSelector);
 
-    const { graphicData: chartReportData, isEmptyChart } = useGraphicData({
+    const { graphicData: pieReportData, isEmptyChart } = useGraphicData({
         tableData: tableReportData,
         selectedParameter,
         selectedIndicator,
     });
 
-    return (
-        <ChartComponent
-            chartReportData={chartReportData}
-            isEmptyChart={isEmptyChart}
-            selectedIndicator={selectedIndicator}
-        />
-    );
+
+    return <PieComponent pieReportData={pieReportData} isEmptyChart={isEmptyChart} />;
 };
 
-export default ChartContainer;
+export default PieContainer;

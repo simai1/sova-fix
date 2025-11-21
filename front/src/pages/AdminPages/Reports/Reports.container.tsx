@@ -19,7 +19,7 @@ import {
 import {
     additionalParametrsSelector,
     filterDataValuesSelector,
-    isChartsTypeSelector,
+    isGraphicTypeSelector,
     reportTypeSelector,
     tableReportDataSelector,
 } from "./selectors";
@@ -38,7 +38,7 @@ const ReportsContainer: FC = () => {
 
     // Если выбран тип отчета график, то даем возможность выбрать только ОДИН параметр и ОДИН показатель,
     // так как оси на графике две
-    const isChartsType = useAppSelector(isChartsTypeSelector);
+    const isGraphicType = useAppSelector(isGraphicTypeSelector);
 
     const [parametrsForm] = useForm<ParametrsFormInstance>();
     const [indicatorsForm] = useForm<IndicatorsFormInstance>();
@@ -180,7 +180,7 @@ const ReportsContainer: FC = () => {
             dispatch(setSelectedParameter(payload));
         }
 
-        if (!isChartsType) return;
+        if (!isGraphicType) return;
 
         // Параметры:
         if (PARAMETRS_LIST.some((p) => p.name === key)) {
@@ -198,7 +198,7 @@ const ReportsContainer: FC = () => {
     const onValuesIndicatorsChange = (
         changedValues: IndicatorsFormInstance
     ) => {
-        if (!isChartsType) return;
+        if (!isGraphicType) return;
         const key = Object.keys(
             changedValues
         )[0] as keyof IndicatorsFormInstance;
