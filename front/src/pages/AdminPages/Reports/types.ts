@@ -100,7 +100,7 @@ export interface AdditionalParametrsI {
     dateEnd?: string | null;
 }
 
-export type ReportType = "table" | "chart" | "pie"
+export type ReportType = "table" | "chart" | "pie" | "barChart"
 
 export interface ReportInitialState {
     tableReportData: ReportTable[];
