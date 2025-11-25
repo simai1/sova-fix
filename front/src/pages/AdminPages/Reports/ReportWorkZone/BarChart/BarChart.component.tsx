@@ -58,8 +58,7 @@ const BarChartComponent: FC<BarChartComponentProps> = ({
                                 <Tooltip
                                     formatter={(
                                         value: number,
-                                        name: string
-                                    ) => [`${value} шт.`, selectedIndicator ? INDICATOR_LOCALE[selectedIndicator] : "Значение"]}
+                                    ) => [value, selectedIndicator ? INDICATOR_LOCALE[selectedIndicator] : "Значение"]}
                                     contentStyle={{
                                         background: "#fff",
                                         borderRadius: 8,
