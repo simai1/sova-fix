@@ -42,6 +42,7 @@ function ReferenceObjects() {
   const [isHiding, setIsHiding] = useState(false);
   const [errorHeader, setErrorHeader] = useState("");
   const [errorText, setErrorText] = useState("");
+  const [budgetPlan, setBudgetPlan] = useState('')
 
   const dispatch = useDispatch();
   useEffect(() => {
@@ -57,6 +58,7 @@ function ReferenceObjects() {
       legalForm: `${item?.legalEntity?.legalForm} ${item?.legalEntity?.name}`,
       unitName: item?.unit?.name,
       city: item?.city,
+      budgetPlan: item?.budgetPlan,
     }));
   }
   const formatDataObjectAndLegal = () => {
@@ -99,7 +101,7 @@ function ReferenceObjects() {
   };
 
   const handleCreateUnit = () => {
-    if (!unitName || !city || !valueCreateUnit || !valueCreateLegal) {
+    if (!unitName || !city || !valueCreateUnit || !valueCreateLegal || !budgetPlan) {
       setErrorMessage("Пожалуйста, заполните все поля!");
       return;
     }
@@ -109,6 +111,7 @@ function ReferenceObjects() {
       city: city,
       unitId: valueCreateUnitId,
       legalEntityId: valueCreateLegalId,
+      budgetPlan: budgetPlan ? Number(budgetPlan) : null,
     };
 
     pupUpEdit
@@ -191,6 +194,7 @@ function ReferenceObjects() {
         setValueCreateLegalId(response.data?.legalEntity?.id);
         setValueCreateUnit(response.data?.unit?.name);
         setValueCreateLegal(response.data?.legalEntity?.name);
+        setBudgetPlan(response?.data?.budgetPlan)
       });
     } else {
       context.setPopupErrorText("Сначала выберите объект!");
@@ -249,7 +253,7 @@ function ReferenceObjects() {
           >
             <div className={styles.PupUpCreateInputInner}>
               <div>
-                <div>
+                <div className={styles.content}>
                   <input
                     placeholder="Адрес..."
                     value={unitName}
@@ -347,6 +351,11 @@ function ReferenceObjects() {
                     placeholder="Город..."
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
+                  />
+                  <input 
+                    placeholder="План по бюджету"
+                    value={budgetPlan}
+                    onChange={(e) => setBudgetPlan(e.target.value)}
                   />
                 </div>
                 <div>

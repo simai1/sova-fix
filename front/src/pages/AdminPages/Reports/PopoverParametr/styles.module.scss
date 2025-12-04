@@ -1,0 +1,15 @@
+.container {
+    max-height: 170px;
+    max-width: 200px;
+    overflow-y: auto;
+
+    .checkBoxes {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .text {
+        text-align: center;
+    }
+}

@@ -6,33 +6,33 @@ import User from '../models/user';
 
 const getAll = catchAsync(async (req, res) => {
     const { tgUserId, userId } = req.query;
-    
+
     // Если передан tgUserId, получаем только объекты этого пользователя
     if (tgUserId) {
         const userObjects = await objectService.getUserObjects(tgUserId as string);
         return res.json(userObjects);
     }
 
-    if(userId) {
-        const user = await User.findOne({where: {id: userId}})
-        if(!user) throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
-        const userObjects = await objectService.getUserObjects(user?.tgManagerId as string)
-        if(userObjects.length) {
-            return res.json(userObjects)
+    if (userId) {
+        const user = await User.findOne({ where: { id: userId } });
+        if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+        const userObjects = await objectService.getUserObjects(user?.tgManagerId as string);
+        if (userObjects.length) {
+            return res.json(userObjects);
         }
     }
-    
+
     // Иначе получаем все объекты
     const objects = await objectService.getAllObjects();
     res.json(objects);
 });
 
 const create = catchAsync(async (req, res) => {
-    const { name, unitId, city, legalEntityId } = req.body;
+    const { name, unitId, city, legalEntityId, budgetPlan } = req.body;
     if (!name) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing name');
     if (!unitId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing unitId');
     if (!city) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing city');
-    const object = await objectService.createObject(name, unitId, city, legalEntityId);
+    const object = await objectService.createObject(name, unitId, city, legalEntityId, budgetPlan);
     res.json(object);
 });
 
@@ -52,9 +52,9 @@ const destroy = catchAsync(async (req, res) => {
 
 const update = catchAsync(async (req, res) => {
     const { objectId } = req.params;
-    const { name, unitId, city, legalEntityId } = req.body;
+    const { name, unitId, city, legalEntityId, budgetPlan } = req.body;
     if (!objectId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing id');
-    await objectService.updateObject(objectId, name, unitId, city, legalEntityId);
+    await objectService.updateObject(objectId, name, unitId, city, legalEntityId, budgetPlan);
     res.json({ status: 'OK' });
 });
 

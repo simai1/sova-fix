@@ -1,0 +1,70 @@
+.container {
+    padding: 10px 15px;
+    width: 100%;
+    .content {
+        width: 100%;
+    }
+    .form {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        .select {
+            min-width: 180px;
+        }
+
+        .rangePicker {
+            min-width: 300px;
+        }
+        .checkboxContainer {
+            width: 200px;
+        }
+    }
+    .form :global(.ant-picker-focused) {
+        border: 2px solid var(--turquoise-lighter) !important;
+        box-shadow: none !important;
+    }
+
+    .form :global(.ant-picker):hover {
+        border: 2px solid var(--turquoise-lighter) !important;
+    }
+
+    .form :global(.ant-picker-focused .ant-picker-active-bar) {
+        background: var(--turquoise-color) !important;
+    }
+
+    .form :global(.ant-select-focused .ant-select-selector) {
+        border: 2px solid var(--turquoise-lighter) !important;
+        box-shadow: none !important;
+    }
+
+    .form :global(.ant-select .ant-select-selector):hover {
+        border: 2px solid var(--turquoise-lighter) !important;
+    }
+
+    /* Убрано окрашивание иконки стрелки */
+
+    .form
+        :global(
+            .ant-select-item-option-selected:not(
+                    .ant-select-item-option-disabled
+                )
+        ) {
+        background-color: color-mix(
+            in srgb,
+            var(--turquoise-color) 10%,
+            white
+        ) !important;
+    }
+
+    .form
+        :global(
+            .ant-select-item-option-active:not(.ant-select-item-option-disabled)
+        ) {
+        background-color: color-mix(
+            in srgb,
+            var(--turquoise-color) 5%,
+            white
+        ) !important;
+    }
+}
