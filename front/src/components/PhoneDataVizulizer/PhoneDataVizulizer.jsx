@@ -6,6 +6,7 @@ import { GetAllRequests } from "../../API/API";
 import DataContext from "../../context";
 import { funFixEducator } from "../../UI/SamplePoints/Function";
 import EditImg from "./../../assets/images/Edit.svg";
+import { API_URL } from "../../constants/env.constant";
 
 Modal.setAppElement("#root");
 
@@ -229,7 +230,7 @@ function PhoneDataVizulizer(props) {
                                     className={styles.modalContent}
                                   >
                                     <source
-                                      src={`${process.env.REACT_APP_API_URL}/uploads/${value}`}
+                                      src={`${API_URL}/uploads/${value}`}
                                     />
                                     Ваш браузер не поддерживает видео.
                                   </video>
@@ -237,20 +238,20 @@ function PhoneDataVizulizer(props) {
                               }}
                             >
                               <source
-                                src={`${process.env.REACT_APP_API_URL}/uploads/${value}`}
+                                src={`${API_URL}/uploads/${value}`}
                               />
                               Ваш браузер не поддерживает видео.
                             </video>
                           ) : (
                             <img
-                              src={`${process.env.REACT_APP_API_URL}/uploads/${value}`}
+                              src={`${API_URL}/uploads/${value}`}
                               alt="Фото"
                               className={styles.imgTable}
                               style={{ cursor: "pointer" }}
                               onClick={() =>
                                 openModal(
                                   <img
-                                    src={`${process.env.REACT_APP_API_URL}/uploads/${value}`}
+                                    src={`${API_URL}/uploads/${value}`}
                                     alt="Фото"
                                     className={styles.modalContent}
                                   />

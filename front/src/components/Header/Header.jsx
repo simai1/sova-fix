@@ -4,14 +4,12 @@ import './Menu.css'; // Импортируем стили
 import { useNavigate } from "react-router-dom";
 import DataContext from "../../context";
 import { GetAllSettings, GetObjectsAll, LogOut } from "../../API/API";
-import { addTableHeader } from "../../store/editColumTable/editColumTable.slice";
-import { tableHeadAppoint, tableList, tableUser } from "../Table/Data";
 import { useDispatch } from "react-redux";
 import imgClose from "./../../assets/images/x.svg";
 import arrowBottom from "./../../assets/images/arrow_bottom.svg";
 import Logo from "./../../assets/images/SovaFixLogo.svg"
-import { env } from "echarts";
 import Toggle from "../../UI/Toggle/Toggle";
+import { GLOBAL_OPEN_REPORT_BLOCK, GLOBAL_OPEN_TO_BLOCK, OBJECTS_LIMIT, PICTURE_NAME } from "../../constants/env.constant";
 
 function Header() {
     const { context } = useContext(DataContext);
@@ -104,8 +102,8 @@ function Header() {
   };
 
   const getLinkImg = () => {
-    if (process.env?.REACT_APP_PICTURE_NAME) {
-      return `/img/${process.env.REACT_APP_PICTURE_NAME}`;
+    if (PICTURE_NAME) {
+      return `/img/${PICTURE_NAME}`;
     }
     return null; 
   };
@@ -134,7 +132,7 @@ return (
   <div className={styles.Header}>
   <div className={styles.headerButton}>
   
-    {process.env?.REACT_APP_PICTURE_NAME &&  <img src={getLinkImg()} /> }
+    {PICTURE_NAME &&  <img src={getLinkImg()} /> }
     {JSON.parse(sessionStorage.getItem("userData"))?.user?.role !== "CUSTOMER" ? (
       !getLinkPatchname() ? (
         <button className={styles.buttonMenu} onClick={toggleMenu}>Меню</button>
@@ -156,7 +154,7 @@ return (
             <ul className={styles.menuUl}>
                 <li onClick={() => LinkPage()} className={styles.menuLi}>Главная</li>
                 <li onClick={() => LinkPage("CardPage/Card")} className={styles.menuLi}>Маршрутный лист</li>
-                {process.env?.REACT_APP_GLOBAL_OPEN_TO_BLOCK === "open" &&
+                {GLOBAL_OPEN_TO_BLOCK === "open" &&
                 <>
                   <li onClick={() => setIsOpenTo(!isOpenTo)} className={styles.menuLi} style={isOpenTo ? { backgroundColor: "#FFE20D" } : { backgroundColor: "#e3dfda" }}>
                       Техническое обслуживание
@@ -199,7 +197,7 @@ return (
                     <li className={styles.menuLi} onClick={() => LinkPage("Directory/Status")}>Статус заявок</li>
                     <li className={styles.menuLi} onClick={() => LinkPage("Directory/Category")}>Категории</li>
                 </ul>
-                {process.env?.REACT_APP_GLOBAL_OPEN_REPORT_BLOCK === "open" &&
+                {GLOBAL_OPEN_REPORT_BLOCK === "open" &&
                     <li className={styles.menuLi} onClick={() => LinkPage('reports')}>Отчеты</li>
                 }
                 <li onClick={() => setIsOpenSystem(!isOpenSystem)} className={styles.menuLi} style={isOpenSystem ? { backgroundColor: "#FFE20D" } : { backgroundColor: "#e3dfda" }}>
@@ -249,7 +247,7 @@ return (
                       <p className={styles.objectsHeader}>Объекты</p>
                       <div className={styles.objectsInfo}>
                         <p>Подключено: {objectsLength}</p>
-                        <p>Оплачено: {process.env.REACT_APP_OBJECTS_LIMIT !== null && process.env.REACT_APP_OBJECTS_LIMIT !== 'null' ? process.env.REACT_APP_OBJECTS_LIMIT : "безлимит"}</p>
+                        <p>Оплачено: {OBJECTS_LIMIT !== null && OBJECTS_LIMIT !== 'null' ? OBJECTS_LIMIT : "безлимит"}</p>
                       </div>
                   </li>
                 </ul>

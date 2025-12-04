@@ -11,6 +11,7 @@ import { generateAndDownloadExcelEquipment } from "./function";
 import EditImg from "./../../assets/images/Edit.svg"
 import DeleteImg from "./../../assets/images/x.svg"
 import UniversalTableHistory from "../../components/UniversalTableHistory/UniversalTable";
+import { API_URL } from "../../constants/env.constant";
 
 function EquipmentInfo() {
     const { context } = useContext(DataContext);
@@ -94,7 +95,7 @@ function EquipmentInfo() {
     const getQRCodeEquipment = () => {
         GetQrEquipment(idEquipment).then((response) => {
             if (response?.status === 200) {
-              const imageUrl = `${process.env.REACT_APP_API_URL}/uploads/${response.data}`;
+              const imageUrl = `${API_URL}/uploads/${response.data}`;
               const fileName = `QRCode_${context.dataEquipment?.name}.svg`;
         
               // Скачиваем файл
@@ -144,7 +145,7 @@ function EquipmentInfo() {
                                     {!popUpPhoto ? <img className={styles.EquipmentImgInnerEdit} onClick={() => {setPopUpPhoto(!popUpPhoto)}} src={EditImg} /> : <img className={styles.EquipmentImgInnerEditClose}  onClick={() => {setPopUpPhoto(!popUpPhoto); setSelectedFile(null)}} src={DeleteImg} />}
                                 </> 
                             }
-                                <img className={styles.EquipmentImgInnerPhotoOrig} src={context.dataEquipment?.photo ? `${process.env.REACT_APP_API_URL}/uploads/${context.dataEquipment?.photo}` : "/img/noimage.jpg"}/>
+                                <img className={styles.EquipmentImgInnerPhotoOrig} src={context.dataEquipment?.photo ? `${API_URL}/uploads/${context.dataEquipment?.photo}` : "/img/noimage.jpg"}/>
                             </div>
                             {popUpPhoto &&
                                 <div className={styles.pupUpFirstContainerInfo}>

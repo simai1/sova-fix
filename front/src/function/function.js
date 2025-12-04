@@ -1,10 +1,11 @@
 import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
+import { API_URL } from "../constants/env.constant";
 
 //! Функция генерации файла для скачивания
 export const generateAndDownloadExcel = (data, nameTable, expenseSum) => {
   let transformedData = {};
-  const server = process.env.REACT_APP_API_URL;
+  const server = API_URL;
 
   // Используем switch case для определения структуры данных
   switch (nameTable) {

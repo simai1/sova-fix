@@ -6,6 +6,7 @@ import {
 } from "@reduxjs/toolkit/query/react";
 import { isRefreshResponse } from "../types/typesguards/refresh";
 import { isNotification } from "../types/typesguards/notification";
+import { API_URL } from "../constants/env.constant";
 
 const baseQuery = fetchBaseQuery({
     credentials: "include",
@@ -26,17 +27,17 @@ const fetchMainBaseQuery =
   async (args, api, extraOptions) => {
     const updatedArgs: string | FetchArgs =
       typeof args === "string"
-        ? `${process.env.REACT_APP_API_URL}${basePath}${args.startsWith("/") ? args : `/${args}`}`
+        ? `${API_URL}${basePath}${args.startsWith("/") ? args : `/${args}`}`
         : {
             ...args,
-            url: `${process.env.REACT_APP_API_URL}${basePath}${args.url.startsWith("/") ? args.url : `/${args.url}`}`,
+            url: `${API_URL}${basePath}${args.url.startsWith("/") ? args.url : `/${args.url}`}`,
           };
 
     let result = await baseQuery(updatedArgs, api, extraOptions);
 
     if (result.error && result.error.status === 401) {
       const refreshResponse = await baseQuery(
-        `${process.env.REACT_APP_API_URL}/auth/refresh`,
+        `${API_URL}/auth/refresh`,
         api,
         extraOptions,
       );

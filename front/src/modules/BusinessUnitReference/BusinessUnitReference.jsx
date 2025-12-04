@@ -18,6 +18,7 @@ import { useDispatch } from "react-redux";
 import ClearImg from "./../../assets/images/ClearFilter.svg"
 import { resetFilters } from "../../store/samplePoints/samplePoits";
 import NotificationError from "../../components/Notification/NotificationError/NotificationError";
+import { UNITS_LIMIT } from "../../constants/env.constant";
 function BusinessUnitReference() {
   const { context } = useContext(DataContext);
   const [tableDataUnit, setTableDataUnit] = useState([]);
@@ -106,7 +107,7 @@ function BusinessUnitReference() {
             closePopUp();
           } else {
             closePopErrorFun(
-              `Максимальное количество подразделений в системе: ${process.env.REACT_APP_UNITS_LIMIT}`,
+              `Максимальное количество подразделений в системе: ${UNITS_LIMIT}`,
               'Чтобы добавить новый объект - обратитесь к вашему менеджеру SOVA-tech'
           );
             return closePopUp();

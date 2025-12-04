@@ -1,16 +1,8 @@
 import React, { useEffect, useState } from "react";
 import styles from "./FunctionTableTop.module.scss";
-import List from "../../UI/List/List";
 import Input from "../../UI/Input/Input";
 import DataContext from "../../context";
-import {
-  DeleteRequest,
-  DeleteUserFunc,
-  RejectActiveAccount,
-} from "../../API/API";
 import { useDispatch, useSelector } from "react-redux";
-import { FilteredSample, funFixEducator } from "../../UI/SamplePoints/Function";
-import { removeTableCheckeds } from "../../store/filter/isChecked.slice";
 import CountInfoBlock from "../../UI/CountInfoBlock/CountInfoBlock";
 import EditColum from "../../UI/EditColum/EditColum";
 import {
@@ -18,9 +10,7 @@ import {
   generateAndDownloadExcel,
 } from "../../function/function";
 import { tableList } from "../Table/Data";
-import { useNavigate } from "react-router-dom";
 import { dropFilters, resetFilters, setChecked, setFilters } from "../../store/samplePoints/samplePoits";
-import Switch from '@mui/material/Switch';
 
 
 

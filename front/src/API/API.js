@@ -1,9 +1,11 @@
 import axios from "axios";
+import { API_URL, WEB_URL } from '../constants/env.constant.ts'
 const http = axios.create({
   withCredentials: true,
 });
 
-const server = process.env.REACT_APP_API_URL;
+const server = API_URL;
+const client = WEB_URL;
 // const server = "http://localhost:3000";
 
 const REFRESH_INTERVAL = 500000; // 15 минут 900000
@@ -68,7 +70,7 @@ export const LoginFunc = async (UserData) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       return false;
     }
@@ -85,7 +87,7 @@ export const Register = async (UserData) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       return false;
     }
@@ -106,7 +108,7 @@ export const ActivateFunc = async (UserData, idUser) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       return 0;
     }
@@ -128,7 +130,7 @@ export const LogOut = async () => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Возникла ошибка при выходе!");
     }
@@ -145,7 +147,7 @@ export const GetAllRequests = async (param) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении списка заявок!");
     }
@@ -162,7 +164,7 @@ export const GetOneRequests = async (id) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении списка заявок!");
     }
@@ -179,7 +181,7 @@ export const GetAllUsers = async () => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении списка пользователей!");
     }
@@ -196,7 +198,7 @@ export const GetOneUsers = async (id) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении списка пользователей!");
     }
@@ -213,7 +215,7 @@ export const GetAllСontractors = async () => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении списка исполнителей!");
     }
@@ -230,7 +232,7 @@ export const SetStatusRequest = async (data) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при изменении статуса заявки!");
     }
@@ -251,7 +253,7 @@ export const SetcontractorRequest = async (data) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при изменении исполнителя заявки!");
     }
@@ -268,7 +270,7 @@ export const DeleteRequest = async (id) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при удалении заявки!");
     }
@@ -285,7 +287,7 @@ export const GetContractorsItenerarity = async (id) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
     }
@@ -302,7 +304,7 @@ export const ReseachDataRequest = async (id, data) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при изменении заявки!");
     }
@@ -319,7 +321,7 @@ export const DeleteUserFunc = async (id) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при удалении пользователя!");
     }
@@ -340,7 +342,7 @@ export const RemoveContractor = async (data) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при удалении исполнителя!");
     }
@@ -357,7 +359,7 @@ export const SetRole = async (data) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при смены роли!");
     }
@@ -374,7 +376,7 @@ export const GetPhotoServer = async (id) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
     }
@@ -391,7 +393,7 @@ export const RejectActiveAccount = async (id) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
     }
@@ -408,7 +410,7 @@ export const GetlegalEntitiesAll = async () => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
     }
@@ -425,7 +427,7 @@ export const GetlegalEntitiesOne = async (id) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
     }
@@ -442,7 +444,7 @@ export const DeletelegalEntities = async (id) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
     }
@@ -459,7 +461,7 @@ export const CreateLegalEntities = async (data) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
     }
@@ -476,7 +478,7 @@ export const EditLegalEntities = async (data, id) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
     }
@@ -493,7 +495,7 @@ export const GetUnitsAll = async () => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
     }
@@ -510,7 +512,7 @@ export const GetUnitsOne = async (id) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
     }
@@ -527,7 +529,7 @@ export const DeleteUnit = async (id) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
     }
@@ -544,7 +546,7 @@ export const CreateUnit = async (data) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
     }
@@ -561,7 +563,7 @@ export const EditUnit = async (data, id) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
     }
@@ -578,7 +580,7 @@ export const GetObjectsAll = async (param) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
     }
@@ -595,7 +597,7 @@ export const GetObjectsOne = async (id) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
     }
@@ -612,7 +614,7 @@ export const DeleteObjects = async (id) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
     }
@@ -629,7 +631,7 @@ export const CreateObjects = async (data) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
     }
@@ -645,7 +647,7 @@ export const EditObjects = async (data, id) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
     }
@@ -662,7 +664,7 @@ export const GetextContractorsAll = async () => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
     }
@@ -679,7 +681,7 @@ export const GetextContractorsOne = async (id) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
     }
@@ -696,7 +698,7 @@ export const DeleteextContractors = async (id) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
     }
@@ -713,7 +715,7 @@ export const CreateextContractors = async (data) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
     }
@@ -730,7 +732,7 @@ export const EditExitContractors = async (data, id) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
     }
@@ -751,7 +753,7 @@ export const SetExtContractorsRequest = async (data) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
     }
@@ -768,7 +770,7 @@ export const CreateCopyRequest = async (id) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
     }
@@ -786,7 +788,7 @@ export const CreateCopyToEquipments = async (id, quantity) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при копировании ТО");
     }
@@ -807,7 +809,7 @@ export const DeleteExtContractorsRequest = async (data) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
     }
@@ -824,7 +826,7 @@ export const DeleteMoreRequest = async (data) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при удалении заявок!");
     }
@@ -841,7 +843,7 @@ export const EditMoreStatusRequest = async (data) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при удалении заявок!");
     }
@@ -858,7 +860,7 @@ export const EditMoreUrgencyRequest = async (data) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при удалении заявок!");
     }
@@ -879,7 +881,7 @@ export const EditMoreContractorRequest = async (data) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при удалении заявок!");
     }
@@ -901,7 +903,7 @@ export const setCommentPhotoApi = async (data) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при удалении заявок!");
     }
@@ -918,7 +920,7 @@ export const GetAllEquipment = async () => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении оборудования!");
     }
@@ -938,7 +940,7 @@ export const UpdateEquipment = async (id, data) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.error(
         "Ошибка при обновлении оборудования!",
@@ -965,7 +967,7 @@ export const UpdatePhotoEquipment = async (id, data) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.error(
         "Ошибка при обновлении оборудования!",
@@ -986,7 +988,7 @@ export const TOEquipment = async (id, data) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.error(
         "Ошибка при обновлении оборудования!",
@@ -1006,7 +1008,7 @@ export const GetOneEquipment = async (id) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при Полученини оборудования по ID!");
     }
@@ -1023,7 +1025,7 @@ export const DeleteEquipment = async (id) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при удалении оборудования!");
     }
@@ -1040,7 +1042,7 @@ export const CreateEquipment = async (data) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при создании оборудования!");
     }
@@ -1057,7 +1059,7 @@ export const GetQrEquipment = async (id) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при удалении номенклатуры!");
     }
@@ -1074,7 +1076,7 @@ export const GetAllCategories = async () => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении списка категорий!");
     }
@@ -1091,7 +1093,7 @@ export const GetOneCategories = async (id) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении списка категорий!");
     }
@@ -1108,7 +1110,7 @@ export const CreateCategories = async (data) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при создании категории!");
     }
@@ -1125,7 +1127,7 @@ export const DeleteCategories = async (id) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при удалении категории!");
     }
@@ -1142,7 +1144,7 @@ export const UpdateCategories = async (id, data) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при удалении категории!");
     }
@@ -1159,7 +1161,7 @@ export const GetAllNomenclatures = async () => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении списка номенклатур!");
     }
@@ -1176,7 +1178,7 @@ export const CreateNomenclatures = async (data) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при создании номенклатуры!");
     }
@@ -1193,7 +1195,7 @@ export const GetOneNomenclatures = async (id) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении списка номенклатур!");
     }
@@ -1210,7 +1212,7 @@ export const UpdateNomenclatures = async (id, data) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при удалении номенклатуры!");
     }
@@ -1227,7 +1229,7 @@ export const DeleteNomenclaturesAPI = async (id) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при удалении номенклатуры!");
     }
@@ -1246,7 +1248,7 @@ export const GetTgUserObjects = async (tgUserId) => {
   } catch (error) {
     console.error('GetTgUserObjects error:', error.response || error);
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении объектов пользователя:", error.response?.data?.message || error.message);
     }
@@ -1267,7 +1269,7 @@ export const GetObjectTgUsers = async (objectId) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении пользователей объекта!");
     }
@@ -1289,7 +1291,7 @@ export const CreateTgUserObject = async (tgUserId, objectId) => {
   } catch (error) {
     console.error('CreateTgUserObject error:', error.response || error);
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при создании связи пользователя с объектом:", error.response?.data?.message || error.message);
     }
@@ -1308,7 +1310,7 @@ export const DeleteTgUserObject = async (tgUserId, objectId) => {
   } catch (error) {
     console.error('DeleteTgUserObject error:', error.response || error);
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при удалении связи пользователя с объектом:", error.response?.data?.message || error.message);
     }
@@ -1326,7 +1328,7 @@ export const GetAllTgUsers = async () => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении списка Telegram пользователей!");
     }
@@ -1343,7 +1345,7 @@ export const GetAllUrgensies = async () => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении списка срочностей!");
     }
@@ -1360,7 +1362,7 @@ export const GetAllManagers = async () => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
       console.log("Ошибка при получении менеджеров!");
@@ -1381,7 +1383,7 @@ export const GetAllAdmins = async () => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
     }
@@ -1398,7 +1400,7 @@ export const CreateUrgency = async (data) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
     }
@@ -1415,7 +1417,7 @@ export const EditUrgency = async (data, id) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
     }
@@ -1432,7 +1434,7 @@ export const DeleteUrgency = async (id) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при удалении номенклатуры!");
     }
@@ -1449,7 +1451,7 @@ export const ChangeUrgency = async (data) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
     }
@@ -1466,7 +1468,7 @@ export const CreateStatus = async (data) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
     }
@@ -1483,7 +1485,7 @@ export const EditStatus = async (data, id) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
     }
@@ -1500,7 +1502,7 @@ export const DeleteStatus = async (id) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при удалении номенклатуры!");
     }
@@ -1517,7 +1519,7 @@ export const GetAllStatuses = async () => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении списка срочностей!");
     }
@@ -1534,7 +1536,7 @@ export const ChangeStatus = async (data) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
     }
@@ -1547,7 +1549,7 @@ export const SendRequestToResetPassword = async (email) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
     }
@@ -1566,7 +1568,7 @@ export const ResetPasswordByToken = async (tokenId, token, newPassword) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.error("Ошибка при сбросе пароля!", error);
       throw error;
@@ -1584,7 +1586,7 @@ export const GetAllSettings = async () => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении списка срочностей!");
     }
@@ -1601,7 +1603,7 @@ export const ChangeSetting = async (settingId, value) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
     }
@@ -1618,7 +1620,7 @@ export const GetAllDirectoryCategories = async () => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении списка срочностей!");
     }
@@ -1635,7 +1637,7 @@ export const SetNewsetNewDirectoryCategory = async (id, data) => {
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {
-      window.location.href = `${process.env.REACT_APP_WEB_URL}/Authorization`;
+      window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении списка срочностей!");
     }

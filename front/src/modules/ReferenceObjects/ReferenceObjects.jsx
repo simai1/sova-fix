@@ -21,6 +21,7 @@ import { resetFilters } from "../../store/samplePoints/samplePoits";
 import ClearImg from "./../../assets/images/ClearFilter.svg"
 import { useDispatch } from "react-redux";
 import NotificationError from "../../components/Notification/NotificationError/NotificationError";
+import { OBJECTS_LIMIT } from "../../constants/env.constant";
 function ReferenceObjects() {
   const [tableDataObject, setTableDataObject] = useState([]);
   const [legalData, setLegalData] = useState([]);
@@ -127,7 +128,7 @@ function ReferenceObjects() {
             closePopUp();
           } else {
               closeErrorPopUpFun(
-                `Максимальное количество объектов в системе: ${process.env.REACT_APP_OBJECTS_LIMIT}`,
+                `Максимальное количество объектов в системе: ${OBJECTS_LIMIT}`,
                 'Чтобы добавить новый объект - обратитесь к вашему менеджеру SOVA-tech'
             );
               return closePopUp();

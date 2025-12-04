@@ -1,5 +1,4 @@
-@import "./../../styles/color.scss";
-@import "./../../styles/mixins.scss";
+@use "@/styles/index" as *;
 
 .Header {
   width: 100%;
