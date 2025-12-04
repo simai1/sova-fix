@@ -1,37 +1,37 @@
-import Authorization from "./pages/Login/Authorization/Authorization";
+import Authorization from "./pages/Login/Authorization/Authorization.jsx";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
-import DataContext from "./context";
+import DataContext from "./context.ts";
 import "./styles/style.css";
-import { tableHeadAppoint, tableList, tableUser } from "./components/Table/Data";
-import HomePageAdmin from "./pages/AdminPages/HomePageAdmin/HomePageAdmin";
-import { GetAllCategories, GetAllEquipment, GetAllNomenclatures, GetAllRequests, GetAllStatuses, GetAllUrgensies, GetAllUsers, GetAllСontractors, GetContractorsItenerarity, GetOneEquipment } from "./API/API";
-import Activate from "./pages/Login/Activate/Activate";
-import { useDispatch, useSelector } from "react-redux";
-import { FilteredSample, funFixEducator } from "./UI/SamplePoints/Function";
-import ReportFinansing from "./pages/AdminPages/Report/ReportFinansing/ReportFinansing";
-import RepotYour from "./pages/AdminPages/Report/RepotYour/RepotIndicators";
+import { tableHeadAppoint } from "./components/Table/Data.js";
+import HomePageAdmin from "./pages/AdminPages/HomePageAdmin/HomePageAdmin.jsx";
+import { GetAllCategories, GetAllEquipment, GetAllNomenclatures, GetAllRequests, GetAllStatuses, GetAllUrgensies, GetAllUsers, GetAllСontractors, GetContractorsItenerarity, GetOneEquipment } from "./API/API.js";
+import Activate from "./pages/Login/Activate/Activate.jsx";
+import { useSelector } from "react-redux";
+import { funFixEducator } from "./UI/SamplePoints/Function.js";
+import ReportFinansing from "./pages/AdminPages/Report/ReportFinansing/ReportFinansing.jsx";
+import RepotYour from "./pages/AdminPages/Report/RepotYour/RepotIndicators.jsx";
 import ReportsContainer from './pages/AdminPages/Reports/Reports.container.tsx'
-import BusinessUnitReference from "./modules/BusinessUnitReference/BusinessUnitReference";
-import DirectoryLegalEntities from "./modules/DirectoryLegalEntities/DirectoryLegalEntities";
-import ReferenceObjects from "./modules/ReferenceObjects/ReferenceObjects";
-import ThePerformersDirectory from "./modules/ThePerformersDirectory/ThePerformersDirectory";
-import Directory from "./pages/AdminPages/Directory/Directory";
-import UsersDirectory from "./modules/UsersDirectory/UsersDirectory";
-import CardPage from "./pages/AdminPages/CardPageTable/CardPage";
-import CardPageModule from "./modules/CardPageModule/CardPageModule";
-import CategoryEquipment from "./modules/CategoryEquipment/CategoryEquipment";
-import Equipment from "./pages/AdminPages/Equipment/Equipment";
-import RangeEquipment from "./modules/RangeEquipment/RangeEquipment";
-import GraphicEquipment from "./modules/GraphicEquipment/GraphicEquipment";
-import EquipmentInfo from "./modules/EquipmentInfo/EquipmentInfo";
-import PageCardContractors from "./pages/AdminPages/PageCardContractors/PageCardContractors";
-import TgUserObjects from "./pages/AdminPages/Directory/TgUserObjects";
-import DirectoryUrgency from "./modules/DirectoryUrgencies/DirectoryUrgency";
-import DirectoryStatuses from "./modules/DirectoryStatuses/DirectoryStatuses";
-import RequestPasswordRequest from "./pages/Login/ResetPasswordRequest/RequestPasswordRequest";
-import ResetPassword from "./pages/Login/ResetPassword/ResetPassword";
-import DirectoryCategory from './modules/DirectoryCategory/DirectoryCategory'
+import BusinessUnitReference from "./modules/BusinessUnitReference/BusinessUnitReference.jsx";
+import DirectoryLegalEntities from "./modules/DirectoryLegalEntities/DirectoryLegalEntities.jsx";
+import ReferenceObjects from "./modules/ReferenceObjects/ReferenceObjects.jsx";
+import ThePerformersDirectory from "./modules/ThePerformersDirectory/ThePerformersDirectory.jsx";
+import Directory from "./pages/AdminPages/Directory/Directory.jsx";
+import UsersDirectory from "./modules/UsersDirectory/UsersDirectory.jsx";
+import CardPage from "./pages/AdminPages/CardPageTable/CardPage.jsx";
+import CardPageModule from "./modules/CardPageModule/CardPageModule.jsx";
+import CategoryEquipment from "./modules/CategoryEquipment/CategoryEquipment.jsx";
+import Equipment from "./pages/AdminPages/Equipment/Equipment.jsx";
+import RangeEquipment from "./modules/RangeEquipment/RangeEquipment.jsx";
+import GraphicEquipment from "./modules/GraphicEquipment/GraphicEquipment.jsx";
+import EquipmentInfo from "./modules/EquipmentInfo/EquipmentInfo.jsx";
+import PageCardContractors from "./pages/AdminPages/PageCardContractors/PageCardContractors.jsx";
+import TgUserObjects from "./pages/AdminPages/Directory/TgUserObjects/index.jsx";
+import DirectoryUrgency from "./modules/DirectoryUrgencies/DirectoryUrgency.jsx";
+import DirectoryStatuses from "./modules/DirectoryStatuses/DirectoryStatuses.jsx";
+import RequestPasswordRequest from "./pages/Login/ResetPasswordRequest/RequestPasswordRequest.jsx";
+import ResetPassword from "./pages/Login/ResetPassword/ResetPassword.jsx";
+import DirectoryCategory from './modules/DirectoryCategory/DirectoryCategory.tsx'
 
 function App() {
   const [selectContructor, setSelectContractor] = useState("")
@@ -220,7 +220,6 @@ const UpdateStatus = () => {
     setSelectRowDirectory,
     selectRowDirectory,
     checkedAllFunc,
-    checkedAll,
     setDataEquipments,
     dataEquipments,
     UpdateDataEquipment,

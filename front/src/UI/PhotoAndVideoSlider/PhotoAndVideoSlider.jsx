@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import styles from "./PhotoAndVideoSlider.module.scss";
+import { API_URL } from "../../constants/env.constant";
 
 const PhotoAndVideoSlider = (props) => {
     const [currentSlideIndex, setCurrentSlideIndex] = useState(props?.initialIndex ?? 0);
@@ -34,13 +35,13 @@ const PhotoAndVideoSlider = (props) => {
                         <video
                             className={styles.sliderVideo}
                             controls
-                            src={`${process.env.REACT_APP_API_URL}/uploads/${
+                            src={`${API_URL}/uploads/${
                                 props?.sliderPhotos[currentSlideIndex]
                             }`}
                         >
                             <source
                                 src={`${
-                                    process.env.REACT_APP_API_URL
+                                    API_URL
                                 }/uploads/${
                                     props?.sliderPhotos[
                                         currentSlideIndex
@@ -51,7 +52,7 @@ const PhotoAndVideoSlider = (props) => {
                         </video>
                     ) : (
                         <img
-                            src={`${process.env.REACT_APP_API_URL}/uploads/${
+                            src={`${API_URL}/uploads/${
                                 props?.sliderPhotos[currentSlideIndex]
                             }`}
                             alt={`Slide ${currentSlideIndex + 1}`}

@@ -1,9 +1,10 @@
 import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
+import { API_URL } from "../../constants/env.constant";
 
 //! Функция генерации файла для скачивания с информацией об оборудовании и историей ТО
 export const generateAndDownloadExcelEquipment = (equipmentData) => {
-  const server = process.env.REACT_APP_API_URL;
+  const server = API_URL;
 
   // Формируем данные для блока "Информация об оборудовании" в виде двух столбцов
   const equipmentInfo = [

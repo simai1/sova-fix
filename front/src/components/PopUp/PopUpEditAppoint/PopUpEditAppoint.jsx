@@ -18,6 +18,7 @@ import notPhoto from "./../../../assets/images/notPhoto.png";
 import { funFixEducator } from "../../../UI/SamplePoints/Function";
 import { normalizeFileNames } from "../../Table/Data";
 import PhotoAndVideoSlider from "../../../UI/PhotoAndVideoSlider/PhotoAndVideoSlider";
+import { API_URL } from "../../../constants/env.constant";
 function PopUpEditAppoint(props) {
   const { context } = React.useContext(DataContext);
   const [dataApStart, setDataApStart] = useState(null);
@@ -298,24 +299,24 @@ function PopUpEditAppoint(props) {
             e.preventDefault(); // Prevent the modal from closing
             e.stopPropagation();
             if (parsedFiles?.length === 1 ) {
-              return openModal(`${process.env.REACT_APP_API_URL}/uploads/${parsedFiles[parsedFiles?.length - 1]}`);
+              return openModal(`${API_URL}/uploads/${parsedFiles[parsedFiles?.length - 1]}`);
             }
             setShowSlider(true)
           }}
           style={{ cursor: "pointer" }}
           className={styles.videoTable}
         >
-          <source src={`${process.env.REACT_APP_API_URL}/uploads/${parsedFiles[0]}`} />
+          <source src={`${API_URL}/uploads/${parsedFiles[0]}`} />
           Your browser does not support the video tag.
         </video>
       </div>
     ) : (
       <img
-        src={`${process.env.REACT_APP_API_URL}/uploads/${parsedFiles[parsedFiles?.length - 1]}`}
+        src={`${API_URL}/uploads/${parsedFiles[parsedFiles?.length - 1]}`}
         alt="Uploaded file"
         onClick={() => {
           if (parsedFiles?.length === 1 ) {
-            return openModal(`${process.env.REACT_APP_API_URL}/uploads/${parsedFiles[parsedFiles?.length - 1]}`);
+            return openModal(`${API_URL}/uploads/${parsedFiles[parsedFiles?.length - 1]}`);
           }
           setShowSlider(true)
         }}

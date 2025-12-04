@@ -1,5 +1,5 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import { DeletelegalEntities, GetlegalEntitiesAll, CreateLegalEntity, CreateLegalEntities, GetlegalEntitiesOne, EditLegalEntities } from "../../API/API"; // Ensure CreateLegalEntity is imported
+import { DeletelegalEntities, GetlegalEntitiesAll, CreateLegalEntities, GetlegalEntitiesOne, EditLegalEntities } from "../../API/API"; // Ensure CreateLegalEntity is imported
 import { tableLagealEntries } from "./DirectoryLegalEntitiesData";
 import UniversalTable from "../../components/UniversalTable/UniversalTable";
 import styles from "./DirectoryLegalEntities.module.scss";

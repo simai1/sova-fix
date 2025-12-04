@@ -25,6 +25,7 @@ import FilteImg from "./../../assets/images/filterColumn.svg";
 import { normalizeFileNames, status } from "./Data";
 import { funFixEducator } from "../../UI/SamplePoints/Function";
 import PhotoAndVideoSlider from "../../UI/PhotoAndVideoSlider/PhotoAndVideoSlider";
+import { API_URL } from "../../constants/env.constant";
 
 function Table() {
   const isJsonString = (str) => {
@@ -869,7 +870,7 @@ function Table() {
                     e.stopPropagation();
                     if (parsedFileNames.length === 1) {
                       return openModal(
-                        `${process.env.REACT_APP_API_URL}/uploads/${parsedFileNames[0]}`
+                        `${API_URL}/uploads/${parsedFileNames[0]}`
                       );
                     } 
                     openPhotoSlider(parsedFileNames);
@@ -878,14 +879,14 @@ function Table() {
                   className={styles.videoTable}
                 >
                   <source
-                    src={`${process.env.REACT_APP_API_URL}/uploads/${parsedFileNames[0]}`}
+                    src={`${API_URL}/uploads/${parsedFileNames[0]}`}
                   />
                   Your browser does not support the video tag.
                 </video>
               </div>
             ) : (
               <img
-                src={`${process.env.REACT_APP_API_URL}/uploads/${isVideo(parsedFileNames[0]) ? parsedFileNames[1] : parsedFileNames[0]}`}
+                src={`${API_URL}/uploads/${isVideo(parsedFileNames[0]) ? parsedFileNames[1] : parsedFileNames[0]}`}
                 alt="Uploaded file"
                 onClick={() => {
                   if (
@@ -894,7 +895,7 @@ function Table() {
                     openPhotoSlider(parsedFileNames);
                   } else {
                     openModal(
-                      `${process.env.REACT_APP_API_URL}/uploads/${parsedFileNames[0]}`
+                      `${API_URL}/uploads/${parsedFileNames[0]}`
                     );
                   }
                 }}
@@ -917,21 +918,21 @@ function Table() {
                     e.preventDefault();
                     e.stopPropagation();
                     openModal(
-                      `${process.env.REACT_APP_API_URL}/uploads/${value}`
+                      `${API_URL}/uploads/${value}`
                     );
                   }}
                   style={{ cursor: "pointer" }}
                   className={styles.videoTable}
                 >
                   <source
-                    src={`${process.env.REACT_APP_API_URL}/uploads/${value}`}
+                    src={`${API_URL}/uploads/${value}`}
                   />
                   Your browser does not support the video tag.
                 </video>
               </div>
             ) : isJsonString(value) ? (
               <img
-                src={`${process.env.REACT_APP_API_URL}/uploads/${
+                src={`${API_URL}/uploads/${
                   JSON.parse(value)[0]
                 }`}
                 alt="Uploaded file"
@@ -941,10 +942,10 @@ function Table() {
               />
             ) : (
               <img
-                src={`${process.env.REACT_APP_API_URL}/uploads/${value}`}
+                src={`${API_URL}/uploads/${value}`}
                 alt="Uploaded file"
                 onClick={() =>
-                  openModal(`${process.env.REACT_APP_API_URL}/uploads/${value}`)
+                  openModal(`${API_URL}/uploads/${value}`)
                 }
                 style={{ cursor: "pointer" }}
                 className={styles.imgTable}

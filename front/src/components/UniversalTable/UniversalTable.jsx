@@ -11,6 +11,7 @@ import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import EquipmentContextMenu from "../../UI/EquipmentContextMenu/EquipmentContextMenu";
 import { getStatusValue } from "./utils";
+import { API_URL } from "../../constants/env.constant";
 
 function UniversalTable(props) {
   const store = useSelector(
@@ -202,9 +203,9 @@ function UniversalTable(props) {
       case "photo":
         return value !== "___" ? (
           <img
-            src={value !== null ? `${process.env.REACT_APP_API_URL}/uploads/${value}` : "/img/noimage.jpg"}
+            src={value !== null ? `${API_URL}/uploads/${value}` : "/img/noimage.jpg"}
             alt="Uploaded file"
-            onClick={() => value !== null && openModal(`${process.env.REACT_APP_API_URL}/uploads/${value}`)}
+            onClick={() => value !== null && openModal(`${API_URL}/uploads/${value}`)}
             style={{ cursor: "pointer" }}
             className={styles.imgTable}
           />
@@ -224,20 +225,20 @@ function UniversalTable(props) {
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    openModal(`${process.env.REACT_APP_API_URL}/uploads/${value}`);
+                    openModal(`${API_URL}/uploads/${value}`);
                   }}
                   style={{ cursor: "pointer" }}
                   className={styles.videoTable}
                 >
-                  <source src={`${process.env.REACT_APP_API_URL}/uploads/${value}`} />
+                  <source src={`${API_URL}/uploads/${value}`} />
                   Your browser does not support the video tag.
                 </video>
               </div>
             ) : (
               <img
-                src={`${process.env.REACT_APP_API_URL}/uploads/${value}`}
+                src={`${API_URL}/uploads/${value}`}
                 alt="Uploaded file"
-                onClick={() => openModal(`${process.env.REACT_APP_API_URL}/uploads/${value}`)}
+                onClick={() => openModal(`${API_URL}/uploads/${value}`)}
                 style={{ cursor: "pointer" }}
                 className={styles.imgTable}
               />
