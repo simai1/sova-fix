@@ -1,4 +1,4 @@
 export interface ReportWorkZoneComponentsProps {
-    isEmptyReport: boolean;
-    isLoadingTableData: boolean;
+  isEmptyReport: boolean;
+  isLoadingTableData: boolean;
 }

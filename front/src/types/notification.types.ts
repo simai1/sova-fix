@@ -1,4 +1,4 @@
 export interface INotification {
-    statusCode: string;
-    message: string;
+  statusCode: string;
+  message: string;
 }

@@ -1,4 +1,4 @@
 export interface ColumnI {
-    key: string
-    value: string
+  key: string;
+  value: string;
 }
