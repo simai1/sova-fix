@@ -1,7 +1,6 @@
-import { GraphicItem } from "../Chart/types";
-
+import { GraphicItem } from '../Chart/types';
 
 export type PieComponentProps = {
-    pieReportData: GraphicItem[];
-    isEmptyChart: boolean;
-}
+  pieReportData: GraphicItem[];
+  isEmptyChart: boolean;
+};

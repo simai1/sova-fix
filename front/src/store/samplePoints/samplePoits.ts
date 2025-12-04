@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface Filter {
   key: string;
@@ -39,13 +39,10 @@ const initialState: SamplePointsState = {
 };
 
 const isSamplePoints = createSlice({
-  name: "isSamplePoints",
+  name: 'isSamplePoints',
   initialState,
   reducers: {
-    setChecked(
-      state,
-      action: PayloadAction<{ tableName: string; checked: any[] }>
-    ) {
+    setChecked(state, action: PayloadAction<{ tableName: string; checked: any[] }>) {
       const { tableName, checked } = action.payload;
       if (!state[tableName]) {
         state[tableName] = createEmptyTableState();
@@ -62,18 +59,13 @@ const isSamplePoints = createSlice({
       state[tableName]!.filters = [];
     },
 
-    setFilters(
-      state,
-      action: PayloadAction<{ tableName: string; filter: any; key: string }>
-    ) {
+    setFilters(state, action: PayloadAction<{ tableName: string; filter: any; key: string }>) {
       const { tableName, filter, key } = action.payload;
       if (!state[tableName]) {
         state[tableName] = createEmptyTableState();
       }
       const filters = state[tableName]!.filters;
-      const idx = filters.findIndex(
-        (item) => item.key === key && item.value === filter
-      );
+      const idx = filters.findIndex((item) => item.key === key && item.value === filter);
 
       const isChecked = state[tableName]!.isChecked;
       const existsInChecked = isChecked.includes(filter);

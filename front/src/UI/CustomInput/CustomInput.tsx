@@ -1,13 +1,14 @@
-import { FC } from "react";
-import { useController, Control } from "react-hook-form";
-import styles from "./styles.module.scss";
+import { FC } from 'react';
+import { useController, Control } from 'react-hook-form';
+
+import styles from './styles.module.scss';
 
 interface CustomInputProps {
   name: string;
   control: Control<any>;
   label?: string;
   placeholder?: string;
-  type?: "text" | "textarea" | "password" | "email";
+  type?: 'text' | 'textarea' | 'password' | 'email';
   maxLength?: number;
   regex?: RegExp;
   required?: boolean | string; // ← можно передать true или сообщение об ошибке
@@ -18,14 +19,14 @@ const CustomInput: FC<CustomInputProps> = ({
   control,
   label,
   placeholder,
-  type = "text",
+  type = 'text',
   maxLength,
   regex,
   required,
 }) => {
   const {
     field: { value, onChange, ref },
-    fieldState: { invalid, error },
+    fieldState: { invalid },
   } = useController({
     name,
     control,
@@ -45,22 +46,22 @@ const CustomInput: FC<CustomInputProps> = ({
   return (
     <div className={styles.formGroup}>
       {label && <label className={styles.label}>{label}</label>}
-      {type !== "textarea" ? (
+      {type !== 'textarea' ? (
         <input
-          className={`${styles.input} ${invalid ? styles.invalid : ""}`}
+          className={`${styles.input} ${invalid ? styles.invalid : ''}`}
           ref={ref}
           type={type}
           placeholder={placeholder}
-          value={value || ""}
+          value={value || ''}
           onChange={handleChange}
           maxLength={maxLength || 75}
         />
       ) : (
         <textarea
-          className={`${styles.textarea} ${invalid ? styles.invalid : ""}`}
+          className={`${styles.textarea} ${invalid ? styles.invalid : ''}`}
           ref={ref}
           placeholder={placeholder}
-          value={value || ""}
+          value={value || ''}
           onChange={handleChange}
           maxLength={maxLength || 300}
         />

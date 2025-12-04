@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 interface BaseContextType {
   selectRowDirectory: string;
@@ -6,7 +6,7 @@ interface BaseContextType {
 type FlexibleContextType = BaseContextType & Record<string, any>;
 
 const DataContext = React.createContext<FlexibleContextType>({
-  selectRowDirectory: "",
+  selectRowDirectory: '',
 });
 
 export default DataContext;

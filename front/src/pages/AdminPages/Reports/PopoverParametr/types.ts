@@ -1,6 +1,8 @@
-import { FilterDataI, ReportsComponentProps } from "../types";
+import { FilterDataI, ReportsComponentProps } from '../types';
 
-export interface PopoverParametrProps extends Pick<ReportsComponentProps, 'handleSetFilterDataValues'> {
-    parametr: keyof FilterDataI
-
+export interface PopoverParametrProps extends Pick<
+  ReportsComponentProps,
+  'handleSetFilterDataValues'
+> {
+  parametr: keyof FilterDataI;
 }

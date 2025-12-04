@@ -1,5 +1,5 @@
-import { CheckboxProps } from "antd";
+import { CheckboxProps } from 'antd';
 
 export interface AntCheckboxProps extends CheckboxProps {
-    labelPosition?: 'left' | 'right'
+  labelPosition?: 'left' | 'right';
 }

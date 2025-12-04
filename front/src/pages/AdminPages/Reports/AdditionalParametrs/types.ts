@@ -1,4 +1,4 @@
 export interface AdditionalParametrsProps {
-    handleReloadTableData: () => void
-    handleResetFilters: () => void
+  handleReloadTableData: () => void;
+  handleResetFilters: () => void;
 }
