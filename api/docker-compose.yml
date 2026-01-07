@@ -12,9 +12,6 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PWD}
       PGDATA: "/var/lib/postgresql/data/pgdata"
-    ports:
-      - "5433:5432"
-    command: -p 5433
     networks:
       - sova-fix-network
     volumes:
