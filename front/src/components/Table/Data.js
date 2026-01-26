@@ -14,6 +14,7 @@ export const tableHeadAppoint = [
   { key: "daysAtWork", value: "Дней в работе", isActive: true  },
   { key: "planCompleteDate", value: "Плановая дата выполнения", isActive: true  },
   { key: "completeDate", value: "Дата выполнения (факт)", isActive: true  },
+  { key: "exitDate", value: "Дата выезда", isActive: true  },
   { key: "repairPrice", value: "Бюджет ремонта", isActive: true  },
   { key: "comment", value: "Комментарий", isActive: true  },
   { key: "commentAttachment", value: "Вложение к комментарию", isActive: true  },

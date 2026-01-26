@@ -201,18 +201,18 @@ const getContractorsItinerary = async (id: string, filter: any): Promise<Request
 // Поиск актуальных заявок по объектам  - 1, 2 и 5 статусы
 export const getContractorsActualRequests = async (contractorId: string, unitId: string, objectId?: string) => {
     const actualStatuses = [1, 2, 5];
-
+    
     const unitObjects = await ObjectDir.findAll({
         where: { unitId },
         attributes: ['id'],
     });
     const unitObjectIds = unitObjects.map(uo => uo.id);
-
+    
     const whereClause: any = {
         status: { [Op.in]: actualStatuses },
         contractorId,
     };
-
+    
     if (objectId) {
         if (unitObjectIds.includes(objectId)) {
             whereClause.objectId = objectId;

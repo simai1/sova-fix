@@ -904,6 +904,7 @@ const setStatus = async (requestId: string, status: number, statusId: string): P
             status === 3
                 ? Math.floor((dateNow.getTime() - request.createdAt.getTime()) / (1000 * 60 * 60 * 24))
                 : undefined,
+        exitDate: status === 5 ? dateNow : null,
     });
 };
 

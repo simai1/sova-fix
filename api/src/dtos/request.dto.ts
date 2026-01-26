@@ -22,6 +22,7 @@ export default class RequestDto {
     planCompleteDate?: string;
     planCompleteDateRaw?: Date;
     completeDate?: string;
+    exitDate?: string;
     completeDateRaw?: Date;
     repairPrice?: number;
     comment?: string;
@@ -37,7 +38,7 @@ export default class RequestDto {
     copiedRequestId?: string;
     managerId?: string | null;
     managerTgId?: string | null;
-    directoryCategory?: DirectoryCategoryDto | null; 
+    directoryCategory?: DirectoryCategoryDto | null;
 
     constructor(model: RepairRequest) {
         this.id = model.id;
@@ -56,6 +57,7 @@ export default class RequestDto {
         this.planCompleteDateRaw = model.planCompleteDate;
         this.completeDate = model.completeDate ? strftime('%d.%m.%y', model.completeDate) : '';
         this.completeDateRaw = model.completeDate;
+        this.exitDate = model.exitDate ? strftime('%d.%m.%y', model.exitDate) : '';
         this.repairPrice = model.repairPrice;
         this.comment = model.comment;
         this.commentAttachment = model.commentAttachment;
@@ -66,12 +68,17 @@ export default class RequestDto {
         this.createdAt = model.createdAt ? strftime('%d.%m.%y', model.createdAt) : '';
         this.createdAtRaw = model.createdAt;
         this.contractor = model.Contractor ? new ContractorDto(model.Contractor) : null;
-        this.contractorManager = model.managerId && model.TgUser ? model.TgUser.name : model.ExtContractor?.name ? "Внешний подрядчик" : null;
+        this.contractorManager =
+            model.managerId && model.TgUser
+                ? model.TgUser.name
+                : model.ExtContractor?.name
+                  ? 'Внешний подрядчик'
+                  : null;
         this.extContractor = model.ExtContractor ? new ExtContractorDto(model.ExtContractor) : null;
         this.isExternal = model.isExternal;
         this.copiedRequestId = model.copiedRequestId;
         this.managerId = model.managerId;
         this.managerTgId = model.managerTgId;
-        this.directoryCategory = model.DirectoryCategory ? new DirectoryCategoryDto(model.DirectoryCategory) : null
+        this.directoryCategory = model.DirectoryCategory ? new DirectoryCategoryDto(model.DirectoryCategory) : null;
     }
 }

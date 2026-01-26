@@ -10,6 +10,7 @@ from util.websocket_worker import WebSocketWorker
 # routers
 from command.common.add_comment import router as add_comment_router
 from command.common.request_done import router as request_done_router
+from command.common.request_exit_not_done import router as request_exit_not_done
 from command.contractor.show_contractor_requests import router as show_contractor_requests_command_router
 from command.contractor.show_itinerary import router as show_itinerary_router
 from command.common.create_repair_request import router as create_repair_request_command_router
@@ -38,6 +39,7 @@ routers = [
     show_contractor_requests_command_router,
     show_itinerary_router,
     request_done_router,
+    request_exit_not_done,
     add_comment_router,
     show_requests_admin_router,
     pagination_router,
