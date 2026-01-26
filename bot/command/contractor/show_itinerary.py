@@ -58,8 +58,14 @@ async def show_more_requests(query: CallbackQuery, state: FSMContext) -> None:
 async def send_rr_for_itinerary(message: Message, repair_reqest: dict) -> None:
     if repair_reqest['status'] == 3:
         kb = IKM(inline_keyboard=[[IKB(text='Добавить комментарий 📝', callback_data=f'add_comment:{repair_reqest["id"]}')]])
+    elif repair_reqest['status'] == 5:
+        kb = IKM(inline_keyboard=[
+            [IKB(text='Выполнено ✅', callback_data=f'con:done:{repair_reqest["id"]}')],
+            [IKB(text='Добавить комментарий 📝', callback_data=f'add_comment:{repair_reqest["id"]}')]
+        ])
     else:
         kb = IKM(inline_keyboard=[
+            [IKB(text='Выезд без выполнения 🚫', callback_data=f'con:exit_not_done:{repair_reqest["id"]}')],
             [IKB(text='Выполнено ✅', callback_data=f'con:done:{repair_reqest["id"]}')],
             [IKB(text='Добавить комментарий 📝', callback_data=f'add_comment:{repair_reqest["id"]}')]
         ])

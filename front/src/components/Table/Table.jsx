@@ -956,6 +956,7 @@ function Table() {
           "___"
         );
       case "createdAt":
+      case "exitDate": 
       case "completeDate":
         return (
           <p key={key + row.id} style={{ whiteSpace: "nowrap" }}>

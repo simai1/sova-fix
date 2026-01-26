@@ -33,6 +33,9 @@ def not_relevant_btn(repair_request: dict) -> IKB:
 def done_btn(repair_request: dict) -> IKB:
     return IKB(text='Выполнено ✅', callback_data=f"done:{repair_request['id']}")
 
+def exit_not_done_btn(repair_request: dict) -> IKB:
+    return IKB(text='Выезд без выполнения 🚫', callback_data=f"exit_not_done:{repair_request['id']}")
+
 
 def set_contractor_btn(repair_request: dict) -> IKB:
     return IKB(text="Назначить исполнителя 👨‍🔧", callback_data=f"set_con:{repair_request['id']}")
@@ -97,6 +100,10 @@ def rr_contractor_kb(repair_request: dict) -> IKM:
         status = repair_request.get('status')
         logger.info(f"Не удалось преобразовать статус {repair_request.get('status')} в int для contractor kb")
 
+    if status != 5: # Не "Выезд без выполнения"
+        row = [exit_not_done_btn(repair_request)]
+        arr_kb.append(row)
+
     if status != 3:  # Не "выполнена"
         row = [done_btn(repair_request)]
         arr_kb.append(row)
@@ -109,7 +116,6 @@ def rr_contractor_kb(repair_request: dict) -> IKM:
     arr_kb.append(row)
 
     return IKM(inline_keyboard=arr_kb)
-
 
 def rr_manager_assigned_kb(repair_request: dict) -> IKM:
     arr_kb = []

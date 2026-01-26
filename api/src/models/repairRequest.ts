@@ -20,6 +20,7 @@ export default class RepairRequest extends Model {
     itineraryOrder?: number;
     planCompleteDate?: Date;
     completeDate?: Date;
+    exitDate?: Date;
     repairPrice?: number;
     comment?: string;
     commentAttachment?: string;
@@ -45,7 +46,7 @@ export default class RepairRequest extends Model {
     isAutoCreated!: boolean;
     copiedRequestId?: string;
     DirectoryCategory?: DirectoryCategory;
-    directoryCategoryId?: string | null
+    directoryCategoryId?: string | null;
 
     static initialize(sequelize: Sequelize) {
         RepairRequest.init(
@@ -96,6 +97,10 @@ export default class RepairRequest extends Model {
                     allowNull: true,
                 },
                 completeDate: {
+                    type: DataTypes.DATE,
+                    allowNull: true,
+                },
+                exitDate: {
                     type: DataTypes.DATE,
                     allowNull: true,
                 },

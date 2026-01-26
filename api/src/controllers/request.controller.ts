@@ -193,6 +193,7 @@ const removeExtContractor = catchAsync(async (req, res) => {
 
 const setStatus = catchAsync(async (req, res) => {
     const { requestId, status } = req.body;
+    console.log('status', status)
     if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
     if (!status) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing status');
     const statusFromDb = await Status.findOne({ where: { number: status } });

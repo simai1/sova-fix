@@ -10,7 +10,7 @@ async function initializeDbModels() {
 
     await seedInitialSettings();
 
-    console.log('initial settings initialized')
+    console.log('initial settings initialized');
 }
 
 export default {
