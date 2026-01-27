@@ -3,9 +3,8 @@ import Contractor from '../models/contractor';
 import RequestDto from '../dtos/request.dto';
 import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
-import contractorService from './contractor.service';
-import { literal, Op, Sequelize, where } from 'sequelize';
-import { mapStatusesRuLocale, statusesRuLocale } from '../config/statuses';
+import { Op } from 'sequelize';
+import { statusesRuLocale } from '../config/statuses';
 import sequelize from 'sequelize';
 import { sendMsg, WsMsgData } from '../utils/ws';
 import TgUser from '../models/tgUser';
@@ -30,25 +29,25 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
         let requests;
         const whereParams: any = {};
         const allStatuses = await Status.findAll();
-        
+
         if (userId) {
             let objectIdsForUser: string[] | null = null;
-            const user = await User.findOne({ where: {id: userId}})
+            const user = await User.findOne({ where: { id: userId } });
             if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'User is Not Founded');
             const tgUser = await TgUser.findOne({ where: { id: user?.tgManagerId } });
-          
+
             if (tgUser?.role === 3) {
-              const userObjects = await TgUserObject.findAll({ where: { tg_user_id: user?.tgManagerId } });
-              objectIdsForUser = userObjects.map(obj => obj.objectId);
-          
-              // Если пользователь с ролью 3 и нет привязанных объектов — фильтруем по пустому массиву (не вернёт ничего)
-              if (objectIdsForUser.length === 0) {
-                whereParams['$Object.id$'] = { [Op.in]: [] };
-              } else {
-                whereParams['$Object.id$'] = { [Op.in]: objectIdsForUser };
-              }
+                const userObjects = await TgUserObject.findAll({ where: { tg_user_id: user?.tgManagerId } });
+                objectIdsForUser = userObjects.map(obj => obj.objectId);
+
+                // Если пользователь с ролью 3 и нет привязанных объектов — фильтруем по пустому массиву (не вернёт ничего)
+                if (objectIdsForUser.length === 0) {
+                    whereParams['$Object.id$'] = { [Op.in]: [] };
+                } else {
+                    whereParams['$Object.id$'] = { [Op.in]: objectIdsForUser };
+                }
             }
-          }
+        }
         Object.keys(filter).forEach((key: string) => {
             if (key === 'search') {
                 return;
@@ -129,24 +128,20 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
                     }
                 }
             } else if (fieldName === 'directoryCategory') {
-                whereParams['$DirectoryCategory.name$'] = isExclusion
-                    ? { [Op.notIn]: value }
-                    : { [Op.in]: value };
+                whereParams['$DirectoryCategory.name$'] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
             } else if (fieldName === 'object') {
                 whereParams['$Object.name$'] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
             } else if (fieldName === 'unit') {
                 whereParams['$Unit.name$'] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
             } else if (fieldName === 'status') {
-                const statusMap = Object.fromEntries(
-                    allStatuses.map((s) => [s.name.toLowerCase().trim(), s.number])
-                );
+                const statusMap = Object.fromEntries(allStatuses.map(s => [s.name.toLowerCase().trim(), s.number]));
                 value = value.map((v: any) => {
                     if (!isNaN(Number(v))) return Number(v);
-            
+
                     const mapped = statusMap[v.toLowerCase().trim()];
                     if (!mapped) throw new Error(`Неизвестный статус: ${v}`);
                     return mapped;
-                  });
+                });
                 whereParams[fieldName] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
             } else if (fieldName === 'checkPhoto') {
                 whereParams[fieldName] = value.includes(null)
@@ -175,15 +170,12 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
                     // since some old records might have numeric managerId
                     const managerConditions = [
                         { [fieldName]: String(managerIdValue) },
-                        { [fieldName]: Number(managerIdValue) }
+                        { [fieldName]: Number(managerIdValue) },
                     ];
-                    
+
                     // If there's already an Op.or condition, merge with it
                     if (whereParams[Op.or]) {
-                        whereParams[Op.and] = [
-                            { [Op.or]: whereParams[Op.or] },
-                            { [Op.or]: managerConditions }
-                        ];
+                        whereParams[Op.and] = [{ [Op.or]: whereParams[Op.or] }, { [Op.or]: managerConditions }];
                         delete whereParams[Op.or];
                     } else {
                         whereParams[Op.or] = managerConditions;
@@ -196,88 +188,88 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
             } else if (fieldName === 'builder') {
                 const isExternalManager = value.includes('Менеджер: Внешний подрядчик');
                 const hasUnknownBuilder = value.includes('Укажите подрядчика');
-            
+
                 if (isExclusion) {
                     const andConditions: any[] = [];
-                  
+
                     if (isExternalManager) {
                         andConditions.push(
-                          // Убираем, если ExtContractor.name = null
-                          { '$ExtContractor.name$': { [Op.is]: null } },
-                          
-                          // Убираем заявки, где и Contractor.name, и ExtContractor.name пустые
-                          {
-                            [Op.or]: [
-                              {
+                            // Убираем, если ExtContractor.name = null
+                            { '$ExtContractor.name$': { [Op.is]: null } },
+
+                            // Убираем заявки, где и Contractor.name, и ExtContractor.name пустые
+                            {
                                 [Op.or]: [
-                                  { '$Contractor.name$': { [Op.not]: null } },
-                                  { '$ExtContractor.name$': { [Op.not]: null } },
+                                    {
+                                        [Op.or]: [
+                                            { '$Contractor.name$': { [Op.not]: null } },
+                                            { '$ExtContractor.name$': { [Op.not]: null } },
+                                        ],
+                                    },
+                                    {
+                                        builder: {
+                                            [Op.and]: [
+                                                { [Op.iLike]: 'Менеджер:%' },
+                                                { [Op.notILike]: 'Менеджер: Внешний подрядчик' },
+                                            ],
+                                        },
+                                    },
+                                    {
+                                        builder: {
+                                            [Op.or]: [
+                                                { [Op.notILike]: 'Укажите подрядчика' }, // для случаев без 'Менеджер:'
+                                                { [Op.notILike]: 'Менеджер: Внешний подрядчик' },
+                                            ],
+                                        },
+                                    },
                                 ],
-                              },
-                              {
-                                builder: {
-                                  [Op.and]: [
-                                    { [Op.iLike]: 'Менеджер:%' },
-                                    { [Op.notILike]: 'Менеджер: Внешний подрядчик' },
-                                  ],
-                                },
-                              },
-                              {
-                                builder: {
-                                  [Op.or]: [
-                                    { [Op.notILike]: 'Укажите подрядчика' }, // для случаев без 'Менеджер:'
-                                    { [Op.notILike]: 'Менеджер: Внешний подрядчик' },
-                                  ],
-                                },
-                              },
-                            ],
-                          },                          
-                          // Убираем builder, кроме "Менеджер: Внешний подрядчик"
-                          {
-                            builder: {
-                              [Op.notIn]: value.filter((v: string) => v !== 'Менеджер: Внешний подрядчик'),
                             },
-                          }
-                        );
-                      }
-                  
-                    if (hasUnknownBuilder) {
-                      andConditions.push(
-                        {
-                          builder: {
-                            [Op.notIn]: value,
-                          },
-                        },
-                        {
-                          [Op.not]: {
-                            [Op.and]: [
-                              {
+                            // Убираем builder, кроме "Менеджер: Внешний подрядчик"
+                            {
                                 builder: {
-                                  [Op.in]: ['Укажите подрядчика', 'Внутренний сотрудник'],
+                                    [Op.notIn]: value.filter((v: string) => v !== 'Менеджер: Внешний подрядчик'),
                                 },
-                              },
-                              {
-                                [Op.or]: [
-                                  { '$Contractor.id$': { [Op.is]: null } },
-                                  { '$Contractor.name$': { [Op.is]: null } },
-                                ],
-                              },
-                            ],
-                          },
-                        }
-                      );
+                            }
+                        );
                     }
-                  
+
+                    if (hasUnknownBuilder) {
+                        andConditions.push(
+                            {
+                                builder: {
+                                    [Op.notIn]: value,
+                                },
+                            },
+                            {
+                                [Op.not]: {
+                                    [Op.and]: [
+                                        {
+                                            builder: {
+                                                [Op.in]: ['Укажите подрядчика', 'Внутренний сотрудник'],
+                                            },
+                                        },
+                                        {
+                                            [Op.or]: [
+                                                { '$Contractor.id$': { [Op.is]: null } },
+                                                { '$Contractor.name$': { [Op.is]: null } },
+                                            ],
+                                        },
+                                    ],
+                                },
+                            }
+                        );
+                    }
+
                     if (!isExternalManager && !hasUnknownBuilder) {
-                      whereParams[fieldName] = {
-                        [Op.notIn]: value,
-                      };
+                        whereParams[fieldName] = {
+                            [Op.notIn]: value,
+                        };
                     } else {
-                      whereParams[Op.and] = andConditions;
+                        whereParams[Op.and] = andConditions;
                     }
-                  } else {
+                } else {
                     const orConditions: any[] = [];
-            
+
                     if (isExternalManager) {
                         // Включаем: есть внешний подрядчик ИЛИ builder совпадает
                         orConditions.push(
@@ -287,7 +279,7 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
                     } else {
                         orConditions.push({ builder: { [Op.in]: value } });
                     }
-            
+
                     if (hasUnknownBuilder) {
                         // Включаем, но исключаем случаи без contractor
                         whereParams[Op.and] = [
@@ -316,9 +308,7 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
                         whereParams[Op.or] = orConditions;
                     }
                 }
-            }
-            
-            else {
+            } else {
                 whereParams[fieldName] = isExclusion ? { [Op.notIn]: value } : { [Op.in]: value };
             }
         });
@@ -493,14 +483,14 @@ const createRequest = async (
     comment: string | undefined,
     fileName: string,
     tgUserId: string,
-    directoryCategoryId: string | undefined,
+    directoryCategoryId: string | undefined
 ): Promise<RequestDto> => {
     const objectDir = await objectService.getObjectById(objectId);
     if (!objectDir) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found object with id ' + objectId);
     if (!objectDir.Unit) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found unit');
     if (!objectDir.LegalEntity) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found LegalEntity');
     const urgencyRecord = await Urgency.findOne({ where: { name: urgency } });
-    if (!urgencyRecord) throw new ApiError(httpStatus.BAD_REQUEST, `Urgency "${urgency}" not found`)
+    if (!urgencyRecord) throw new ApiError(httpStatus.BAD_REQUEST, `Urgency "${urgency}" not found`);
 
     const request = await RepairRequest.create({
         unitId: objectDir.Unit.id,
@@ -520,7 +510,7 @@ const createRequest = async (
     request.Unit = objectDir.Unit;
     request.LegalEntity = objectDir.LegalEntity;
 
-    if (directoryCategoryId) await updateDirectoryCategoryBuilder(request.id, directoryCategoryId)
+    if (directoryCategoryId) await updateDirectoryCategoryBuilder(request.id, directoryCategoryId);
 
     sendMsg({
         msg: {
@@ -539,13 +529,13 @@ const createRequestWithoutPhoto = async (
     repairPrice: number | undefined,
     comment: string | undefined,
     tgUserId: string,
-    directoryCategoryId: string | undefined,
+    directoryCategoryId: string | undefined
 ): Promise<RequestDto> => {
     const objectDir = await objectService.getObjectById(objectId);
     if (!objectDir) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found object with id ' + objectId);
     if (!objectDir.Unit) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found unit');
     if (!objectDir.LegalEntity) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found LegalEntity');
-    
+
     const request = await RepairRequest.create({
         unitId: objectDir.Unit.id,
         objectId,
@@ -559,13 +549,13 @@ const createRequestWithoutPhoto = async (
         number: 0,
         directoryCategoryId: directoryCategoryId ? directoryCategoryId : null,
     });
-    
+
     request.Object = objectDir;
     request.Unit = objectDir.Unit;
     request.LegalEntity = objectDir.LegalEntity;
 
-    if (directoryCategoryId) await updateDirectoryCategoryBuilder(request.id, directoryCategoryId)
-    
+    if (directoryCategoryId) await updateDirectoryCategoryBuilder(request.id, directoryCategoryId);
+
     sendMsg({
         msg: {
             requestId: request.id,
@@ -573,7 +563,7 @@ const createRequestWithoutPhoto = async (
         },
         event: 'REQUEST_CREATE',
     } as WsMsgData);
-    
+
     return new RequestDto(request);
 };
 
@@ -585,16 +575,13 @@ const createRequestWithMultiplePhotos = async (
     comment: string | undefined,
     fileNames: string[],
     tgUserId: string,
-    directoryCategoryId: string | undefined,
+    directoryCategoryId: string | undefined
 ): Promise<RequestDto> => {
     const objectDir = await objectService.getObjectById(objectId);
     if (!objectDir) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found object with id ' + objectId);
     if (!objectDir.Unit) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found unit');
     if (!objectDir.LegalEntity) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found LegalEntity');
-    
-    const mainPhoto = fileNames[0];
-    const additionalPhotos = fileNames.slice(1);
-    
+
     const request = await RepairRequest.create({
         unitId: objectDir.Unit.id,
         objectId,
@@ -607,15 +594,15 @@ const createRequestWithMultiplePhotos = async (
         commentAttachment: null,
         createdBy: tgUserId,
         number: 0,
-        directoryCategoryId: directoryCategoryId ? directoryCategoryId : null
+        directoryCategoryId: directoryCategoryId ? directoryCategoryId : null,
     });
-    
+
     request.Object = objectDir;
     request.Unit = objectDir.Unit;
     request.LegalEntity = objectDir.LegalEntity;
 
-    if (directoryCategoryId) await updateDirectoryCategoryBuilder(request.id, directoryCategoryId)
-    
+    if (directoryCategoryId) await updateDirectoryCategoryBuilder(request.id, directoryCategoryId);
+
     sendMsg({
         msg: {
             requestId: request.id,
@@ -623,7 +610,7 @@ const createRequestWithMultiplePhotos = async (
         },
         event: 'REQUEST_CREATE',
     } as WsMsgData);
-    
+
     return new RequestDto(request);
 };
 
@@ -632,13 +619,13 @@ const setContractor = async (requestId: string, contractorId: string, managerId?
         const request = await RepairRequest.findByPk(requestId);
         if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
         const oldStatus = request.status;
-        
+
         // Обработка случая с менеджером как исполнителем
         if (managerId) {
             logger.info(`Setting manager/admin with ID: ${managerId} for request: ${requestId}`);
-            
+
             let manager = null;
-            
+
             // First, try to find a TgUser (manager) with this ID
             try {
                 manager = await TgUser.findByPk(managerId);
@@ -648,7 +635,7 @@ const setContractor = async (requestId: string, contractorId: string, managerId?
             } catch (error) {
                 logger.error(`Error looking up TgUser manager: ${error}`);
             }
-            
+
             if (manager) {
                 await request.update({
                     managerId: managerId,
@@ -658,13 +645,15 @@ const setContractor = async (requestId: string, contractorId: string, managerId?
                     contractorId: null,
                     extContractorId: null,
                     isExternal: false,
-                    builder: `Менеджер: ${manager.name}`
+                    builder: `Менеджер: ${manager.name}`,
                 });
-                
-                logger.info(`Заявка ${requestId} назначена менеджеру ${manager.name}, установлены поля: managerId=${managerId}, managerTgId=${manager.tgId}`);
-                
+
+                logger.info(
+                    `Заявка ${requestId} назначена менеджеру ${manager.name}, установлены поля: managerId=${managerId}, managerTgId=${manager.tgId}`
+                );
+
                 const customer = await TgUser.findByPk(request.createdBy);
-                
+
                 sendMsg({
                     msg: {
                         newStatus: 2,
@@ -672,36 +661,38 @@ const setContractor = async (requestId: string, contractorId: string, managerId?
                         requestId: requestId,
                         contractor: null,
                         customer: customer ? customer.tgId : null,
-                        tgUser: manager.tgId
+                        tgUser: manager.tgId,
                     },
                     event: 'STATUS_UPDATE',
                 } as WsMsgData);
-                
+
                 return;
             }
         }
-        
+
         // Обработка "Внешний подрядчик"
-        if (contractorId && typeof contractorId === 'string' && 
-            (contractorId.toLowerCase() === 'внешний подрядчик' || 
-             contractorId.toLowerCase() === 'external contractor' || 
-             contractorId === 'external')) {
-            
+        if (
+            contractorId &&
+            typeof contractorId === 'string' &&
+            (contractorId.toLowerCase() === 'внешний подрядчик' ||
+                contractorId.toLowerCase() === 'external contractor' ||
+                contractorId === 'external')
+        ) {
             logger.info(`Setting external contractor for request: ${requestId}`);
-            
-            await request.update({ 
-                contractorId: null, 
+
+            await request.update({
+                contractorId: null,
                 managerId: null,
                 managerTgId: null,
-                builder: 'Внешний подрядчик', 
+                builder: 'Внешний подрядчик',
                 isExternal: true,
                 status: 2,
                 daysAtWork: 1,
-                ExtContractorId: null
+                ExtContractorId: null,
             });
-            
+
             const customer = await TgUser.findByPk(request.createdBy);
-            
+
             sendMsg({
                 msg: {
                     newStatus: 2,
@@ -712,10 +703,10 @@ const setContractor = async (requestId: string, contractorId: string, managerId?
                 },
                 event: 'STATUS_UPDATE',
             } as WsMsgData);
-            
+
             return;
         }
-        
+
         // Проверяем существование подрядчика с переданным ID
         if (contractorId) {
             try {
@@ -724,9 +715,9 @@ const setContractor = async (requestId: string, contractorId: string, managerId?
                     logger.error(`Contractor with ID ${contractorId} not found`);
                     throw new ApiError(httpStatus.BAD_REQUEST, `Contractor with ID ${contractorId} not found`);
                 }
-                
+
                 logger.info(`Setting contractor ${contractor.name} (ID: ${contractorId}) for request: ${requestId}`);
-                
+
                 await request.update({
                     contractorId,
                     managerId: null,
@@ -737,10 +728,10 @@ const setContractor = async (requestId: string, contractorId: string, managerId?
                     extContractorId: null,
                     isExternal: false,
                 });
-                
+
                 const customer = await TgUser.findByPk(request.createdBy);
                 const tgContractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
-                
+
                 sendMsg({
                     msg: {
                         newStatus: 2,
@@ -769,23 +760,23 @@ const setContractor = async (requestId: string, contractorId: string, managerId?
 const setExtContractor = async (requestId: string, extContractorId: string): Promise<void> => {
     try {
         logger.info(`Setting external contractor ${extContractorId} for request ${requestId}`);
-        
+
         // Находим заявку
         const request = await RepairRequest.findByPk(requestId);
         if (!request) {
             logger.error(`Request with id ${requestId} not found`);
             throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
         }
-        
+
         // Находим внешнего подрядчика
         const extContractor = await ExtContractor.findByPk(extContractorId);
         if (!extContractor) {
             logger.error(`External contractor with id ${extContractorId} not found`);
             throw new ApiError(httpStatus.BAD_REQUEST, 'Not found external contractor');
         }
-        
+
         const oldStatus = request.status;
-        
+
         // Обновляем заявку
         logger.info(`Updating request ${requestId} with external contractor ${extContractor.name}`);
         await request.update({
@@ -796,12 +787,12 @@ const setExtContractor = async (requestId: string, extContractorId: string): Pro
             status: 2,
             daysAtWork: 1,
             builder: extContractor.name,
-            isExternal: true
+            isExternal: true,
         });
 
         // Находим заказчика для отправки уведомления
         const customer = await TgUser.findByPk(request.createdBy);
-        
+
         // Отправляем уведомление
         sendMsg({
             msg: {
@@ -858,7 +849,9 @@ const setCommentAttachment = async (requestId: string, filename: string): Promis
     const currentFiles = normalizeFileNames(request.fileName);
 
     const updatedFiles = [...currentFiles, filename];
-    await request.update({ fileName: updatedFiles.length >= 5 ? JSON.stringify(currentFiles) : JSON.stringify(updatedFiles) });
+    await request.update({
+        fileName: updatedFiles.length >= 5 ? JSON.stringify(currentFiles) : JSON.stringify(updatedFiles),
+    });
 
     return new RequestDto(request);
 };
@@ -909,33 +902,33 @@ const setStatus = async (requestId: string, status: number, statusId: string): P
 };
 
 const updateDirectoryCategoryBuilder = async (requestId: string, directoryCategoryId: string) => {
-    const autoSetting = await Settings.findOne({where: {setting: 'is_auto_set_category'}})
+    const autoSetting = await Settings.findOne({ where: { setting: 'is_auto_set_category' } });
     if (!autoSetting) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found is_auto_set_category');
-    if (!autoSetting?.value) return
-    const directoryCategory = await DirectoryCategory.findByPk(directoryCategoryId)
+    if (!autoSetting?.value) return;
+    const directoryCategory = await DirectoryCategory.findByPk(directoryCategoryId);
     if (!directoryCategory) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found directoryCategory');
 
     if (!directoryCategory.isExternal && directoryCategory.builderId) {
-        return await setContractor(requestId, directoryCategory.builderId)
+        return await setContractor(requestId, directoryCategory.builderId);
     }
 
     if (directoryCategory.isExternal && directoryCategory.builderExternalId) {
-        return await setExtContractor(requestId, directoryCategory.builderExternalId)
+        return await setExtContractor(requestId, directoryCategory.builderExternalId);
     }
 
     if (directoryCategory.isManager && directoryCategory.managerId) {
-        return await setManager(requestId, directoryCategory.managerId)
+        return await setManager(requestId, directoryCategory.managerId);
     }
-}
+};
 
 const setNewDirectoryCategory = async (requestId: string, directoryCategoryId: string) => {
     const request = await RepairRequest.findByPk(requestId);
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
 
-    await updateDirectoryCategoryBuilder(requestId, directoryCategoryId)
+    await updateDirectoryCategoryBuilder(requestId, directoryCategoryId);
 
-    await request.update({directoryCategoryId})
-}
+    await request.update({ directoryCategoryId });
+};
 
 const deleteRequest = async (requestId: string): Promise<void> => {
     const request = await RepairRequest.findByPk(requestId);
@@ -960,19 +953,19 @@ const update = async (
 ): Promise<void> => {
     const request = await RepairRequest.findByPk(requestId);
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found request with id ' + requestId);
-    
+
     logger.info({
         level: 'info',
         message: `Updating repair request ${requestId}`,
         fields: {
             originalManagerTgId: request.managerTgId,
             newManagerTgId: managerTgId,
-            originalManagerId: request.managerId
-        }
+            originalManagerId: request.managerId,
+        },
     });
-    
+
     const updateData: any = {};
-    
+
     if (objectId) updateData.objectId = objectId;
     if (problemDescription !== undefined) updateData.problemDescription = problemDescription;
     if (urgency) updateData.urgency = urgency;
@@ -984,9 +977,9 @@ const update = async (
     if (builder !== undefined) updateData.builder = builder;
     if (planCompleteDate !== undefined) updateData.planCompleteDate = planCompleteDate;
     if (managerTgId !== undefined) updateData.managerTgId = managerTgId;
-    
+
     await request.update(updateData);
-    
+
     // Если статус обновлен на "выполнено", устанавливаем дату завершения
     if (status === 3) {
         const dateNow = new Date();
@@ -1011,7 +1004,7 @@ const update = async (
             event: 'STATUS_UPDATE',
         } as WsMsgData);
     }
-    
+
     if (typeof urgency !== 'undefined' && urgency !== request.urgency) {
         const customer = await TgUser.findByPk(request.createdBy);
         const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
@@ -1026,7 +1019,7 @@ const update = async (
             event: 'URGENCY_UPDATE',
         } as WsMsgData);
     }
-    
+
     if (typeof comment !== 'undefined' && comment !== request.comment) {
         const customer = await TgUser.findByPk(request.createdBy);
         const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
@@ -1078,10 +1071,10 @@ const getCustomersRequests = async (tgUserId: string, filter: any): Promise<Requ
         k === 'search'
             ? null
             : k !== 'contractor'
-            ? (whereParams[k] = filter[k])
-            : (whereParams['$Contractor.name$'] = filter[k])
+              ? (whereParams[k] = filter[k])
+              : (whereParams['$Contractor.name$'] = filter[k])
     );
-    
+
     try {
         const userObjects = await (models.TgUserObject as any).findAll({
             where: { tgUserId },
@@ -1101,7 +1094,7 @@ const getCustomersRequests = async (tgUserId: string, filter: any): Promise<Requ
         whereParams.objectId = {
             [Op.in]: objectIds,
         };
-        
+
         if (Object.keys(filter).length !== 0 && typeof filter.search !== 'undefined') {
             const searchParams: any[] = [
                 {
@@ -1132,7 +1125,7 @@ const getCustomersRequests = async (tgUserId: string, filter: any): Promise<Requ
                 searchParams.push({ itineraryOrder: { [Op.eq]: filter.search } });
                 searchParams.push({ daysAtWork: { [Op.eq]: filter.search } });
             }
-            
+
             requests = await RepairRequest.findAll({
                 where: {
                     [Op.and]: [
@@ -1168,12 +1161,12 @@ const getCustomersRequests = async (tgUserId: string, filter: any): Promise<Requ
                 order: [['number', 'desc']],
             });
         }
-        
+
         logger.log({
             level: 'info',
             message: `Found ${requests.length} requests for tgUser: ${tgUserId} based on user's objects`,
         });
-        
+
         return requests.map(r => new RequestDto(r));
     } catch (error) {
         logger.log({
@@ -1187,7 +1180,7 @@ const getCustomersRequests = async (tgUserId: string, filter: any): Promise<Requ
 
 const addCheck = async (requestId: string, fileName: string): Promise<void> => {
     await RepairRequest.update({ checkPhoto: fileName }, { where: { id: requestId } });
-    const status = await Status.findOne({where: {number: 3}})
+    const status = await Status.findOne({ where: { number: 3 } });
     if (!status) throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid status');
     await setStatus(requestId, 3, status.id);
 };
@@ -1206,8 +1199,13 @@ const bulkSetStatus = async (ids: object, status: number): Promise<void> => {
     if (repairRequests.length === 0) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found any requests');
     for (const request of repairRequests) {
         const oldStatus = request.status;
-        await request.update({ status });
-        
+        const dateNow = new Date();
+        await request.update({
+            status,
+            exitDate: status === 5 ? dateNow : null,
+            completeDate: status === 3 ? dateNow : null,
+        });
+
         // Отправляем уведомление о смене статуса
         const customer = await TgUser.findByPk(request.createdBy);
         const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
@@ -1230,7 +1228,7 @@ const bulkSetUrgency = async (ids: object, urgency: string): Promise<void> => {
     for (const request of repairRequests) {
         const oldUrgency = request.urgency;
         await request.update({ urgency });
-        
+
         // Отправляем уведомление о смене срочности
         const customer = await TgUser.findByPk(request.createdBy);
         const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
@@ -1314,15 +1312,17 @@ const getRequestsByObjects = async (tgUserId: string, filter: any): Promise<Requ
 const setManager = async (requestId: string, managerId: string): Promise<void> => {
     const request = await RepairRequest.findByPk(requestId);
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
-    
+
     const oldStatus = request.status;
-    
+
     // Find the manager
     const manager = await TgUser.findByPk(managerId);
     if (!manager) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found manager with id ' + managerId);
-    
-    logger.info(`Назначение менеджера ${manager.name} (ID: ${managerId}, tgId: ${manager.tgId}) исполнителем для заявки: ${requestId}`);
-    
+
+    logger.info(
+        `Назначение менеджера ${manager.name} (ID: ${managerId}, tgId: ${manager.tgId}) исполнителем для заявки: ${requestId}`
+    );
+
     // Update the request with both managerId and managerTgId
     await request.update({
         managerId,
@@ -1332,14 +1332,16 @@ const setManager = async (requestId: string, managerId: string): Promise<void> =
         contractorId: null,
         ExtContractorId: null,
         isExternal: false,
-        builder: `Менеджер: ${manager.name}`
+        builder: `Менеджер: ${manager.name}`,
     });
-    
-    logger.info(`Заявка ${requestId} успешно обновлена, установлены поля: managerId=${managerId}, managerTgId=${manager.tgId}`);
-    
+
+    logger.info(
+        `Заявка ${requestId} успешно обновлена, установлены поля: managerId=${managerId}, managerTgId=${manager.tgId}`
+    );
+
     // Send notification
     const customer = await TgUser.findByPk(request.createdBy);
-    
+
     sendMsg({
         msg: {
             newStatus: 2,
@@ -1347,50 +1349,50 @@ const setManager = async (requestId: string, managerId: string): Promise<void> =
             requestId: requestId,
             contractor: null,
             customer: customer ? customer.tgId : null,
-            tgUser: manager.tgId
+            tgUser: manager.tgId,
         },
         event: 'STATUS_UPDATE',
     } as WsMsgData);
 };
 
-const changeUrgency = async(prevName: string, urgencyId: string) => {
+const changeUrgency = async (prevName: string, urgencyId: string) => {
     const urgency = await Urgency.findByPk(urgencyId);
     if (!urgency) throw new Error(`Urgency with id ${urgencyId} not found`);
 
     // Обновить все заявки, где старое имя совпадает
     await RepairRequest.update(
         {
-            urgency: urgency.name,       // обновляем текстовое имя
-            urgencyId: urgency.id,       // присваиваем новый ID срочности
+            urgency: urgency.name, // обновляем текстовое имя
+            urgencyId: urgency.id, // присваиваем новый ID срочности
         },
         {
-            where: { urgency: prevName } // по совпадению старого текста
+            where: { urgency: prevName }, // по совпадению старого текста
         }
     );
-}
+};
 
-const changeStatus = async(prevNumber: number, statusId: string) => {
+const changeStatus = async (prevNumber: number, statusId: string) => {
     const status = await Status.findByPk(statusId);
     if (!status) throw new Error(`Status with id ${statusId} not found`);
 
     // Обновить все заявки, где старый номер совпадает
     await RepairRequest.update(
         {
-            status: status.number,       // обновляем номер статуса
-            statusId: status.id,       // присваиваем новый ID срочности
+            status: status.number, // обновляем номер статуса
+            statusId: status.id, // присваиваем новый ID срочности
         },
         {
-            where: { status: prevNumber } // по совпадению старого номера
+            where: { status: prevNumber }, // по совпадению старого номера
         }
     );
-}
+};
 
 const countOfRepairRequest = async (repairId: string) => {
-    const request = await RepairRequest.findByPk(repairId)
+    const request = await RepairRequest.findByPk(repairId);
     if (!request) throw new Error(`Repair Request with id ${repairId} not found`);
     const currentFiles = normalizeFileNames(request.fileName);
     return currentFiles.length;
-}
+};
 
 // Поиск актуальных заявок по объектам  - 1, 2 и 5 статусы
 export const getActualRequestsByObjectId = async (tgUserId: string, unitId: string, objectId?: string) => {
