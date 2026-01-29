@@ -24,12 +24,10 @@ import DirectoryCategoryCustomer from './directoryCategoryCustomer';
 const { DB_USER, DB_PWD, DB_HOST, DB_PORT, DB_NAME } = process.env;
 export const models = {
     TgUser,
-    DirectoryCategoryCustomer,
     User,
     PasswordResetToken,
     TokenModel,
     Contractor,
-    DirectoryCategory,
     Unit,
     LegalEntity,
     ExtContractor,
@@ -44,6 +42,8 @@ export const models = {
     TechService,
     TgUserObject,
     Settings,
+    DirectoryCategory,
+    DirectoryCategoryCustomer,
 };
 
 export const sequelize = new Sequelize(`${DB_NAME}`, `${DB_USER}`, `${DB_PWD}`, {
