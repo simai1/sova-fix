@@ -34,6 +34,8 @@ export const models = {
     ObjectDir,
     Status,
     Urgency,
+    DirectoryCategory,
+    DirectoryCategoryCustomer,
     RepairRequest,
     ApiKey,
     Category,
@@ -42,8 +44,6 @@ export const models = {
     TechService,
     TgUserObject,
     Settings,
-    DirectoryCategory,
-    DirectoryCategoryCustomer,
 };
 
 export const sequelize = new Sequelize(`${DB_NAME}`, `${DB_USER}`, `${DB_PWD}`, {
