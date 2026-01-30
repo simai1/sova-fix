@@ -72,7 +72,6 @@ const RequestEditModalComponent: FC<IRequestEditModalComponent> = ({
                 <Select
                   placeholder="Выберите срочность"
                   options={urgencyOptions}
-                  showSearch
                   optionFilterProp="label"
                 />
               </Form.Item>
@@ -83,8 +82,7 @@ const RequestEditModalComponent: FC<IRequestEditModalComponent> = ({
                 <Select
                   placeholder="Выберите статус"
                   options={statusOptions}
-                  showSearch
-                  optionFilterProp="label"
+                  optionFilterProp="labelText"
                 />
               </Form.Item>
             </Flex>

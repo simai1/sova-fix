@@ -1,19 +1,36 @@
+import { Tag } from 'antd';
 import { DefaultOptionType } from 'antd/es/select';
 
 import { TContractor } from '../types/contractors.types';
+import { TObject } from '../types/object.types';
 import { TStatus } from '../types/status.types';
 import { TUrgency } from '../types/urgency.types';
-import { TObject } from '../types/object.types';
 
 export const transformStatusListToOptions = (statusList: TStatus[]): DefaultOptionType[] => {
-  return statusList.map((status) => ({ key: status.id, label: status.name, value: status.id }));
+  return statusList.map((status) => ({
+    key: status.id,
+    value: status.id,
+    label: (
+      <Tag color={status.color} style={{ margin: 0 }}>
+        {status.name}
+      </Tag>
+    ),
+
+    labelText: status.name, // для поиска
+  }));
 };
 
 export const transformUrgencyListToOptions = (urgencyList: TUrgency[]): DefaultOptionType[] => {
   return urgencyList.map((urgency) => ({
     key: urgency.id,
-    label: urgency.name,
     value: urgency.id,
+    label: (
+      <Tag color={urgency.color} style={{ margin: 0 }}>
+        {urgency.name}
+      </Tag>
+    ),
+
+    labelText: urgency.name, // для поиска
   }));
 };
 
