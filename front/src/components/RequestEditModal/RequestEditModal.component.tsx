@@ -1,4 +1,6 @@
+import { UploadOutlined } from '@ant-design/icons';
 import {
+  Button,
   DatePicker,
   Flex,
   Form,
@@ -13,13 +15,29 @@ import { FC } from 'react';
 
 import styles from './styles.module.scss';
 import { IRepairEditForm, IRequestEditModalComponent } from './types';
+import { API_URL } from '../../constants/env.constant';
+import PhotoAndVideoSlider from '../../UI/PhotoAndVideoSlider/PhotoAndVideoSlider.jsx';
 
 const { Text } = Typography;
 
 const RequestEditModalComponent: FC<IRequestEditModalComponent> = ({
   open,
   form,
+  statusOptions,
+  urgencyOptions,
+  contractorOptions,
+  objectOptions,
+  isObjectsLoading,
+  isRequestDataLoading,
+  parsedFiles,
+  isUploadDisabled,
+  isSliderOpen,
+  isUpdatingRequest,
   handleCloseModal,
+  beforeUploadFile,
+  handleCloseSlider,
+  handleOpenSlider,
+  handleSaveRequest,
 }) => {
   return (
     <Modal
@@ -27,34 +45,58 @@ const RequestEditModalComponent: FC<IRequestEditModalComponent> = ({
       open={open}
       onCancel={handleCloseModal}
       title="Редактирование заявки"
-      width={700}
+      width={1000}
       okText="Сохранить"
       cancelText="Закрыть"
+      loading={isRequestDataLoading}
+      okButtonProps={{ loading: isUpdatingRequest }}
+      onOk={handleSaveRequest}
     >
       <div className={styles.container}>
         <Form className={styles.form} form={form}>
           <Flex vertical gap={5}>
             <Text>Исполнитель</Text>
             <Form.Item<IRepairEditForm> name="contractor">
-              <Select placeholder="Выберите исполнителя" />
+              <Select
+                placeholder="Выберите исполнителя"
+                options={contractorOptions}
+                showSearch
+                optionFilterProp="label"
+              />
             </Form.Item>
           </Flex>
           <Flex vertical gap={5}>
             <Text>Срочность</Text>
             <Form.Item<IRepairEditForm> name="urgencyId">
-              <Select placeholder="Выберите срочность" />
+              <Select
+                placeholder="Выберите срочность"
+                options={urgencyOptions}
+                showSearch
+                optionFilterProp="label"
+              />
             </Form.Item>
           </Flex>
           <Flex vertical gap={5}>
             <Text>Статус заявки</Text>
             <Form.Item<IRepairEditForm> name="statusId">
-              <Select placeholder="Выберите статус" />
+              <Select
+                placeholder="Выберите статус"
+                options={statusOptions}
+                showSearch
+                optionFilterProp="label"
+              />
             </Form.Item>
           </Flex>
           <Flex vertical gap={5}>
             <Text>Объект</Text>
             <Form.Item<IRepairEditForm> name="objectId">
-              <Select placeholder="Выберите объект" />
+              <Select
+                placeholder="Выберите объект"
+                options={objectOptions}
+                loading={isObjectsLoading}
+                showSearch
+                optionFilterProp="label"
+              />
             </Form.Item>
           </Flex>
           <Flex vertical gap={5}>
@@ -66,25 +108,40 @@ const RequestEditModalComponent: FC<IRequestEditModalComponent> = ({
           <Flex vertical gap={5}>
             <Text>Плановая дата выполнения</Text>
             <Form.Item<IRepairEditForm> name="planCompleteDate">
-              <DatePicker style={{ width: '100%' }} placeholder="дд.мм.гггг" />
+              <DatePicker
+                style={{ width: '100%' }}
+                format={'DD.MM.YYYY'}
+                placeholder="дд.мм.гггг"
+              />
             </Form.Item>
           </Flex>
           <Flex vertical gap={10}>
-            <Flex gap={10}>
-              <Flex gap={5}>ФОТКА</Flex>
+            <Flex align="start" gap={10}>
+              {parsedFiles.length !== 0 ? (
+                <div onClick={handleOpenSlider} className={styles.imgContainer}>
+                  <img src={`${API_URL}/uploads/${parsedFiles[parsedFiles?.length - 1]}`} />
+                </div>
+              ) : null}
+
               <Flex className={styles.comment} vertical gap={5}>
                 <Text>Комментарий</Text>
                 <Form.Item<IRepairEditForm> name="comment">
-                  <Input.TextArea placeholder="Введите комментарий" />
+                  <Input.TextArea className={styles.textArea} placeholder="Введите комментарий" />
                 </Form.Item>
               </Flex>
             </Flex>
-            <Upload />
+            <Upload
+              beforeUpload={beforeUploadFile}
+              disabled={isUploadDisabled}
+              showUploadList={false}
+            >
+              <Button icon={<UploadOutlined />}>Добавить медиа</Button>
+            </Upload>
           </Flex>
           <Flex vertical gap={5}>
             <Text>Описание проблемы</Text>
             <Form.Item<IRepairEditForm> name="problemDescription">
-              <Input.TextArea placeholder="Введите описание проблемы" />
+              <Input.TextArea className={styles.textArea} placeholder="Введите описание проблемы" />
             </Form.Item>
           </Flex>
           <Flex vertical gap={5}>
@@ -95,6 +152,14 @@ const RequestEditModalComponent: FC<IRequestEditModalComponent> = ({
           </Flex>
         </Form>
       </div>
+
+      {isSliderOpen && (
+        <PhotoAndVideoSlider
+          sliderPhotos={parsedFiles}
+          initialIndex={parsedFiles.length - 1}
+          closeSlider={handleCloseSlider}
+        />
+      )}
     </Modal>
   );
 };

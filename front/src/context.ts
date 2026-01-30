@@ -1,12 +1,16 @@
-import React from 'react';
+import { createContext } from 'react';
 
-interface BaseContextType {
-  selectRowDirectory: string;
-}
-type FlexibleContextType = BaseContextType & Record<string, any>;
+import { FlexibleContextType } from './types/context';
 
-const DataContext = React.createContext<FlexibleContextType>({
-  selectRowDirectory: '',
+const DataContext = createContext<FlexibleContextType>({
+  context: {
+    selectRowDirectory: '',
+    statusList: [],
+    urgencyList: [],
+    dataContractors: [],
+    selectedTr: '',
+    UpdateTableReguest: () => {},
+  },
 });
 
 export default DataContext;

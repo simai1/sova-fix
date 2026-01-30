@@ -264,10 +264,12 @@ function FunctionTableTop(props) {
           </div>
         )}
       </div>
-      <RequestEditModalContainer
-        open={isRequestEditModalOpen}
-        handleCloseModal={handleCloseRequestEditModal}
-      />
+      {isRequestEditModalOpen && (
+        <RequestEditModalContainer
+          open={isRequestEditModalOpen}
+          handleCloseModal={handleCloseRequestEditModal}
+        />
+      )}
     </>
   )
 }

@@ -148,7 +148,7 @@ function Table() {
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (!event.target.closest("tr") && !event.target.closest("button")) {
-        context.setSelectedTr(null);
+        // context.setSelectedTr(null);
       }
     };
     WhatNanItem();

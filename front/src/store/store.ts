@@ -18,6 +18,7 @@ import isSamplePoints from './samplePoints/samplePoits';
 import { directoryCategoryApi } from '../modules/DirectoryCategory/directoryCategory.api';
 import { reportsApi } from '../pages/AdminPages/Reports/reports.api';
 import reportReducer from '../pages/AdminPages/Reports/slice';
+import { repairRequestsApi } from '../API/rtkQuery/requests.api.js';
 
 const rootReducer = combineReducers({
   isCheckedSlice: isCheckedSlice,
@@ -27,6 +28,7 @@ const rootReducer = combineReducers({
   [directoryCategoryApi.reducerPath]: directoryCategoryApi.reducer,
   [reportsApi.reducerPath]: reportsApi.reducer,
   reportReducer,
+  [repairRequestsApi.reducerPath]: repairRequestsApi.reducer,
 });
 
 const persistConfig = {
@@ -44,7 +46,11 @@ const store = configureStore({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
-    }).concat([directoryCategoryApi.middleware, reportsApi.middleware]),
+    }).concat([
+      directoryCategoryApi.middleware,
+      reportsApi.middleware,
+      repairRequestsApi.middleware,
+    ]),
 });
 
 export const persistor = persistStore(store);

@@ -9,7 +9,7 @@ export function FilteredSample(data, isChecked, sesionName = "") {
   }
 }
 
-// export const getStatus = (statusNumber) => {
+// export const getStatusByName = (statusNumber) => {
 //   const statusFromDirectory = context?.setStatusList.find(status => status.number === statusNumber)
 //   if (!statusFromDirectory) return "___"
 //   return statusFromDirectory?.name
