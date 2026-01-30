@@ -9,8 +9,6 @@ import { GetAllCategories, GetAllEquipment, GetAllNomenclatures, GetAllRequests,
 import Activate from "./pages/Login/Activate/Activate.jsx";
 import { useSelector } from "react-redux";
 import { funFixEducator } from "./UI/SamplePoints/Function.js";
-import ReportFinansing from "./pages/AdminPages/Report/ReportFinansing/ReportFinansing.jsx";
-import RepotYour from "./pages/AdminPages/Report/RepotYour/RepotIndicators.jsx";
 import ReportsContainer from './pages/AdminPages/Reports/Reports.container.tsx'
 import BusinessUnitReference from "./modules/BusinessUnitReference/BusinessUnitReference.jsx";
 import DirectoryLegalEntities from "./modules/DirectoryLegalEntities/DirectoryLegalEntities.jsx";
@@ -397,8 +395,6 @@ const UpdateStatus = () => {
             <Route path="/Authorization" element={<Authorization />}></Route>
             <Route path="/reset-password-request" element={<RequestPasswordRequest/>}></Route>
             <Route path="/reset-password" element={<ResetPassword/>}></Route>
-            <Route path="/ReportFinansing" element={<ReportFinansing />}></Route>
-            <Route path="/RepotYour" element={<RepotYour />}></Route>
             <Route path="/reports" element={<ReportsContainer />}/>
             
             {JSON.parse(sessionStorage.getItem("userData"))?.user?.role === "CUSTOMER" ? null : (
