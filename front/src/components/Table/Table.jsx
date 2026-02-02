@@ -2,7 +2,6 @@ import React, { useState, useContext, useRef, useEffect } from "react";
 import styles from "./Table.module.scss";
 import DataContext from "../../context";
 import {
-  DeleteExtContractorsRequest,
   GetAllUrgensies,
   GetOneRequests,
   GetextContractorsAll,
@@ -349,21 +348,6 @@ function Table() {
     });
   };
 
-  const deleteExp = (id) => {
-    const data = {
-      requestId: id,
-    };
-    DeleteExtContractorsRequest(data).then((resp) => {
-      if (resp?.status === 200) {
-        GetOneRequests(id).then((resp) => {
-          if (resp?.status === 200) {
-            UpdateRequest(resp?.data);
-          }
-        });
-      }
-    });
-  };
-
   const handleClickOutside = (event) => {
     const clickOutside = (ref, setter) => {
       if (
@@ -388,9 +372,6 @@ function Table() {
     clickOutside(extPopRef, setshovExtPop);
     clickOutside(directoryCategoryPopRef, setShowDirectoryCategory)
   };
-
-  const checkHeights = (arr, index) =>
-    index === arr.length - 1 && arr.length !== 1;
 
   const getCountList = () =>
     setArrCount(

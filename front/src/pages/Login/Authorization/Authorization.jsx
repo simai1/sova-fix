@@ -4,7 +4,6 @@ import { Link, useNavigate } from "react-router-dom";
 import DataContext from "../../../context";
 import { tableHeadAppoint } from "../../../components/Table/Data";
 import { LoginFunc } from "../../../API/API";
-import ErrorAuth from "../ErrorAuth/ErrorAuth";
 
 function Authorization() {
   const { context } = React.useContext(DataContext);

@@ -34,7 +34,7 @@ const rootReducer = combineReducers({
 const persistConfig = {
   key: 'root',
   storage,
-  whitelist: ['isCheckedSlice', 'editInputChecked', 'editColumTableSlice'],
+  whitelist: ['isCheckedSlice', 'editInputChecked'],
   // blacklist: ["editColumTableSlice", "isCheckedSlice"],
 };
 const persistedReducer = persistReducer(persistConfig, rootReducer);
