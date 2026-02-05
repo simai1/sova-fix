@@ -15,7 +15,6 @@ import DataContext from "../../context";
 import UneversalDelete from "../../components/UneversalDelete/UneversalDelete";
 import { PopUpError } from "../../UI/PopUpError/PopUpError";
 import PopUpContainer from "../../UI/PopUpContainer/PopUpContainer";
-import UneversalList from "../../UI/UneversalList/UneversalList";
 import arrow from "./../../assets/images/arrow_bottom.svg";
 import { resetFilters } from "../../store/samplePoints/samplePoits";
 import ClearImg from "./../../assets/images/ClearFilter.svg"

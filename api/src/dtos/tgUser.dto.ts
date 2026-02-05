@@ -6,7 +6,7 @@ import UserDto from './user.dto';
 export default class TgUserDto {
     id!: string;
     name!: string;
-    role!: number;
+    role!: string;
     tgId!: string;
     linkId?: string;
     isConfirmed!: boolean;

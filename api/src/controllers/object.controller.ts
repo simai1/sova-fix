@@ -9,6 +9,12 @@ const getAll = catchAsync(async (req, res) => {
 
     // Если передан tgUserId, получаем только объекты этого пользователя
     if (tgUserId) {
+        const tgUser = await User.findOne({ where: { tgManagerId: tgUserId } });
+        if (!tgUser) throw new ApiError(httpStatus.NOT_FOUND, 'TgUser not found');
+        if (tgUser.role === 2) {
+            const objects = await objectService.getAllObjects();
+            return res.json(objects);
+        }
         const userObjects = await objectService.getUserObjects(tgUserId as string);
         return res.json(userObjects);
     }
@@ -16,6 +22,10 @@ const getAll = catchAsync(async (req, res) => {
     if (userId) {
         const user = await User.findOne({ where: { id: userId } });
         if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+        if (user.role === 2) {
+            const objects = await objectService.getAllObjects();
+            return res.json(objects);
+        }
         const userObjects = await objectService.getUserObjects(user?.tgManagerId as string);
         if (userObjects.length) {
             return res.json(userObjects);

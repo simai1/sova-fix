@@ -12,7 +12,6 @@ import logger from '../utils/logger';
 import { models } from '../models';
 import TgUserObject from '../models/tgUserObject';
 import RepairRequest from '../models/repairRequest';
-import Unit from '../models/unit';
 import ObjectDir from '../models/object';
 
 const create = async (name: string, role: number, tgId: string, linkId: string | undefined): Promise<TgUserDto> => {

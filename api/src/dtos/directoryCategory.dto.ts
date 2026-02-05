@@ -2,7 +2,6 @@ import DirectoryCategory from '../models/directoryCategory';
 import ContractorDto from './contractor.dto';
 import ExtContractorDto from './extContractor.dto';
 import TgUserDto from './tgUser.dto';
-import UserDto from './user.dto';
 
 export class DirectoryCategoryDto {
     id!: string;

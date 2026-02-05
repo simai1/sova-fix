@@ -3,6 +3,7 @@ import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
 import roles from '../config/roles';
 import tgUserService from '../services/tgUser.service';
+import objectService from '../services/object.service';
 
 const create = catchAsync(async (req, res) => {
     const { name, role, tgId, linkId } = req.body;
@@ -62,6 +63,24 @@ const getUserObjects = catchAsync(async (req, res) => {
     }
 
     try {
+        const user = await tgUserService.getOneUser(tgUserId);
+
+        if (!user) {
+            return res.status(httpStatus.NOT_FOUND).json({
+                success: false,
+                error: 'TgUserNotFound',
+                message: 'Пользователь не найден',
+            });
+        }
+        if (user.role === 'ADMIN' || user.role === 'MANAGER') {
+            const objects = await objectService.getAllObjects();
+            return res.json({
+                success: true,
+                message: 'Все объекты успешно получены',
+                objects,
+            });
+        }
+
         const objects = await tgUserService.getUserObjects(tgUserId);
 
         res.json({
@@ -206,16 +225,16 @@ const removeObjectFromUser = catchAsync(async (req, res) => {
 
 const getManagersObjectsWithCountRequests = catchAsync(async (req, res) => {
     const { tgUserId } = req.params;
-    if (!tgUserId)  throw new ApiError(httpStatus.BAD_REQUEST, 'Missing tgUserId');
-    const objects = await tgUserService.getManagersObjectsWithCountRequests(tgUserId)
-    res.json(objects)
+    if (!tgUserId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing tgUserId');
+    const objects = await tgUserService.getManagersObjectsWithCountRequests(tgUserId);
+    res.json(objects);
 });
 
 const getContractorsObjectsWithCountRequests = catchAsync(async (req, res) => {
     const { tgUserId } = req.params;
-    if (!tgUserId)  throw new ApiError(httpStatus.BAD_REQUEST, 'Missing tgUserId');
-    const objects = await tgUserService.getContractorsObjectsWithCountRequests(tgUserId)
-    res.json(objects)
+    if (!tgUserId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing tgUserId');
+    const objects = await tgUserService.getContractorsObjectsWithCountRequests(tgUserId);
+    res.json(objects);
 });
 
 export default {

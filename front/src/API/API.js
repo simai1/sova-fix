@@ -1238,7 +1238,6 @@ export const DeleteNomenclaturesAPI = async (id) => {
 
 export const GetTgUserObjects = async (tgUserId) => {
   try {
-    console.log('GetTgUserObjects - Token:', sessionStorage.getItem("accessToken"));
     const response = await http.get(`${server}/tgUsers/${tgUserId}/objects`, {
       headers: {
         Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
