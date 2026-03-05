@@ -233,7 +233,7 @@ return (
                   }}
                 >
                   {context?.settingsList?.map(setting => (
-                    <li className={styles.menuSettingLi}>
+                    <li key={setting.id} className={styles.menuSettingLi}>
                       <div className={styles.settingToggle}>
                           <Toggle
                             label={setting.name}

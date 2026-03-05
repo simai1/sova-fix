@@ -15,12 +15,14 @@ import {
 } from '../../store/samplePoints/samplePoits'
 import { notification } from 'antd'
 import RequestEditModalContainer from '../RequestEditModal/RequestEditModal.container'
+import { useGetRequestCountQuery } from '../../API/rtkQuery/requests.api'
 
 function FunctionTableTop(props) {
   const { context } = React.useContext(DataContext)
   const [dataTable, setDataTable] = useState([])
   const applicationStatuses = ['В работе', 'Выполнена', 'Новая заявка']
   const [isRequestEditModalOpen, setIsRequestEditModalOpen] = useState(false)
+  const {data: requestsTotalCount} = useGetRequestCountQuery()
 
   const [apiNotification, contextHolder] = notification.useNotification()
   //!удаление заявки
@@ -217,7 +219,7 @@ function FunctionTableTop(props) {
                 onClick={() => filterTableApplication('Новая заявка')}
               >
                 <CountInfoBlock
-                  dataCount={filterRequestsWithoutCopiedId(dataTable)}
+                  totalCount={requestsTotalCount?.response?.newRequests}
                   keys="status"
                   value="1"
                   color="#d69a81"
@@ -229,7 +231,7 @@ function FunctionTableTop(props) {
                 onClick={() => filterTableApplication('В работе')}
               >
                 <CountInfoBlock
-                  dataCount={filterRequestsWithoutCopiedId(dataTable)}
+                  totalCount={requestsTotalCount?.response?.inWorkRequests}
                   keys="status"
                   value="2"
                   color="#ffe78f"
@@ -241,7 +243,7 @@ function FunctionTableTop(props) {
                 onClick={() => filterTableApplication('Выполнена')}
               >
                 <CountInfoBlock
-                  dataCount={filterRequestsWithoutCopiedId(dataTable)}
+                  totalCount={requestsTotalCount?.response?.doneRequests}
                   keys="status"
                   value="3"
                   color="#C5E384"

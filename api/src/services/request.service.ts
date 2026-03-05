@@ -459,6 +459,18 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
     }
 };
 
+const getRequestCount = async () => {
+    const newRequests = await RepairRequest.count({ where: { status: 1 } });
+    const inWorkRequests = await RepairRequest.count({ where: { status: 2 } });
+    const doneRequests = await RepairRequest.count({ where: { status: 3 } });
+
+    return {
+        newRequests,
+        inWorkRequests,
+        doneRequests,
+    };
+};
+
 const getRequestById = async (requestId: string): Promise<RequestDto> => {
     const request = await RepairRequest.findByPk(requestId, {
         include: [
@@ -1481,4 +1493,5 @@ export default {
     countOfRepairRequest,
     setNewDirectoryCategory,
     getActualRequestsByObjectId,
+    getRequestCount,
 };

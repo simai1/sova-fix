@@ -66,7 +66,7 @@ const requestUpdateSchema = Joi.object({
         itineraryOrder: Joi.number().optional(),
         contractorId: Joi.string().optional(),
         status: Joi.number().optional(),
-        statusId: Joi.string().optional().allow(null), 
+        statusId: Joi.string().optional().allow(null),
         builder: Joi.string().optional(),
         planCompleteDate: Joi.date().optional().allow(null),
         managerTgId: Joi.string().optional(),
@@ -81,8 +81,11 @@ const requestUpdateSchema = Joi.object({
 router.route('/stats').get(requestController.getStat);
 router.route('/').get(requestController.getAll).post(uploadImageOrVideo.single('file'), requestController.create);
 router.route('/without-photo').post(requestController.createWithoutPhoto);
-router.route('/multiple-photos').post(uploadMultipleImages.array('file', 10), requestController.createWithMultiplePhotos);
-router.route('/:requestId').get(requestController.getOne)
+router
+    .route('/multiple-photos')
+    .post(uploadMultipleImages.array('file', 10), requestController.createWithMultiplePhotos);
+router.route('/count').get(requestController.getRequestCountController);
+router.route('/:requestId').get(requestController.getOne);
 router.route('/:requestId/delete').delete(requestController.deleteRequest);
 router.route('/:requestId/update').patch(validator(requestUpdateSchema), requestController.update);
 
@@ -110,11 +113,11 @@ router.route('/add/check/:requestId').patch(uploadImage.single('file'), requestC
 
 router.route('/copy/:requestId').post(requestController.copy);
 
-router.route('/changeUrgency').post(requestController.changeUrgency)
+router.route('/changeUrgency').post(requestController.changeUrgency);
 
-router.route('/changeStatus').post(requestController.changeStatus)
+router.route('/changeStatus').post(requestController.changeStatus);
 
-router.route('/files/:requestId').get(requestController.getCountFilesRequest)
+router.route('/files/:requestId').get(requestController.getCountFilesRequest);
 
 router.route('/directoryCategory/:requestId').post(requestController.setNewDirectoryCategory);
 

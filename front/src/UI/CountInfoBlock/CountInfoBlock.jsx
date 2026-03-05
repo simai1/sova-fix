@@ -1,12 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react';
 import styles from "./CountInfoBlock.module.scss";
-import DataContext from '../../context';
-
-
 
 function CountInfoBlock(props) {
     const [contNew, setContNew] = useState(0);
-    const { context } = useContext(DataContext);
       useEffect(() => {
         let newCount = 0;
        switch (props?.keys) {
@@ -14,13 +10,7 @@ function CountInfoBlock(props) {
                setContNew(props?.dataCount?.length);
                break;
            case "status":
-               props?.dataCount.forEach((el) => {
-                   if (el.status == props?.value) {
-                       newCount++;
-                   }
-
-               })
-               setContNew(newCount);
+               setContNew(props?.totalCount);
                break;
            case "checkPhoto":
                props?.dataCount.forEach((el) => {
@@ -34,7 +24,7 @@ function CountInfoBlock(props) {
                break;
        }
        newCount = 0
-    }, [ props?.dataCount]);
+    }, [ props?.dataCount, props?.totalCount]);
     
     return ( 
         <div>

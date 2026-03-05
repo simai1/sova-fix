@@ -21,3 +21,11 @@ export interface IUpdateRequestPayload {
   urgencyId?: string | null;
   managerTgId?: string;
 }
+
+export interface IGetRequestCountResponse {
+  response: {
+    newRequests: number;
+    inWorkRequests: number;
+    doneRequests: number;
+  };
+}

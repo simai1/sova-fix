@@ -3,6 +3,7 @@ import { createApi } from '@reduxjs/toolkit/query/react';
 import {
   IGetAllObjectsPayload,
   IGetOneRequestPayload,
+  IGetRequestCountResponse,
   IUpdateRequestPayload,
 } from './types/requests.types';
 import fetchMainBaseQuery from '../../store/rtkquery';
@@ -38,6 +39,11 @@ export const repairRequestsApi = createApi({
         body,
       }),
     }),
+    getRequestCount: builder.query<IGetRequestCountResponse, void>({
+      query: () => ({
+        url: '/requests/count',
+      }),
+    }),
   }),
 });
 
@@ -46,4 +52,5 @@ export const {
   useLazyGetOneRequestQuery,
   useAttachMediaMutation,
   useUpdateRequestMutation,
+  useGetRequestCountQuery,
 } = repairRequestsApi;

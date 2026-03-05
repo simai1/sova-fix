@@ -2,7 +2,6 @@ import catchAsync from '../utils/catchAsync';
 import requestService from '../services/request.service';
 import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
-import statuses from '../config/statuses';
 import pick from '../utils/pick';
 import prepare from '../utils/prepare';
 import TgUser from '../models/tgUser';
@@ -61,6 +60,11 @@ const getAll = catchAsync(async (req, res) => {
         throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid order type');
     const [requestsDtos, maxCount] = await requestService.getAllRequests(filter, order, pagination, userId);
     res.json({ maxCount, data: requestsDtos });
+});
+
+const getRequestCountController = catchAsync(async (req, res) => {
+    const response = await requestService.getRequestCount();
+    res.json({ response });
 });
 
 const getOne = catchAsync(async (req, res) => {
@@ -490,4 +494,5 @@ export default {
     getCountFilesRequest,
     setNewDirectoryCategory,
     getActualRequestsByObjectId,
+    getRequestCountController,
 };
