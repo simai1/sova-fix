@@ -1,6 +1,8 @@
 import { TContractor } from './contractors.types';
 import { TStatus } from './status.types';
 import { TUrgency } from './urgency.types';
+import { GetDirectoryCategoryResponse } from '../modules/DirectoryCategory/types';
+import { TSetting } from './settings.types';
 
 export type BaseContextType = {
   selectRowDirectory: string;
@@ -8,7 +10,10 @@ export type BaseContextType = {
   urgencyList: TUrgency[];
   dataContractors: TContractor[];
   selectedTr: string;
+  directoryCategories: GetDirectoryCategoryResponse[];
+  settingsList: TSetting[];
   UpdateTableReguest: () => void;
+  UpdateForse: () => void;
 };
 
 export type FlexibleContextType = { context: BaseContextType } & Record<string, any>;

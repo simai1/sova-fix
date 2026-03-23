@@ -1,13 +1,14 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 
 import {
+  CreateRequestWithoutPhotoPayload,
   IGetAllObjectsPayload,
   IGetOneRequestPayload,
   IGetRequestCountResponse,
   IUpdateRequestPayload,
 } from './types/requests.types';
 import fetchMainBaseQuery from '../../store/rtkquery';
-import { TObject } from '../../types/object.types';
+import { TObject, TUnit } from '../../types/object.types';
 import { TRequest } from '../../types/request.types';
 
 export const repairRequestsApi = createApi({
@@ -44,13 +45,44 @@ export const repairRequestsApi = createApi({
         url: '/requests/count',
       }),
     }),
+    createRequestWithMultyPhoto: builder.mutation<void, FormData>({
+      query: (body) => ({
+        url: '/requests/multiple-photos',
+        method: 'POST',
+        body,
+      }),
+    }),
+    createRequestSinglePhoto: builder.mutation<void, FormData>({
+      query: (body) => ({
+        url: '/requests',
+        method: 'POST',
+        body,
+      }),
+    }),
+    createRequestWithoutPhoto: builder.mutation<void, CreateRequestWithoutPhotoPayload>({
+      query: (body) => ({
+        url: '/requests/without-photo',
+        method: 'POST',
+        body,
+      }),
+    }),
+    getAllUnits: builder.query<TUnit[], void>({
+      query: () => ({
+        url: '/units',
+      }),
+    }),
   }),
 });
 
 export const {
   useGetAllObjectsQuery,
+  useLazyGetAllObjectsQuery,
   useLazyGetOneRequestQuery,
   useAttachMediaMutation,
   useUpdateRequestMutation,
   useGetRequestCountQuery,
+  useCreateRequestWithMultyPhotoMutation,
+  useGetAllUnitsQuery,
+  useCreateRequestSinglePhotoMutation,
+  useCreateRequestWithoutPhotoMutation,
 } = repairRequestsApi;

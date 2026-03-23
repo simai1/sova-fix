@@ -15,10 +15,10 @@ import editColumTableSlice from './editColumTable/editColumTable.slice.js';
 import editInputChecked from './filter/editInputChecked.slice.js';
 import isCheckedSlice from './filter/isChecked.slice.js';
 import isSamplePoints from './samplePoints/samplePoits';
+import { repairRequestsApi } from '../API/rtkQuery/requests.api.js';
 import { directoryCategoryApi } from '../modules/DirectoryCategory/directoryCategory.api';
 import { reportsApi } from '../pages/AdminPages/Reports/reports.api';
 import reportReducer from '../pages/AdminPages/Reports/slice';
-import { repairRequestsApi } from '../API/rtkQuery/requests.api.js';
 
 const rootReducer = combineReducers({
   isCheckedSlice: isCheckedSlice,

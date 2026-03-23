@@ -5,7 +5,7 @@ import httpStatus from 'http-status';
 import User from '../models/user';
 
 const getAll = catchAsync(async (req, res) => {
-    const { tgUserId, userId } = req.query;
+    const { tgUserId, userId, unitId } = req.query;
 
     // Если передан tgUserId, получаем только объекты этого пользователя
     if (tgUserId) {
@@ -23,10 +23,11 @@ const getAll = catchAsync(async (req, res) => {
         const user = await User.findOne({ where: { id: userId } });
         if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
         if (user.role === 2) {
-            const objects = await objectService.getAllObjects();
+            const objects = await objectService.getAllObjects(unitId ? (unitId as string) : null);
             return res.json(objects);
         }
         const userObjects = await objectService.getUserObjects(user?.tgManagerId as string);
+        console.log(userObjects);
         if (userObjects.length) {
             return res.json(userObjects);
         }

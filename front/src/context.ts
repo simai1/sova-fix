@@ -9,7 +9,10 @@ const DataContext = createContext<FlexibleContextType>({
     urgencyList: [],
     dataContractors: [],
     selectedTr: '',
+    directoryCategories: [],
+    settingsList: [],
     UpdateTableReguest: () => {},
+    UpdateForse: () => {},
   },
 });
 

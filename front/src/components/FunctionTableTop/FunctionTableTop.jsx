@@ -4,8 +4,8 @@ import Input from '../../UI/Input/Input'
 import DataContext from '../../context'
 import { useDispatch, useSelector } from 'react-redux'
 import CountInfoBlock from '../../UI/CountInfoBlock/CountInfoBlock'
-import EditColum from '../../UI/EditColum/EditColum'
-import { filterRequestsWithoutCopiedId, generateAndDownloadExcel } from '../../function/function'
+import EditColumn from '../../UI/EditColum/EditColumn'
+import { generateAndDownloadExcel } from '../../function/function'
 import { tableList } from '../Table/Data'
 import {
   dropFilters,
@@ -13,16 +13,19 @@ import {
   setChecked,
   setFilters,
 } from '../../store/samplePoints/samplePoits'
-import { notification } from 'antd'
+import { notification, Button } from 'antd'
 import RequestEditModalContainer from '../RequestEditModal/RequestEditModal.container'
 import { useGetRequestCountQuery } from '../../API/rtkQuery/requests.api'
+import AddRequestModal from '../AddRequestModal/AddRequestModal'
+import { DeleteOutlined, EditOutlined, ExportOutlined, PlusOutlined } from '@ant-design/icons'
 
 function FunctionTableTop(props) {
   const { context } = React.useContext(DataContext)
   const [dataTable, setDataTable] = useState([])
   const applicationStatuses = ['В работе', 'Выполнена', 'Новая заявка']
   const [isRequestEditModalOpen, setIsRequestEditModalOpen] = useState(false)
-  const {data: requestsTotalCount} = useGetRequestCountQuery()
+  const { data: requestsTotalCount } = useGetRequestCountQuery()
+  const [isAddRequestModalOpen, setIsAddRequestModalOpen] = useState()
 
   const [apiNotification, contextHolder] = notification.useNotification()
   //!удаление заявки
@@ -122,6 +125,13 @@ function FunctionTableTop(props) {
       }),
     )
   }
+  const handleOpenAddModal = () => {
+    setIsAddRequestModalOpen(true)
+  }
+
+  const handleCloseAddModal = () => {
+    setIsAddRequestModalOpen(false)
+  }
   return (
     <>
       {contextHolder}
@@ -151,34 +161,26 @@ function FunctionTableTop(props) {
           </div>
           {context.selectedTable === 'Заявки' && context.selectPage === 'Main' ? (
             <div className={styles.HeadMenuMain}>
-              <EditColum />
+              <Button onClick={handleOpenAddModal}><PlusOutlined /></Button>
+              <EditColumn />
               {JSON.parse(localStorage.getItem('userData'))?.user?.role !== 'OBSERVER' && (
                 <>
-                  <button
-                    onClick={() => handleEditAppoint()}
+                  <Button
+                    onClick={handleEditAppoint}
                     disabled={context.moreSelect.length > 1}
-                    style={{
-                      opacity: context.moreSelect.length > 1 ? '0.5' : '1',
-                      cursor: context.moreSelect.length > 1 ? 'not-allowed' : 'pointer',
-                    }}
+                    type='text'
                   >
-                    <img src="./img/Edit.svg" alt="View" />
-                    Редактировать заявку
-                  </button>
-                  <button
-                    onClick={() => deleteRequestFunc()}
+                    <EditOutlined />
+                  </Button>
+                  <Button
+                    onClick={deleteRequestFunc}
                     disabled={context.moreSelect.length > 1}
-                    style={{
-                      opacity: context.moreSelect.length > 1 ? '0.5' : '1',
-                      cursor: context.moreSelect.length > 1 ? 'not-allowed' : 'pointer',
-                    }}
                   >
-                    <img src="./img/Trash.svg" alt="View" />
-                    Удалить заявку
-                  </button>
+                    <DeleteOutlined />
+                  </Button>
                 </>
               )}
-              <button
+              <Button
                 onClick={() => {
                   const dataToExport =
                     context.moreSelect.length > 0
@@ -189,8 +191,8 @@ function FunctionTableTop(props) {
                   generateAndDownloadExcel(dataToExport, 'Заявки')
                 }}
               >
-                Экспорт
-              </button>
+                <ExportOutlined />
+              </Button>
             </div>
           ) : sessionStorage.getItem('userData').user?.id === 1 ? (
             <div className={styles.ButtonBack}>
@@ -272,6 +274,7 @@ function FunctionTableTop(props) {
           handleCloseModal={handleCloseRequestEditModal}
         />
       )}
+      {isAddRequestModalOpen && <AddRequestModal handleClose={handleCloseAddModal} />}
     </>
   )
 }

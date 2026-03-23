@@ -1,5 +1,8 @@
+import { TCreateRequestForm } from '../../../components/AddRequestModal/types';
+
 export interface IGetAllObjectsPayload {
   userId: string;
+  unitId?: string;
 }
 
 export interface IGetOneRequestPayload {
@@ -28,4 +31,8 @@ export interface IGetRequestCountResponse {
     inWorkRequests: number;
     doneRequests: number;
   };
+}
+
+export interface CreateRequestWithoutPhotoPayload extends TCreateRequestForm {
+  userId: string;
 }

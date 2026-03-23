@@ -77,6 +77,7 @@ function App() {
   const [urgencyList, setUrgencyList] = useState([])
   const [statusList, setStatusList] = useState([])
   const [settingsList, setSettingsList] = useState([])
+  const [directoryCategories, setDirectoryCategories] = useState([])
   const checkedAllFunc = () => {
     if(moreSelect.length > 0){
       setCheckedAll(true)
@@ -243,6 +244,8 @@ const UpdateStatus = () => {
     UpdateStatus,
     settingsList,
     setSettingsList,
+    directoryCategories,
+    setDirectoryCategories,
   };
 
   const storeFilter = useSelector((state) => state.isSamplePoints["table9"]);

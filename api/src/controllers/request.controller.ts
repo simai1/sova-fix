@@ -4,10 +4,10 @@ import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
 import pick from '../utils/pick';
 import prepare from '../utils/prepare';
-import TgUser from '../models/tgUser';
 import logger from '../utils/logger';
 import { migrateManagerIds, validateManagerIds } from '../utils/migrationUtils';
 import Status from '../models/status';
+import { resolveTgUser } from '../utils/resolveTgUser';
 
 const getAll = catchAsync(async (req, res) => {
     const filter = prepare(
@@ -74,13 +74,14 @@ const getOne = catchAsync(async (req, res) => {
 });
 
 const create = catchAsync(async (req, res) => {
-    const { objectId, problemDescription, urgency, repairPrice, comment, tgUserId, directoryCategoryId } = req.body;
+    const { objectId, problemDescription, urgency, repairPrice, comment, tgUserId, userId, directoryCategoryId } =
+        req.body;
     const fileName = req.file?.filename;
     if (!fileName) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing file');
-    if (!tgUserId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing tgUserId');
+    if (!userId && !tgUserId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing userId or tgUserId');
     if (!objectId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing object');
     if (!urgency) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing urgency');
-    const tgUser = await TgUser.findByPk(tgUserId);
+    const tgUser = await resolveTgUser({ userId, tgUserId });
 
     if (!tgUser || (tgUser.role !== 3 && tgUser.role !== 2 && tgUser.role !== 1))
         throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid tgUser');
@@ -91,18 +92,19 @@ const create = catchAsync(async (req, res) => {
         repairPrice,
         comment,
         fileName,
-        tgUserId,
+        tgUser.id,
         directoryCategoryId
     );
     res.json({ requestDto });
 });
 
 const createWithoutPhoto = catchAsync(async (req, res) => {
-    const { objectId, problemDescription, urgency, repairPrice, comment, tgUserId, directoryCategoryId } = req.body;
-    if (!tgUserId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing tgUserId');
+    const { objectId, problemDescription, urgency, repairPrice, comment, tgUserId, userId, directoryCategoryId } =
+        req.body;
+    if (!userId && !tgUserId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing userId or tgUserId');
     if (!objectId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing object');
     if (!urgency) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing urgency');
-    const tgUser = await TgUser.findByPk(tgUserId);
+    const tgUser = await resolveTgUser({ userId, tgUserId });
 
     if (!tgUser || (tgUser.role !== 3 && tgUser.role !== 2 && tgUser.role !== 1))
         throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid tgUser');
@@ -112,22 +114,23 @@ const createWithoutPhoto = catchAsync(async (req, res) => {
         urgency,
         repairPrice,
         comment,
-        tgUserId,
+        tgUser.id,
         directoryCategoryId
     );
     res.json({ requestDto });
 });
 
 const createWithMultiplePhotos = catchAsync(async (req, res) => {
-    const { objectId, problemDescription, urgency, repairPrice, comment, tgUserId, directoryCategoryId } = req.body;
+    const { objectId, problemDescription, urgency, repairPrice, comment, userId, tgUserId, directoryCategoryId } =
+        req.body;
     const files = (req as any).files as Express.Multer.File[];
 
     if (!files || files.length === 0) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing files');
-    if (!tgUserId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing tgUserId');
+    if (!userId && !tgUserId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing userId or tgUserId');
     if (!objectId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing object');
     if (!urgency) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing urgency');
 
-    const tgUser = await TgUser.findByPk(tgUserId);
+    const tgUser = await resolveTgUser({ userId, tgUserId });
 
     if (!tgUser || (tgUser.role !== 3 && tgUser.role !== 2 && tgUser.role !== 1))
         throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid tgUser');
@@ -141,7 +144,7 @@ const createWithMultiplePhotos = catchAsync(async (req, res) => {
         repairPrice,
         comment,
         fileNames,
-        tgUserId,
+        tgUser.id,
         directoryCategoryId
     );
 

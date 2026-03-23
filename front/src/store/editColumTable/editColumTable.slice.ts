@@ -1,25 +1,27 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { tableHeadAppoint } from "../../components/Table/Data";
+import { createSlice } from '@reduxjs/toolkit';
+
+import { tableHeadAppoint } from '../../components/Table/Data.js';
+import { ColumnI } from '../../types/column.type.js';
+import { TEditColumnState } from '../../types/store/editColumnSlice.js';
 
 // Function to initialize the state with isActive set to true
-const initializeColumns = () => {
-  return tableHeadAppoint.map(column => ({ ...column, isActive: true }));
+const initializeColumns = (): ColumnI[] => {
+  return tableHeadAppoint.map((column: ColumnI) => ({ ...column, isActive: true }));
 };
 
 // Function to check if all columns are active
-const areAllColumnsActive = (columns) => {
-  return columns.every(column => column.isActive);
+const areAllColumnsActive = (columns: ColumnI[]) => {
+  return columns.every((column) => column.isActive);
 };
 
-const initialState = {
+const initialState: TEditColumnState = {
   AllColumTable: tableHeadAppoint, // Original data without flags
   ActiveColumTable: initializeColumns(), // Initialize with flags set to true
   AllCheckbox: true, // Initially set to true since all columns are active
-  HistoryTableData: [],
-}
+};
 
 const editColumTable = createSlice({
-  name: "ColumTable",
+  name: 'ColumTable',
   initialState,
   reducers: {
     addTableHeader: (state, action) => {
@@ -28,7 +30,7 @@ const editColumTable = createSlice({
     },
 
     onCheckState: (state, action) => {
-      const {key, isActive} = action.payload;
+      const { key } = action.payload;
       state.ActiveColumTable = state.ActiveColumTable.map((el) => {
         if (el.key === key) {
           return { ...el, isActive: !el.isActive }; // Toggle isActive
@@ -40,19 +42,17 @@ const editColumTable = createSlice({
 
     resetAllColumns: (state) => {
       state.ActiveColumTable = [
-          ...state.ActiveColumTable.slice(0, 3), // Keep the first three elements unchanged
-          ...state.ActiveColumTable.slice(3).map(el => ({ ...el, isActive: !state.AllCheckbox })) // Update the rest
+        ...state.ActiveColumTable.slice(0, 3), // Keep the first three elements unchanged
+        ...state.ActiveColumTable.slice(3).map((el) => ({
+          ...el,
+          isActive: !state.AllCheckbox,
+        })), // Update the rest
       ];
       state.AllCheckbox = !state.AllCheckbox;
-  },
-  
+    },
   },
 });
 
-export const {
-  onCheckState,
-  addTableHeader,
-  resetAllColumns
-} = editColumTable.actions;
+export const { onCheckState, addTableHeader, resetAllColumns } = editColumTable.actions;
 
 export default editColumTable.reducer;

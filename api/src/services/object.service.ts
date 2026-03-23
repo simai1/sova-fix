@@ -14,10 +14,13 @@ const getObjectById = async (id: string): Promise<ObjectDir | null> => {
     return await ObjectDir.findByPk(id, { include: [{ model: Unit }, { model: LegalEntity }] });
 };
 
-const getAllObjects = async (): Promise<ObjectDto[]> => {
+const getAllObjects = async (unitId?: string | null): Promise<ObjectDto[]> => {
+    const where = unitId ? { unitId } : {};
+
     const objects = await ObjectDir.findAll({
         include: [{ model: Unit }, { model: LegalEntity }],
         order: [['number', 'ASC']],
+        where,
     });
     return objects.map(o => new ObjectDto(o));
 };
@@ -36,7 +39,7 @@ const getUserObjects = async (tgUserId: string): Promise<ObjectDto[]> => {
 
         // Получаем связи пользователя с объектами из таблицы tgUserObjects
         const userObjectRelations = await (models.TgUserObject as any).findAll({
-            where: { tgUserId },
+            // where: { tgUserId },
             include: [
                 {
                     model: models.ObjectDir,

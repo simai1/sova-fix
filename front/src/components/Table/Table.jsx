@@ -103,8 +103,6 @@ function Table() {
   const [admins, setAdmins] = useState([])
   const contextmenuRef = useRef(null)
 
-  const [directoryCategories, setDirectoryCategories] = useState([])
-
   const [sliderPhotos, setSliderPhotos] = useState([])
   const [showSlider, setShowSlider] = useState(false)
   const tableWrapperRef = useRef()
@@ -128,7 +126,7 @@ function Table() {
 
     GetAllDirectoryCategories().then((response) => {
       if (response && response.data) {
-        setDirectoryCategories(response.data)
+        context?.setDirectoryCategories(response.data)
       }
     })
 
@@ -627,7 +625,7 @@ function Table() {
   }
 
   const getDirectoryCategoryColor = (value) => {
-    const directoryCategory = directoryCategories.find((category) => category.id === value)
+    const directoryCategory = context?.directoryCategories.find((category) => category.id === value)
     if (directoryCategory) return directoryCategory.color
     return '#b7ab9e'
   }
@@ -924,7 +922,7 @@ function Table() {
             {showDirectoryCategory === row.id && (
               <div className={getPopupClassName(directoryCategoryPopRef.current, index, totalRows)}>
                 <ul>
-                  {directoryCategories.map((category, index) => (
+                  {context?.directoryCategories.map((category, index) => (
                     <li onClick={() => SetDirectoryCategory(row?.id, category.id)} key={index}>
                       {category.name}
                     </li>
