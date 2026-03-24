@@ -1,5 +1,5 @@
 import { SettingOutlined } from '@ant-design/icons';
-import { Button, Popover } from 'antd';
+import { Button, Popover, Tooltip } from 'antd';
 import { FC, useState } from 'react';
 
 import styles from './styles.module.scss';
@@ -12,38 +12,42 @@ const EditColumn: FC = () => {
   const store = useAppSelector((state) => state.editColumTableSlice) as TEditColumnState;
   const dispatch = useAppDispatch();
 
+  const handleCheckAll = () => {
+    dispatch(resetAllColumns());
+  };
+
+  const handleCheckColumn = (key: string, isActive?: boolean) => {
+    dispatch(onCheckState({ key, isActive }));
+  };
+
   return (
     <Popover
       arrow={false}
       trigger="click"
       content={
         <ul className={styles.list}>
-          <li className={styles.listItem}>
-            <input
-              type="checkbox"
-              checked={store.AllCheckbox}
-              readOnly
-              onClick={() => dispatch(resetAllColumns())}
-            />
+          <li className={styles.listItem} onClick={handleCheckAll}>
+            <input type="checkbox" checked={store.AllCheckbox} readOnly />
             <span>Все</span>
           </li>
           {store.ActiveColumTable.slice(3).map((el) => (
-            <li className={styles.listItem} key={el.key}>
-              <input
-                type="checkbox"
-                checked={el.isActive}
-                readOnly
-                onClick={() => dispatch(onCheckState({ key: el.key, isActive: el.isActive }))}
-              />
+            <li
+              className={styles.listItem}
+              key={el.key}
+              onClick={() => handleCheckColumn(el.key, el.isActive)}
+            >
+              <input type="checkbox" checked={el.isActive} readOnly />
               <span>{el.value}</span>
             </li>
           ))}
         </ul>
       }
     >
-      <Button onClick={() => setOpenList(!openList)}>
-        <SettingOutlined />
-      </Button>
+      <Tooltip title="Видимость колонок">
+        <Button onClick={() => setOpenList(!openList)}>
+          <SettingOutlined />
+        </Button>
+      </Tooltip>
     </Popover>
   );
 };

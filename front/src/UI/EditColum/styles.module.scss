@@ -1,12 +1,16 @@
 .list {
     list-style: none;
     padding: 0;
-    width: 100%;
+    width: max-content;
+    min-width: 200px; 
+    max-width: 250px;
 
     .listItem {
         display: flex;
         gap: 5px;
         align-items: center;
         margin-top: 2px;
+        white-space: nowrap;
+        cursor: pointer;
     }
 }

@@ -13,7 +13,7 @@ import {
   setChecked,
   setFilters,
 } from '../../store/samplePoints/samplePoits'
-import { notification, Button } from 'antd'
+import { notification, Button, Tooltip } from 'antd'
 import RequestEditModalContainer from '../RequestEditModal/RequestEditModal.container'
 import { useGetRequestCountQuery } from '../../API/rtkQuery/requests.api'
 import AddRequestModal from '../AddRequestModal/AddRequestModal'
@@ -161,38 +161,41 @@ function FunctionTableTop(props) {
           </div>
           {context.selectedTable === 'Заявки' && context.selectPage === 'Main' ? (
             <div className={styles.HeadMenuMain}>
-              <Button onClick={handleOpenAddModal}><PlusOutlined /></Button>
-              <EditColumn />
+              <Tooltip title="Создать заявку">
+                <Button onClick={handleOpenAddModal}>
+                  <PlusOutlined />
+                </Button>
+              </Tooltip>
+                <EditColumn />
               {JSON.parse(localStorage.getItem('userData'))?.user?.role !== 'OBSERVER' && (
                 <>
-                  <Button
-                    onClick={handleEditAppoint}
-                    disabled={context.moreSelect.length > 1}
-                    type='text'
-                  >
-                    <EditOutlined />
-                  </Button>
-                  <Button
-                    onClick={deleteRequestFunc}
-                    disabled={context.moreSelect.length > 1}
-                  >
-                    <DeleteOutlined />
-                  </Button>
+                  <Tooltip title="Редактировать заявку">
+                    <Button onClick={handleEditAppoint} disabled={context.moreSelect.length > 1}>
+                      <EditOutlined />
+                    </Button>
+                  </Tooltip>
+                  <Tooltip title="Удалить заявку">
+                    <Button onClick={deleteRequestFunc} disabled={context.moreSelect.length > 1}>
+                      <DeleteOutlined />
+                    </Button>
+                  </Tooltip>
                 </>
               )}
-              <Button
-                onClick={() => {
-                  const dataToExport =
-                    context.moreSelect.length > 0
-                      ? context.dataTableHomePage.filter((item) =>
-                          context.moreSelect.includes(item.id),
-                        )
-                      : context.dataTableHomePage
-                  generateAndDownloadExcel(dataToExport, 'Заявки')
-                }}
-              >
-                <ExportOutlined />
-              </Button>
+              <Tooltip title="Экспорт">
+                <Button
+                  onClick={() => {
+                    const dataToExport =
+                      context.moreSelect.length > 0
+                        ? context.dataTableHomePage.filter((item) =>
+                            context.moreSelect.includes(item.id),
+                          )
+                        : context.dataTableHomePage
+                    generateAndDownloadExcel(dataToExport, 'Заявки')
+                  }}
+                >
+                  <ExportOutlined />
+                </Button>
+              </Tooltip>
             </div>
           ) : sessionStorage.getItem('userData').user?.id === 1 ? (
             <div className={styles.ButtonBack}>
