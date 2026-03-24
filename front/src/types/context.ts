@@ -1,8 +1,8 @@
 import { TContractor } from './contractors.types';
+import { TSetting } from './settings.types';
 import { TStatus } from './status.types';
 import { TUrgency } from './urgency.types';
 import { GetDirectoryCategoryResponse } from '../modules/DirectoryCategory/types';
-import { TSetting } from './settings.types';
 
 export type BaseContextType = {
   selectRowDirectory: string;

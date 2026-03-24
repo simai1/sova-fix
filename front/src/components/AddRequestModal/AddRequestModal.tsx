@@ -28,7 +28,7 @@ const AddRequestModal: FC<TAddRequestModalProps> = ({ handleClose }) => {
   const [fileList, setFileList] = useState<UploadFile[]>([]);
 
   const isPhotoRequired = useMemo(
-    () => context.settingsList.find((s) => s.setting === IS_PHOTO_REQUIRED),
+    () => context.settingsList.find((s) => s.setting === IS_PHOTO_REQUIRED)?.value,
     [context.settingsList],
   );
 
@@ -53,6 +53,18 @@ const AddRequestModal: FC<TAddRequestModalProps> = ({ handleClose }) => {
     () => transformUrgencyListToOptions(urgencyList),
     [urgencyList],
   );
+
+  useEffect(() => {
+    if (units?.length === 1) {
+      form.setFieldsValue({ unitId: units[0]?.id });
+    }
+  }, [units]);
+
+  useEffect(() => {
+    if (objects?.length === 1) {
+      form.setFieldsValue({ objectId: objects[0]?.id });
+    }
+  }, [objects]);
 
   useEffect(() => {
     if (unitId && userId) {

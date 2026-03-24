@@ -27,7 +27,6 @@ const getAll = catchAsync(async (req, res) => {
             return res.json(objects);
         }
         const userObjects = await objectService.getUserObjects(user?.tgManagerId as string);
-        console.log(userObjects);
         if (userObjects.length) {
             return res.json(userObjects);
         }
