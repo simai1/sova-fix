@@ -74,7 +74,7 @@ const AddRequestModal: FC<TAddRequestModalProps> = ({ handleClose }) => {
 
   const handleCloseModal = () => {
     handleClose();
-    context.UpdateForse();
+    context.UpdateTableReguest();
   };
 
   const handleCreateRequest = async () => {

@@ -13,7 +13,6 @@ export type BaseContextType = {
   directoryCategories: GetDirectoryCategoryResponse[];
   settingsList: TSetting[];
   UpdateTableReguest: () => void;
-  UpdateForse: () => void;
 };
 
 export type FlexibleContextType = { context: BaseContextType } & Record<string, any>;
