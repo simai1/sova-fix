@@ -166,7 +166,7 @@ const AddRequestModal: FC<TAddRequestModalProps> = ({ handleClose }) => {
           </Flex>
           <Flex vertical gap={5}>
             <Text>Категория</Text>
-            <Form.Item<TCreateRequestForm> name="directoryCategoryId" rules={FORM_RULES}>
+            <Form.Item<TCreateRequestForm> name="directoryCategoryId">
               <Select
                 options={directoryCategories ?? []}
                 fieldNames={{ label: 'name', value: 'id' }}
