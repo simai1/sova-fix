@@ -26,15 +26,14 @@ const getAll = catchAsync(async (req, res) => {
             const objects = await objectService.getAllObjects(unitId ? (unitId as string) : null);
             return res.json(objects);
         }
-        const userObjects = await objectService.getUserObjects(user?.tgManagerId as string);
+        const tgManagerId = user?.tgManagerId;
+        if (!tgManagerId) throw new ApiError(httpStatus.NOT_FOUND, 'tgManagerId is null');
+        const userObjects = await objectService.getUserObjects(tgManagerId as string, unitId as string);
         if (userObjects.length) {
             return res.json(userObjects);
         }
     }
-
-    // Иначе получаем все объекты
-    const objects = await objectService.getAllObjects();
-    res.json(objects);
+    return res.json([]);
 });
 
 const create = catchAsync(async (req, res) => {

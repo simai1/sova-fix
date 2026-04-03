@@ -35,7 +35,8 @@ const AddRequestModal: FC<TAddRequestModalProps> = ({ handleClose }) => {
   const unitId = useWatch('unitId', form);
 
   const { data: units, isLoading: isUnitsLoading } = useGetAllUnitsQuery();
-  const [getAllObjectsMethod, { data: objects }] = useLazyGetAllObjectsQuery();
+  const [getAllObjectsMethod, { data: objects, isLoading: isObjectsLoading }] =
+    useLazyGetAllObjectsQuery();
   const [createRequestWithMultyPhotoMethod, { isLoading: isRequestWithMultyPhotoLoading }] =
     useCreateRequestWithMultyPhotoMutation();
   const [createRequestSinglePhotoMethod, { isLoading: isRequestWithSinglePhotoLoading }] =
@@ -68,6 +69,7 @@ const AddRequestModal: FC<TAddRequestModalProps> = ({ handleClose }) => {
 
   useEffect(() => {
     if (unitId && userId) {
+      form.setFieldsValue({ objectId: undefined });
       getAllObjectsMethod({ userId, unitId });
     }
   }, [userId, unitId]);
@@ -157,7 +159,7 @@ const AddRequestModal: FC<TAddRequestModalProps> = ({ handleClose }) => {
                 placeholder="Выберите объект"
                 disabled={!unitId}
                 options={objects ?? []}
-                loading={isUnitsLoading}
+                loading={isUnitsLoading || isObjectsLoading}
                 fieldNames={{ label: 'name', value: 'id' }}
                 allowClear
                 showSearch

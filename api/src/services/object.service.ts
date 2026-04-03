@@ -30,7 +30,7 @@ const getAllObjects = async (unitId?: string | null): Promise<ObjectDto[]> => {
  * @param tgUserId ID пользователя Telegram
  * @returns Массив объектов, доступных пользователю
  */
-const getUserObjects = async (tgUserId: string): Promise<ObjectDto[]> => {
+const getUserObjects = async (tgUserId: string, unitId?: string): Promise<ObjectDto[]> => {
     try {
         logger.log({
             level: 'info',
@@ -39,13 +39,13 @@ const getUserObjects = async (tgUserId: string): Promise<ObjectDto[]> => {
 
         // Получаем связи пользователя с объектами из таблицы tgUserObjects
         const userObjectRelations = await (models.TgUserObject as any).findAll({
-            // where: { tgUserId },
+            where: { tgUserId },
             include: [
                 {
                     model: models.ObjectDir,
                     as: 'Object',
                     required: true,
-                    include: [{ model: Unit }, { model: LegalEntity }],
+                    include: [{ model: Unit, where: unitId ? { id: unitId } : undefined }, { model: LegalEntity }],
                 },
             ],
         });
