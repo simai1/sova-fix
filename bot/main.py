@@ -3,6 +3,7 @@ from asyncio.exceptions import CancelledError
 
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
+from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.enums import ParseMode
 
 import config as cf
@@ -64,7 +65,12 @@ async def include_routers() -> None:
 
 
 async def main() -> None:
-    bot = Bot(token=cf.BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+    proxy_url = cf.get_proxy_url()
+    session = AiohttpSession(proxy=proxy_url) if proxy_url else None
+    if proxy_url:
+        logger.info(f"Прокси включен: {cf.PROXY_TYPE}://{cf.PROXY_HOST}:{cf.PROXY_PORT}")
+
+    bot = Bot(token=cf.BOT_TOKEN, session=session, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     await include_routers()
 
     loop = asyncio.get_event_loop()
