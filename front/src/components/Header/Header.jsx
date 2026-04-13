@@ -123,7 +123,7 @@ function Header() {
     GetAllSettings().then(res => {
       context?.setSettingsList(res.data)
     })
-    GetObjectsAll().then(res => {
+    GetObjectsAll(`?userId=${JSON.parse(sessionStorage.getItem("userData"))?.user?.id}`).then(res => {
       if (res.status === 200) setObjectsLength(res.data?.length)
     })
   }, [])

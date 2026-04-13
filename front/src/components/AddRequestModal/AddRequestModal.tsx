@@ -116,7 +116,7 @@ const AddRequestModal: FC<TAddRequestModalProps> = ({ handleClose }) => {
     fileList?.forEach((file: any) => {
       formData.append('file', file.originFileObj);
     });
-    formData.append('userId', userId);
+    formData.append('userId', 'e30011a7-fc9d-406d-b9e8-06c9a373f951');
 
     if (fileList && fileList.length === 1) {
       await createRequestSinglePhotoMethod(formData);

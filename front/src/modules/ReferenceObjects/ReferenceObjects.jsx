@@ -71,7 +71,7 @@ function ReferenceObjects() {
   };
 
   const getData = () => {
-    GetObjectsAll().then((response) => {
+    GetObjectsAll(`?userId=${JSON.parse(sessionStorage.getItem("userData"))?.user?.id}`).then((response) => {
       setTableDataObject(formatData(response.data));
     });
   };

@@ -78,7 +78,7 @@ export default function TgUserObjects() {
 
   const fetchObjects = async () => {
     try {
-      const response = await GetObjectsAll()
+      const response = await GetObjectsAll(`?userId=${JSON.parse(sessionStorage.getItem("userData"))?.user?.id}`)
       if (response && response.data) {
         setObjects(response.data)
       }

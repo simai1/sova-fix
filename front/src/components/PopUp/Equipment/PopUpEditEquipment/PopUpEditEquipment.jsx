@@ -51,7 +51,7 @@ function PopUpEditEquipment() {
 
   // Загрузка данных из API
   useEffect(() => {
-    GetObjectsAll().then((response) => {
+    GetObjectsAll(`?userId=${JSON.parse(sessionStorage.getItem("userData"))?.user?.id}`).then((response) => {
       if (response.status === 200) {
         setObjects(response.data);
       }
