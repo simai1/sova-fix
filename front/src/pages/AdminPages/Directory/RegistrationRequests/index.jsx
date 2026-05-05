@@ -1,9 +1,12 @@
-import { useState } from 'react'
+import { useContext, useState } from 'react'
+import { Navigate } from 'react-router-dom'
 import {
   useGetPendingRegistrationsQuery,
   useApproveUserMutation,
   useDeleteUserMutation,
 } from '../../../../API/rtkQuery/users.api'
+import DataContext from '../../../../context.ts'
+import { PopUpError } from '../../../../UI/PopUpError/PopUpError'
 import styles from './RegistrationRequests.module.scss'
 
 const ROLE_LABELS = {
@@ -15,6 +18,10 @@ const ROLE_LABELS = {
 }
 
 function RegistrationRequests() {
+  const role = JSON.parse(sessionStorage.getItem('userData'))?.user?.role
+  if (role !== 'ADMIN') return <Navigate to="/" replace />
+
+  const { context } = useContext(DataContext)
   const { data = [], isLoading, isError } = useGetPendingRegistrationsQuery(undefined, {
     refetchOnMountOrArgChange: true,
   })
@@ -26,7 +33,8 @@ function RegistrationRequests() {
     try {
       await approve(id).unwrap()
     } catch (e) {
-      alert(e?.data?.message || 'Ошибка подтверждения')
+      context.setPopupErrorText(e?.data?.message || 'Ошибка подтверждения')
+      context.setPopUp('PopUpError')
     }
   }
 
@@ -36,7 +44,8 @@ function RegistrationRequests() {
       await del(confirmDelete).unwrap()
       setConfirmDelete(null)
     } catch (e) {
-      alert(e?.data?.message || 'Ошибка удаления')
+      context.setPopupErrorText(e?.data?.message || 'Ошибка удаления')
+      context.setPopUp('PopUpError')
       setConfirmDelete(null)
     }
   }
@@ -142,6 +151,8 @@ function RegistrationRequests() {
           </div>
         </div>
       )}
+
+      {context.popUp === 'PopUpError' && <PopUpError />}
     </div>
   )
 }

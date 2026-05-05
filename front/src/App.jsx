@@ -416,7 +416,9 @@ const UpdateStatus = () => {
                <Route path="Urgency" element={<DirectoryUrgency />}></Route>
                <Route path="Status" element={<DirectoryStatuses />}></Route>
                <Route path="Category" element={<DirectoryCategory />}></Route>
-               <Route path="RegistrationRequests" element={<RegistrationRequests />}></Route>
+               {JSON.parse(sessionStorage.getItem("userData"))?.user?.role === "ADMIN" && (
+                 <Route path="RegistrationRequests" element={<RegistrationRequests />}></Route>
+               )}
              </Route>
             )}
 

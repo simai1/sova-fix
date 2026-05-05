@@ -76,6 +76,7 @@ function Register() {
               type="text"
               name="name"
               placeholder="ФИО"
+              aria-label="ФИО"
               value={form.name}
               onChange={onChange}
               style={{ borderColor: errors.name ? 'red' : '' }}
@@ -86,6 +87,7 @@ function Register() {
               type="text"
               name="login"
               placeholder="Email"
+              aria-label="Email"
               value={form.login}
               onChange={onChange}
               style={{ borderColor: errors.login ? 'red' : '' }}
@@ -96,6 +98,7 @@ function Register() {
               type="password"
               name="password"
               placeholder="Пароль"
+              aria-label="Пароль"
               value={form.password}
               onChange={onChange}
               style={{ borderColor: errors.password ? 'red' : '' }}
@@ -106,6 +109,7 @@ function Register() {
               type="password"
               name="confirm"
               placeholder="Подтверждение пароля"
+              aria-label="Подтверждение пароля"
               value={form.confirm}
               onChange={onChange}
               style={{ borderColor: errors.confirm ? 'red' : '' }}
@@ -114,6 +118,7 @@ function Register() {
 
             <select
               name="role"
+              aria-label="Роль"
               value={form.role}
               onChange={onChange}
               style={{
@@ -127,7 +132,12 @@ function Register() {
               <option value={4}>Исполнитель</option>
             </select>
 
-            <button className={styles.button} onClick={onSubmit} disabled={isLoading}>
+            <button
+              type="button"
+              className={styles.button}
+              onClick={onSubmit}
+              disabled={isLoading}
+            >
               {isLoading ? 'Отправка...' : 'Зарегистрироваться'}
             </button>
             <Link to="/Authorization" className={styles.resetPassword}>
