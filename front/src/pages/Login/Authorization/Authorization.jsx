@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styles from "./Authorization.module.scss";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import DataContext from "../../../context";
 import { tableHeadAppoint } from "../../../components/Table/Data";
 import { LoginFunc } from "../../../API/API";
@@ -9,6 +9,8 @@ function Authorization() {
   const { context } = React.useContext(DataContext);
   const [errorAuth, setErrorAuth] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const [approvedMessage, setApprovedMessage] = useState("");
 
   const [formData, setFormData] = useState({
     login: "",
@@ -75,6 +77,13 @@ function Authorization() {
     context.setDataAppointment([])
   }, []);
 
+  useEffect(() => {
+    if (location.state?.approvedLogin) {
+      setFormData((prev) => ({ ...prev, login: location.state.approvedLogin }));
+      setApprovedMessage("Регистрация одобрена. Войдите в аккаунт.");
+    }
+  }, [location.state]);
+
   return (
     <div className={styles.AuthorRegistrar}>
       <div>
@@ -85,6 +94,11 @@ function Authorization() {
 
           <div className={styles.container}>
             <h2>Вход в аккаунт</h2>
+            {approvedMessage && (
+              <p style={{ color: "green", textAlign: "center", margin: 0 }}>
+                {approvedMessage}
+              </p>
+            )}
             <input
               type="text"
               placeholder="Логин"
