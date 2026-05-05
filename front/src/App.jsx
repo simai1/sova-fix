@@ -32,6 +32,7 @@ import DirectoryStatuses from "./modules/DirectoryStatuses/DirectoryStatuses.jsx
 import RequestPasswordRequest from "./pages/Login/ResetPasswordRequest/RequestPasswordRequest.jsx";
 import ResetPassword from "./pages/Login/ResetPassword/ResetPassword.jsx";
 import DirectoryCategory from './modules/DirectoryCategory/DirectoryCategory.tsx'
+import RegistrationRequests from "./pages/AdminPages/Directory/RegistrationRequests/index.jsx";
 
 function App() {
   const [selectContructor, setSelectContractor] = useState("")
@@ -415,6 +416,7 @@ const UpdateStatus = () => {
                <Route path="Urgency" element={<DirectoryUrgency />}></Route>
                <Route path="Status" element={<DirectoryStatuses />}></Route>
                <Route path="Category" element={<DirectoryCategory />}></Route>
+               <Route path="RegistrationRequests" element={<RegistrationRequests />}></Route>
              </Route>
             )}
 
