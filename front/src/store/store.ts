@@ -17,6 +17,7 @@ import isCheckedSlice from './filter/isChecked.slice.js';
 import isSamplePoints from './samplePoints/samplePoits';
 import { authApi } from '../API/rtkQuery/auth.api';
 import { repairRequestsApi } from '../API/rtkQuery/requests.api.js';
+import { usersApi } from '../API/rtkQuery/users.api';
 import { directoryCategoryApi } from '../modules/DirectoryCategory/directoryCategory.api';
 import { reportsApi } from '../pages/AdminPages/Reports/reports.api';
 import reportReducer from '../pages/AdminPages/Reports/slice';
@@ -31,6 +32,7 @@ const rootReducer = combineReducers({
   reportReducer,
   [repairRequestsApi.reducerPath]: repairRequestsApi.reducer,
   [authApi.reducerPath]: authApi.reducer,
+  [usersApi.reducerPath]: usersApi.reducer,
 });
 
 const persistConfig = {
@@ -53,6 +55,7 @@ const store = configureStore({
       reportsApi.middleware,
       repairRequestsApi.middleware,
       authApi.middleware,
+      usersApi.middleware,
     ]),
 });
 
