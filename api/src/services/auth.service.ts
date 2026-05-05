@@ -42,6 +42,9 @@ const login = async (email: string, password: string): Promise<data> => {
     if (!user || !(await isMatch(password, user.password)))
         throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid login data');
 
+    if (user.pendingApproval)
+        throw new ApiError(httpStatus.FORBIDDEN, 'Ваша заявка ещё не подтверждена менеджером');
+
     const userDto = new UserDto(user);
     const { accessToken, refreshToken } = jwtUtils.generate({ ...userDto });
     await jwtUtils.saveToken(userDto.id, refreshToken);
