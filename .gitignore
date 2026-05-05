@@ -1,1 +1,9 @@
 .idea
+.DS_Store
+.env
+.env.example
+*.override.*
+.memory-base
+CLAUDE.md
+.claude
+.playwright-mcp
