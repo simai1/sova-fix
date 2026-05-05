@@ -9,6 +9,7 @@ export default class User extends Model {
     password!: string;
     name!: string;
     isActivated!: boolean;
+    pendingApproval!: boolean;
     role!: number;
     tgManagerId?: string;
     TgUser?: TgUser;
@@ -47,6 +48,11 @@ export default class User extends Model {
                 isActivated: {
                     type: DataTypes.BOOLEAN,
                     allowNull: true,
+                    defaultValue: false,
+                },
+                pendingApproval: {
+                    type: DataTypes.BOOLEAN,
+                    allowNull: false,
                     defaultValue: false,
                 },
             },
