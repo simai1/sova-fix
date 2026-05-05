@@ -48,8 +48,5 @@ export const usersApi = createApi({
   }),
 });
 
-export const {
-  useGetPendingRegistrationsQuery,
-  useApproveUserMutation,
-  useDeleteUserMutation,
-} = usersApi;
+export const { useGetPendingRegistrationsQuery, useApproveUserMutation, useDeleteUserMutation } =
+  usersApi;
