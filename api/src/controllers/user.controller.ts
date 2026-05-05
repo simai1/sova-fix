@@ -40,10 +40,16 @@ const getUserByTgId = catchAsync(async (req, res) => {
     res.json(user)
 })
 
+const getPendingRegistrations = catchAsync(async (req, res) => {
+    const list = await userService.getPendingRegistrations();
+    res.json(list);
+});
+
 export default {
     setRole,
     getAll,
     destroy,
     confirmTgUser,
     getUserByTgId,
+    getPendingRegistrations,
 };

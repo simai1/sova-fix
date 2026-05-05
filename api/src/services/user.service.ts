@@ -45,6 +45,14 @@ const getAllUsers = async (): Promise<UserDto[]> => {
     return users.map(u => new UserDto(u));
 };
 
+const getPendingRegistrations = async (): Promise<UserDto[]> => {
+    const users = await User.findAll({
+        where: { pendingApproval: true },
+        order: [['createdAt', 'DESC']],
+    });
+    return users.map(u => new UserDto(u));
+};
+
 const getUsersDir = async (): Promise<userDir[]> => {
     const users = await User.findAll({ include: [{ model: TgUser }] });
     const tgUsers = await TgUser.findAll();
@@ -134,6 +142,7 @@ export default {
     setRole,
     getUsersDir,
     getAllUsers,
+    getPendingRegistrations,
     deleteUser,
     deleteDirUser,
     confirmTgUser,
