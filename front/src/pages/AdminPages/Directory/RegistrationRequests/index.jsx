@@ -19,15 +19,18 @@ const ROLE_LABELS = {
 
 function RegistrationRequests() {
   const role = JSON.parse(sessionStorage.getItem('userData'))?.user?.role
-  if (role !== 'ADMIN') return <Navigate to="/" replace />
+  const isAdmin = role === 'ADMIN'
 
   const { context } = useContext(DataContext)
   const { data = [], isLoading, isError } = useGetPendingRegistrationsQuery(undefined, {
     refetchOnMountOrArgChange: true,
+    skip: !isAdmin,
   })
   const [approve, { isLoading: aLoad }] = useApproveUserMutation()
   const [del, { isLoading: dLoad }] = useDeleteUserMutation()
   const [confirmDelete, setConfirmDelete] = useState(null)
+
+  if (!isAdmin) return <Navigate to="/" replace />
 
   const onApprove = async (id) => {
     try {
