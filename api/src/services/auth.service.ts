@@ -9,6 +9,8 @@ import userService from './user.service';
 import jwtUtils from '../utils/jwt';
 import { encrypt, isMatch } from '../utils/encryption';
 import tgUserService from './tgUser.service';
+import { sendMsg, WsMsgData } from '../utils/ws';
+import wsEvents from '../config/wsEvents';
 
 type data = {
     accessToken: string;
@@ -75,6 +77,35 @@ const refresh = async (refreshToken: string): Promise<data> => {
     return await jwtUtils.refresh(refreshToken);
 };
 
+const registerPublic = async (
+    login: string,
+    password: string,
+    name: string,
+    role: number
+): Promise<UserDto> => {
+    const checkUser = await userService.getUserByEmail(login);
+    if (checkUser)
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Пользователь с такой почтой уже зарегистрирован');
+
+    const encryptedPassword = await encrypt(password);
+    const user = await User.create({
+        login,
+        name,
+        password: encryptedPassword,
+        role,
+        isActivated: true,
+        pendingApproval: true,
+    });
+
+    const dto = new UserDto(user);
+    sendMsg({
+        msg: { userId: dto.id, login: dto.login, name: dto.name, role: dto.role },
+        event: wsEvents.USER_REGISTRATION_REQUEST,
+    } as WsMsgData);
+
+    return dto;
+};
+
 const registerCustomerCrm = async (login: string, tgId: string): Promise<UserDto> => {
     const checkUser = await userService.getUserByEmail(login);
     if (checkUser) throw new ApiError(httpStatus.BAD_REQUEST, 'User with this email already exists');
@@ -105,4 +136,5 @@ export default {
     logout,
     refresh,
     registerCustomerCrm,
+    registerPublic,
 };

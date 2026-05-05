@@ -2,11 +2,14 @@ import Joi from 'joi';
 
 export const registerPublicSchema = Joi.object({
     body: Joi.object({
-        login: Joi.string().email().required().messages({
-            'string.email': 'Укажите корректный email',
-            'string.empty': 'Email обязателен',
-            'any.required': 'Email обязателен',
-        }),
+        login: Joi.string()
+            .email({ tlds: { allow: false } })
+            .required()
+            .messages({
+                'string.email': 'Укажите корректный email',
+                'string.empty': 'Email обязателен',
+                'any.required': 'Email обязателен',
+            }),
         password: Joi.string().min(6).max(100).required().messages({
             'string.min': 'Пароль должен быть минимум 6 символов',
             'string.empty': 'Пароль обязателен',

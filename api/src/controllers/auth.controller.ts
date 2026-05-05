@@ -49,6 +49,17 @@ const registerCustomerCrm = catchAsync(async (req, res) => {
     res.json(userDto);
 })
 
+const registerPublic = catchAsync(async (req, res) => {
+    const { login, password, name, role } = req.body;
+    const userDto = await authService.registerPublic(login, password, name, role);
+    res.status(201).json({
+        userId: userDto.id,
+        login: userDto.login,
+        name: userDto.name,
+        role: userDto.role,
+    });
+});
+
 export default {
     registerViaEmail,
     login,
@@ -56,4 +67,5 @@ export default {
     logout,
     refresh,
     registerCustomerCrm,
+    registerPublic,
 };
