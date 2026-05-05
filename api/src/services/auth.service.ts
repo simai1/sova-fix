@@ -40,7 +40,7 @@ const register = async (login: string): Promise<UserDto> => {
 const login = async (email: string, password: string): Promise<data> => {
     const user = await userService.getUserByEmail(email);
     if (!user || !(await isMatch(password, user.password)))
-        throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid login data');
+        throw new ApiError(httpStatus.UNAUTHORIZED, 'Неверный логин или пароль');
 
     if (user.pendingApproval)
         throw new ApiError(httpStatus.FORBIDDEN, 'Ваша заявка ещё не подтверждена менеджером');
