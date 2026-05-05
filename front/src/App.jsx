@@ -1,4 +1,6 @@
 import Authorization from "./pages/Login/Authorization/Authorization.jsx";
+import Register from "./pages/Login/Authorization/Register/Register.jsx";
+import Pending from "./pages/Login/Authorization/Pending/Pending.jsx";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import DataContext from "./context.ts";
@@ -396,6 +398,8 @@ const UpdateStatus = () => {
             <Route path="/" element={<HomePageAdmin />}></Route>
             <Route path="/Activate" element={<Activate />}></Route>
             <Route path="/Authorization" element={<Authorization />}></Route>
+            <Route path="/Authorization/Register" element={<Register />}></Route>
+            <Route path="/Authorization/Pending" element={<Pending />}></Route>
             <Route path="/reset-password-request" element={<RequestPasswordRequest/>}></Route>
             <Route path="/reset-password" element={<ResetPassword/>}></Route>
             <Route path="/reports" element={<ReportsContainer />}/>
