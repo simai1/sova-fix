@@ -1,5 +1,7 @@
 const events = {
-    STATUS_UPDATE: 1,
-};
+    STATUS_UPDATE: 'STATUS_UPDATE',
+    USER_REGISTRATION_REQUEST: 'USER_REGISTRATION_REQUEST',
+    USER_CONFIRM: 'USER_CONFIRM',
+} as const;
 
 export default events;
