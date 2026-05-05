@@ -105,6 +105,7 @@ function Authorization() {
             <button className={styles.button} onClick={handleLogin}>
               Войти
             </button>
+            <Link to={'/Authorization/Register'} className={styles.resetPassword}>Регистрация</Link>
           </div>
         </div>
         <div
