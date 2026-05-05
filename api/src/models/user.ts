@@ -62,6 +62,13 @@ export default class User extends Model {
                 modelName: 'User',
                 tableName: 'users',
                 paranoid: true,
+                indexes: [
+                    {
+                        name: 'users_pending_created_idx',
+                        fields: ['pending_approval', 'created_at'],
+                        where: { pending_approval: true },
+                    },
+                ],
             }
         );
 

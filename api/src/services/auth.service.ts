@@ -101,8 +101,10 @@ const registerPublic = async (
     });
 
     const dto = new UserDto(user);
+    // PII не шлём в broadcast — ws-канал без auth, любой клиент его получит.
+    // Менеджер увидит детали через GET /users/pending-registrations (с auth).
     sendMsg({
-        msg: { userId: dto.id, login: dto.login, name: dto.name, role: dto.role },
+        msg: { userId: dto.id },
         event: wsEvents.USER_REGISTRATION_REQUEST,
     } as WsMsgData);
 

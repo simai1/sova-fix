@@ -38,6 +38,10 @@ export default class Contractor extends Model {
                 modelName: 'Contractor',
                 tableName: 'contractors',
                 paranoid: true,
+                indexes: [
+                    { name: 'contractors_user_id_idx', fields: ['user_id'] },
+                    { name: 'contractors_tg_user_id_idx', fields: ['tg_user_id'] },
+                ],
             }
         );
     }
