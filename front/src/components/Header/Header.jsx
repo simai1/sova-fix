@@ -196,6 +196,7 @@ return (
                     <li className={styles.menuLi} onClick={() => LinkPage("Directory/Urgency")}>Срочность заявок</li>
                     <li className={styles.menuLi} onClick={() => LinkPage("Directory/Status")}>Статус заявок</li>
                     <li className={styles.menuLi} onClick={() => LinkPage("Directory/Category")}>Категории</li>
+                    <li className={styles.menuLi} onClick={() => LinkPage("Directory/RegistrationRequests")}>Заявки на регистрацию</li>
                 </ul>
                 {GLOBAL_OPEN_REPORT_BLOCK === "open" &&
                     <li className={styles.menuLi} onClick={() => LinkPage('reports')}>Отчеты</li>
