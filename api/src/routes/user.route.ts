@@ -13,6 +13,9 @@ router.route('/').get(verifyToken.auth, userController.getAll);
 router
     .route('/pending-registrations')
     .get(verifyToken.auth, verifyRole(roles.ADMIN), userController.getPendingRegistrations);
+router
+    .route('/:userId/approve')
+    .patch(verifyToken.auth, verifyRole(roles.ADMIN), userController.approveUser);
 router.route('/confirm/:userId').patch(userController.confirmTgUser);
 router.route('/:userId').delete(verifyToken.auth, userController.destroy);
 router.route('/:tgId').get(userController.getUserByTgId)

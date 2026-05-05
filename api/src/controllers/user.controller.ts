@@ -45,6 +45,13 @@ const getPendingRegistrations = catchAsync(async (req, res) => {
     res.json(list);
 });
 
+const approveUser = catchAsync(async (req, res) => {
+    const { userId } = req.params;
+    if (!userId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing userId');
+    const dto = await userService.approveUser(userId);
+    res.json(dto);
+});
+
 export default {
     setRole,
     getAll,
@@ -52,4 +59,5 @@ export default {
     confirmTgUser,
     getUserByTgId,
     getPendingRegistrations,
+    approveUser,
 };

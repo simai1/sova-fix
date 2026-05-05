@@ -7,6 +7,7 @@ import UserDto from '../dtos/user.dto';
 import TgUser from '../models/tgUser';
 import { sendMsg, WsMsgData } from '../utils/ws';
 import Contractor from '../models/contractor';
+import wsEvents from '../config/wsEvents';
 
 type userDir = {
     id: string;
@@ -51,6 +52,20 @@ const getPendingRegistrations = async (): Promise<UserDto[]> => {
         order: [['createdAt', 'DESC']],
     });
     return users.map(u => new UserDto(u));
+};
+
+const approveUser = async (userId: string): Promise<UserDto> => {
+    const user = await User.findByPk(userId);
+    if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'Пользователь не найден');
+    if (!user.pendingApproval)
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Пользователь уже подтверждён');
+
+    await user.update({ pendingApproval: false });
+    if (user.role === roles.CONTRACTOR) {
+        await Contractor.create({ name: user.name, userId: user.id });
+    }
+    sendMsg({ msg: { userId: user.id }, event: wsEvents.USER_CONFIRM } as WsMsgData);
+    return new UserDto(user);
 };
 
 const getUsersDir = async (): Promise<userDir[]> => {
@@ -143,6 +158,7 @@ export default {
     getUsersDir,
     getAllUsers,
     getPendingRegistrations,
+    approveUser,
     deleteUser,
     deleteDirUser,
     confirmTgUser,
