@@ -6,7 +6,9 @@
     "start": "cross-env NODE_ENV=production node dist/index.js",
     "build": "tsc",
     "dev": "cross-env NODE_ENV=development nodemon",
-    "lint": "eslint --ignore-path .eslintignore --ext .js,.ts"
+    "lint": "eslint --ignore-path .eslintignore --ext .js,.ts",
+    "test": "cross-env NODE_ENV=test vitest run",
+    "test:watch": "cross-env NODE_ENV=test vitest"
   },
   "nodemonConfig": "nodemon.json",
   "keywords": [],
@@ -29,6 +31,7 @@
     "@types/qrcode-generator": "^0.0.16",
     "@types/sequelize": "^4.28.20",
     "@types/strftime": "^0.9.8",
+    "@types/supertest": "^6.0.3",
     "@types/uuid": "^10.0.0",
     "@types/winston": "^2.4.4",
     "@typescript-eslint/eslint-plugin": "^7.13.1",
@@ -41,8 +44,10 @@
     "find-unused-exports": "^5.0.0",
     "nodemon": "^3.0.1",
     "prettier": "^3.0.0",
+    "supertest": "^7.2.2",
     "ts-node": "^10.9.2",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "vitest": "^2.1.9"
   },
   "dependencies": {
     "@types/express-ws": "^3.0.5",
