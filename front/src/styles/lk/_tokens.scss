@@ -1,0 +1,76 @@
+:root {
+  --lk-yellow: #F5C518;
+  --lk-yellow-dark: #D9A800;
+  --lk-sand: #E8DAB2;
+  --lk-sand-light: #F5EBD0;
+  --lk-brown: #7B4B2A;
+  --lk-brown-dark: #5C3820;
+  --lk-black: #1A1A1A;
+  --lk-bg: #FFFAF0;
+  --lk-text: #1A1A1A;
+  --lk-muted: #8A7A66;
+  --lk-danger: #C0392B;
+  --lk-success: #2E7D32;
+  --lk-border: rgba(123, 75, 42, 0.18);
+
+  --lk-sp-1: 4px;
+  --lk-sp-2: 8px;
+  --lk-sp-3: 12px;
+  --lk-sp-4: 16px;
+  --lk-sp-5: 24px;
+  --lk-sp-6: 32px;
+
+  --lk-r-sm: 6px;
+  --lk-r-md: 12px;
+  --lk-r-lg: 20px;
+
+  --lk-fs-sm: 13px;
+  --lk-fs-md: 15px;
+  --lk-fs-lg: 18px;
+  --lk-fs-xl: 22px;
+
+  // Базовый размер шрифта по breakpoint'ам — переопределяется ниже через media-queries.
+  --lk-font-base: 14px;
+  --lk-font-md-base: 15px;
+  --lk-font-lg-base: 16px;
+
+  // Высота sticky-хедера. Переопределяется ниже по breakpoint'ам, чтобы
+  // .lk-toolbar / .lk-sidebar и прочие sticky-смещения не зависели от
+  // magic-чисел и не «уезжали» при изменении header'а.
+  --lk-header-h: 56px;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --lk-header-h: 60px;
+  }
+}
+
+@media (min-width: 992px) {
+  :root {
+    --lk-header-h: 64px;
+  }
+}
+
+// 6 breakpoints, mobile-first — значения по Bootstrap 5.3 (индустриальный стандарт).
+// 360 px (Galaxy S20-style) попадает в xs.
+$lk-bp-xs: 0;       // <576    small phone (mobile-first base)
+$lk-bp-sm: 576px;   // 576-767 large phone
+$lk-bp-md: 768px;   // 768-991 tablet portrait
+$lk-bp-lg: 992px;   // 992-1199 tablet landscape / small desktop
+$lk-bp-xl: 1200px;  // 1200-1399 desktop — здесь активируется sidebar
+$lk-bp-xxl: 1400px; // 1400+   large desktop
+
+@mixin lk-mq-up($bp) {
+  @if $bp == sm {
+    @media (min-width: $lk-bp-sm) { @content; }
+  } @else if $bp == md {
+    @media (min-width: $lk-bp-md) { @content; }
+  } @else if $bp == lg {
+    @media (min-width: $lk-bp-lg) { @content; }
+  } @else if $bp == xl {
+    @media (min-width: $lk-bp-xl) { @content; }
+  } @else if $bp == xxl {
+    @media (min-width: $lk-bp-xxl) { @content; }
+  }
+}

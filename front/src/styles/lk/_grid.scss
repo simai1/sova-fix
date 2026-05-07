@@ -1,0 +1,64 @@
+@use './tokens' as *;
+
+// 12-колоночная сетка по API Bootstrap 5.3.
+// Внутри `.lk-row` колонки распределяются flex'ом, gutter — через CSS-переменную,
+// чтобы значение было одинаковым у row и у вертикального row-gap'а и не дублировалось
+// в десятках мест.
+:root {
+  --lk-gutter: var(--lk-sp-3);
+}
+
+@media (min-width: 992px) {
+  :root {
+    --lk-gutter: var(--lk-sp-4);
+  }
+}
+
+.lk-row {
+  display: flex;
+  flex-wrap: wrap;
+  // Отрицательный margin компенсирует padding у колонок — в итоге крайние колонки
+  // выравниваются с краем родителя, а внутренние — расходятся ровно на gutter.
+  margin-inline: calc(var(--lk-gutter) / -2);
+  row-gap: var(--lk-gutter);
+
+  // Универсальный селектор `.lk-row > *` имеет specificity (0,1,0) — такой же,
+  // как у `.lk-col-md-6 { width: 50% }`, поэтому каскад выигрывает за счёт порядка
+  // (responsive-правила объявлены ниже). Если использовать `.lk-row > [class*='lk-col']`,
+  // specificity (0,2,0) перебьёт responsive-классы, и колонки останутся 100%.
+  > * {
+    padding-inline: calc(var(--lk-gutter) / 2);
+    box-sizing: border-box;
+    flex: 0 0 auto;
+    width: 100%;
+  }
+}
+
+// Базовый «авто»-col без модификатора — занимает доступное место поровну.
+.lk-col {
+  flex: 1 0 0;
+  width: auto;
+  min-width: 0;
+}
+
+@for $i from 1 through 12 {
+  .lk-col-#{$i} {
+    width: percentage(calc($i / 12));
+  }
+}
+
+@each $bp in (sm, md, lg, xl, xxl) {
+  @include lk-mq-up($bp) {
+    .lk-col-#{$bp} {
+      flex: 1 0 0;
+      width: auto;
+      min-width: 0;
+    }
+
+    @for $i from 1 through 12 {
+      .lk-col-#{$bp}-#{$i} {
+        width: percentage(calc($i / 12));
+      }
+    }
+  }
+}

@@ -1,0 +1,159 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+import {
+  useCreateRequestMutation,
+  useGetMeQuery,
+  useGetMyObjectsQuery,
+  useGetUrgenciesQuery,
+} from '@/API/rtkQuery/lk.api';
+import LkEmpty from '@/components/Lk/LkEmpty';
+import LkSpinner from '@/components/Lk/LkSpinner';
+import PhotoUploader from '@/components/Lk/PhotoUploader';
+import { showToast } from '@/components/Lk/toastBus';
+import { getErrorMessage } from '@/utils/getErrorMessage';
+
+const MIN_DESCRIPTION_LEN = 10;
+
+const CustomerCreateRequest = (): JSX.Element => {
+  const navigate = useNavigate();
+  const { data: me, isLoading: meLoading } = useGetMeQuery();
+  const { data: urgencies = [], isLoading: urgLoading } = useGetUrgenciesQuery();
+  const { data: myObjects = [], isLoading: objLoading } = useGetMyObjectsQuery();
+  const [createRequest, { isLoading: creating }] = useCreateRequestMutation();
+
+  const [objectId, setObjectId] = useState('');
+  const [description, setDescription] = useState('');
+  const [urgencyId, setUrgencyId] = useState('');
+  const [files, setFiles] = useState<File[]>([]);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  if (meLoading || urgLoading || objLoading) return <LkSpinner />;
+  if (!me) return <LkEmpty text="Не удалось загрузить профиль" />;
+
+  if (myObjects.length === 0) {
+    return <LkEmpty text="У вас нет назначенных объектов. Обратитесь к менеджеру." />;
+  }
+
+  const validate = (): boolean => {
+    const next: Record<string, string> = {};
+    if (!objectId) next.objectId = 'Выберите объект';
+    if (description.trim().length < MIN_DESCRIPTION_LEN) {
+      next.description = `Опишите проблему (минимум ${MIN_DESCRIPTION_LEN} символов)`;
+    }
+    if (!urgencyId) next.urgencyId = 'Выберите срочность';
+    if (files.length === 0) next.files = 'Добавьте хотя бы одно фото';
+    if (files.length > 10) next.files = 'Не более 10 фото';
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
+    e.preventDefault();
+    if (!validate()) return;
+    const fd = new FormData();
+    fd.append('objectId', objectId);
+    fd.append('problemDescription', description.trim());
+    fd.append('urgencyId', urgencyId);
+    files.forEach((f) => fd.append('files', f));
+
+    try {
+      const created = await createRequest(fd).unwrap();
+      showToast('success', 'Заявка создана');
+      if (created?.id) {
+        navigate(`/customer/requests/${created.id}`);
+      } else {
+        navigate('/customer/requests');
+      }
+    } catch (err) {
+      showToast('error', getErrorMessage(err));
+    }
+  };
+
+  return (
+    <form className="lk-card" onSubmit={handleSubmit}>
+      <h2 className="lk-card__title">Новая заявка</h2>
+
+      <div className="lk-row">
+        <div className="lk-col-12 lk-col-md-6">
+          <div className="lk-field">
+            <label className="lk-field__label" htmlFor="lk-create-object">
+              Объект
+            </label>
+            <select
+              id="lk-create-object"
+              className="lk-select"
+              value={objectId}
+              onChange={(e) => setObjectId(e.target.value)}
+            >
+              <option value="">Выберите объект</option>
+              {myObjects.map((o) => (
+                <option key={o.id} value={o.id}>
+                  {o.name}
+                </option>
+              ))}
+            </select>
+            {errors.objectId ? <div className="lk-field__error">{errors.objectId}</div> : null}
+          </div>
+        </div>
+
+        <div className="lk-col-12 lk-col-md-6">
+          <div className="lk-field">
+            <label className="lk-field__label" htmlFor="lk-create-urgency">
+              Срочность
+            </label>
+            <select
+              id="lk-create-urgency"
+              className="lk-select"
+              value={urgencyId}
+              onChange={(e) => setUrgencyId(e.target.value)}
+            >
+              <option value="">Выберите срочность</option>
+              {urgencies.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.name}
+                </option>
+              ))}
+            </select>
+            {errors.urgencyId ? <div className="lk-field__error">{errors.urgencyId}</div> : null}
+          </div>
+        </div>
+      </div>
+
+      <div className="lk-field">
+        <label className="lk-field__label" htmlFor="lk-create-desc">
+          Описание проблемы
+        </label>
+        <textarea
+          id="lk-create-desc"
+          className="lk-textarea"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Опишите, что сломалось"
+        />
+        {errors.description ? <div className="lk-field__error">{errors.description}</div> : null}
+      </div>
+
+      <div className="lk-field">
+        <label className="lk-field__label">Фото (1–10)</label>
+        <PhotoUploader
+          files={files}
+          onChange={setFiles}
+          maxFiles={10}
+          hint="Снимите проблему с разных ракурсов"
+        />
+        {errors.files ? <div className="lk-field__error">{errors.files}</div> : null}
+      </div>
+
+      <button
+        type="submit"
+        className="lk-button lk-button--primary lk-button--block"
+        disabled={creating}
+      >
+        {creating ? 'Создание...' : 'Создать заявку'}
+      </button>
+    </form>
+  );
+};
+
+export default CustomerCreateRequest;

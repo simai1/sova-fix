@@ -1,0 +1,22 @@
+@use './tokens' as *;
+
+// Display-утилиты по образцу Bootstrap 5.3 (`d-{bp}-{value}`).
+// Ограничены тем, что реально нужно в ЛК — show/hide и базовые контейнеры.
+// Spacing/sizing-утилиты не вводим: токены `--lk-sp-*` и BEM-классы это покрывают.
+$lk-displays: none, block, flex, inline-flex, inline-block, grid;
+
+@each $d in $lk-displays {
+  .lk-d-#{$d} {
+    display: #{$d};
+  }
+}
+
+@each $bp in (sm, md, lg, xl, xxl) {
+  @include lk-mq-up($bp) {
+    @each $d in $lk-displays {
+      .lk-d-#{$bp}-#{$d} {
+        display: #{$d};
+      }
+    }
+  }
+}
