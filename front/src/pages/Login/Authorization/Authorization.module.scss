@@ -1,78 +1,118 @@
+@use '@/styles/lk/tokens' as *;
+
 .AuthorRegistrar {
-  align-items: center;
-  height: 100vh;
-  justify-content: center;
+  // flex-direction: column нужен, чтобы align-items: center центрировал по
+  // горизонтали без сжатия flex-item'а до min-content (как было в row-режиме —
+  // безымянный div-обёртка из JSX схлопывался до 250-340px и .box получал
+  // не свои 25rem). В column-режиме width у обёртки резолвит % относительно
+  // .AuthorRegistrar.
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 1rem;
+  box-sizing: border-box;
+
+  > div {
+    width: min(25rem, 100%);
+    @include lk-mq-up(tp) {
+      width: min(50rem, 100%);
+    }
+  }
+
   .box {
-    label{
+    label {
       display: flex;
       justify-content: start;
       width: 100%;
       align-items: start;
       text-align: start;
-      padding-left: 8px;
-      font-size: 14px;
+      padding-left: 0.5rem;
+      font-size: 0.875rem;
     }
-    padding: 60px 0px;
-    width: 800px;
-    @media (max-width: 870px) {
-      width: auto;
-      padding: 25px 10px;
-     }
+    // Mobile-first: карточка тянется по viewport, но ограничена 25rem на узких экранах,
+    // чтобы на телефонах форма занимала всё доступное место без пустых полей.
+    // Horizontal padding 1.75rem нужен, чтобы input/кнопка/заголовок не упирались
+    // в закругление карточки: container внутри имеет max-width 22.5rem и без этого
+    // воздуха касался бы padding-edge карточки на ширинах ~25rem.
+    width: 100%;
+    padding: 1.75rem 1.75rem;
+    box-sizing: border-box;
     background-color: var(--white-color);
-    @include flexbox-center(17px);
-    .LogoAuth{
-      height: 345px;
-      position: relative;
-      right: -40px;
-      top: 30px;
-      @media (max-width: 870px) {
-       display: none;
+    @include flexbox-center(1.0625rem);
+    @include lk-mq-up(tp) {
+      padding: 3.75rem 0;
+    }
+    .LogoAuth {
+      display: none;
+      @include lk-mq-up(tp) {
+        display: block;
+        height: 21.5625rem;
+        position: relative;
+        right: -2.5rem;
+        top: 1.875rem;
       }
     }
     .container {
       margin: 0 auto;
-      @include flexbox-center(17px);
+      display: flex;
       flex-direction: column;
+      align-items: stretch;
+      gap: 0.875rem;
       position: relative;
+      width: 100%;
+      max-width: 22.5rem;
       h2 {
         width: 100%;
-        @include flexbox-center(0);
-        margin-top: 0;
-        @include font(32px, 700);
+        text-align: center;
+        margin: 0 0 0.25rem;
+        @include font(2rem, 700);
       }
-      input {
-        @include input-text(360px, 8px);
-        margin-bottom: 15px;
-        @media (max-width: 570px) {
-          @include input-text(260px, 8px);
-          margin-bottom: 25px;
-
-         }
+      input,
+      .select {
+        @include input-text(100%, 0.5rem);
+        box-sizing: border-box;
+        margin: 0;
+        width: auto !important;
+        min-width: 0;
       }
-
+      .select {
+        appearance: auto;
+        cursor: pointer;
+        font: inherit;
+        color: #353535;
+      }
+      .errorText {
+        color: red;
+        font-size: 0.8125rem;
+        margin: -0.5rem 0 0 0.25rem;
+      }
       .resetPassword {
         color: #000;
-        margin: 10px 0;
-        &:hover{
-          color: var(--ActiveText-color)
+        margin: 0;
+        text-align: center;
+        align-self: center;
+        font-size: 0.875rem;
+        &:hover {
+          color: var(--ActiveText-color);
         }
       }
-
       .button {
         @include button(var(--turquoise-color));
-        width: 200px!important;
-        text-align: center;
-        display: flex;
+        width: 100%;
+        box-sizing: border-box;
         justify-content: center;
-        padding: 12.5px 0px;
-      }
-      .buttonReg {
-        margin-top: 10px;
-        @include button(var(--gray--button--color));
+        padding: 0.875rem 0;
+        font-weight: 500;
+        margin-top: 0.25rem;
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
       }
     }
-    .text_Logo{
+    .text_Logo {
       position: relative;
     }
   }
@@ -81,30 +121,29 @@
       transform: translateY(0);
     }
     30% {
-      transform: translateY(-10px); // Move up
+      transform: translateY(-0.625rem);
     }
     50% {
-      transform: translateY(0); // Back to original position
+      transform: translateY(0);
     }
     70% {
-      transform: translateY(-5px); // Slightly bounce up again
+      transform: translateY(-0.3125rem);
     }
     100% {
-      transform: translateY(0); // Back to original position
+      transform: translateY(0);
     }
   }
-  
+
   .ErrorLogin {
     display: flex;
     justify-content: center;
     text-align: center;
-    font-size: 24px;
-    opacity: 0; // Start hidden
-    transition: opacity 0.2s linear; // Smooth transition for opacity
+    font-size: 1.5rem;
+    opacity: 0;
+    transition: opacity 0.2s linear;
     &.visible {
-      opacity: 1; // Make the element visible
-      animation: bounce 0.5s; // Apply bounce animation
+      opacity: 1;
+      animation: bounce 0.5s;
     }
   }
-  
 }
