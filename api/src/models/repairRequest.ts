@@ -5,6 +5,7 @@ import Unit from './unit';
 import LegalEntity from './legalEntity';
 import ExtContractor from './externalContractor';
 import TgUser from './tgUser';
+import User from './user';
 import DirectoryCategory from './directoryCategory';
 
 export default class RepairRequest extends Model {
@@ -47,6 +48,8 @@ export default class RepairRequest extends Model {
     copiedRequestId?: string;
     DirectoryCategory?: DirectoryCategory;
     directoryCategoryId?: string | null;
+    createdByUserId?: string;
+    CreatedByUser?: User;
 
     static initialize(sequelize: Sequelize) {
         RepairRequest.init(
@@ -154,6 +157,11 @@ export default class RepairRequest extends Model {
                 directoryCategoryId: {
                     type: DataTypes.UUID,
                     allowNull: true,
+                },
+                createdByUserId: {
+                    type: DataTypes.UUID,
+                    allowNull: true,
+                    field: 'created_by_user_id',
                 },
             },
             {

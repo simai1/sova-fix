@@ -370,7 +370,7 @@ function UniversalTable(props) {
   };
 
   const handleRoleClick = (rowIndex, role) => {
-    (role === "Пользователь" || role === "Администратор" || role === "Наблюдатель") && JSON.parse(localStorage.getItem("userData"))?.user?.role === "ADMIN" && setDropdownVisible(dropdownVisible === rowIndex ? null : rowIndex);
+    (role === "Пользователь" || role === "Администратор" || role === "Наблюдатель") && JSON.parse(sessionStorage.getItem("userData"))?.user?.role === "ADMIN" && setDropdownVisible(dropdownVisible === rowIndex ? null : rowIndex);
   };
 
   const checkHeights = (arr, index) => {
@@ -435,12 +435,12 @@ function UniversalTable(props) {
       target.className !== "Table_statusClick__QSptV" &&
       target.tagName !== "LI" &&
       !(context.selectRowDirectory === row.id) &&
-      JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER"
+      JSON.parse(sessionStorage.getItem("userData"))?.user?.role !== "OBSERVER"
     ) {
         context.setSelectRowDirectory(row.id);
         context.setSelectedTr(row.id);
     }
-    if(JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER"){
+    if(JSON.parse(sessionStorage.getItem("userData"))?.user?.role !== "OBSERVER"){
       setContextMenuOpen(true);
     }
   };
@@ -598,7 +598,7 @@ function UniversalTable(props) {
                 onClick={() => handleRoleClick(rowIndex , row.role)}
                 className={
                   (row.role === "Пользователь" || row.role === "Администратор" || row.role === "Наблюдатель") &&
-                  JSON.parse(localStorage.getItem("userData"))?.user?.role === "ADMIN"
+                  JSON.parse(sessionStorage.getItem("userData"))?.user?.role === "ADMIN"
                     ? styles.statusClick
                     : ""
                 }
@@ -627,7 +627,7 @@ function UniversalTable(props) {
 
                   {header.key === "itineraryOrder" && (
                     <div
-                      onClick={() => JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" && setItineraryOrderPop(row.id)}
+                      onClick={() => JSON.parse(sessionStorage.getItem("userData"))?.user?.role !== "OBSERVER" && setItineraryOrderPop(row.id)}
                       className={ document.location.pathname === "/CardPage/CardPageModule" ? styles.statusClick : styles.statusNotClick }
                       // ref={ItineraryOrderPopRef}
                     >

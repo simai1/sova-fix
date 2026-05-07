@@ -13,6 +13,7 @@ import СonfirmDeleteUser from "./../../components/СonfirmDeleteUser/СonfirmDe
 import ClearImg from "./../../assets/images/ClearFilter.svg"
 import { resetFilters } from "../../store/samplePoints/samplePoits";
 import { useNavigate } from "react-router-dom";
+import UserObjectsAssign from "../UserObjectsAssign/UserObjectsAssign";
 
 function UsersDirectory() {
     const [tableDataObject, setTableDataObject] = useState([]);
@@ -22,7 +23,8 @@ function UsersDirectory() {
     const [errorMessage, setErrorMessage] = useState("");
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const isCurrentUserManager = JSON.parse(localStorage.getItem("userData"))?.user?.role === "ADMIN";
+    const [objectsAssignFor, setObjectsAssignFor] = useState(null);
+    const isCurrentUserManager = JSON.parse(sessionStorage.getItem("userData"))?.user?.role === "ADMIN";
 
     function funFixData(data) {
         return data.map((item) => {
@@ -35,6 +37,7 @@ function UsersDirectory() {
             name: item?.name || "___",
             role: funFixRole(item?.role),
             accessButton: (isCurrentUserManager && item?.tgId) ? "button" : null,
+            objectsButton: (isCurrentUserManager && (item?.role === 3 || item?.role === 4)) ? "button" : null,
           };
         });
       }
@@ -122,11 +125,25 @@ function UsersDirectory() {
     const renderAccessButton = (value, row) => {
       if (value) {
         return (
-          <button 
+          <button
             className={styles.accessButton}
             onClick={() => handleAccessClick(row.id)}
           >
             Доступы
+          </button>
+        );
+      }
+      return null;
+    };
+
+    const renderObjectsButton = (value, row) => {
+      if (value) {
+        return (
+          <button
+            className={styles.accessButton}
+            onClick={() => setObjectsAssignFor({ id: row.id, name: row.name })}
+          >
+            Объекты
           </button>
         );
       }
@@ -175,7 +192,7 @@ function UsersDirectory() {
                   <button onClick={() => dispatch(resetFilters({tableName: "table5"}))} ><img src={ClearImg} /></button>
               </div>
             </div>
-            {JSON.parse(localStorage.getItem("userData"))?.user?.role === "ADMIN" && 
+            {JSON.parse(sessionStorage.getItem("userData"))?.user?.role === "ADMIN" && 
               <div className={styles.ReferenceObjectsTopButton}>
                   <button onClick={() => setPopUpCreate(true)}>Добавить</button>
                   <button onClick={() => ActivateUser()}>Активировать</button>
@@ -192,8 +209,15 @@ function UsersDirectory() {
           ClickRole={ClickRole} 
           heightTable="calc(100vh - 285px)"
           customRender={{
-            accessButton: renderAccessButton
+            accessButton: renderAccessButton,
+            objectsButton: renderObjectsButton
           }}
+        />
+        <UserObjectsAssign
+          open={objectsAssignFor !== null}
+          userId={objectsAssignFor?.id ?? null}
+          userName={objectsAssignFor?.name}
+          onClose={() => setObjectsAssignFor(null)}
         />
         {popUpCreate && (
                 <div className={styles.PupUpCreate}>

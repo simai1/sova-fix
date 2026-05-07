@@ -1,14 +1,13 @@
 @use './tokens' as *;
 
-// 12-колоночная сетка по API Bootstrap 5.3.
-// Внутри `.lk-row` колонки распределяются flex'ом, gutter — через CSS-переменную,
-// чтобы значение было одинаковым у row и у вертикального row-gap'а и не дублировалось
-// в десятках мест.
+// 12-колоночная сетка. Внутри `.lk-row` колонки распределяются flex'ом, gutter — через
+// CSS-переменную, чтобы значение было одинаковым у row и у вертикального row-gap'а
+// и не дублировалось в десятках мест.
 :root {
   --lk-gutter: var(--lk-sp-3);
 }
 
-@media (min-width: 992px) {
+@media (min-width: 1025px) { // ≥ Tablet Landscape
   :root {
     --lk-gutter: var(--lk-sp-4);
   }
@@ -23,7 +22,7 @@
   row-gap: var(--lk-gutter);
 
   // Универсальный селектор `.lk-row > *` имеет specificity (0,1,0) — такой же,
-  // как у `.lk-col-md-6 { width: 50% }`, поэтому каскад выигрывает за счёт порядка
+  // как у `.lk-col-ml-6 { width: 50% }`, поэтому каскад выигрывает за счёт порядка
   // (responsive-правила объявлены ниже). Если использовать `.lk-row > [class*='lk-col']`,
   // specificity (0,2,0) перебьёт responsive-классы, и колонки останутся 100%.
   > * {
@@ -47,7 +46,10 @@
   }
 }
 
-@each $bp in (sm, md, lg, xl, xxl) {
+// Ключи синхронизированы с глобальной шкалой Frontend Breakpoints
+// (см. _tokens.scss). mp опускаем — это базовый mobile-first уровень
+// (`lk-col-{1..12}` без префикса), отдельная media-query не нужна.
+@each $bp in (ml, tp, tl, lt, dt, ws) {
   @include lk-mq-up($bp) {
     .lk-col-#{$bp} {
       flex: 1 0 0;

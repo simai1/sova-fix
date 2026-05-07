@@ -47,7 +47,7 @@ function CategoryEquipment() {
                 </div>
             </div>
             {
-                JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" &&
+                JSON.parse(sessionStorage.getItem("userData"))?.user?.role !== "OBSERVER" &&
                 <div className={styles.CategoryEquipmentButtonInner}>
                     <button onClick={()=> context.setPopUp("CreateCategory")}>Добавить</button>
                     <button onClick={() => editCategory()}>Редактировать</button>

@@ -20,6 +20,9 @@ const {
     Nomenclature,
     TechService,
     TgUserObject,
+    UserObject,
+    RequestComment,
+    UserTgBindingToken,
 } = models;
 
 export default function () {
@@ -98,6 +101,16 @@ export default function () {
     TgUserObject.belongsTo(TgUser, { foreignKey: 'tgUserId', as: 'User' });
     TgUserObject.belongsTo(ObjectDir, { foreignKey: 'objectId', as: 'Object' });
 
+    // User <-> ObjectDir через UserObject (новый web-LK flow, без TG)
+    User.belongsToMany(ObjectDir, { through: UserObject, foreignKey: 'userId', otherKey: 'objectId' });
+    ObjectDir.belongsToMany(User, { through: UserObject, foreignKey: 'objectId', otherKey: 'userId' });
+    UserObject.belongsTo(User, { foreignKey: 'userId', as: 'User' });
+    UserObject.belongsTo(ObjectDir, { foreignKey: 'objectId', as: 'Object' });
+
+    // Создатель заявки в web-flow — User (без TgUser).
+    User.hasMany(RepairRequest, { foreignKey: 'createdByUserId', as: 'CreatedRequests' });
+    RepairRequest.belongsTo(User, { foreignKey: 'createdByUserId', as: 'CreatedByUser' });
+
     Urgency.hasMany(RepairRequest, { foreignKey: 'urgencyId' });
     RepairRequest.belongsTo(Urgency, { foreignKey: 'urgencyId' });
 
@@ -147,4 +160,21 @@ export default function () {
 
     DirectoryCategory.hasMany(RepairRequest, { foreignKey: 'directoryCategoryId' });
     RepairRequest.belongsTo(DirectoryCategory, { foreignKey: 'directoryCategoryId' });
+
+    // Чат-сообщения по заявке. CASCADE при hard-delete заявки — soft-delete
+    // (paranoid) сообщения не трогает; они уйдут вместе с заявкой только
+    // при force-delete.
+    RepairRequest.hasMany(RequestComment, { foreignKey: 'requestId', onDelete: 'CASCADE', hooks: true });
+    RequestComment.belongsTo(RepairRequest, { foreignKey: 'requestId' });
+
+    // Автор комментария — User. Без onDelete: удаление автора не должно ломать
+    // историю чата (User.paranoid=true, soft-delete'ом всё равно резолвится).
+    User.hasMany(RequestComment, { foreignKey: 'authorUserId', as: 'AuthoredComments' });
+    RequestComment.belongsTo(User, { foreignKey: 'authorUserId', as: 'Author' });
+
+    // Self-binding TG-токены (deep-link через бот). Один пользователь может
+    // иметь несколько записей в истории, активным считается с consumedAt=null
+    // и expiresAt > now.
+    User.hasMany(UserTgBindingToken, { foreignKey: 'userId', as: 'TgBindingTokens' });
+    UserTgBindingToken.belongsTo(User, { foreignKey: 'userId' });
 }

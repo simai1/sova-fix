@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useGetMeQuery, useGetMyObjectsQuery } from '@/API/rtkQuery/lk.api';
 import LkEmpty from '@/components/Lk/LkEmpty';
 import LkSpinner from '@/components/Lk/LkSpinner';
+import ProfileTelegramSection from '@/components/Lk/ProfileTelegramSection';
 import { clearUserData } from '@/utils/auth';
 
 const roleLabel = (role: string | undefined): string => {
@@ -37,11 +38,11 @@ const ContractorProfile = (): JSX.Element => {
     <>
       <div className="lk-card">
         <div className="lk-row">
-          <div className="lk-col-12 lk-col-md-6">
+          <div className="lk-col-12 lk-col-ml-6">
             <div className="lk-field__label">Имя</div>
             <div>{me.user.name ?? '—'}</div>
           </div>
-          <div className="lk-col-12 lk-col-md-6">
+          <div className="lk-col-12 lk-col-ml-6">
             <div className="lk-field__label">Email / логин</div>
             <div>{me.user.login}</div>
           </div>
@@ -49,6 +50,8 @@ const ContractorProfile = (): JSX.Element => {
         <div className="lk-field__label">Роль</div>
         <div>{roleLabel(me.user.role)}</div>
       </div>
+
+      <ProfileTelegramSection telegram={me.telegram ?? null} />
 
       <div className="lk-card">
         <h2 className="lk-card__title">Мои объекты</h2>

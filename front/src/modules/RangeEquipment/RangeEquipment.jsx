@@ -47,7 +47,7 @@ function RangeEquipment() {
                 </div>
                 </div>
                 {
-                    JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" &&
+                    JSON.parse(sessionStorage.getItem("userData"))?.user?.role !== "OBSERVER" &&
                     <div className={styles.RangeEquipmentButtonInner}>
                         <button onClick={()=> context.setPopUp("CreateNomenclature")}>Добавить</button>
                         <button onClick={() => EditNomenclature()} >Редактировать</button>

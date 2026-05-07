@@ -60,21 +60,16 @@ window.addEventListener("unload", () => {
 });
 
 export const LoginFunc = async (UserData) => {
-  try {
-    const response = await http.post(`${server}/auth/login`, UserData);
-    const { accessToken, refreshToken, ...userData } = response.data;
-    sessionStorage.setItem("accessToken", accessToken);
-    sessionStorage.setItem("refreshToken", refreshToken);
-    sessionStorage.setItem("userData", JSON.stringify(userData));
-    refreshTokensTimer();
-    return response;
-  } catch (error) {
-    if (error?.response?.status === 403) {
-      window.location.href = `${client}/Authorization`;
-    } else {
-      return false;
-    }
-  }
+  // Намеренно не глотаем ошибку: страница авторизации различает 401/403/429,
+  // чтобы показать пользователю осмысленный текст. До этого 403 редиректил
+  // обратно на /Authorization бесконечным циклом.
+  const response = await http.post(`${server}/auth/login`, UserData);
+  const { accessToken, refreshToken, ...userData } = response.data;
+  sessionStorage.setItem("accessToken", accessToken);
+  sessionStorage.setItem("refreshToken", refreshToken);
+  sessionStorage.setItem("userData", JSON.stringify(userData));
+  refreshTokensTimer();
+  return response;
 };
 
 export const Register = async (UserData) => {

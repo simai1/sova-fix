@@ -18,27 +18,25 @@
     box-sizing: border-box;
   }
 
-  // Container max-widths по Bootstrap 5.3.
-  @include lk-mq-up(sm) {
-    max-width: 540px;
-  }
-
-  @include lk-mq-up(md) {
+  // Container max-widths по шкале Frontend Breakpoints.
+  // На Mobile Landscape (768+) и Tablet Landscape (1025+) контент капается;
+  // на Laptop+ переходим к grid'у с sidebar.
+  @include lk-mq-up(ml) {
     font-size: var(--lk-font-md-base);
     max-width: 720px;
   }
 
-  @include lk-mq-up(lg) {
+  @include lk-mq-up(tl) {
     font-size: var(--lk-font-lg-base);
     max-width: 960px;
-    // padding-bottom оставляем — на lg (992-1199) BottomNav ещё показывается.
+    // padding-bottom оставляем — на Tablet Landscape BottomNav ещё показывается.
   }
 
-  // Десктоп (xl=1200): добавляем sidebar слева. Header спанит обе колонки через grid-area.
-  // Здесь же отключаем нижний отступ под BottomNav — он скрывается с xl+.
+  // Laptop (1201+): добавляем sidebar слева. Header спанит обе колонки через grid-area.
+  // Здесь же отключаем нижний отступ под BottomNav — он скрывается с laptop+.
   // grid-template-rows: header auto + content 1fr — иначе при коротком content
   // grid равномерно распределяет min-height:100vh, и header распухает на сотни px.
-  @include lk-mq-up(xl) {
+  @include lk-mq-up(lt) {
     max-width: 1140px;
     padding-bottom: 0;
     display: grid;
@@ -50,7 +48,7 @@
     column-gap: var(--lk-sp-6);
   }
 
-  @include lk-mq-up(xxl) {
+  @include lk-mq-up(dt) {
     max-width: 1320px;
   }
 
@@ -68,7 +66,7 @@
     z-index: 50;
     gap: var(--lk-sp-3);
 
-    @include lk-mq-up(xl) {
+    @include lk-mq-up(lt) {
       grid-area: header;
     }
   }
@@ -80,11 +78,11 @@
     flex: 1;
     text-align: center;
 
-    @include lk-mq-up(md) {
+    @include lk-mq-up(ml) {
       font-size: 22px;
     }
 
-    @include lk-mq-up(lg) {
+    @include lk-mq-up(tl) {
       font-size: 26px;
     }
   }
@@ -124,11 +122,11 @@
     flex-direction: column;
     gap: var(--lk-sp-3);
 
-    @include lk-mq-up(lg) {
+    @include lk-mq-up(tl) {
       padding: var(--lk-sp-5);
     }
 
-    @include lk-mq-up(xl) {
+    @include lk-mq-up(lt) {
       grid-area: content;
       padding: var(--lk-sp-6) 0 var(--lk-sp-6) 0;
     }
@@ -205,7 +203,7 @@
   gap: var(--lk-sp-2);
   transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 
-  @include lk-mq-up(lg) {
+  @include lk-mq-up(tl) {
     height: 48px;
     font-size: 15px;
   }
@@ -248,8 +246,7 @@
 }
 
 .lk-input,
-.lk-textarea,
-.lk-select {
+.lk-textarea {
   width: 100%;
   padding: 12px 14px;
   border: 1px solid var(--lk-border);
@@ -260,7 +257,7 @@
   font-family: inherit;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 
-  @include lk-mq-up(lg) {
+  @include lk-mq-up(tl) {
     padding: 14px 16px;
     font-size: 15px;
   }
@@ -276,11 +273,10 @@
   }
 }
 
-.lk-input,
-.lk-select {
+.lk-input {
   height: 44px;
 
-  @include lk-mq-up(lg) {
+  @include lk-mq-up(tl) {
     height: 48px;
   }
 }
@@ -288,6 +284,206 @@
 .lk-textarea {
   min-height: 88px;
   resize: vertical;
+}
+
+// Кастомный dropdown для всех ЛК. Реализуется компонентом LkSelect:
+// trigger-кнопка + меню рендерится через React-портал в document.body
+// (position: fixed по координатам триггера) — это нужно, чтобы меню
+// не клипалось overflow: auto у .lk-modal__sheet и не зажималось
+// stacking-контекстом sticky-хедера.
+.lk-select {
+  position: relative;
+  width: 100%;
+  font-family: inherit;
+
+  &--disabled {
+    opacity: 0.55;
+    pointer-events: none;
+  }
+
+  &__trigger {
+    width: 100%;
+    height: 44px;
+    padding: 0 var(--lk-sp-3) 0 var(--lk-sp-4);
+    background: #fff;
+    border: 1px solid var(--lk-border);
+    border-radius: var(--lk-r-md);
+    color: var(--lk-text);
+    font: inherit;
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--lk-sp-2);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+
+    @include lk-mq-up(tl) {
+      height: 48px;
+      font-size: 15px;
+    }
+
+    &:hover:not(:disabled) {
+      border-color: var(--lk-brown);
+    }
+
+    &:focus-visible {
+      outline: none;
+      border-color: var(--lk-yellow);
+      box-shadow: 0 0 0 3px rgba(245, 197, 24, 0.2);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+  }
+
+  &--sm &__trigger {
+    height: 40px;
+    font-size: var(--lk-fs-sm);
+    padding: 0 var(--lk-sp-2) 0 var(--lk-sp-3);
+
+    @include lk-mq-up(tl) {
+      height: 40px;
+      font-size: var(--lk-fs-sm);
+      padding: 0 var(--lk-sp-2) 0 var(--lk-sp-3);
+    }
+  }
+
+  &--open &__trigger {
+    border-color: var(--lk-yellow);
+    box-shadow: 0 0 0 3px rgba(245, 197, 24, 0.2);
+  }
+
+  &__value,
+  &__placeholder {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__value {
+    color: var(--lk-text);
+  }
+
+  &__placeholder {
+    color: var(--lk-muted);
+  }
+
+  &__chevron {
+    flex-shrink: 0;
+    color: var(--lk-brown);
+    transition: transform 0.18s ease;
+  }
+
+  &--open &__chevron {
+    transform: rotate(180deg);
+  }
+
+  // Меню рендерится в портале — selector работает по классу,
+  // не по дереву DOM, поэтому правила сидят рядом с триггером.
+  &__menu {
+    background: #fff;
+    border-radius: var(--lk-r-md);
+    border: 1px solid var(--lk-border);
+    box-shadow: 0 12px 32px rgba(123, 75, 42, 0.18), 0 2px 8px rgba(0, 0, 0, 0.06);
+    padding: var(--lk-sp-1);
+    max-height: 280px;
+    overflow-y: auto;
+    // Должен быть выше .lk-modal__overlay (1000) и .lk-toast-area (2000):
+    // dropdown в FilterModal иначе уходит под оверлей модалки.
+    z-index: 2100;
+    outline: none;
+    animation: lk-select-in 0.16s ease both;
+    transform-origin: top center;
+
+    &--up {
+      transform-origin: bottom center;
+      animation-name: lk-select-in-up;
+    }
+  }
+
+  &__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__option {
+    display: flex;
+    align-items: center;
+    gap: var(--lk-sp-2);
+    padding: 10px var(--lk-sp-3);
+    border-radius: var(--lk-r-sm);
+    cursor: pointer;
+    color: var(--lk-text);
+    font-size: 14px;
+    line-height: 1.3;
+    user-select: none;
+    transition: background 0.12s ease, color 0.12s ease;
+
+    @include lk-mq-up(tl) {
+      font-size: 15px;
+      padding: 12px var(--lk-sp-3);
+    }
+
+    &--active {
+      background: var(--lk-sand-light);
+      color: var(--lk-brown-dark);
+    }
+
+    &--selected {
+      background: var(--lk-sand-light);
+      color: var(--lk-brown-dark);
+      font-weight: 600;
+    }
+  }
+
+  &__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: transparent;
+    flex-shrink: 0;
+    transition: background 0.15s ease;
+  }
+
+  &__option--selected &__dot {
+    background: var(--lk-yellow);
+  }
+
+  &__label {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+@keyframes lk-select-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes lk-select-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .lk-field {
@@ -368,17 +564,17 @@
   grid-template-columns: 1fr;
   gap: var(--lk-sp-3);
 
-  @include lk-mq-up(md) {
+  @include lk-mq-up(ml) {
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: var(--lk-sp-4);
   }
 
-  @include lk-mq-up(lg) {
+  @include lk-mq-up(tl) {
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: var(--lk-sp-5);
   }
 
-  @include lk-mq-up(xxl) {
+  @include lk-mq-up(dt) {
     grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
   }
 }
@@ -396,8 +592,8 @@
   margin-inline: auto;
   z-index: 100;
 
-  // Скрываем bottom-nav только на xl+ (десктоп с sidebar). На lg (планшет) она ещё нужна.
-  @include lk-mq-up(xl) {
+  // Скрываем bottom-nav только на Laptop+ (десктоп с sidebar). На Tablet Landscape она ещё нужна.
+  @include lk-mq-up(lt) {
     display: none;
   }
 
@@ -431,11 +627,11 @@
   }
 }
 
-// Боковая навигация для xl+. Рендерится всегда, видимостью управляет CSS.
+// Боковая навигация для Laptop+. Рендерится всегда, видимостью управляет CSS.
 .lk-sidebar {
   display: none;
 
-  @include lk-mq-up(xl) {
+  @include lk-mq-up(lt) {
     grid-area: sidebar;
     display: flex;
     flex-direction: column;
@@ -487,7 +683,7 @@
     z-index: 1000;
     animation: lk-fade-in 0.2s ease;
 
-    @include lk-mq-up(lg) {
+    @include lk-mq-up(tl) {
       align-items: center;
     }
   }
@@ -502,7 +698,7 @@
     max-width: 600px;
     animation: lk-slide-up 0.25s ease;
 
-    @include lk-mq-up(lg) {
+    @include lk-mq-up(tl) {
       border-radius: var(--lk-r-md);
     }
   }
@@ -593,15 +789,15 @@
   grid-template-columns: repeat(2, 1fr);
   gap: var(--lk-sp-2);
 
-  @include lk-mq-up(md) {
+  @include lk-mq-up(ml) {
     grid-template-columns: repeat(3, 1fr);
   }
 
-  @include lk-mq-up(lg) {
+  @include lk-mq-up(tl) {
     grid-template-columns: repeat(4, 1fr);
   }
 
-  @include lk-mq-up(xl) {
+  @include lk-mq-up(lt) {
     grid-template-columns: repeat(5, 1fr);
   }
 

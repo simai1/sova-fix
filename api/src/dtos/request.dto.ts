@@ -39,6 +39,7 @@ export default class RequestDto {
     managerId?: string | null;
     managerTgId?: string | null;
     directoryCategory?: DirectoryCategoryDto | null;
+    createdByUserId?: string | null;
 
     constructor(model: RepairRequest) {
         this.id = model.id;
@@ -80,5 +81,6 @@ export default class RequestDto {
         this.managerId = model.managerId;
         this.managerTgId = model.managerTgId;
         this.directoryCategory = model.DirectoryCategory ? new DirectoryCategoryDto(model.DirectoryCategory) : null;
+        this.createdByUserId = model.createdByUserId ?? null;
     }
 }

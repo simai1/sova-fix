@@ -23,6 +23,7 @@ import Status from '../models/status';
 import { normalizeFileNames } from '../utils/normalizeData';
 import DirectoryCategory from '../models/directoryCategory';
 import Settings from '../models/settings';
+import wsEvents from '../config/wsEvents';
 
 const getAllRequests = async (filter: any, order: any, pagination: any, userId?: string) => {
     try {
@@ -753,6 +754,17 @@ const setContractor = async (requestId: string, contractorId: string, managerId?
                         customer: customer ? customer.tgId : null,
                     },
                     event: 'STATUS_UPDATE',
+                } as WsMsgData);
+
+                // Web-LK: уведомляем исполнителя через User-канал.
+                // Без PII — клиент дотягивает детали через REST с auth.
+                sendMsg({
+                    msg: {
+                        requestId: request.id,
+                        contractorId: request.contractorId,
+                        objectId: request.objectId,
+                    },
+                    event: wsEvents.REQUEST_ASSIGNED,
                 } as WsMsgData);
             } catch (error) {
                 logger.error(`Error while setting contractor for request ${requestId}: ${error}`);

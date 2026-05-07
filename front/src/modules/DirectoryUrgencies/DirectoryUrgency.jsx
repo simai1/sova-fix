@@ -190,7 +190,7 @@ function DirectoryUrgency(props) {
                     </div>
                 </div>
 
-                {JSON.parse(localStorage.getItem("userData"))?.user?.role !==
+                {JSON.parse(sessionStorage.getItem("userData"))?.user?.role !==
                     "OBSERVER" && (
                     <div className={styles.button__header}>
                         <button onClick={() => createNewUrgency()}>

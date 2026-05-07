@@ -5,6 +5,7 @@ import { FlexibleContextType } from './types/context';
 const DataContext = createContext<FlexibleContextType>({
   context: {
     selectRowDirectory: '',
+    setSelectRowDirectory: () => {},
     statusList: [],
     urgencyList: [],
     dataContractors: [],

@@ -133,14 +133,14 @@ function EquipmentInfo() {
             <div className={styles.EquipmentInfoBlockTopButton}>
                 <button onClick={() => {generateAndDownloadExcelEquipment(context?.dataEquipment)}}>Экспорт</button>
                 <button onClick={() => {getQRCodeEquipment()}}>Сгенерировать QR-код</button>
-                {JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" && <button onClick={() => {context.setPopUp("PopUpEditEquipment")}}>Редактировать</button>}
+                {JSON.parse(sessionStorage.getItem("userData"))?.user?.role !== "OBSERVER" && <button onClick={() => {context.setPopUp("PopUpEditEquipment")}}>Редактировать</button>}
             </div>     
             <div className={styles.EquipmentblockInfo}>
                 <section className={styles.EquipmentSectionInfoFirst}>
                     <div className={styles.EquipmentblockInfoFirst}>
                         <div className={styles.EquipmentImg}>
                             <div className={styles.EquipmentImgInner}>
-                            {JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" &&
+                            {JSON.parse(sessionStorage.getItem("userData"))?.user?.role !== "OBSERVER" &&
                                 <>
                                     {!popUpPhoto ? <img className={styles.EquipmentImgInnerEdit} onClick={() => {setPopUpPhoto(!popUpPhoto)}} src={EditImg} /> : <img className={styles.EquipmentImgInnerEditClose}  onClick={() => {setPopUpPhoto(!popUpPhoto); setSelectedFile(null)}} src={DeleteImg} />}
                                 </> 
@@ -188,7 +188,7 @@ function EquipmentInfo() {
                                 <p className={styles.paramInfoGray}>Подразделение: {context.dataEquipment?.unit}</p> 
                             </div>
                             <div >
-                                {JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" && <button className={styles.button} onClick={()=>   context.setPopUp("PopUpNewTO")}>Проведено ТО</button>}
+                                {JSON.parse(sessionStorage.getItem("userData"))?.user?.role !== "OBSERVER" && <button className={styles.button} onClick={()=>   context.setPopUp("PopUpNewTO")}>Проведено ТО</button>}
                             </div>
                         </div>
                     </div>

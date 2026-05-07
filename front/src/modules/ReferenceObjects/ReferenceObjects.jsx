@@ -218,7 +218,7 @@ function ReferenceObjects() {
                 <button onClick={() => dispatch(resetFilters({tableName: "table3"}))} ><img src={ClearImg} /></button>
             </div>
         </div>
-        {JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" &&
+        {JSON.parse(sessionStorage.getItem("userData"))?.user?.role !== "OBSERVER" &&
           <div className={styles.ReferenceObjectsTopButton}>
             <button onClick={() => setPopUpCreate(true)}>Добавить</button>
             <button onClick={() => EditObjectsFunc()}>

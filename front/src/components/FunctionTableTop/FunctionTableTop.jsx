@@ -167,7 +167,7 @@ function FunctionTableTop(props) {
                 </Button>
               </Tooltip>
                 <EditColumn />
-              {JSON.parse(localStorage.getItem('userData'))?.user?.role !== 'OBSERVER' && (
+              {JSON.parse(sessionStorage.getItem('userData'))?.user?.role !== 'OBSERVER' && (
                 <>
                   <Tooltip title="Редактировать заявку">
                     <Button onClick={handleEditAppoint} disabled={context.moreSelect.length > 1}>

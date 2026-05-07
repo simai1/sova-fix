@@ -1,0 +1,86 @@
+@use './tokens' as *;
+
+// Секция Telegram в Profile (Contractor + Customer).
+// Три состояния: не привязан / pending / привязан. Структура BEM —
+// .lk-profile__tg* классы скоупятся внутри .lk-card в Profile.tsx,
+// дочерние компоненты не имеют собственных стилей.
+
+.lk-profile__tg {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lk-sp-3);
+}
+
+.lk-profile__tg-status {
+  display: flex;
+  gap: var(--lk-sp-2);
+  align-items: center;
+  font-size: var(--lk-fs-md);
+  flex-wrap: wrap;
+
+  &--linked {
+    color: var(--lk-success);
+  }
+
+  &--pending {
+    color: var(--lk-brown);
+  }
+
+  &--empty {
+    color: var(--lk-muted);
+  }
+}
+
+.lk-profile__tg-username {
+  font-weight: 600;
+  color: var(--lk-text);
+}
+
+.lk-profile__tg-countdown {
+  color: var(--lk-muted);
+  font-size: var(--lk-fs-sm);
+}
+
+.lk-profile__tg-hint {
+  color: var(--lk-muted);
+  font-size: var(--lk-fs-sm);
+  line-height: 1.4;
+}
+
+// Модалка привязки Telegram. Шаги — нумерованный список,
+// deep-link — primary-кнопка, под ней countdown.
+.lk-link-tg {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lk-sp-3);
+}
+
+.lk-link-tg__steps {
+  margin: 0;
+  padding-left: var(--lk-sp-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--lk-sp-1);
+  font-size: var(--lk-fs-md);
+  color: var(--lk-text);
+}
+
+.lk-link-tg__deeplink {
+  // Кнопка-якорь: визуально как .lk-button.lk-button--primary
+  // (наследуем структуру), но рендерится как <a> для нативного открытия.
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.lk-link-tg__countdown {
+  color: var(--lk-muted);
+  font-size: var(--lk-fs-sm);
+  text-align: center;
+}
+
+.lk-link-tg__error {
+  color: var(--lk-danger);
+  font-size: var(--lk-fs-sm);
+}

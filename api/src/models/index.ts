@@ -14,12 +14,15 @@ import Category from './category';
 import Nomenclature from './nomenclature';
 import TechService from './techService';
 import TgUserObject from './tgUserObject';
+import UserObject from './userObject';
 import Urgency from './urgency';
 import Status from './status';
 import PasswordResetToken from './passwordResetTokens';
 import Settings from './settings';
 import DirectoryCategory from './directoryCategory';
 import DirectoryCategoryCustomer from './directoryCategoryCustomer';
+import RequestComment from './requestComment';
+import UserTgBindingToken from './userTgBindingToken';
 
 const { DB_USER, DB_PWD, DB_HOST, DB_PORT, DB_NAME } = process.env;
 export const models = {
@@ -43,7 +46,10 @@ export const models = {
     Equipment,
     TechService,
     TgUserObject,
+    UserObject,
     Settings,
+    RequestComment,
+    UserTgBindingToken,
 };
 
 export const sequelize = new Sequelize(`${DB_NAME}`, `${DB_USER}`, `${DB_PWD}`, {

@@ -64,11 +64,11 @@ function Table() {
       target.className !== 'Table_statusClick__QSptV' &&
       target.tagName !== 'LI' &&
       !context.moreSelect.includes(row.id) &&
-      JSON.parse(localStorage.getItem('userData'))?.user?.role !== 'OBSERVER'
+      JSON.parse(sessionStorage.getItem('userData'))?.user?.role !== 'OBSERVER'
     ) {
       context.setMoreSelect([...context.moreSelect, row.id])
     }
-    if (JSON.parse(localStorage.getItem('userData'))?.user?.role !== 'OBSERVER') {
+    if (JSON.parse(sessionStorage.getItem('userData'))?.user?.role !== 'OBSERVER') {
       setOpenConextMenu(true)
     }
   }
@@ -150,7 +150,7 @@ function Table() {
   }, [context])
 
   const togglePopupState = (setter, data) => {
-    const userRole = JSON.parse(localStorage.getItem('userData'))?.user?.role
+    const userRole = JSON.parse(sessionStorage.getItem('userData'))?.user?.role
     setter((currentState) => {
       if (currentState === '') {
         if (userRole !== 'OBSERVER') {
@@ -779,7 +779,7 @@ function Table() {
           <>
             {value === '___' || value === null ? (
               '___'
-            ) : JSON.parse(localStorage.getItem('userData'))?.user?.role !== 'OBSERVER' ? (
+            ) : JSON.parse(sessionStorage.getItem('userData'))?.user?.role !== 'OBSERVER' ? (
               <div className={styles.planCompleteDate} key={row.id}>
                 <input
                   type="date"

@@ -8,6 +8,7 @@ import {
   useGetUrgenciesQuery,
 } from '@/API/rtkQuery/lk.api';
 import LkEmpty from '@/components/Lk/LkEmpty';
+import LkSelect, { LkSelectOption } from '@/components/Lk/LkSelect';
 import LkSpinner from '@/components/Lk/LkSpinner';
 import PhotoUploader from '@/components/Lk/PhotoUploader';
 import { showToast } from '@/components/Lk/toastBus';
@@ -34,6 +35,9 @@ const CustomerCreateRequest = (): JSX.Element => {
   if (myObjects.length === 0) {
     return <LkEmpty text="У вас нет назначенных объектов. Обратитесь к менеджеру." />;
   }
+
+  const objectOptions: LkSelectOption[] = myObjects.map((o) => ({ value: o.id, label: o.name }));
+  const urgencyOptions: LkSelectOption[] = urgencies.map((u) => ({ value: u.id, label: u.name }));
 
   const validate = (): boolean => {
     const next: Record<string, string> = {};
@@ -75,46 +79,34 @@ const CustomerCreateRequest = (): JSX.Element => {
       <h2 className="lk-card__title">Новая заявка</h2>
 
       <div className="lk-row">
-        <div className="lk-col-12 lk-col-md-6">
+        <div className="lk-col-12 lk-col-ml-6">
           <div className="lk-field">
             <label className="lk-field__label" htmlFor="lk-create-object">
               Объект
             </label>
-            <select
+            <LkSelect
               id="lk-create-object"
-              className="lk-select"
               value={objectId}
-              onChange={(e) => setObjectId(e.target.value)}
-            >
-              <option value="">Выберите объект</option>
-              {myObjects.map((o) => (
-                <option key={o.id} value={o.id}>
-                  {o.name}
-                </option>
-              ))}
-            </select>
+              onChange={setObjectId}
+              options={objectOptions}
+              placeholder="Выберите объект"
+            />
             {errors.objectId ? <div className="lk-field__error">{errors.objectId}</div> : null}
           </div>
         </div>
 
-        <div className="lk-col-12 lk-col-md-6">
+        <div className="lk-col-12 lk-col-ml-6">
           <div className="lk-field">
             <label className="lk-field__label" htmlFor="lk-create-urgency">
               Срочность
             </label>
-            <select
+            <LkSelect
               id="lk-create-urgency"
-              className="lk-select"
               value={urgencyId}
-              onChange={(e) => setUrgencyId(e.target.value)}
-            >
-              <option value="">Выберите срочность</option>
-              {urgencies.map((u) => (
-                <option key={u.id} value={u.id}>
-                  {u.name}
-                </option>
-              ))}
-            </select>
+              onChange={setUrgencyId}
+              options={urgencyOptions}
+              placeholder="Выберите срочность"
+            />
             {errors.urgencyId ? <div className="lk-field__error">{errors.urgencyId}</div> : null}
           </div>
         </div>

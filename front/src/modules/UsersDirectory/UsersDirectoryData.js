@@ -6,5 +6,6 @@ export const tableUser = [
     {key: "isConfirmed", value:"Активация", isActive: true},
     {key: "role", value:"Роль", isActive: true},
     {key: "accessButton", value:"Доступы", isActive: true},
+    {key: "objectsButton", value:"Объекты", isActive: true},
   ]
 

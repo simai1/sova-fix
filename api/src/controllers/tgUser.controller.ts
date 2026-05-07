@@ -4,6 +4,7 @@ import httpStatus from 'http-status';
 import roles from '../config/roles';
 import tgUserService from '../services/tgUser.service';
 import objectService from '../services/object.service';
+import userTgBindingService from '../services/userTgBinding.service';
 
 const create = catchAsync(async (req, res) => {
     const { name, role, tgId, linkId } = req.body;
@@ -237,6 +238,16 @@ const getContractorsObjectsWithCountRequests = catchAsync(async (req, res) => {
     res.json(objects);
 });
 
+// POST /tgUsers/bind — вызывается ботом по deep-link юзера. Защищён master-key.
+// Body: { token, tgId, username? }. См. design-doc §D «Endpoints».
+const bind = catchAsync(async (req, res) => {
+    const { token, tgId, username } = req.body || {};
+    if (!token) throw new ApiError(httpStatus.BAD_REQUEST, 'Поле token обязательно');
+    if (!tgId) throw new ApiError(httpStatus.BAD_REQUEST, 'Поле tgId обязательно');
+    const result = await userTgBindingService.consume(String(token), String(tgId), username ? String(username) : null);
+    res.json({ ok: true, ...result });
+});
+
 export default {
     create,
     syncManager,
@@ -249,4 +260,5 @@ export default {
     removeObjectFromUser,
     getManagersObjectsWithCountRequests,
     getContractorsObjectsWithCountRequests,
+    bind,
 };

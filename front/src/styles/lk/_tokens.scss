@@ -29,7 +29,6 @@
   --lk-fs-lg: 18px;
   --lk-fs-xl: 22px;
 
-  // Базовый размер шрифта по breakpoint'ам — переопределяется ниже через media-queries.
   --lk-font-base: 14px;
   --lk-font-md-base: 15px;
   --lk-font-lg-base: 16px;
@@ -40,37 +39,63 @@
   --lk-header-h: 56px;
 }
 
-@media (min-width: 768px) {
+// Брейкпоинты синхронизированы с глобальной шкалой из ~/.claude/CLAUDE.md
+// (Frontend Breakpoints). Шкала задана через max-width — сюда мы кладём
+// граничные min-width значения, чтобы оба варианта (lk-mq-up / lk-mq-down)
+// давали один и тот же набор переходов.
+@media (min-width: 768px) {  // ≥ Mobile Landscape
   :root {
     --lk-header-h: 60px;
   }
 }
 
-@media (min-width: 992px) {
+@media (min-width: 1025px) { // ≥ Tablet Landscape
   :root {
     --lk-header-h: 64px;
   }
 }
 
-// 6 breakpoints, mobile-first — значения по Bootstrap 5.3 (индустриальный стандарт).
-// 360 px (Galaxy S20-style) попадает в xs.
-$lk-bp-xs: 0;       // <576    small phone (mobile-first base)
-$lk-bp-sm: 576px;   // 576-767 large phone
-$lk-bp-md: 768px;   // 768-991 tablet portrait
-$lk-bp-lg: 992px;   // 992-1199 tablet landscape / small desktop
-$lk-bp-xl: 1200px;  // 1200-1399 desktop — здесь активируется sidebar
-$lk-bp-xxl: 1400px; // 1400+   large desktop
+// Граничные min-width: первый «не попадает» в диапазон max-width предыдущего
+// устройства (например, Mobile Portrait — это max-width:767, поэтому Mobile
+// Landscape начинается с 768).
+$lk-bp-mp: 0;       // Mobile Portrait    | max-width: 767
+$lk-bp-ml: 768px;   // Mobile Landscape   | 768-880
+$lk-bp-tp: 881px;   // Tablet Portrait    | 881-1024
+$lk-bp-tl: 1025px;  // Tablet Landscape   | 1025-1200
+$lk-bp-lt: 1201px;  // Laptop             | 1201-1366
+$lk-bp-dt: 1367px;  // Desktop (default)  | 1367-2399
+$lk-bp-ws: 2400px;  // Widescreen         | 2400+
 
+// Mobile-first: сработает на $bp и шире.
 @mixin lk-mq-up($bp) {
-  @if $bp == sm {
-    @media (min-width: $lk-bp-sm) { @content; }
-  } @else if $bp == md {
-    @media (min-width: $lk-bp-md) { @content; }
-  } @else if $bp == lg {
-    @media (min-width: $lk-bp-lg) { @content; }
-  } @else if $bp == xl {
-    @media (min-width: $lk-bp-xl) { @content; }
-  } @else if $bp == xxl {
-    @media (min-width: $lk-bp-xxl) { @content; }
+  @if $bp == ml {
+    @media (min-width: $lk-bp-ml) { @content; }
+  } @else if $bp == tp {
+    @media (min-width: $lk-bp-tp) { @content; }
+  } @else if $bp == tl {
+    @media (min-width: $lk-bp-tl) { @content; }
+  } @else if $bp == lt {
+    @media (min-width: $lk-bp-lt) { @content; }
+  } @else if $bp == dt {
+    @media (min-width: $lk-bp-dt) { @content; }
+  } @else if $bp == ws {
+    @media (min-width: $lk-bp-ws) { @content; }
+  }
+}
+
+// Desktop-first: сработает на устройстве $bp и уже. Значения совпадают с
+// max-width глобальной шкалы (мы не считаем «-1px» — глобальная шкала уже
+// записана в нужном виде, а min-width-границы выше учитывают exclusive).
+@mixin lk-mq-down($bp) {
+  @if $bp == mp {
+    @media (max-width: 767px) { @content; }   // Mobile Portrait
+  } @else if $bp == ml {
+    @media (max-width: 880px) { @content; }   // Mobile Landscape и уже
+  } @else if $bp == tp {
+    @media (max-width: 1024px) { @content; }  // Tablet Portrait и уже
+  } @else if $bp == tl {
+    @media (max-width: 1200px) { @content; }  // Tablet Landscape и уже
+  } @else if $bp == lt {
+    @media (max-width: 1366px) { @content; }  // Laptop и уже
   }
 }

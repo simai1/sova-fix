@@ -165,7 +165,7 @@ function BusinessUnitReference() {
             <button onClick={() => dispatch(resetFilters({tableName: "table2"}))} ><img src={ClearImg} /></button>
           </div>
         </div>
-        {JSON.parse(localStorage.getItem("userData"))?.user?.role !== "OBSERVER" &&
+        {JSON.parse(sessionStorage.getItem("userData"))?.user?.role !== "OBSERVER" &&
           <div className={styles.BusinessUnitReferenceTopButton}>
             <button onClick={() => setPopUpCreate(true)}>
               Добавить

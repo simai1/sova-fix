@@ -1,0 +1,361 @@
+@use './tokens' as *;
+
+// Экран чата заявки. Все правила скоупятся под .lk-chat — селекторы
+// дочерних компонентов (ChatStream, ChatComposer, ChatMessage) ссылаются
+// именно на эту иерархию, дочерние компоненты «голые» по стилям.
+//
+// Особенности:
+// - .lk-chat — flex-column, занимает оставшееся место под .lk-page__header
+//   и .lk-chat__subhead; стрим скроллится, composer прибит к низу.
+// - На странице чата .lk-page получает модификатор через :has() —
+//   обнуляем нижний padding и скрываем bottom-nav, чтобы composer
+//   не пересекался с нижней навигацией.
+// - Свои сообщения справа (var(--lk-yellow)), чужие слева (var(--lk-sand-light)).
+// - Контраст текста на жёлтом и песочном: var(--lk-black) ≥ 4.5:1 — WCAG AA.
+
+.lk-chat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lk-sp-3);
+  // 100vh минус sticky-header. На lt+ используем 100% — родитель .lk-page__content
+  // в гриде даёт нам остаточное место.
+  min-height: calc(100vh - var(--lk-header-h));
+
+  @include lk-mq-up(lt) {
+    min-height: calc(100vh - var(--lk-header-h) - var(--lk-sp-6) * 2);
+  }
+
+  &__subhead {
+    position: sticky;
+    top: var(--lk-header-h);
+    background: var(--lk-bg);
+    padding: var(--lk-sp-2) 0;
+    display: flex;
+    gap: var(--lk-sp-2);
+    align-items: center;
+    z-index: 30;
+    font-size: var(--lk-fs-sm);
+    color: var(--lk-muted);
+    flex-wrap: wrap;
+  }
+
+  &__back {
+    background: transparent;
+    border: none;
+    color: var(--lk-brown);
+    font-size: var(--lk-fs-sm);
+    cursor: pointer;
+    padding: var(--lk-sp-1) var(--lk-sp-2);
+    border-radius: var(--lk-r-sm);
+    text-decoration: underline;
+
+    &:hover {
+      background: var(--lk-sand-light);
+    }
+  }
+
+  &__subhead-title {
+    color: var(--lk-text);
+    font-weight: 600;
+  }
+
+  &__stream {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--lk-sp-3);
+    overflow-y: auto;
+    padding: var(--lk-sp-3) 0;
+    // min-height:0 критично — без него flex-child не даст overflow
+    // у flex-родителя, лента прорастёт за вьюпорт.
+    min-height: 0;
+  }
+
+  &__day {
+    align-self: center;
+    padding: var(--lk-sp-1) var(--lk-sp-3);
+    background: var(--lk-sand-light);
+    border-radius: 999px;
+    font-size: var(--lk-fs-sm);
+    color: var(--lk-muted);
+  }
+
+  &__msg {
+    display: flex;
+    flex-direction: column;
+    gap: var(--lk-sp-1);
+    padding: var(--lk-sp-3);
+    border-radius: var(--lk-r-md);
+    max-width: 85%;
+    word-break: break-word;
+
+    @include lk-mq-up(tl) {
+      max-width: 70%;
+    }
+
+    @include lk-mq-up(lt) {
+      max-width: 60%;
+    }
+
+    &--mine {
+      align-self: flex-end;
+      background: var(--lk-yellow);
+      color: var(--lk-black);
+      // Скругление со «срезом» снизу-справа — намёк на «хвост» пузыря.
+      border-radius: var(--lk-r-md) var(--lk-r-md) var(--lk-r-sm) var(--lk-r-md);
+    }
+
+    &--other {
+      align-self: flex-start;
+      background: var(--lk-sand-light);
+      color: var(--lk-text);
+      border-radius: var(--lk-r-md) var(--lk-r-md) var(--lk-r-md) var(--lk-r-sm);
+    }
+  }
+
+  &__msg-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--lk-sp-2);
+    align-items: center;
+    font-size: var(--lk-fs-sm);
+  }
+
+  &__msg-author {
+    font-weight: 600;
+  }
+
+  &__msg-time {
+    color: var(--lk-muted);
+    margin-left: auto;
+  }
+
+  // На «своих» сообщениях фон жёлтый — muted-цвет даёт плохой контраст,
+  // делаем время чуть темнее.
+  &__msg--mine &__msg-time {
+    color: var(--lk-brown-dark);
+  }
+
+  &__msg-text {
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-size: var(--lk-fs-md);
+    line-height: 1.4;
+  }
+
+  &__msg-photos {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--lk-sp-2);
+    margin-top: var(--lk-sp-2);
+
+    @include lk-mq-up(tp) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  &__photo {
+    aspect-ratio: 1 / 1;
+    border-radius: var(--lk-r-sm);
+    overflow: hidden;
+    display: block;
+    background: rgba(0, 0, 0, 0.05);
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+  }
+
+  // Composer — sticky внизу. На iOS — env(safe-area-inset-bottom),
+  // чтобы не перекрываться home-indicator'ом.
+  &__composer {
+    position: sticky;
+    bottom: 0;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    background: var(--lk-bg);
+    padding-top: var(--lk-sp-3);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--lk-sp-2);
+    align-items: flex-end;
+    z-index: 30;
+    border-top: 1px solid var(--lk-border);
+  }
+
+  &__composer-row {
+    flex: 1 1 100%;
+    display: flex;
+    gap: var(--lk-sp-2);
+    align-items: flex-end;
+
+    @include lk-mq-up(tp) {
+      flex: 1 1 auto;
+    }
+  }
+
+  &__attach-btn {
+    min-width: 2.75rem;
+    height: 2.75rem;
+    border-radius: var(--lk-r-md);
+    background: transparent;
+    border: 1px solid var(--lk-brown);
+    color: var(--lk-brown);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s ease, color 0.15s ease;
+
+    &:hover:not(:disabled) {
+      background: var(--lk-sand-light);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  &__attach-preview {
+    flex: 1 1 100%;
+    display: flex;
+    align-items: center;
+    gap: var(--lk-sp-2);
+    padding: var(--lk-sp-2) var(--lk-sp-3);
+    background: var(--lk-sand-light);
+    border-radius: var(--lk-r-md);
+    font-size: var(--lk-fs-sm);
+    color: var(--lk-text);
+  }
+
+  &__attach-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__attach-remove {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.1);
+    color: var(--lk-text);
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  &__textarea {
+    flex: 1;
+    min-height: 2.75rem;
+    max-height: 10rem;
+    resize: none;
+    line-height: 1.4;
+  }
+
+  &__send-btn {
+    flex: 1 1 100%;
+    min-height: 2.75rem;
+
+    @include lk-mq-up(tp) {
+      flex: 0 0 auto;
+      min-width: 8rem;
+    }
+  }
+}
+
+// На странице чата .lk-page получает модификатор через :has().
+// Поддержка :has() — Safari 15.4+, Chrome 105+, Firefox 121+ (декабрь 2023).
+// Цель: убрать padding-bottom: 72px (под BottomNav) и скрыть саму BottomNav,
+// иначе composer перекрывает её и тач-таргеты пересекаются.
+.lk-page:has(.lk-chat) {
+  padding-bottom: 0;
+
+  .lk-bottom-nav {
+    display: none;
+  }
+}
+
+// Роль-чипы для сообщений чата. Добавляются как модификаторы существующего
+// .lk-chip, не дублируя его структуру.
+.lk-chip {
+  &--role-manager {
+    background: var(--lk-yellow);
+    color: var(--lk-black);
+  }
+
+  &--role-contractor {
+    background: var(--lk-sand);
+    color: var(--lk-brown-dark);
+  }
+
+  &--role-customer {
+    background: var(--lk-sand-light);
+    color: var(--lk-brown);
+  }
+}
+
+// Превью последнего сообщения в карточке заявки.
+// Используется в .lk-card__section вместо удалённой формы quick-reply.
+.lk-comment-preview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lk-sp-2);
+  padding: var(--lk-sp-3);
+  background: var(--lk-sand-light);
+  border-radius: var(--lk-r-md);
+
+  &__head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--lk-sp-2);
+    font-size: var(--lk-fs-sm);
+    color: var(--lk-muted);
+    align-items: center;
+  }
+
+  &__author {
+    color: var(--lk-brown);
+    font-weight: 600;
+  }
+
+  &__role {
+    color: var(--lk-brown);
+    font-style: italic;
+  }
+
+  &__time {
+    margin-left: auto;
+  }
+
+  &__text {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.4;
+    color: var(--lk-text);
+    word-break: break-word;
+  }
+
+  &__empty {
+    color: var(--lk-muted);
+    font-size: var(--lk-fs-sm);
+    padding: var(--lk-sp-2) 0;
+  }
+}

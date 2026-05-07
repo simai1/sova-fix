@@ -1,13 +1,14 @@
 import { Empty, Typography } from 'antd';
 import classNames from 'classnames';
 import { FC } from 'react';
+
 import styles from './styles.module.scss';
 import { ReportWorkZoneComponentsProps } from './types';
+import { reportWorkZoneType } from './utils';
 import { useAppSelector } from '../../../../hooks/store';
 import AntLoader from '../../../../UI/Antd/AntLoader/AntLoader';
 import { REPORT_TYPE_TEXT } from '../constants';
 import { reportTypeSelector } from '../selectors';
-import { reportWorkZoneType } from './utils';
 
 const ReportWorkZoneComponent: FC<ReportWorkZoneComponentsProps> = ({
   isEmptyReport,

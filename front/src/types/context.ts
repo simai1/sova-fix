@@ -5,7 +5,8 @@ import { TUrgency } from './urgency.types';
 import { GetDirectoryCategoryResponse } from '../modules/DirectoryCategory/types';
 
 export type BaseContextType = {
-  selectRowDirectory: string;
+  selectRowDirectory: string | null;
+  setSelectRowDirectory: (value: string | null) => void;
   statusList: TStatus[];
   urgencyList: TUrgency[];
   dataContractors: TContractor[];
@@ -13,6 +14,7 @@ export type BaseContextType = {
   directoryCategories: GetDirectoryCategoryResponse[];
   settingsList: TSetting[];
   UpdateTableReguest: () => void;
+  UpdateForse: () => void;
 };
 
 export type FlexibleContextType = { context: BaseContextType } & Record<string, any>;

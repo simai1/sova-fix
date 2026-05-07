@@ -1,5 +1,7 @@
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 
+import CommentPreview from './CommentPreview';
 import StatusChip from './StatusChip';
 import { showToast } from './toastBus';
 import UrgencyChip from './UrgencyChip';
@@ -7,8 +9,8 @@ import UrgencyChip from './UrgencyChip';
 import {
   MeDto,
   RequestDto,
-  useAddCommentMutation,
   useAddPhotosMutation,
+  useGetRequestCommentsQuery,
   useSetStatusMutation,
   useUploadCheckPhotoMutation,
 } from '@/API/rtkQuery/lk.api';
@@ -80,15 +82,22 @@ const getUrgencyName = (req: RequestDto): string | null => {
 };
 
 const RequestCard = ({ request, mode, me }: Props): JSX.Element => {
-  const [commentText, setCommentText] = useState('');
-  const [commentFile, setCommentFile] = useState<File | null>(null);
+  const navigate = useNavigate();
   const photoInputRef = useRef<HTMLInputElement | null>(null);
   const checkPhotoInputRef = useRef<HTMLInputElement | null>(null);
 
-  const [addComment, addCommentState] = useAddCommentMutation();
   const [addPhotos, addPhotosState] = useAddPhotosMutation();
   const [setStatus, setStatusState] = useSetStatusMutation();
   const [uploadCheckPhoto, uploadCheckPhotoState] = useUploadCheckPhotoMutation();
+
+  // Тянем последнюю страницу комментариев для preview. limit=1 + cursor=null
+  // → бэкенд возвращает hasMore + total в смежных полях; нам достаточно
+  // первого элемента и nextCursor для счётчика. Если бэкенд ещё не отдаёт
+  // /comments — fallback на legacy request.comment ниже.
+  const { data: commentsData } = useGetRequestCommentsQuery(
+    { requestId: request.id, limit: 1 },
+    { skip: !request.id },
+  );
 
   const statusNumber = getStatusNumber(request);
   const photos = splitFileNames(request);
@@ -100,6 +109,11 @@ const RequestCard = ({ request, mode, me }: Props): JSX.Element => {
   const isMyCustomerRequest =
     mode === 'customer' && !!me?.user?.id && request.createdByUserId === me.user.id;
   const canAddPhotos = (mode === 'contractor' && isMyAssignedContractor) || isMyCustomerRequest;
+
+  const chatPath =
+    mode === 'contractor'
+      ? `/contractor/requests/${request.id}/chat`
+      : `/customer/requests/${request.id}/chat`;
 
   const handleAddPhotosClick = (): void => photoInputRef.current?.click();
 
@@ -149,26 +163,6 @@ const RequestCard = ({ request, mode, me }: Props): JSX.Element => {
     }
   };
 
-  const handleSendComment = async (): Promise<void> => {
-    const text = commentText.trim();
-    if (!text) {
-      showToast('error', 'Введите текст комментария');
-      return;
-    }
-    try {
-      await addComment({
-        id: request.id,
-        text,
-        file: commentFile ?? undefined,
-      }).unwrap();
-      setCommentText('');
-      setCommentFile(null);
-      showToast('success', 'Комментарий отправлен');
-    } catch (err) {
-      showToast('error', getErrorMessage(err));
-    }
-  };
-
   const closeDisabled = !checkPhotoUrl || statusNumber === STATUS_DONE;
 
   return (
@@ -186,14 +180,14 @@ const RequestCard = ({ request, mode, me }: Props): JSX.Element => {
       {request.Object?.name || request.Unit?.name ? (
         <div className="lk-row">
           {request.Object?.name ? (
-            <div className="lk-col-12 lk-col-md-6">
+            <div className="lk-col-12 lk-col-ml-6">
               <div className="lk-field__label">Объект</div>
               <div>{request.Object.name}</div>
             </div>
           ) : null}
 
           {request.Unit?.name ? (
-            <div className="lk-col-12 lk-col-md-6">
+            <div className="lk-col-12 lk-col-ml-6">
               <div className="lk-field__label">Бизнес-юнит</div>
               <div>{request.Unit.name}</div>
             </div>
@@ -247,12 +241,14 @@ const RequestCard = ({ request, mode, me }: Props): JSX.Element => {
         </div>
       ) : null}
 
-      {request.comment ? (
-        <div className="lk-card__section">
-          <h3 className="lk-card__section-title">Комментарий</h3>
-          <div className="lk-comment">{request.comment}</div>
-        </div>
-      ) : null}
+      <div className="lk-card__section">
+        <h3 className="lk-card__section-title">Переписка</h3>
+        <CommentPreview
+          messages={commentsData?.items ?? []}
+          legacyComment={request.comment}
+          onOpenChat={() => navigate(chatPath)}
+        />
+      </div>
 
       {mode === 'contractor' && isMyAssignedContractor ? (
         <div className="lk-card__section">
@@ -324,36 +320,6 @@ const RequestCard = ({ request, mode, me }: Props): JSX.Element => {
           </div>
         </div>
       ) : null}
-
-      <div className="lk-card__section">
-        <h3 className="lk-card__section-title">Оставить комментарий</h3>
-        <div className="lk-field">
-          <textarea
-            className="lk-textarea"
-            placeholder="Текст комментария"
-            value={commentText}
-            onChange={(e) => setCommentText(e.target.value)}
-          />
-        </div>
-        <div className="lk-field">
-          <label className="lk-field__label">Файл (опционально)</label>
-          <input
-            type="file"
-            accept="image/*"
-            capture="environment"
-            onChange={(e) => setCommentFile(e.target.files?.[0] ?? null)}
-          />
-          {commentFile ? <div className="lk-field__hint">{commentFile.name}</div> : null}
-        </div>
-        <button
-          type="button"
-          className="lk-button lk-button--primary lk-button--block"
-          disabled={addCommentState.isLoading}
-          onClick={handleSendComment}
-        >
-          Отправить
-        </button>
-      </div>
     </div>
   );
 };

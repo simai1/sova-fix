@@ -31,7 +31,7 @@ const DirectoryCategory: FC = () => {
   const dispatch = useAppDispatch();
   const { context } = useContext(DataContext);
 
-  const rawUserData = localStorage.getItem('userData');
+  const rawUserData = sessionStorage.getItem('userData');
   const userRole = rawUserData ? JSON.parse(rawUserData)?.user?.role : null;
 
   const { data: directoryCategories, refetch: refetchAllDirectoryCategory } =

@@ -15,7 +15,11 @@
         "moduleDetection": "force",
         "skipLibCheck": true,
         "allowSyntheticDefaultImports": true,
-        "esModuleInterop": true
+        "esModuleInterop": true,
+        "baseUrl": ".",
+        "paths": {
+            "@/*": ["src/*"]
+        }
     },
     "include": ["src/**/*", "vite-env.d.ts"],
     "exclude": ["node_modules"]

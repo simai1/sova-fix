@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { NextFunction, Request, Response } from 'express';
 import catchAsync from '../utils/catchAsync';
 import ApiError from '../utils/ApiError';
@@ -5,9 +6,16 @@ import httpStatus from 'http-status';
 import ApiKey from '../models/apiKey';
 
 const verifyMasterApiKey = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const masterApiKey = req.headers['master-api-key'];
-    if (masterApiKey !== process.env.MASTER_API_KEY) {
-        return next(new ApiError(httpStatus.BAD_REQUEST, 'Invalid Master Api Key'));
+    // Сравниваем за константное время (sec-audit M-5): обычный `!==`
+    // short-circuit'ит на первом несовпадающем байте, и злоумышленник
+    // через timing-side-channel может байт-за-байтом восстановить master-key.
+    // 401 (а не 400) — чтобы соответствовать смыслу «неавторизован».
+    const provided = String(req.headers['master-api-key'] ?? '');
+    const expected = String(process.env.MASTER_API_KEY ?? '');
+    const a = Buffer.from(provided);
+    const b = Buffer.from(expected);
+    if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
+        return next(new ApiError(httpStatus.UNAUTHORIZED, 'Invalid Master Api Key'));
     }
     return next();
 });

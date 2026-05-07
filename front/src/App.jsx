@@ -33,6 +33,17 @@ import RequestPasswordRequest from "./pages/Login/ResetPasswordRequest/RequestPa
 import ResetPassword from "./pages/Login/ResetPassword/ResetPassword.jsx";
 import DirectoryCategory from './modules/DirectoryCategory/DirectoryCategory.tsx'
 import RegistrationRequests from "./pages/AdminPages/Directory/RegistrationRequests/index.jsx";
+import HomeRedirect from "./components/Lk/HomeRedirect.tsx";
+import LkLayout from "./components/Lk/LkLayout.tsx";
+import ContractorRequestsList from "./pages/Contractor/RequestsList/RequestsList.tsx";
+import ContractorRequestDetail from "./pages/Contractor/RequestDetail/RequestDetail.tsx";
+import ContractorProfile from "./pages/Contractor/Profile/Profile.tsx";
+import ContractorChat from "./pages/Contractor/Chat/Chat.tsx";
+import CustomerRequestsList from "./pages/Customer/RequestsList/RequestsList.tsx";
+import CustomerRequestDetail from "./pages/Customer/RequestDetail/RequestDetail.tsx";
+import CustomerProfile from "./pages/Customer/Profile/Profile.tsx";
+import CustomerChat from "./pages/Customer/Chat/Chat.tsx";
+import CustomerCreateRequest from "./pages/Customer/CreateRequest/CreateRequest.tsx";
 
 function App() {
   const [selectContructor, setSelectContractor] = useState("")
@@ -396,7 +407,7 @@ const UpdateStatus = () => {
       <BrowserRouter>
         <main>
           <Routes>
-            <Route path="/" element={<HomePageAdmin />}></Route>
+            <Route path="/" element={<HomeRedirect><HomePageAdmin /></HomeRedirect>}></Route>
             <Route path="/Activate" element={<Activate />}></Route>
             <Route path="/Authorization" element={<Authorization />}></Route>
             <Route path="/Authorization/Register" element={<Register />}></Route>
@@ -404,6 +415,23 @@ const UpdateStatus = () => {
             <Route path="/reset-password-request" element={<RequestPasswordRequest/>}></Route>
             <Route path="/reset-password" element={<ResetPassword/>}></Route>
             <Route path="/reports" element={<ReportsContainer />}/>
+
+            <Route path="/contractor/*" element={<LkLayout role="CONTRACTOR" />}>
+              <Route index element={<Navigate to="requests" replace />} />
+              <Route path="requests" element={<ContractorRequestsList />} />
+              <Route path="requests/:id" element={<ContractorRequestDetail />} />
+              <Route path="requests/:id/chat" element={<ContractorChat />} />
+              <Route path="profile" element={<ContractorProfile />} />
+            </Route>
+
+            <Route path="/customer/*" element={<LkLayout role="CUSTOMER" />}>
+              <Route index element={<Navigate to="requests" replace />} />
+              <Route path="requests" element={<CustomerRequestsList />} />
+              <Route path="requests/new" element={<CustomerCreateRequest />} />
+              <Route path="requests/:id" element={<CustomerRequestDetail />} />
+              <Route path="requests/:id/chat" element={<CustomerChat />} />
+              <Route path="profile" element={<CustomerProfile />} />
+            </Route>
             
             {JSON.parse(sessionStorage.getItem("userData"))?.user?.role === "CUSTOMER" ? null : (
               <Route path="/Directory/*" element={<Directory />}>

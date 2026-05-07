@@ -1,11 +1,11 @@
 import { Checkbox, ConfigProvider, Typography } from 'antd';
 import { FC, useMemo } from 'react';
 
+import styles from './styles.module.scss';
 import { PopoverParametrProps } from './types';
 import { findParametr } from './utils';
 import { useAppSelector } from '../../../../hooks/store';
 import { filterDataSelector, filterDataValuesSelector } from '../selectors';
-import styles from './styles.module.scss';
 
 const PopoverParametr: FC<PopoverParametrProps> = ({ parametr, handleSetFilterDataValues }) => {
   const filterData = useAppSelector(filterDataSelector);
