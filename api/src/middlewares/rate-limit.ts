@@ -82,10 +82,39 @@ export const lkTgBindingRateLimiter = rateLimit({
     message: { message: 'Слишком частые попытки привязки. Подождите.' },
 });
 
+// Web Push subscribe: 10 за 15 минут на пользователя. Subscribe легко спамить
+// из расширений/багнутых SW — лимит защищает push_subscriptions от мусорных
+// записей и попыток обойти allowlist хостов.
+export const lkPushSubscribeRateLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    standardHeaders: true,
+    legacyHeaders: false,
+    skip: skipInTest,
+    keyGenerator: userOrIpKey,
+    validate: validateOpts,
+    message: { message: 'Слишком частые запросы. Попробуйте позже.' },
+});
+
+// Web Push test: 5 за 15 минут — тестовая отправка инициирует реальный
+// network-запрос к push-сервису, не должна быть бесплатной.
+export const lkPushTestRateLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    standardHeaders: true,
+    legacyHeaders: false,
+    skip: skipInTest,
+    keyGenerator: userOrIpKey,
+    validate: validateOpts,
+    message: { message: 'Слишком частые запросы. Попробуйте позже.' },
+});
+
 export default {
     loginRateLimiter,
     registerRateLimiter,
     lkCreateRequestRateLimiter,
     lkAddCommentRateLimiter,
     lkTgBindingRateLimiter,
+    lkPushSubscribeRateLimiter,
+    lkPushTestRateLimiter,
 };

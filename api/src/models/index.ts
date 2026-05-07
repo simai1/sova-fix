@@ -23,6 +23,7 @@ import DirectoryCategory from './directoryCategory';
 import DirectoryCategoryCustomer from './directoryCategoryCustomer';
 import RequestComment from './requestComment';
 import UserTgBindingToken from './userTgBindingToken';
+import PushSubscription from './pushSubscription';
 
 const { DB_USER, DB_PWD, DB_HOST, DB_PORT, DB_NAME } = process.env;
 export const models = {
@@ -50,6 +51,7 @@ export const models = {
     Settings,
     RequestComment,
     UserTgBindingToken,
+    PushSubscription,
 };
 
 export const sequelize = new Sequelize(`${DB_NAME}`, `${DB_USER}`, `${DB_PWD}`, {

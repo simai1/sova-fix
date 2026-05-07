@@ -84,3 +84,44 @@
   color: var(--lk-danger);
   font-size: var(--lk-fs-sm);
 }
+
+// Секция Push-уведомлений в Profile (Contractor + Customer). Структура BEM
+// аналогична .lk-profile__tg — стили живут только на родительском классе,
+// дочерние компоненты «голые». На mobile-portrait кнопки в колонку, на
+// tablet-landscape и шире (tl) — в строку.
+.lk-profile__push {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lk-sp-3);
+}
+
+.lk-profile__push-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lk-sp-2);
+  align-items: center;
+}
+
+.lk-profile__push-hint {
+  margin: 0;
+  color: var(--lk-muted);
+  font-size: var(--lk-fs-sm);
+  line-height: 1.4;
+}
+
+.lk-profile__push-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lk-sp-2);
+
+  @include lk-mq-up(tl) {
+    flex-direction: row;
+
+    // На desktop кнопки рядом, не на всю ширину; .lk-button--block
+    // оставляем в JSX для mobile-консистентности — переопределяем здесь.
+    .lk-button {
+      width: auto;
+      flex: 0 0 auto;
+    }
+  }
+}

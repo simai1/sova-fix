@@ -9,7 +9,13 @@ import lkController from '../controllers/lk.controller';
 import { validator } from '../middlewares/validator';
 import { validateUuidParam } from '../middlewares/validate-uuid-param';
 import { requireRequestAccess } from '../middlewares/require-request-access';
-import { lkCreateRequestRateLimiter, lkAddCommentRateLimiter, lkTgBindingRateLimiter } from '../middlewares/rate-limit';
+import {
+    lkCreateRequestRateLimiter,
+    lkAddCommentRateLimiter,
+    lkTgBindingRateLimiter,
+    lkPushSubscribeRateLimiter,
+    lkPushTestRateLimiter,
+} from '../middlewares/rate-limit';
 import {
     listQuerySchema,
     createRequestSchema,
@@ -17,6 +23,8 @@ import {
     addCommentSchema,
     commentListQuerySchema,
     requestIdParamSchema,
+    pushSubscribeSchema,
+    pushUnsubscribeSchema,
 } from '../validations/lk.validation';
 
 const router = Router();
@@ -69,7 +77,10 @@ const imageOnlyFilter: multer.Options['fileFilter'] = (_req, file, cb) => {
 const imageOrVideo = multer({ storage, limits, fileFilter: imageOrVideoFilter });
 const imageOnly = multer({ storage, limits, fileFilter: imageOnlyFilter });
 
-router.use(verifyToken.auth, verifyAnyRole(['CONTRACTOR', 'CUSTOMER', 'ADMIN']));
+// OBSERVER добавлен в общий guard ради push-эндпоинтов /me/push/* (см. §3 web-push-design),
+// которые доступны всем ролям ЛК. Эндпоинты, которые остались CONTRACTOR-only (tg-binding),
+// явно ставят свой verifyAnyRole(['CONTRACTOR']) ниже и фильтруют OBSERVER на уровне роута.
+router.use(verifyToken.auth, verifyAnyRole(['CONTRACTOR', 'CUSTOMER', 'ADMIN', 'OBSERVER']));
 
 router.get('/me', lkController.getMe);
 
@@ -153,5 +164,27 @@ router.post('/me/tg-binding/init', verifyAnyRole(['CONTRACTOR']), lkTgBindingRat
 router.get('/me/tg-binding/status', verifyAnyRole(['CONTRACTOR']), lkController.tgBindingStatus);
 
 router.delete('/me/tg-binding', verifyAnyRole(['CONTRACTOR']), lkController.tgBindingUnbind);
+
+// =====================
+// Web Push (см. design-doc 2026-05-07-web-push-design.md §3)
+// =====================
+//
+// Push-эндпоинты доступны всем ролям ЛК (CONTRACTOR/CUSTOMER/ADMIN/OBSERVER) —
+// верхний router.use(...) уже пропускает все четыре. Дополнительный verifyAnyRole
+// здесь не нужен; rate-limit и Joi-валидатор стоят там, где это критично.
+router.get('/me/push/vapid-public-key', lkController.pushVapidKey);
+
+router.post(
+    '/me/push/subscribe',
+    lkPushSubscribeRateLimiter,
+    validator(pushSubscribeSchema),
+    lkController.pushSubscribe
+);
+
+router.delete('/me/push/subscribe', validator(pushUnsubscribeSchema), lkController.pushUnsubscribe);
+
+router.get('/me/push/status', lkController.pushStatus);
+
+router.post('/me/push/test', lkPushTestRateLimiter, lkController.pushTest);
 
 export default router;

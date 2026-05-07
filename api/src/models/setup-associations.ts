@@ -23,6 +23,7 @@ const {
     UserObject,
     RequestComment,
     UserTgBindingToken,
+    PushSubscription,
 } = models;
 
 export default function () {
@@ -177,4 +178,9 @@ export default function () {
     // и expiresAt > now.
     User.hasMany(UserTgBindingToken, { foreignKey: 'userId', as: 'TgBindingTokens' });
     UserTgBindingToken.belongsTo(User, { foreignKey: 'userId' });
+
+    // Web Push подписки (RFC 8030 + VAPID). При удалении юзера CASCADE'им подписки —
+    // они без пользователя бесполезны и засоряют push_subscriptions.
+    User.hasMany(PushSubscription, { foreignKey: 'userId', onDelete: 'CASCADE', hooks: true });
+    PushSubscription.belongsTo(User, { foreignKey: 'userId' });
 }

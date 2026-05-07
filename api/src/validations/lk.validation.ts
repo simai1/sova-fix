@@ -93,6 +93,47 @@ export const requestIdParamSchema = Joi.object({
     query: Joi.object().unknown(true),
 });
 
+// Web Push: subscribe-эндпоинт. endpoint обязан быть https и из allowlist'а
+// push-сервисов вендоров (доп. защита от SSRF — основная в сервисе через
+// `isAllowedPushHost`, здесь — поверхностная проверка длины/формата).
+export const pushSubscribeSchema = Joi.object({
+    body: Joi.object({
+        endpoint: Joi.string()
+            .uri({ scheme: ['https'] })
+            .min(50)
+            .max(2048)
+            .required()
+            .messages(ru('endpoint')),
+        keys: Joi.object({
+            p256dh: Joi.string().min(1).max(256).required().messages(ru('p256dh')),
+            auth: Joi.string().min(1).max(256).required().messages(ru('auth')),
+        })
+            .required()
+            .messages(ru('keys')),
+        // expirationTime приходит из браузера как number|null (Unix-ms) — Joi
+        // должен принять оба варианта.
+        expirationTime: Joi.number().allow(null).optional().messages(ru('expirationTime')),
+        userAgent: Joi.string().max(256).allow('').optional().messages(ru('userAgent')),
+    }).unknown(false),
+    params: Joi.object().unknown(true),
+    query: Joi.object().unknown(true),
+});
+
+// Unsubscribe принимает endpoint в body, не в query — иначе endpoint
+// (включая токены push-сервиса) попадал бы в access-логи nginx/express.
+export const pushUnsubscribeSchema = Joi.object({
+    body: Joi.object({
+        endpoint: Joi.string()
+            .uri({ scheme: ['https'] })
+            .min(50)
+            .max(2048)
+            .required()
+            .messages(ru('endpoint')),
+    }).unknown(false),
+    params: Joi.object().unknown(true),
+    query: Joi.object().unknown(true),
+});
+
 export const userObjectsBodySchema = Joi.object({
     body: Joi.object({
         objectIds: Joi.array()

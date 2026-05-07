@@ -53,6 +53,7 @@
     "@types/express-ws": "^3.0.5",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/mime-types": "^2.1.4",
+    "@types/web-push": "^3.6.4",
     "@types/ws": "^8.5.12",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
@@ -80,6 +81,7 @@
     "sequelize": "^6.37.3",
     "strftime": "^0.10.3",
     "uuid": "^10.0.0",
+    "web-push": "^3.6.7",
     "winston": "^3.15.0",
     "ws": "^8.18.0"
   }

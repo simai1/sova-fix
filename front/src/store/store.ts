@@ -17,6 +17,7 @@ import isCheckedSlice from './filter/isChecked.slice.js';
 import isSamplePoints from './samplePoints/samplePoits';
 import { authApi } from '../API/rtkQuery/auth.api';
 import { lkApi } from '../API/rtkQuery/lk.api';
+import { lkPushApi } from '../API/rtkQuery/lkPush.api';
 import { repairRequestsApi } from '../API/rtkQuery/requests.api.js';
 import { userObjectsApi } from '../API/rtkQuery/userObjects.api';
 import { usersApi } from '../API/rtkQuery/users.api';
@@ -36,6 +37,7 @@ const rootReducer = combineReducers({
   [authApi.reducerPath]: authApi.reducer,
   [usersApi.reducerPath]: usersApi.reducer,
   [lkApi.reducerPath]: lkApi.reducer,
+  [lkPushApi.reducerPath]: lkPushApi.reducer,
   [userObjectsApi.reducerPath]: userObjectsApi.reducer,
 });
 
@@ -61,6 +63,7 @@ const store = configureStore({
       authApi.middleware,
       usersApi.middleware,
       lkApi.middleware,
+      lkPushApi.middleware,
       userObjectsApi.middleware,
     ]),
 });

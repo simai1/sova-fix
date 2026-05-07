@@ -1,6 +1,7 @@
 import catchAsync from '../utils/catchAsync';
 import lkService from '../services/lk.service';
 import userTgBindingService from '../services/userTgBinding.service';
+import pushNotificationService from '../services/pushNotification.service';
 import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
 import roles, { mapRoles } from '../config/roles';
@@ -139,6 +140,39 @@ const tgBindingUnbind = catchAsync(async (req, res) => {
     res.status(httpStatus.NO_CONTENT).send();
 });
 
+// =====================
+// Web Push (см. design-doc 2026-05-07-web-push-design.md §3-§4)
+// =====================
+
+const pushVapidKey = catchAsync(async (_req, res) => {
+    const publicKey = pushNotificationService.getVapidPublicKey();
+    res.json({ publicKey });
+});
+
+const pushSubscribe = catchAsync(async (req, res) => {
+    const { userId } = getCurrent(req);
+    const data = await pushNotificationService.subscribe(userId, req.body);
+    res.status(httpStatus.CREATED).json(data);
+});
+
+const pushUnsubscribe = catchAsync(async (req, res) => {
+    const { userId } = getCurrent(req);
+    await pushNotificationService.unsubscribe(userId, req.body.endpoint);
+    res.status(httpStatus.NO_CONTENT).send();
+});
+
+const pushStatus = catchAsync(async (req, res) => {
+    const { userId } = getCurrent(req);
+    const data = await pushNotificationService.status(userId);
+    res.json(data);
+});
+
+const pushTest = catchAsync(async (req, res) => {
+    const { userId } = getCurrent(req);
+    const data = await pushNotificationService.sendTest(userId);
+    res.json(data);
+});
+
 export default {
     getMe,
     getMyObjects,
@@ -153,4 +187,9 @@ export default {
     tgBindingInit,
     tgBindingStatus,
     tgBindingUnbind,
+    pushVapidKey,
+    pushSubscribe,
+    pushUnsubscribe,
+    pushStatus,
+    pushTest,
 };

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useGetMeQuery, useGetMyObjectsQuery } from '@/API/rtkQuery/lk.api';
 import LkEmpty from '@/components/Lk/LkEmpty';
 import LkSpinner from '@/components/Lk/LkSpinner';
+import ProfilePushSection from '@/components/Lk/ProfilePushSection';
 import ProfileTelegramSection from '@/components/Lk/ProfileTelegramSection';
 import { clearUserData } from '@/utils/auth';
 
@@ -52,6 +53,8 @@ const ContractorProfile = (): JSX.Element => {
       </div>
 
       <ProfileTelegramSection telegram={me.telegram ?? null} />
+
+      <ProfilePushSection />
 
       <div className="lk-card">
         <h2 className="lk-card__title">Мои объекты</h2>

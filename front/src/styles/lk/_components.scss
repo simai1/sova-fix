@@ -782,6 +782,32 @@
     background: var(--lk-danger);
     color: #fff;
   }
+
+  // Состояния push-секции профиля. Цвета синхронизированы с design-doc §5.3.
+  &--push-on {
+    background: var(--lk-success);
+    color: #fff;
+  }
+
+  &--push-off {
+    background: var(--lk-sand);
+    color: var(--lk-brown-dark);
+  }
+
+  &--push-denied {
+    background: var(--lk-danger);
+    color: #fff;
+  }
+
+  &--push-warn {
+    background: var(--lk-yellow);
+    color: var(--lk-black);
+  }
+
+  &--push-muted {
+    background: var(--lk-sand-light);
+    color: var(--lk-muted);
+  }
 }
 
 .lk-photo-grid {
