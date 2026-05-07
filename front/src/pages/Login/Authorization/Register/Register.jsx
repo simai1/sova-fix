@@ -72,6 +72,7 @@ function Register() {
           </div>
           <div className={styles.container}>
             <h2>Регистрация</h2>
+
             <input
               type="text"
               name="name"
@@ -81,7 +82,7 @@ function Register() {
               onChange={onChange}
               style={{ borderColor: errors.name ? 'red' : '' }}
             />
-            {errors.name && <span style={{ color: 'red' }}>{errors.name}</span>}
+            {errors.name && <span className={styles.errorText}>{errors.name}</span>}
 
             <input
               type="text"
@@ -92,7 +93,7 @@ function Register() {
               onChange={onChange}
               style={{ borderColor: errors.login ? 'red' : '' }}
             />
-            {errors.login && <span style={{ color: 'red' }}>{errors.login}</span>}
+            {errors.login && <span className={styles.errorText}>{errors.login}</span>}
 
             <input
               type="password"
@@ -103,7 +104,7 @@ function Register() {
               onChange={onChange}
               style={{ borderColor: errors.password ? 'red' : '' }}
             />
-            {errors.password && <span style={{ color: 'red' }}>{errors.password}</span>}
+            {errors.password && <span className={styles.errorText}>{errors.password}</span>}
 
             <input
               type="password"
@@ -114,19 +115,14 @@ function Register() {
               onChange={onChange}
               style={{ borderColor: errors.confirm ? 'red' : '' }}
             />
-            {errors.confirm && <span style={{ color: 'red' }}>{errors.confirm}</span>}
+            {errors.confirm && <span className={styles.errorText}>{errors.confirm}</span>}
 
             <select
               name="role"
               aria-label="Роль"
               value={form.role}
               onChange={onChange}
-              style={{
-                width: '360px',
-                padding: '8px',
-                marginBottom: '15px',
-                borderRadius: '8px',
-              }}
+              className={styles.select}
             >
               <option value={3}>Заказчик</option>
               <option value={4}>Исполнитель</option>
@@ -140,10 +136,12 @@ function Register() {
             >
               {isLoading ? 'Отправка...' : 'Зарегистрироваться'}
             </button>
+
             <Link to="/Authorization" className={styles.resetPassword}>
               Уже есть аккаунт? Войти
             </Link>
-            {serverError && <p style={{ color: 'red', textAlign: 'center' }}>{serverError}</p>}
+
+            {serverError && <span className={styles.errorText}>{serverError}</span>}
           </div>
         </div>
       </div>

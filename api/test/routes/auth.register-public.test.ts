@@ -40,10 +40,10 @@ describe('POST /auth/register-public', () => {
         expect(res.status).toBe(400);
     });
 
-    it('400 если пароль короткий', async () => {
+    it('400 если пароль короче 8 символов (F-H4)', async () => {
         const res = await request(app)
             .post('/auth/register-public')
-            .send({ login, password: '123', name: 'P', role: 4 });
+            .send({ login, password: '1234567', name: 'P', role: 4 });
         expect(res.status).toBe(400);
     });
 });

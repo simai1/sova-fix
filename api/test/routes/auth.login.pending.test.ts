@@ -14,7 +14,7 @@ describe('POST /auth/login pending-gate', () => {
         await User.destroy({ where: { login }, force: true });
     });
 
-    it('403 если pendingApproval=true', async () => {
+    it('401 если pendingApproval=true (F-H2: единый ответ для anti-enumeration)', async () => {
         await User.create({
             login,
             password: await encrypt('pass1234'),
@@ -24,8 +24,8 @@ describe('POST /auth/login pending-gate', () => {
             pendingApproval: true,
         });
         const res = await request(app).post('/auth/login').send({ login, password: 'pass1234' });
-        expect(res.status).toBe(403);
-        expect(res.body.message || res.text).toMatch(/не подтверждена/i);
+        expect(res.status).toBe(401);
+        expect(res.body.message || res.text).toMatch(/неверный логин или пароль/i);
     });
 
     it('200 если pendingApproval=false', async () => {

@@ -1,112 +1,118 @@
+@use '@/styles/lk/tokens' as *;
+
 .AuthorRegistrar {
-  align-items: center;
-  height: 100vh;
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  .LogoAuth{
-    height: 345px;
-    position: relative;
-    top: 30px;
-    @media (max-width: 970px) {
-      display: none;
+  min-height: 100vh;
+  padding: 1rem;
+  box-sizing: border-box;
+
+  .LogoAuth {
+    display: none;
+    @include lk-mq-up(tp) {
+      display: block;
+      height: 21.5625rem;
+      position: relative;
+      top: 1.875rem;
     }
   }
   .box {
-    label{
+    label {
       display: flex;
       justify-content: start;
       width: 100%;
       align-items: start;
       text-align: start;
-      padding-left: 8px;
-      font-size: 14px;
+      padding-left: 0.5rem;
+      font-size: 0.875rem;
     }
-    padding: 60px 0px;
-    width: 800px;
+    width: 100%;
+    max-width: 25rem;
+    padding: 0.625rem 1.875rem;
     background-color: var(--white-color);
-    @media (max-width: 970px) {
-      width: 700px;
+    @include flexbox-center(1.0625rem);
+    @include lk-mq-up(ml) {
+      max-width: 43.75rem;
     }
-    @media (max-width: 750px) {
-      width: auto;
-      padding: 10px 30px;
-      margin: 5px;
+    @include lk-mq-up(tp) {
+      max-width: 50rem;
+      padding: 3.75rem 0;
     }
-    @include flexbox-center(17px);
 
     .container {
       margin: 0 auto;
-      @include flexbox-center(17px);
+      @include flexbox-center(1.0625rem);
       flex-direction: column;
       position: relative;
-      padding-top: 70px;
-      @media (max-width: 570px) {
-        padding-top: 35px;
+      padding-top: 2.1875rem;
+      @include lk-mq-up(ml) {
+        padding-top: 4.375rem;
       }
       h2 {
         width: 100%;
         @include flexbox-center(0);
         margin-top: 0;
-        @include font(32px, 700);
-        @media (max-width: 580px) {
-          @include font(28px, 700);
+        @include font(1.75rem, 700);
+        @include lk-mq-up(ml) {
+          @include font(2rem, 700);
         }
       }
       input {
-        @include input-text(360px, 8px);
-        margin-bottom: 15px;
-        @media (max-width: 580px) {
-          @include input-text(250px, 8px);
+        @include input-text(15.625rem, 0.5rem);
+        margin-bottom: 0.9375rem;
+        @include lk-mq-up(ml) {
+          @include input-text(22.5rem, 0.5rem);
         }
       }
 
       .button {
         @include button(var(--turquoise-color));
-        width: 200px!important;
-        padding: 12.5px 0px;
+        width: 12.5rem !important;
+        padding: 0.78125rem 0;
         text-align: center;
         display: flex;
         justify-content: center;
       }
       .buttonReg {
-        margin-top: 10px;
+        margin-top: 0.625rem;
         @include button(var(--gray--button--color));
       }
     }
   }
-  .text_Logo{
+  .text_Logo {
     position: relative;
-    top: -15px;
+    top: -0.9375rem;
   }
   @keyframes bounce {
     0% {
       transform: translateY(0);
     }
     30% {
-      transform: translateY(-10px); // Move up
+      transform: translateY(-0.625rem);
     }
     50% {
-      transform: translateY(0); // Back to original position
+      transform: translateY(0);
     }
     70% {
-      transform: translateY(-5px); // Slightly bounce up again
+      transform: translateY(-0.3125rem);
     }
     100% {
-      transform: translateY(0); // Back to original position
+      transform: translateY(0);
     }
   }
-  
+
   .ErrorLogin {
     display: flex;
     justify-content: center;
     text-align: center;
-    font-size: 24px;
-    opacity: 0; // Start hidden
-    transition: opacity 0.2s linear; // Smooth transition for opacity
+    font-size: 1.5rem;
+    opacity: 0;
+    transition: opacity 0.2s linear;
     &.visible {
-      opacity: 1; // Make the element visible
-      animation: bounce 0.5s; // Apply bounce animation
+      opacity: 1;
+      animation: bounce 0.5s;
     }
   }
 }
-

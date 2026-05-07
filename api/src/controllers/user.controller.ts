@@ -34,11 +34,11 @@ const confirmTgUser = catchAsync(async (req, res) => {
 });
 
 const getUserByTgId = catchAsync(async (req, res) => {
-    const { tgId } = req.params
+    const { tgId } = req.params;
     if (!tgId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing tgId');
-    const user = await userService.getUserByTgId(tgId)
-    res.json(user)
-})
+    const user = await userService.getUserByTgId(tgId);
+    res.json(user);
+});
 
 const getPendingRegistrations = catchAsync(async (req, res) => {
     const list = await userService.getPendingRegistrations();
@@ -52,6 +52,24 @@ const approveUser = catchAsync(async (req, res) => {
     res.json(dto);
 });
 
+const setUserObjects = catchAsync(async (req, res) => {
+    const { userId } = req.params;
+    const { objectIds } = req.body;
+    if (!userId) throw new ApiError(httpStatus.BAD_REQUEST, 'Не указан userId');
+    if (!Array.isArray(objectIds)) {
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Поле objectIds должно быть массивом');
+    }
+    const ids = await userService.setUserObjects(userId, objectIds);
+    res.json({ objectIds: ids });
+});
+
+const getUserObjects = catchAsync(async (req, res) => {
+    const { userId } = req.params;
+    if (!userId) throw new ApiError(httpStatus.BAD_REQUEST, 'Не указан userId');
+    const ids = await userService.getUserObjects(userId);
+    res.json({ objectIds: ids });
+});
+
 export default {
     setRole,
     getAll,
@@ -60,4 +78,6 @@ export default {
     getUserByTgId,
     getPendingRegistrations,
     approveUser,
+    setUserObjects,
+    getUserObjects,
 };

@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import User from '../models/user';
 import tokenService from './token.service';
 import ApiError from '../utils/ApiError';
@@ -8,6 +9,9 @@ import TgUser from '../models/tgUser';
 import { sendMsg, WsMsgData } from '../utils/ws';
 import Contractor from '../models/contractor';
 import wsEvents from '../config/wsEvents';
+import UserObject from '../models/userObject';
+import ObjectDir from '../models/object';
+import { sequelize } from '../models';
 
 type userDir = {
     id: string;
@@ -57,8 +61,7 @@ const getPendingRegistrations = async (): Promise<UserDto[]> => {
 const approveUser = async (userId: string): Promise<UserDto> => {
     const user = await User.findByPk(userId);
     if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'Пользователь не найден');
-    if (!user.pendingApproval)
-        throw new ApiError(httpStatus.BAD_REQUEST, 'Пользователь уже подтверждён');
+    if (!user.pendingApproval) throw new ApiError(httpStatus.BAD_REQUEST, 'Пользователь уже подтверждён');
 
     await user.update({ pendingApproval: false });
     if (user.role === roles.CONTRACTOR) {
@@ -72,7 +75,7 @@ const getUsersDir = async (): Promise<userDir[]> => {
     const users = await User.findAll({ include: [{ model: TgUser }] });
     const tgUsers = await TgUser.findAll();
     const userDirs: userDir[] = [];
-    
+
     users.forEach(user => {
         userDirs.push({
             id: user.id,
@@ -85,7 +88,7 @@ const getUsersDir = async (): Promise<userDir[]> => {
             role: user.role,
         });
     });
-    
+
     for (const user of tgUsers) {
         if (!userDirs.some(ud => ud.tgUserId === user.id))
             userDirs.push({
@@ -99,7 +102,7 @@ const getUsersDir = async (): Promise<userDir[]> => {
                 role: user.role,
             });
     }
-    
+
     return userDirs;
 };
 
@@ -130,25 +133,63 @@ const confirmTgUser = async (userId: string): Promise<void> => {
     } as WsMsgData);
 };
 
-const getUserByTgId = async(tgId: string) => {
-    const tgUser = await TgUser.findOne({where: {tg_id: tgId}})
+const getUserByTgId = async (tgId: string) => {
+    const tgUser = await TgUser.findOne({ where: { tg_id: tgId } });
     if (!tgUser) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found tgUser with tgId' + tgId);
-    const user = await User.findOne({where: {tg_manager_id: tgUser.id}})
+    const user = await User.findOne({ where: { tg_manager_id: tgUser.id } });
     if (!user) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found user with tg_manager_id' + tgUser.id);
     return new UserDto(user);
-}
+};
+
+// Полностью перезаписывает список объектов, привязанных к пользователю.
+// Делается под транзакцией: сначала удаляем старые связи, потом создаём новые.
+// Использует force destroy, потому что таблица paranoid и нам не нужны
+// «фантомные» soft-deleted строки, которые блокировали бы unique-индекс.
+const setUserObjects = async (userId: string, objectIds: string[]): Promise<string[]> => {
+    const user = await User.findByPk(userId);
+    if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'Пользователь не найден');
+
+    const unique = Array.from(new Set(objectIds));
+    // Проверяем, что все переданные объекты реально существуют. Если хотя бы
+    // один отсутствует — отдаём 400 (а не молча сохраняем «висячие» связи,
+    // которые потом сломают list-эндпоинты при включённом валидаторе FK).
+    if (unique.length) {
+        const found = await ObjectDir.count({ where: { id: { [Op.in]: unique } } });
+        if (found !== unique.length) {
+            throw new ApiError(httpStatus.BAD_REQUEST, 'Один или несколько указанных объектов не найдены');
+        }
+    }
+    await sequelize.transaction(async transaction => {
+        await UserObject.destroy({ where: { userId }, force: true, transaction });
+        if (unique.length) {
+            await UserObject.bulkCreate(
+                unique.map(objectId => ({ userId, objectId })),
+                { transaction }
+            );
+        }
+    });
+    const fresh = await UserObject.findAll({ where: { userId }, attributes: ['objectId'] });
+    return fresh.map(uo => uo.objectId);
+};
+
+const getUserObjects = async (userId: string): Promise<string[]> => {
+    const user = await User.findByPk(userId);
+    if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'Пользователь не найден');
+    const rows = await UserObject.findAll({ where: { userId }, attributes: ['objectId'] });
+    return rows.map(r => r.objectId);
+};
 
 const updateUserPassword = async (userId: string, newHashedPassword: string) => {
     const user = await User.findByPk(userId);
     if (!user) {
-      throw new ApiError(httpStatus.NOT_FOUND, 'Пользователь не найден');
+        throw new ApiError(httpStatus.NOT_FOUND, 'Пользователь не найден');
     }
 
     user.password = newHashedPassword;
     await user.save();
 
     return new UserDto(user);
-  };
+};
 
 export default {
     getUserById,
@@ -164,4 +205,6 @@ export default {
     confirmTgUser,
     getUserByTgId,
     updateUserPassword,
+    setUserObjects,
+    getUserObjects,
 };

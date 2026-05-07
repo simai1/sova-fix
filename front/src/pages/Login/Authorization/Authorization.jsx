@@ -7,7 +7,7 @@ import { LoginFunc } from "../../../API/API";
 
 function Authorization() {
   const { context } = React.useContext(DataContext);
-  const [errorAuth, setErrorAuth] = useState(false);
+  const [errorAuth, setErrorAuth] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
   const [approvedMessage, setApprovedMessage] = useState("");
@@ -33,40 +33,61 @@ function Authorization() {
     }));
   };
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
+    setErrorAuth("");
     let formIsValid = true;
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(formData.login)) {
       setErrors((prevErrors) => ({
         ...prevErrors,
-        login: "Please enter a valid email address",
+        login: "Введите корректный email",
       }));
       formIsValid = false;
     }
     if (formData.password.length < 5 || formData.password.length > 20) {
       setErrors((prevErrors) => ({
         ...prevErrors,
-        password: "Password must be between 5 and 20 characters",
+        password: "Пароль должен быть от 5 до 20 символов",
       }));
       formIsValid = false;
     }
 
-    if (formIsValid) {
-      LoginFunc(formData).then((resp) => {
-        if (resp?.status === 200) {
-          if (resp?.data?.userId != null || resp?.data?.userId != undefined) {
-            context.setActivateId(resp?.data?.userId);
-            navigate("/Activate");
-          } else {
-            context.setDataUsers(resp);
-            localStorage.setItem("userData", JSON.stringify(resp.data));
-            navigate("/");
-            context?.setDataTableHomePage([])
-          }
-        } else {
-          setErrorAuth(true);
-        }
-      });
+    if (!formIsValid) return;
+
+    try {
+      const resp = await LoginFunc(formData);
+      if (resp?.status !== 200) {
+        setErrorAuth("Неверный логин или пароль");
+        return;
+      }
+      if (resp?.data?.userId != null) {
+        context.setActivateId(resp?.data?.userId);
+        navigate("/Activate");
+        return;
+      }
+      context.setDataUsers(resp);
+      // userData пишется в sessionStorage внутри LoginFunc — здесь не дублируем.
+      const role = resp?.data?.user?.role;
+      context?.setDataTableHomePage([]);
+      if (role === "CONTRACTOR") {
+        navigate("/contractor/requests");
+      } else if (role === "CUSTOMER") {
+        navigate("/customer/requests");
+      } else {
+        navigate("/");
+      }
+    } catch (err) {
+      // F-H2: backend для login возвращает единый 401 «Неверный логин или пароль»
+      // даже если pendingApproval=true — иначе разные статусы позволяют валидировать
+      // существование email. Pending-flow ведётся в отдельной странице после
+      // /auth/register-public (см. Pending.jsx), не через login-ошибку.
+      const status = err?.response?.status ?? err?.status;
+      const serverMessage = err?.response?.data?.message ?? err?.data?.message;
+      if (status === 429) {
+        setErrorAuth(serverMessage || "Слишком много попыток. Попробуйте позже");
+      } else {
+        setErrorAuth(serverMessage || "Неверный логин или пароль");
+      }
     }
   };
 
@@ -130,9 +151,11 @@ function Authorization() {
   }`}
   style={{ opacity: errorAuth || Object.values(errors).some((error) => error) ? 1 : 0 }}
 >
-  {(errorAuth || Object.values(errors).some((error) => error)) && (
-    <p>Неверный логин или пароль!</p>
-  )}
+  {errorAuth ? (
+    <p>{errorAuth}</p>
+  ) : Object.values(errors).some((error) => error) ? (
+    <p>{Object.values(errors).find((error) => error)}</p>
+  ) : null}
 </div>
 
       </div>

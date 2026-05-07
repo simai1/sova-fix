@@ -7,10 +7,11 @@ import sendMail from './email.service';
 
 import userService from './user.service';
 import jwtUtils from '../utils/jwt';
-import { encrypt, isMatch } from '../utils/encryption';
+import { encrypt, isMatch, needsRehash } from '../utils/encryption';
 import tgUserService from './tgUser.service';
 import { sendMsg, WsMsgData } from '../utils/ws';
 import wsEvents from '../config/wsEvents';
+import logger from '../utils/logger';
 
 type data = {
     accessToken: string;
@@ -38,12 +39,35 @@ const register = async (login: string): Promise<UserDto> => {
 };
 
 const login = async (email: string, password: string): Promise<data> => {
+    // Единый 401 для всех негативных исходов: иначе разная семантика
+    // ответа (401 vs 403) позволяет валидировать существование email.
+    const failMessage = 'Неверный логин или пароль';
     const user = await userService.getUserByEmail(email);
-    if (!user || !(await isMatch(password, user.password)))
-        throw new ApiError(httpStatus.UNAUTHORIZED, 'Неверный логин или пароль');
+    if (!user) {
+        logger.info(`[auth.login] fail: no_user email=${email}`);
+        throw new ApiError(httpStatus.UNAUTHORIZED, failMessage);
+    }
+    const passwordOk = await isMatch(password, user.password);
+    if (!passwordOk) {
+        logger.info(`[auth.login] fail: bad_password userId=${user.id}`);
+        throw new ApiError(httpStatus.UNAUTHORIZED, failMessage);
+    }
+    if (user.pendingApproval) {
+        logger.info(`[auth.login] fail: pending_approval userId=${user.id}`);
+        throw new ApiError(httpStatus.UNAUTHORIZED, failMessage);
+    }
 
-    if (user.pendingApproval)
-        throw new ApiError(httpStatus.FORBIDDEN, 'Ваша заявка ещё не подтверждена менеджером');
+    // Lazy-rehash: апгрейдим cost старых 8-раундовых хешей до актуального
+    // BCRYPT_COST. Делаем после успешной проверки, fire-and-forget по
+    // факту успешного login — fail тут не должен ломать сам login.
+    if (needsRehash(user.password)) {
+        try {
+            const upgraded = await encrypt(password);
+            await user.update({ password: upgraded });
+        } catch (e) {
+            logger.warn(`[auth.login] rehash failed userId=${user.id}: ${(e as Error).message}`);
+        }
+    }
 
     const userDto = new UserDto(user);
     const { accessToken, refreshToken } = jwtUtils.generate({ ...userDto });
@@ -80,15 +104,9 @@ const refresh = async (refreshToken: string): Promise<data> => {
     return await jwtUtils.refresh(refreshToken);
 };
 
-const registerPublic = async (
-    login: string,
-    password: string,
-    name: string,
-    role: number
-): Promise<UserDto> => {
+const registerPublic = async (login: string, password: string, name: string, role: number): Promise<UserDto> => {
     const checkUser = await userService.getUserByEmail(login);
-    if (checkUser)
-        throw new ApiError(httpStatus.BAD_REQUEST, 'Пользователь с такой почтой уже зарегистрирован');
+    if (checkUser) throw new ApiError(httpStatus.BAD_REQUEST, 'Пользователь с такой почтой уже зарегистрирован');
 
     const encryptedPassword = await encrypt(password);
     const user = await User.create({
@@ -114,7 +132,7 @@ const registerPublic = async (
 const registerCustomerCrm = async (login: string, tgId: string): Promise<UserDto> => {
     const checkUser = await userService.getUserByEmail(login);
     if (checkUser) throw new ApiError(httpStatus.BAD_REQUEST, 'User with this email already exists');
-    const tgUser = await tgUserService.findUserByTgId(tgId)
+    const tgUser = await tgUserService.findUserByTgId(tgId);
 
     const password = generator.generate({
         length: 10,
@@ -127,12 +145,12 @@ const registerCustomerCrm = async (login: string, tgId: string): Promise<UserDto
         name: '',
         password: encryptedPassword,
         tgManagerId: tgUser?.id,
-        role: 3
+        role: 3,
     });
 
     sendMail(login, 'registration', password, `${process.env.WEB_URL}`);
     return new UserDto(user);
-}
+};
 
 export default {
     register,

@@ -10,8 +10,9 @@ export const registerPublicSchema = Joi.object({
                 'string.empty': 'Email обязателен',
                 'any.required': 'Email обязателен',
             }),
-        password: Joi.string().min(6).max(100).required().messages({
-            'string.min': 'Пароль должен быть минимум 6 символов',
+        password: Joi.string().min(8).max(128).required().messages({
+            'string.min': 'Пароль должен быть минимум 8 символов',
+            'string.max': 'Пароль не должен превышать 128 символов',
             'string.empty': 'Пароль обязателен',
             'any.required': 'Пароль обязателен',
         }),
