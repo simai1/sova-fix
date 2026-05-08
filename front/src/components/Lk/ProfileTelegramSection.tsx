@@ -43,7 +43,7 @@ const ProfileTelegramSection = ({ telegram }: Props): JSX.Element => {
             </div>
             <button
               type="button"
-              className="lk-button lk-button--ghost lk-button--block"
+              className="lk-button lk-button--danger lk-button--block"
               onClick={handleUnlink}
               disabled={unlinkState.isLoading}
             >
@@ -57,7 +57,7 @@ const ProfileTelegramSection = ({ telegram }: Props): JSX.Element => {
             </div>
             <button
               type="button"
-              className="lk-button lk-button--primary lk-button--block"
+              className="lk-button lk-button--accent lk-button--block"
               onClick={() => setOpen(true)}
             >
               Привязать Telegram
