@@ -1,0 +1,101 @@
+@use './tokens' as *;
+
+// LkDatePicker — обёртка над react-day-picker@10. Стили живут здесь, чтобы
+// не подключать `react-day-picker/style.css` и не таскать «синие/индиго»
+// дефолты библиотеки. Все цвета rdp-сетки переопределяются через CSS-vars,
+// внешний триггер и popover — наш собственный layout.
+//
+// Триггер визуально совпадает с .lk-input (см. _components.scss § 5.2).
+// Popover рендерится через React-портал в document.body c position:fixed —
+// та же стратегия, что и для .lk-select__menu (избегаем clipping
+// overflow:auto родителей и stacking-контекста sticky-хедера).
+
+.lk-datepicker {
+  position: relative;
+  width: 100%;
+
+  &__trigger {
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: var(--lk-sp-2);
+    cursor: pointer;
+    width: 100%;
+
+    &-icon {
+      color: var(--lk-text-subtle);
+      flex-shrink: 0;
+    }
+
+    &-value {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-feature-settings: 'tnum';
+    }
+  }
+
+  &--placeholder &__trigger-value {
+    color: var(--lk-text-subtle);
+  }
+
+  &__popover {
+    background: var(--lk-surface);
+    border: 1px solid var(--lk-border);
+    border-radius: var(--lk-r-lg);
+    box-shadow: var(--lk-shadow-md);
+    padding: var(--lk-sp-3);
+    // Должен быть выше .lk-modal__overlay (1000) и .lk-toast-area (2000):
+    // когда LkDatePicker используется внутри FilterModal, popover не должен
+    // уйти под оверлей модалки.
+    z-index: 2100;
+    animation: lk-popover-in 0.16s ease-out both;
+    transform-origin: top left;
+  }
+
+  &__footer {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--lk-sp-2);
+    padding-top: var(--lk-sp-3);
+    border-top: 1px solid var(--lk-border);
+    margin-top: var(--lk-sp-3);
+  }
+}
+
+// Override react-day-picker CSS variables. rdp v10 публикует их под
+// .rdp-root — задаём свои значения, чтобы календарь жил в палитре ЛК.
+.rdp-root {
+  --rdp-accent-color: var(--lk-accent);
+  --rdp-accent-background-color: var(--lk-accent-soft);
+  --rdp-day_button-border-radius: var(--lk-r-sm);
+  --rdp-day_button-height: 2.25rem;
+  --rdp-day_button-width: 2.25rem;
+  --rdp-day-height: 2.25rem;
+  --rdp-day-width: 2.25rem;
+  --rdp-weekday-padding: 0.25rem 0;
+  --rdp-weekday-text-color: var(--lk-text-subtle);
+  --rdp-month_caption-font: 600 var(--lk-fs-md) 'Inter Variable', sans-serif;
+  --rdp-range_middle-background-color: var(--lk-accent-soft);
+  --rdp-range_middle-color: var(--lk-text);
+  --rdp-range_start-background: var(--lk-accent);
+  --rdp-range_start-color: var(--lk-accent-fg);
+  --rdp-range_end-background: var(--lk-accent);
+  --rdp-range_end-color: var(--lk-accent-fg);
+  --rdp-today-color: var(--lk-accent-deep);
+
+  font-family: 'Inter Variable', system-ui, sans-serif;
+  font-feature-settings: 'tnum';
+}
+
+@keyframes lk-popover-in {
+  from {
+    opacity: 0;
+    transform: translateY(-0.25rem) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
