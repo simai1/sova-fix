@@ -10,8 +10,9 @@
 // - На странице чата .lk-page получает модификатор через :has() —
 //   обнуляем нижний padding и скрываем bottom-nav, чтобы composer
 //   не пересекался с нижней навигацией.
-// - Свои сообщения справа (var(--lk-yellow)), чужие слева (var(--lk-sand-light)).
-// - Контраст текста на жёлтом и песочном: var(--lk-black) ≥ 4.5:1 — WCAG AA.
+// - Свои сообщения справа (var(--lk-accent)), чужие слева (var(--lk-surface-2)).
+// - Контраст текста на жёлтом и нейтральном: var(--lk-accent-fg) / var(--lk-text)
+//   ≥ 4.5:1 — WCAG AA.
 
 .lk-chat {
   display: flex;
@@ -35,14 +36,14 @@
     align-items: center;
     z-index: 30;
     font-size: var(--lk-fs-sm);
-    color: var(--lk-muted);
+    color: var(--lk-text-muted);
     flex-wrap: wrap;
   }
 
   &__back {
     background: transparent;
     border: none;
-    color: var(--lk-brown);
+    color: var(--lk-text);
     font-size: var(--lk-fs-sm);
     cursor: pointer;
     padding: var(--lk-sp-1) var(--lk-sp-2);
@@ -50,7 +51,7 @@
     text-decoration: underline;
 
     &:hover {
-      background: var(--lk-sand-light);
+      background: var(--lk-surface-2);
     }
   }
 
@@ -74,10 +75,10 @@
   &__day {
     align-self: center;
     padding: var(--lk-sp-1) var(--lk-sp-3);
-    background: var(--lk-sand-light);
+    background: var(--lk-surface-2);
     border-radius: 999px;
     font-size: var(--lk-fs-sm);
-    color: var(--lk-muted);
+    color: var(--lk-text-muted);
   }
 
   &__msg {
@@ -99,15 +100,15 @@
 
     &--mine {
       align-self: flex-end;
-      background: var(--lk-yellow);
-      color: var(--lk-black);
+      background: var(--lk-accent);
+      color: var(--lk-accent-fg);
       // Скругление со «срезом» снизу-справа — намёк на «хвост» пузыря.
       border-radius: var(--lk-r-md) var(--lk-r-md) var(--lk-r-sm) var(--lk-r-md);
     }
 
     &--other {
       align-self: flex-start;
-      background: var(--lk-sand-light);
+      background: var(--lk-surface-2);
       color: var(--lk-text);
       border-radius: var(--lk-r-md) var(--lk-r-md) var(--lk-r-md) var(--lk-r-sm);
     }
@@ -126,14 +127,14 @@
   }
 
   &__msg-time {
-    color: var(--lk-muted);
+    color: var(--lk-text-muted);
     margin-left: auto;
   }
 
   // На «своих» сообщениях фон жёлтый — muted-цвет даёт плохой контраст,
   // делаем время чуть темнее.
   &__msg--mine &__msg-time {
-    color: var(--lk-brown-dark);
+    color: var(--lk-accent-deep);
   }
 
   &__msg-text {
@@ -159,7 +160,7 @@
     border-radius: var(--lk-r-sm);
     overflow: hidden;
     display: block;
-    background: rgba(0, 0, 0, 0.05);
+    background: var(--lk-surface-2);
 
     img {
       width: 100%;
@@ -201,17 +202,18 @@
     height: 2.75rem;
     border-radius: var(--lk-r-md);
     background: transparent;
-    border: 1px solid var(--lk-brown);
-    color: var(--lk-brown);
+    border: 1px solid var(--lk-border);
+    color: var(--lk-text);
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    transition: background 0.15s ease, color 0.15s ease;
+    transition: background 0.12s ease-out, border-color 0.12s ease-out;
 
     &:hover:not(:disabled) {
-      background: var(--lk-sand-light);
+      background: var(--lk-surface-2);
+      border-color: var(--lk-border-strong);
     }
 
     &:disabled {
@@ -226,7 +228,7 @@
     align-items: center;
     gap: var(--lk-sp-2);
     padding: var(--lk-sp-2) var(--lk-sp-3);
-    background: var(--lk-sand-light);
+    background: var(--lk-surface-2);
     border-radius: var(--lk-r-md);
     font-size: var(--lk-fs-sm);
     color: var(--lk-text);
@@ -243,7 +245,7 @@
     width: 1.5rem;
     height: 1.5rem;
     border-radius: 50%;
-    background: rgba(0, 0, 0, 0.1);
+    background: rgba(24, 24, 27, 0.08);
     color: var(--lk-text);
     border: none;
     cursor: pointer;
@@ -255,7 +257,7 @@
     flex-shrink: 0;
 
     &:hover {
-      background: rgba(0, 0, 0, 0.2);
+      background: rgba(24, 24, 27, 0.16);
     }
   }
 
@@ -294,18 +296,19 @@
 // .lk-chip, не дублируя его структуру.
 .lk-chip {
   &--role-manager {
-    background: var(--lk-yellow);
-    color: var(--lk-black);
+    background: var(--lk-accent-soft);
+    color: var(--lk-accent-deep);
   }
 
   &--role-contractor {
-    background: var(--lk-sand);
-    color: var(--lk-brown-dark);
+    background: var(--lk-surface-2);
+    color: var(--lk-text-muted);
+    border: 1px solid var(--lk-border);
   }
 
   &--role-customer {
-    background: var(--lk-sand-light);
-    color: var(--lk-brown);
+    background: var(--lk-surface-2);
+    color: var(--lk-text);
   }
 }
 
@@ -316,7 +319,7 @@
   flex-direction: column;
   gap: var(--lk-sp-2);
   padding: var(--lk-sp-3);
-  background: var(--lk-sand-light);
+  background: var(--lk-surface-2);
   border-radius: var(--lk-r-md);
 
   &__head {
@@ -324,17 +327,17 @@
     flex-wrap: wrap;
     gap: var(--lk-sp-2);
     font-size: var(--lk-fs-sm);
-    color: var(--lk-muted);
+    color: var(--lk-text-muted);
     align-items: center;
   }
 
   &__author {
-    color: var(--lk-brown);
+    color: var(--lk-text);
     font-weight: 600;
   }
 
   &__role {
-    color: var(--lk-brown);
+    color: var(--lk-text-muted);
     font-style: italic;
   }
 
@@ -354,7 +357,7 @@
   }
 
   &__empty {
-    color: var(--lk-muted);
+    color: var(--lk-text-muted);
     font-size: var(--lk-fs-sm);
     padding: var(--lk-sp-2) 0;
   }

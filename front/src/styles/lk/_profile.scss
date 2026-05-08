@@ -23,11 +23,11 @@
   }
 
   &--pending {
-    color: var(--lk-brown);
+    color: var(--lk-text);
   }
 
   &--empty {
-    color: var(--lk-muted);
+    color: var(--lk-text-muted);
   }
 }
 
@@ -37,12 +37,12 @@
 }
 
 .lk-profile__tg-countdown {
-  color: var(--lk-muted);
+  color: var(--lk-text-muted);
   font-size: var(--lk-fs-sm);
 }
 
 .lk-profile__tg-hint {
-  color: var(--lk-muted);
+  color: var(--lk-text-muted);
   font-size: var(--lk-fs-sm);
   line-height: 1.4;
 }
@@ -75,7 +75,7 @@
 }
 
 .lk-link-tg__countdown {
-  color: var(--lk-muted);
+  color: var(--lk-text-muted);
   font-size: var(--lk-fs-sm);
   text-align: center;
 }
@@ -104,7 +104,7 @@
 
 .lk-profile__push-hint {
   margin: 0;
-  color: var(--lk-muted);
+  color: var(--lk-text-muted);
   font-size: var(--lk-fs-sm);
   line-height: 1.4;
 }
