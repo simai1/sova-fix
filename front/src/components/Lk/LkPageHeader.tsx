@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import { clearUserData } from '@/utils/auth';
+import { useLogout } from '@/hooks/useLogout';
 
 type Props = {
   title?: string;
@@ -10,6 +10,7 @@ type Props = {
 const LkPageHeader = ({ title, showBack }: Props): JSX.Element => {
   const navigate = useNavigate();
   const location = useLocation();
+  const logout = useLogout();
 
   const segments = location.pathname.split('/').filter(Boolean);
   // Корнем считаем /<role>/<section> — кнопку «назад» прячем, если не глубже
@@ -27,10 +28,7 @@ const LkPageHeader = ({ title, showBack }: Props): JSX.Element => {
   })();
 
   const handleLogout = (): void => {
-    clearUserData();
-    sessionStorage.removeItem('accessToken');
-    sessionStorage.removeItem('refreshToken');
-    navigate('/Authorization', { replace: true });
+    void logout();
   };
 
   return (

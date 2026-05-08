@@ -1,11 +1,9 @@
-import { useNavigate } from 'react-router-dom';
-
 import { useGetMeQuery, useGetMyObjectsQuery } from '@/API/rtkQuery/lk.api';
 import LkEmpty from '@/components/Lk/LkEmpty';
 import LkSpinner from '@/components/Lk/LkSpinner';
 import ProfilePushSection from '@/components/Lk/ProfilePushSection';
 import ProfileTelegramSection from '@/components/Lk/ProfileTelegramSection';
-import { clearUserData } from '@/utils/auth';
+import { useLogout } from '@/hooks/useLogout';
 
 const roleLabel = (role: string | undefined): string => {
   switch (role) {
@@ -21,7 +19,7 @@ const roleLabel = (role: string | undefined): string => {
 };
 
 const ContractorProfile = (): JSX.Element => {
-  const navigate = useNavigate();
+  const logout = useLogout();
   const { data: me, isLoading, isError } = useGetMeQuery();
   const { data: myObjects = [] } = useGetMyObjectsQuery();
 
@@ -29,10 +27,7 @@ const ContractorProfile = (): JSX.Element => {
   if (isError || !me) return <LkEmpty text="Не удалось загрузить профиль" />;
 
   const handleLogout = (): void => {
-    clearUserData();
-    sessionStorage.removeItem('accessToken');
-    sessionStorage.removeItem('refreshToken');
-    navigate('/Authorization', { replace: true });
+    void logout();
   };
 
   return (
