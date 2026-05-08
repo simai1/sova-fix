@@ -257,7 +257,7 @@ const RequestCard = ({ request, mode, me }: Props): JSX.Element => {
             {statusNumber === STATUS_NEW ? (
               <button
                 type="button"
-                className="lk-button lk-button--primary lk-button--block"
+                className="lk-button lk-button--accent lk-button--block"
                 disabled={setStatusState.isLoading}
                 onClick={handleTakeToWork}
               >
