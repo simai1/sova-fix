@@ -4,7 +4,25 @@ import { LogOut } from '@/API/API';
 import { lkApi } from '@/API/rtkQuery/lk.api';
 import { lkPushApi } from '@/API/rtkQuery/lkPush.api';
 import { useAppDispatch } from '@/hooks/store';
+import { SAVED_FILTERS_KEY_PREFIX } from '@/hooks/useSavedFilters';
 import { clearUserData } from '@/utils/auth';
+
+// Удаляем все сохранённые фильтры ЛК (lk:filters:*) при logout. Это страховка
+// от утечки фильтров между разными юзерами на одной машине: useSavedFilters
+// уже валидирует userId на чтении, но нет смысла оставлять чужие данные в
+// хранилище после явного выхода.
+const clearLkSavedFilters = (): void => {
+  try {
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < window.localStorage.length; i += 1) {
+      const k = window.localStorage.key(i);
+      if (k && k.startsWith(SAVED_FILTERS_KEY_PREFIX)) keysToRemove.push(k);
+    }
+    keysToRemove.forEach((k) => window.localStorage.removeItem(k));
+  } catch {
+    // localStorage может быть недоступен (приватный режим) — не критично.
+  }
+};
 
 // Единая точка выхода из ЛК. Покрывает три инварианта, которые легко
 // потерять при дублировании logout-логики по компонентам:
@@ -28,6 +46,7 @@ export const useLogout = (): (() => Promise<void>) => {
     clearUserData();
     sessionStorage.removeItem('accessToken');
     sessionStorage.removeItem('refreshToken');
+    clearLkSavedFilters();
     dispatch(lkApi.util.resetApiState());
     dispatch(lkPushApi.util.resetApiState());
     navigate('/Authorization', { replace: true });

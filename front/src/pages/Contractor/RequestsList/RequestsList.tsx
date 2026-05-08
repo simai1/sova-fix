@@ -17,15 +17,29 @@ import LkSelect from '@/components/Lk/LkSelect';
 import LkSkeleton from '@/components/Lk/LkSkeleton';
 import LkSpinner from '@/components/Lk/LkSpinner';
 import { SORT_OPTIONS } from '@/components/Lk/sortOptions';
+import { useSavedFilters } from '@/hooks/useSavedFilters';
 import { deriveUnitsFromObjects } from '@/utils/lkUnits';
 
 const PAGE_LIMIT = 20;
 
+// Восстанавливаем индекс сортировки по совпадению (sort,order). Если
+// в сохранёнке оказалась пара, которой больше нет в SORT_OPTIONS (например,
+// после правки списка) — возвращаем 0 («Сначала новые»), чтобы не сломать
+// индекс-доступ.
+const findSortIdx = (sort: string, order: 'asc' | 'desc'): number => {
+  const idx = SORT_OPTIONS.findIndex((o) => o.sort === sort && o.order === order);
+  return idx >= 0 ? idx : 0;
+};
+
 const ContractorRequestsList = (): JSX.Element => {
+  const { stored, save, clear } = useSavedFilters('contractor-requests');
+
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
-  const [filters, setFilters] = useState<LkFilterValue>({});
-  const [sortIdx, setSortIdx] = useState(0);
+  const [filters, setFilters] = useState<LkFilterValue>(() => stored?.filters ?? {});
+  const [sortIdx, setSortIdx] = useState<number>(() =>
+    stored ? findSortIdx(stored.sort.sort, stored.sort.order) : 0,
+  );
   const [filterOpen, setFilterOpen] = useState(false);
   const [items, setItems] = useState<RequestDto[]>([]);
 
@@ -87,6 +101,36 @@ const ContractorRequestsList = (): JSX.Element => {
   const activeCount = countActiveFilters(filters);
   const noResults = !isFetching && items.length === 0;
 
+  // Пишем в localStorage только из user-events (apply/reset/смена сортировки),
+  // не из useEffect на каждом render'е. Иначе initial-восстановленный state
+  // тут же пересохраняется и savedAt дрейфует на каждый mount без действий
+  // юзера — лишний шум в storage и непрозрачное поведение.
+  const handleApplyFilters = (next: LkFilterValue): void => {
+    setFilters(next);
+    if (countActiveFilters(next) === 0) {
+      // Полный сброс — снимаем всё. sort возвращаем к дефолту.
+      setSortIdx(0);
+      clear();
+    } else {
+      save({ filters: next, sort: { sort: sort.sort, order: sort.order } });
+    }
+  };
+
+  const handleSortChange = (idxStr: string): void => {
+    const idx = Number(idxStr);
+    setSortIdx(idx);
+    const nextSort = SORT_OPTIONS[idx];
+    if (!nextSort) return;
+    // Сохраняем сортировку, только если есть активные фильтры или сортировка
+    // отличается от дефолтной — иначе сохранять нечего, мусорить storage не
+    // нужно.
+    if (countActiveFilters(filters) > 0 || idx !== 0) {
+      save({ filters, sort: { sort: nextSort.sort, order: nextSort.order } });
+    } else {
+      clear();
+    }
+  };
+
   return (
     <>
       <div className="lk-row-gap-2" style={{ alignItems: 'center' }}>
@@ -101,7 +145,7 @@ const ContractorRequestsList = (): JSX.Element => {
           size="sm"
           style={{ flex: 1 }}
           value={String(sortIdx)}
-          onChange={(v) => setSortIdx(Number(v))}
+          onChange={handleSortChange}
           options={SORT_OPTIONS.map((opt, idx) => ({ value: String(idx), label: opt.label }))}
           aria-label="Сортировка"
         />
@@ -160,7 +204,7 @@ const ContractorRequestsList = (): JSX.Element => {
         open={filterOpen}
         onClose={() => setFilterOpen(false)}
         value={filters}
-        onApply={setFilters}
+        onApply={handleApplyFilters}
         options={{ objects, statuses, urgencies, units }}
       />
     </>

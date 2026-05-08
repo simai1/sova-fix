@@ -18,16 +18,28 @@ import LkSelect from '@/components/Lk/LkSelect';
 import LkSkeleton from '@/components/Lk/LkSkeleton';
 import LkSpinner from '@/components/Lk/LkSpinner';
 import { SORT_OPTIONS } from '@/components/Lk/sortOptions';
+import { useSavedFilters } from '@/hooks/useSavedFilters';
 import { deriveUnitsFromObjects } from '@/utils/lkUnits';
 
 const PAGE_LIMIT = 20;
 
+// См. ContractorRequestsList — поведение симметричное, дублируем по месту,
+// чтобы не плодить ad-hoc контейнер на двух потребителей.
+const findSortIdx = (sort: string, order: 'asc' | 'desc'): number => {
+  const idx = SORT_OPTIONS.findIndex((o) => o.sort === sort && o.order === order);
+  return idx >= 0 ? idx : 0;
+};
+
 const CustomerRequestsList = (): JSX.Element => {
   const navigate = useNavigate();
+  const { stored, save, clear } = useSavedFilters('customer-requests');
+
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
-  const [filters, setFilters] = useState<LkFilterValue>({});
-  const [sortIdx, setSortIdx] = useState(0);
+  const [filters, setFilters] = useState<LkFilterValue>(() => stored?.filters ?? {});
+  const [sortIdx, setSortIdx] = useState<number>(() =>
+    stored ? findSortIdx(stored.sort.sort, stored.sort.order) : 0,
+  );
   const [filterOpen, setFilterOpen] = useState(false);
   const [items, setItems] = useState<RequestDto[]>([]);
 
@@ -87,6 +99,28 @@ const CustomerRequestsList = (): JSX.Element => {
   const activeCount = countActiveFilters(filters);
   const noResults = !isFetching && items.length === 0;
 
+  const handleApplyFilters = (next: LkFilterValue): void => {
+    setFilters(next);
+    if (countActiveFilters(next) === 0) {
+      setSortIdx(0);
+      clear();
+    } else {
+      save({ filters: next, sort: { sort: sort.sort, order: sort.order } });
+    }
+  };
+
+  const handleSortChange = (idxStr: string): void => {
+    const idx = Number(idxStr);
+    setSortIdx(idx);
+    const nextSort = SORT_OPTIONS[idx];
+    if (!nextSort) return;
+    if (countActiveFilters(filters) > 0 || idx !== 0) {
+      save({ filters, sort: { sort: nextSort.sort, order: nextSort.order } });
+    } else {
+      clear();
+    }
+  };
+
   return (
     <>
       <div className="lk-row-gap-2" style={{ alignItems: 'center' }}>
@@ -101,7 +135,7 @@ const CustomerRequestsList = (): JSX.Element => {
           size="sm"
           style={{ flex: 1 }}
           value={String(sortIdx)}
-          onChange={(v) => setSortIdx(Number(v))}
+          onChange={handleSortChange}
           options={SORT_OPTIONS.map((opt, idx) => ({ value: String(idx), label: opt.label }))}
           aria-label="Сортировка"
         />
@@ -165,7 +199,7 @@ const CustomerRequestsList = (): JSX.Element => {
         open={filterOpen}
         onClose={() => setFilterOpen(false)}
         value={filters}
-        onApply={setFilters}
+        onApply={handleApplyFilters}
         options={{ objects, statuses, urgencies, units }}
       />
     </>
