@@ -28,7 +28,7 @@ const SidebarIcon = ({ kind }: { kind: IconKind }): JSX.Element => {
     viewBox: '0 0 24 24',
     fill: 'none',
     stroke: 'currentColor',
-    strokeWidth: 2,
+    strokeWidth: 1.75,
     strokeLinecap: 'round' as const,
     strokeLinejoin: 'round' as const,
     'aria-hidden': true,
@@ -71,6 +71,7 @@ const LkSidebar = ({ role }: Props): JSX.Element => {
   const items = role === 'CONTRACTOR' ? ITEMS_CONTRACTOR : ITEMS_CUSTOMER;
   return (
     <aside className="lk-sidebar" aria-label="Боковая навигация">
+      <div className="lk-sidebar__group-label">Меню</div>
       {items.map((item) => (
         <NavLink
           key={item.to}
