@@ -199,6 +199,9 @@ return (
                     {JSON.parse(sessionStorage.getItem("userData"))?.user?.role === "ADMIN" && (
                       <li className={styles.menuLi} onClick={() => LinkPage("Directory/RegistrationRequests")}>Заявки на регистрацию</li>
                     )}
+                    {JSON.parse(sessionStorage.getItem("userData"))?.user?.role === "ADMIN" && (
+                      <li className={styles.menuLi} onClick={() => LinkPage("Directory/SystemLogs")}>Системные логи</li>
+                    )}
                 </ul>
                 {GLOBAL_OPEN_REPORT_BLOCK === "open" &&
                     <li className={styles.menuLi} onClick={() => LinkPage('reports')}>Отчеты</li>

@@ -15,6 +15,7 @@ import editColumTableSlice from './editColumTable/editColumTable.slice.js';
 import editInputChecked from './filter/editInputChecked.slice.js';
 import isCheckedSlice from './filter/isChecked.slice.js';
 import isSamplePoints from './samplePoints/samplePoits';
+import { adminApi } from '../API/rtkQuery/admin.api';
 import { authApi } from '../API/rtkQuery/auth.api';
 import { lkApi } from '../API/rtkQuery/lk.api';
 import { lkPushApi } from '../API/rtkQuery/lkPush.api';
@@ -39,6 +40,7 @@ const rootReducer = combineReducers({
   [lkApi.reducerPath]: lkApi.reducer,
   [lkPushApi.reducerPath]: lkPushApi.reducer,
   [userObjectsApi.reducerPath]: userObjectsApi.reducer,
+  [adminApi.reducerPath]: adminApi.reducer,
 });
 
 const persistConfig = {
@@ -65,6 +67,7 @@ const store = configureStore({
       lkApi.middleware,
       lkPushApi.middleware,
       userObjectsApi.middleware,
+      adminApi.middleware,
     ]),
 });
 

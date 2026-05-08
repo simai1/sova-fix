@@ -33,6 +33,7 @@ import RequestPasswordRequest from "./pages/Login/ResetPasswordRequest/RequestPa
 import ResetPassword from "./pages/Login/ResetPassword/ResetPassword.jsx";
 import DirectoryCategory from './modules/DirectoryCategory/DirectoryCategory.tsx'
 import RegistrationRequests from "./pages/AdminPages/Directory/RegistrationRequests/index.jsx";
+import SystemLogs from "./pages/AdminPages/SystemLogs/SystemLogs.tsx";
 import HomeRedirect from "./components/Lk/HomeRedirect.tsx";
 import LkLayout from "./components/Lk/LkLayout.tsx";
 import ContractorRequestsList from "./pages/Contractor/RequestsList/RequestsList.tsx";
@@ -446,6 +447,9 @@ const UpdateStatus = () => {
                <Route path="Category" element={<DirectoryCategory />}></Route>
                {JSON.parse(sessionStorage.getItem("userData"))?.user?.role === "ADMIN" && (
                  <Route path="RegistrationRequests" element={<RegistrationRequests />}></Route>
+               )}
+               {JSON.parse(sessionStorage.getItem("userData"))?.user?.role === "ADMIN" && (
+                 <Route path="SystemLogs" element={<SystemLogs />}></Route>
                )}
              </Route>
             )}
