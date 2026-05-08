@@ -108,8 +108,58 @@ app.use('/reports', reportRoute);
 app.use('/lk', lkRoute);
 
 // websocket section
-app.ws('/', () => {
-    console.log('Success');
+//
+// Handshake-аутентификация (см. .memory-base/specs/2026-05-07-contractor-lk-followups-design.md §E):
+//   клиент посылает Sec-WebSocket-Protocol: "bearer.<jwt>" | "bot.<MASTER_API_KEY>".
+//   На успех — registerClient + подтверждаем тот же subprotocol через
+//   ws.protocol (express-ws сам пропускает первый subprotocol из upgrade-запроса
+//   как accepted; этого достаточно для большинства клиентов).
+//   На неуспех — close(1008, 'unauthorized'). Клиент увидит CloseEvent с этим
+//   кодом и не будет ретраить токен с битой подписью бесконечно.
+//
+// Принимаем фреймы { type: 'subscribe' | 'unsubscribe', requestId } — см.
+// utils/ws.ts::handleClientFrame.
+import {
+    authenticateSubprotocol,
+    handleClientFrame,
+    pickSubprotocol,
+    registerClient,
+    unregisterClient,
+    AuthedWs,
+} from './utils/ws';
+
+app.ws('/', async (rawWs, req) => {
+    const ws = rawWs as AuthedWs;
+    const subprotocol = pickSubprotocol(req.headers['sec-websocket-protocol']);
+
+    const user = await authenticateSubprotocol(subprotocol);
+    if (!user) {
+        try {
+            ws.close(1008, 'unauthorized');
+        } catch {
+            /* noop */
+        }
+        return;
+    }
+
+    registerClient(ws, user);
+
+    ws.on('message', data => {
+        // Не блокируем event loop ошибками внутри handler — он сам ловит и
+        // отвечает фреймом-ошибкой. Однако catch здесь оставляем для defense:
+        // если внутри обработки упало (например, БД unreachable во время
+        // ensureSubscribeAccess), мы хотя бы не уроним сокет.
+        void handleClientFrame(ws, data).catch(err => {
+            logger.log({
+                level: 'error',
+                message: `[ws] handleClientFrame failed: ${(err as Error).message}`,
+            });
+        });
+    });
+
+    ws.on('close', () => {
+        unregisterClient(ws);
+    });
 });
 
 // logger section
