@@ -6,7 +6,8 @@ import Unit from '../models/unit';
 import LegalEntity from '../models/legalEntity';
 import legalEntityService from './legalEntity.service';
 import unitService from './unit.service';
-import { sendMsg, WsMsgData } from '../utils/ws';
+import { emitTo } from '../utils/ws';
+import roles from '../config/roles';
 import { models } from '../models';
 import logger from '../utils/logger';
 
@@ -97,12 +98,9 @@ const createObject = async (
     const objectDir = await ObjectDir.create({ name, unitId, city, number: 1, legalEntityId, budgetPlan });
     await legalEntityService.setCountLegalEntity(legalEntityId);
     await unitService.setCountUnit(unitId);
-    sendMsg({
-        msg: {
-            objectName: name,
-        },
-        event: 'OBJECT_CREATE',
-    } as WsMsgData);
+    // OBJECT_CREATE — событие для админ-интерфейсов (UsersDirectory обновляет
+    // список объектов). Шлём только менеджерам.
+    emitTo({ kind: 'role', roles: [roles.ADMIN] }, 'OBJECT_CREATE', { objectName: name });
     objectDir.LegalEntity = legalEntity;
     objectDir.Unit = unit;
     return new ObjectDto(objectDir);

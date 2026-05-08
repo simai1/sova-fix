@@ -17,7 +17,7 @@ import ObjectDto from '../dtos/object.dto';
 import LkRequestDto from '../dtos/lkRequest.dto';
 import RequestCommentDto from '../dtos/requestComment.dto';
 import ApiError from '../utils/ApiError';
-import { sendMsg, WsMsgData } from '../utils/ws';
+import { emitTo } from '../utils/ws';
 import wsEvents from '../config/wsEvents';
 import { normalizeFileNames } from '../utils/normalizeData';
 import roles from '../config/roles';
@@ -449,17 +449,19 @@ const createComment = async (
         return created;
     });
 
-    sendMsg({
-        msg: { requestId: request.id, commentId: comment.id, authorUserId: userId },
-        event: wsEvents.COMMENT_CREATE,
-    } as WsMsgData);
+    // Аудитория `request` — все, кто подписан на эту заявку (контрактор/заказчик/админ
+    // через subscribe-фрейм + бот, см. utils/ws.ts::matchAudience). Без подписки
+    // клиент не получит даже зная requestId.
+    emitTo({ kind: 'request', requestId: request.id }, wsEvents.COMMENT_CREATE, {
+        requestId: request.id,
+        commentId: comment.id,
+        authorUserId: userId,
+    });
 
     // Legacy-событие для бота. Литерал, не вынесен в wsEvents — уйдёт вместе
-    // с ботом одним коммитом (см. CLAUDE.md «Уход от Telegram»).
-    sendMsg({
-        msg: { requestId: request.id, comment: text },
-        event: 'COMMENT_UPDATE',
-    } as WsMsgData);
+    // с ботом одним коммитом (см. CLAUDE.md «Уход от Telegram»). Бот получит
+    // через isBot-fanout в emitTo, но web-клиенты — только если подписаны.
+    emitTo({ kind: 'request', requestId: request.id }, 'COMMENT_UPDATE', { requestId: request.id, comment: text });
 
     // Push другой стороне диалога — текст и формат через notification.service
     // (UI-словарь, единый источник для push и TG, см. config/notificationLabels.ts).
@@ -534,10 +536,11 @@ const setStatusForContractor = async (userId: string, requestId: string, statusN
     if (statusNumber === statuses.DONE) updates.completeDate = new Date();
     await request.update(updates);
 
-    sendMsg({
-        msg: { requestId: request.id, newStatus: statusNumber, oldStatus },
-        event: wsEvents.STATUS_UPDATE,
-    } as WsMsgData);
+    emitTo({ kind: 'request', requestId: request.id }, wsEvents.STATUS_UPDATE, {
+        requestId: request.id,
+        newStatus: statusNumber,
+        oldStatus,
+    });
 
     // Push другой стороне (создателю заявки) с тем же текстом, что у TG-нотификации.
     // Источник — сам подрядчик, исключаем его, чтобы не пушить self.
@@ -602,10 +605,12 @@ const createForCustomer = async (userId: string, body: CreateRequestBody, files:
         number: 0,
     });
 
-    sendMsg({
-        msg: { requestId: created.id, objectId: created.objectId },
-        event: 'REQUEST_CREATE',
-    } as WsMsgData);
+    // Уведомление менеджеров (роль ADMIN) о новой заявке. CUSTOMER-создатель
+    // уже знает о её появлении из ответа REST — пушить ему ws не требуется.
+    emitTo({ kind: 'role', roles: [roles.ADMIN] }, 'REQUEST_CREATE', {
+        requestId: created.id,
+        objectId: created.objectId,
+    });
 
     // Зеркало TG-нотификации «новая заявка» для менеджеров — тот же текст
     // юзер видит и в боте, и в push.

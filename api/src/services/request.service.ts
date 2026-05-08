@@ -6,7 +6,8 @@ import httpStatus from 'http-status';
 import { Op } from 'sequelize';
 import { statusesRuLocale } from '../config/statuses';
 import sequelize from 'sequelize';
-import { sendMsg, WsMsgData } from '../utils/ws';
+import { emitTo } from '../utils/ws';
+import roles from '../config/roles';
 import TgUser from '../models/tgUser';
 import ObjectDir from '../models/object';
 import objectService from './object.service';
@@ -526,13 +527,12 @@ const createRequest = async (
 
     if (directoryCategoryId) await updateDirectoryCategoryBuilder(request.id, directoryCategoryId);
 
-    sendMsg({
-        msg: {
-            requestId: request.id,
-            customer: request.createdBy,
-        },
-        event: 'REQUEST_CREATE',
-    } as WsMsgData);
+    // REQUEST_CREATE — для менеджеров и бота. Заказчик-TG (createdBy=TgUser)
+    // получает уведомление через бот, web-канала у него нет.
+    emitTo({ kind: 'role', roles: [roles.ADMIN] }, 'REQUEST_CREATE', {
+        requestId: request.id,
+        customer: request.createdBy,
+    });
 
     await notificationService.notifyRequestCreated(request);
     return new RequestDto(request);
@@ -572,13 +572,10 @@ const createRequestWithoutPhoto = async (
 
     if (directoryCategoryId) await updateDirectoryCategoryBuilder(request.id, directoryCategoryId);
 
-    sendMsg({
-        msg: {
-            requestId: request.id,
-            customer: request.createdBy,
-        },
-        event: 'REQUEST_CREATE',
-    } as WsMsgData);
+    emitTo({ kind: 'role', roles: [roles.ADMIN] }, 'REQUEST_CREATE', {
+        requestId: request.id,
+        customer: request.createdBy,
+    });
 
     await notificationService.notifyRequestCreated(request);
     return new RequestDto(request);
@@ -620,13 +617,10 @@ const createRequestWithMultiplePhotos = async (
 
     if (directoryCategoryId) await updateDirectoryCategoryBuilder(request.id, directoryCategoryId);
 
-    sendMsg({
-        msg: {
-            requestId: request.id,
-            customer: request.createdBy,
-        },
-        event: 'REQUEST_CREATE',
-    } as WsMsgData);
+    emitTo({ kind: 'role', roles: [roles.ADMIN] }, 'REQUEST_CREATE', {
+        requestId: request.id,
+        customer: request.createdBy,
+    });
 
     await notificationService.notifyRequestCreated(request);
     return new RequestDto(request);
@@ -672,17 +666,17 @@ const setContractor = async (requestId: string, contractorId: string, managerId?
 
                 const customer = await TgUser.findByPk(request.createdBy);
 
-                sendMsg({
-                    msg: {
-                        newStatus: 2,
-                        oldStatus: oldStatus,
-                        requestId: requestId,
-                        contractor: null,
-                        customer: customer ? customer.tgId : null,
-                        tgUser: manager.tgId,
-                    },
-                    event: 'STATUS_UPDATE',
-                } as WsMsgData);
+                // STATUS_UPDATE — подписанным на заявку (контрактор/заказчик/админ
+                // через subscribe + бот через isBot-fanout). Поля customer/tgUser
+                // нужны боту для маршрутизации в TG.
+                emitTo({ kind: 'request', requestId: requestId }, 'STATUS_UPDATE', {
+                    newStatus: 2,
+                    oldStatus: oldStatus,
+                    requestId: requestId,
+                    contractor: null,
+                    customer: customer ? customer.tgId : null,
+                    tgUser: manager.tgId,
+                });
 
                 await notificationService.notifyStatusChanged(request, 2);
 
@@ -713,16 +707,13 @@ const setContractor = async (requestId: string, contractorId: string, managerId?
 
             const customer = await TgUser.findByPk(request.createdBy);
 
-            sendMsg({
-                msg: {
-                    newStatus: 2,
-                    oldStatus: oldStatus,
-                    requestId: requestId,
-                    contractor: null,
-                    customer: customer ? customer.tgId : null,
-                },
-                event: 'STATUS_UPDATE',
-            } as WsMsgData);
+            emitTo({ kind: 'request', requestId: requestId }, 'STATUS_UPDATE', {
+                newStatus: 2,
+                oldStatus: oldStatus,
+                requestId: requestId,
+                contractor: null,
+                customer: customer ? customer.tgId : null,
+            });
 
             await notificationService.notifyStatusChanged(request, 2);
 
@@ -754,27 +745,31 @@ const setContractor = async (requestId: string, contractorId: string, managerId?
                 const customer = await TgUser.findByPk(request.createdBy);
                 const tgContractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
 
-                sendMsg({
-                    msg: {
-                        newStatus: 2,
-                        oldStatus: oldStatus,
-                        requestId: requestId,
-                        contractor: tgContractor ? (tgContractor.TgUser ? tgContractor.TgUser.tgId : null) : null,
-                        customer: customer ? customer.tgId : null,
-                    },
-                    event: 'STATUS_UPDATE',
-                } as WsMsgData);
+                emitTo({ kind: 'request', requestId: requestId }, 'STATUS_UPDATE', {
+                    newStatus: 2,
+                    oldStatus: oldStatus,
+                    requestId: requestId,
+                    contractor: tgContractor ? (tgContractor.TgUser ? tgContractor.TgUser.tgId : null) : null,
+                    customer: customer ? customer.tgId : null,
+                });
 
-                // Web-LK: уведомляем исполнителя через User-канал.
-                // Без PII — клиент дотягивает детали через REST с auth.
-                sendMsg({
-                    msg: {
+                // REQUEST_ASSIGNED — самому исполнителю (если у него есть User
+                // в web-LK) и менеджерам. Без PII в payload, клиент тянет детали
+                // через REST. Бот получит через isBot-fanout.
+                const assignee = tgContractor?.userId ?? null;
+                const assignedUserIds = assignee ? [assignee] : [];
+                if (assignedUserIds.length > 0) {
+                    emitTo({ kind: 'users', userIds: assignedUserIds }, wsEvents.REQUEST_ASSIGNED, {
                         requestId: request.id,
                         contractorId: request.contractorId,
                         objectId: request.objectId,
-                    },
-                    event: wsEvents.REQUEST_ASSIGNED,
-                } as WsMsgData);
+                    });
+                }
+                emitTo({ kind: 'role', roles: [roles.ADMIN] }, wsEvents.REQUEST_ASSIGNED, {
+                    requestId: request.id,
+                    contractorId: request.contractorId,
+                    objectId: request.objectId,
+                });
 
                 // Зеркальный push: заказчику — про смену статуса (как в TG),
                 // исполнителю — про назначение заявки.
@@ -831,17 +826,14 @@ const setExtContractor = async (requestId: string, extContractorId: string): Pro
         // Находим заказчика для отправки уведомления
         const customer = await TgUser.findByPk(request.createdBy);
 
-        // Отправляем уведомление
-        sendMsg({
-            msg: {
-                newStatus: 2,
-                oldStatus: oldStatus,
-                requestId: requestId,
-                contractor: null,
-                customer: customer ? customer.tgId : null,
-            },
-            event: 'STATUS_UPDATE',
-        } as WsMsgData);
+        // Отправляем уведомление подписанным на заявку и боту.
+        emitTo({ kind: 'request', requestId: requestId }, 'STATUS_UPDATE', {
+            newStatus: 2,
+            oldStatus: oldStatus,
+            requestId: requestId,
+            contractor: null,
+            customer: customer ? customer.tgId : null,
+        });
 
         await notificationService.notifyStatusChanged(request, 2);
 
@@ -857,16 +849,13 @@ const setComment = async (requestId: string, comment: string): Promise<void> => 
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
     const customer = await TgUser.findByPk(request.createdBy);
     const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
-    sendMsg({
-        msg: {
-            newComment: comment,
-            oldComment: request.comment,
-            requestId: requestId,
-            contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
-            customer: customer ? customer.tgId : null,
-        },
-        event: 'COMMENT_UPDATE',
-    } as WsMsgData);
+    emitTo({ kind: 'request', requestId: requestId }, 'COMMENT_UPDATE', {
+        newComment: comment,
+        oldComment: request.comment,
+        requestId: requestId,
+        contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
+        customer: customer ? customer.tgId : null,
+    });
     await request.update({ comment });
 
     // Зеркало TG: коммент через admin-flow считаем «от менеджера», поэтому
@@ -924,16 +913,13 @@ const setStatus = async (requestId: string, status: number, statusId: string): P
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
     const customer = await TgUser.findByPk(request.createdBy);
     const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
-    sendMsg({
-        msg: {
-            newStatus: status,
-            oldStatus: request.status,
-            requestId: requestId,
-            contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
-            customer: customer ? customer.tgId : null,
-        },
-        event: 'STATUS_UPDATE',
-    } as WsMsgData);
+    emitTo({ kind: 'request', requestId: requestId }, 'STATUS_UPDATE', {
+        newStatus: status,
+        oldStatus: request.status,
+        requestId: requestId,
+        contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
+        customer: customer ? customer.tgId : null,
+    });
     const dateNow = new Date();
     await request.update({
         status,
@@ -1049,48 +1035,39 @@ const update = async (
     if (typeof status !== 'undefined' && status !== oldStatus) {
         const customer = await TgUser.findByPk(request.createdBy);
         const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
-        sendMsg({
-            msg: {
-                newStatus: status,
-                oldStatus,
-                requestId: requestId,
-                contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
-                customer: customer ? customer.tgId : null,
-            },
-            event: 'STATUS_UPDATE',
-        } as WsMsgData);
+        emitTo({ kind: 'request', requestId: requestId }, 'STATUS_UPDATE', {
+            newStatus: status,
+            oldStatus,
+            requestId: requestId,
+            contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
+            customer: customer ? customer.tgId : null,
+        });
         await notificationService.notifyStatusChanged(request, status);
     }
 
     if (typeof urgency !== 'undefined' && urgency !== oldUrgency) {
         const customer = await TgUser.findByPk(request.createdBy);
         const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
-        sendMsg({
-            msg: {
-                newUrgency: urgency,
-                oldUrgency,
-                requestId: requestId,
-                contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
-                customer: customer ? customer.tgId : null,
-            },
-            event: 'URGENCY_UPDATE',
-        } as WsMsgData);
+        emitTo({ kind: 'request', requestId: requestId }, 'URGENCY_UPDATE', {
+            newUrgency: urgency,
+            oldUrgency,
+            requestId: requestId,
+            contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
+            customer: customer ? customer.tgId : null,
+        });
         await notificationService.notifyUrgencyChanged(request, urgency);
     }
 
     if (typeof comment !== 'undefined' && comment !== oldComment) {
         const customer = await TgUser.findByPk(request.createdBy);
         const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
-        sendMsg({
-            msg: {
-                newComment: comment,
-                oldComment,
-                requestId: requestId,
-                contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
-                customer: customer ? customer.tgId : null,
-            },
-            event: 'COMMENT_UPDATE',
-        } as WsMsgData);
+        emitTo({ kind: 'request', requestId: requestId }, 'COMMENT_UPDATE', {
+            newComment: comment,
+            oldComment,
+            requestId: requestId,
+            contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
+            customer: customer ? customer.tgId : null,
+        });
         // Источник — admin-flow update, см. setComment.
         await notificationService.notifyCommentChanged(request, 'ADMIN', null);
     }
@@ -1269,16 +1246,13 @@ const bulkSetStatus = async (ids: object, status: number): Promise<void> => {
         // Отправляем уведомление о смене статуса
         const customer = await TgUser.findByPk(request.createdBy);
         const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
-        sendMsg({
-            msg: {
-                newStatus: status,
-                oldStatus: oldStatus,
-                requestId: request.id,
-                contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
-                customer: customer ? customer.tgId : null,
-            },
-            event: 'STATUS_UPDATE',
-        } as WsMsgData);
+        emitTo({ kind: 'request', requestId: request.id }, 'STATUS_UPDATE', {
+            newStatus: status,
+            oldStatus: oldStatus,
+            requestId: request.id,
+            contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
+            customer: customer ? customer.tgId : null,
+        });
         await notificationService.notifyStatusChanged(request, status);
     }
 };
@@ -1293,16 +1267,13 @@ const bulkSetUrgency = async (ids: object, urgency: string): Promise<void> => {
         // Отправляем уведомление о смене срочности
         const customer = await TgUser.findByPk(request.createdBy);
         const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
-        sendMsg({
-            msg: {
-                newUrgency: urgency,
-                oldUrgency: oldUrgency,
-                requestId: request.id,
-                contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
-                customer: customer ? customer.tgId : null,
-            },
-            event: 'URGENCY_UPDATE',
-        } as WsMsgData);
+        emitTo({ kind: 'request', requestId: request.id }, 'URGENCY_UPDATE', {
+            newUrgency: urgency,
+            oldUrgency: oldUrgency,
+            requestId: request.id,
+            contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
+            customer: customer ? customer.tgId : null,
+        });
         await notificationService.notifyUrgencyChanged(request, urgency);
     }
 };
@@ -1329,16 +1300,13 @@ const bulkSetContractor = async (ids: object, contractorId: string): Promise<voi
             });
         const customer = await TgUser.findByPk(request.createdBy);
         const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
-        sendMsg({
-            msg: {
-                newStatus: 2,
-                oldStatus: oldStatus,
-                requestId: request.id,
-                contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
-                customer: customer ? customer.tgId : null,
-            },
-            event: 'STATUS_UPDATE',
-        } as WsMsgData);
+        emitTo({ kind: 'request', requestId: request.id }, 'STATUS_UPDATE', {
+            newStatus: 2,
+            oldStatus: oldStatus,
+            requestId: request.id,
+            contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
+            customer: customer ? customer.tgId : null,
+        });
         await notificationService.notifyStatusChanged(request, 2);
         // bulkSetContractor только для inhouse → дополнительно push исполнителю.
         // notifyRequestAssigned сам no-op'нет, если у contractor нет userId
@@ -1411,17 +1379,14 @@ const setManager = async (requestId: string, managerId: string): Promise<void> =
     // Send notification
     const customer = await TgUser.findByPk(request.createdBy);
 
-    sendMsg({
-        msg: {
-            newStatus: 2,
-            oldStatus: oldStatus,
-            requestId: requestId,
-            contractor: null,
-            customer: customer ? customer.tgId : null,
-            tgUser: manager.tgId,
-        },
-        event: 'STATUS_UPDATE',
-    } as WsMsgData);
+    emitTo({ kind: 'request', requestId: requestId }, 'STATUS_UPDATE', {
+        newStatus: 2,
+        oldStatus: oldStatus,
+        requestId: requestId,
+        contractor: null,
+        customer: customer ? customer.tgId : null,
+        tgUser: manager.tgId,
+    });
 
     await notificationService.notifyStatusChanged(request, 2);
 };

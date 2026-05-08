@@ -6,7 +6,7 @@ import httpStatus from 'http-status';
 import roles from '../config/roles';
 import UserDto from '../dtos/user.dto';
 import TgUser from '../models/tgUser';
-import { sendMsg, WsMsgData } from '../utils/ws';
+import { emitTo, sendMsg, WsMsgData } from '../utils/ws';
 import Contractor from '../models/contractor';
 import wsEvents from '../config/wsEvents';
 import notificationService from './notification.service';
@@ -68,6 +68,16 @@ const approveUser = async (userId: string): Promise<UserDto> => {
     if (user.role === roles.CONTRACTOR) {
         await Contractor.create({ name: user.name, userId: user.id });
     }
+    // Адресуем строго одному юзеру — он же подписан через `bearer.<jwt>`,
+    // когда после approve откроет ЛК. Pending.jsx сейчас на legacy-канале
+    // не имеет access-токена (см. followups: WS-AUTH-PENDING) — для него
+    // `kind:'broadcast'` пока сохраняется как fallback ниже.
+    emitTo({ kind: 'user', userId: user.id }, wsEvents.USER_CONFIRM, { userId: user.id });
+    // Pending.jsx (страница ожидания approve) подключается к ws ДО получения
+    // access-токена и слушает USER_CONFIRM с фильтром на свой userId. Чтобы
+    // не сломать этот флоу до отдельной задачи (см. followup WS-AUTH-PENDING
+    // в design §E) — параллельно шлём broadcast-копию. Это безопасно: payload
+    // содержит только userId, без PII.
     sendMsg({ msg: { userId: user.id }, event: wsEvents.USER_CONFIRM } as WsMsgData);
 
     // Зеркало: одобрённый юзер получает push о подтверждении регистрации
@@ -131,6 +141,8 @@ const confirmTgUser = async (userId: string): Promise<void> => {
     const user = await TgUser.findByPk(userId);
     if (!user) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found user with id ' + userId);
     await user.update({ isConfirmed: true });
+    // Legacy-событие для бота (literal, не вынесен в wsEvents). Бот получит
+    // через broadcast, после удаления бота это место уйдёт целиком.
     sendMsg({
         msg: {
             tgUser: userId,

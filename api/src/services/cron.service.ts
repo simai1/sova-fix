@@ -13,7 +13,8 @@ import ObjectDir from '../models/object';
 import Unit from '../models/unit';
 import TgUser from '../models/tgUser';
 import LegalEntity from '../models/legalEntity';
-import { sendMsg, WsMsgData } from '../utils/ws';
+import { emitTo } from '../utils/ws';
+import roles from '../config/roles';
 
 function isDifferenceGreaterThan7Days(date2: Date) {
     try {
@@ -160,13 +161,13 @@ export default {
                             level: 'info',
                             message: `[${format(new Date(), 'dd.MM.yyyy HH:mm')}] [CRON autoRequests]: ${request.number}, ${request.createdBy}] `,
                         });
-                    sendMsg({
-                        msg: {
-                            requestId: request.id,
-                            customer: request.createdBy,
-                        },
-                        event: 'REQUEST_CREATE',
-                    } as WsMsgData);
+                    // Авто-генерация ТО: уведомляем менеджеров (роль ADMIN)
+                    // и бота (через isBot-fanout). Заказчиков не пушим:
+                    // создатель — TgUser в TG-flow, веб-канала у него нет.
+                    emitTo({ kind: 'role', roles: [roles.ADMIN] }, 'REQUEST_CREATE', {
+                        requestId: request.id,
+                        customer: request.createdBy,
+                    });
                 } catch (e) {
                     console.log(e);
                 }

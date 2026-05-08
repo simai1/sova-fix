@@ -9,7 +9,8 @@ import userService from './user.service';
 import jwtUtils from '../utils/jwt';
 import { encrypt, isMatch, needsRehash } from '../utils/encryption';
 import tgUserService from './tgUser.service';
-import { sendMsg, WsMsgData } from '../utils/ws';
+import { emitTo } from '../utils/ws';
+import roles from '../config/roles';
 import wsEvents from '../config/wsEvents';
 import logger from '../utils/logger';
 import notificationService from './notification.service';
@@ -120,12 +121,10 @@ const registerPublic = async (login: string, password: string, name: string, rol
     });
 
     const dto = new UserDto(user);
-    // PII не шлём в broadcast — ws-канал без auth, любой клиент его получит.
-    // Менеджер увидит детали через GET /users/pending-registrations (с auth).
-    sendMsg({
-        msg: { userId: dto.id },
-        event: wsEvents.USER_REGISTRATION_REQUEST,
-    } as WsMsgData);
+    // Видят только менеджеры (роль ADMIN), сам pending-юзер ws-сессию не открывает
+    // (authenticateSubprotocol режет pendingApproval=true). Менеджер увидит
+    // детали через GET /users/pending-registrations (с auth).
+    emitTo({ kind: 'role', roles: [roles.ADMIN] }, wsEvents.USER_REGISTRATION_REQUEST, { userId: dto.id });
 
     // Зеркало: тот же триггер уходит в push менеджерам с шаблонным текстом.
     // Имя/email не кладём (PII), но роль кладём в формате UI («Заказчик» /

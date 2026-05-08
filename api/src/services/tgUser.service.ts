@@ -29,6 +29,9 @@ const create = async (name: string, role: number, tgId: string, linkId: string |
         user.Contractor = await Contractor.create({ name, tgUserId: user.id });
     }
     await user.save();
+    // Legacy-событие для бота (literal, не вынесен в wsEvents): саморегистрация
+    // через TG, бот ждёт TGUSER_CREATE и подтверждает менеджером. Уходит вместе
+    // с ботом одним коммитом — оставляем broadcast.
     sendMsg({
         msg: {
             userId: user.id,

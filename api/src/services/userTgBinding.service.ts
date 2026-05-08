@@ -7,7 +7,7 @@ import TgUser from '../models/tgUser';
 import Contractor from '../models/contractor';
 import roles from '../config/roles';
 import wsEvents from '../config/wsEvents';
-import { sendMsg, WsMsgData } from '../utils/ws';
+import { emitTo } from '../utils/ws';
 import ApiError from '../utils/ApiError';
 
 // TTL токена — 15 минут (Europe/Moscow по проекту, но Date в Node — UTC; разница
@@ -143,14 +143,9 @@ const consume = async (
     // record.update({ consumedAt }) больше не нужен — UPDATE выше уже
     // заматчил и пометил запись атомарно (sec-audit H-1).
 
-    // PII-минимизация (sec-audit H-3, F-C3 ещё не закрыт): в WS-payload
-    // кладём только id, без tgUsername — handshake-аутентификации на /ws нет,
-    // broadcast уйдёт всем подключённым клиентам, и tgUser.name стал бы
-    // готовым каналом для социнженерии в Telegram.
-    sendMsg({
-        msg: { userId: user.id },
-        event: wsEvents.USER_TG_BIND_OK,
-    } as WsMsgData);
+    // Адресная доставка: только userId самого юзера. Бот тоже получит
+    // (через isBot-fanout в emitTo), но web-клиенты — только владелец токена.
+    emitTo({ kind: 'user', userId: user.id }, wsEvents.USER_TG_BIND_OK, { userId: user.id });
 
     return { userId: user.id, tgUserId: tgUser.id };
 };
