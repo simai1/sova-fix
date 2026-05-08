@@ -51,10 +51,23 @@ const LkDatePicker = ({
 
   // Позиционирование popover относительно триггера. useLayoutEffect — чтобы
   // координаты применились до первой отрисовки и не было «прыжка» из 0,0.
+  // Recompute при scroll/resize: useCapture=true в scroll-listener'е нужен,
+  // чтобы ловить scroll внутри scrollable parent'ов (FilterModal внутри
+  // .lk-modal__sheet имеет overflow:auto — bubbling-scroll туда не доходит).
   useLayoutEffect(() => {
     if (!open || !triggerRef.current) return;
-    const rect = triggerRef.current.getBoundingClientRect();
-    setPos({ top: rect.bottom + 4, left: rect.left, width: rect.width });
+    const recompute = (): void => {
+      if (!triggerRef.current) return;
+      const rect = triggerRef.current.getBoundingClientRect();
+      setPos({ top: rect.bottom + 4, left: rect.left, width: rect.width });
+    };
+    recompute();
+    window.addEventListener('scroll', recompute, true);
+    window.addEventListener('resize', recompute);
+    return () => {
+      window.removeEventListener('scroll', recompute, true);
+      window.removeEventListener('resize', recompute);
+    };
   }, [open]);
 
   // Автофокус popover'а при открытии — закрывает наследие WAI-ARIA dialog

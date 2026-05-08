@@ -135,8 +135,7 @@
     }
 
     &:focus-visible {
-      outline: 0;
-      box-shadow: var(--lk-ring);
+      @include lk-focus-ring;
     }
   }
 
@@ -162,8 +161,7 @@
     }
 
     &:focus-visible {
-      outline: 0;
-      box-shadow: var(--lk-ring);
+      @include lk-focus-ring;
     }
   }
 
@@ -185,8 +183,7 @@
     }
 
     &:focus-visible {
-      outline: 0;
-      box-shadow: var(--lk-ring);
+      @include lk-focus-ring;
     }
   }
 
@@ -231,8 +228,7 @@
     }
 
     &:focus-visible {
-      outline: 0;
-      box-shadow: var(--lk-ring);
+      @include lk-focus-ring;
     }
   }
 
@@ -295,8 +291,7 @@
   }
 
   &:focus-visible {
-    outline: 0;
-    box-shadow: var(--lk-ring);
+    @include lk-focus-ring;
   }
 
   &:disabled,
@@ -380,9 +375,8 @@
 
   &:focus-visible,
   &:focus {
-    outline: 0;
+    @include lk-focus-ring;
     border-color: var(--lk-accent);
-    box-shadow: var(--lk-ring);
   }
 
   &::placeholder {
@@ -452,9 +446,8 @@
     }
 
     &:focus-visible {
-      outline: 0;
+      @include lk-focus-ring;
       border-color: var(--lk-accent);
-      box-shadow: var(--lk-ring);
     }
 
     &:disabled {
@@ -652,8 +645,7 @@
   }
 
   &:focus-visible {
-    outline: 0;
-    box-shadow: var(--lk-ring);
+    @include lk-focus-ring;
   }
 
   &__top {
@@ -775,8 +767,7 @@
     }
 
     &:focus-visible {
-      outline: 0;
-      box-shadow: var(--lk-ring);
+      @include lk-focus-ring;
       border-radius: var(--lk-r-sm);
     }
 
@@ -855,8 +846,7 @@
     }
 
     &:focus-visible {
-      outline: 0;
-      box-shadow: var(--lk-ring);
+      @include lk-focus-ring;
     }
 
     &--active {
@@ -1243,9 +1233,8 @@
 
     &:focus-visible,
     &:focus {
-      outline: 0;
+      @include lk-focus-ring;
       border-color: var(--lk-accent);
-      box-shadow: var(--lk-ring);
     }
 
     &::placeholder {
@@ -1291,8 +1280,7 @@
     }
 
     &:focus-visible {
-      outline: 0;
-      box-shadow: var(--lk-ring);
+      @include lk-focus-ring;
     }
   }
 }
@@ -1330,8 +1318,7 @@
     }
 
     &:focus-visible {
-      outline: 0;
-      box-shadow: var(--lk-ring);
+      @include lk-focus-ring;
     }
   }
 }

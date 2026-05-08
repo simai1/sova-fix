@@ -9,6 +9,7 @@ import {
   useGetUrgenciesQuery,
 } from '@/API/rtkQuery/lk.api';
 import FilterModal, { LkFilterValue } from '@/components/Lk/FilterModal';
+import { countActiveFilters } from '@/components/Lk/filterUtils';
 import LkEmpty from '@/components/Lk/LkEmpty';
 import LkErrorBanner from '@/components/Lk/LkErrorBanner';
 import LkListItem from '@/components/Lk/LkListItem';
@@ -20,17 +21,6 @@ import { SORT_OPTIONS } from '@/components/Lk/sortOptions';
 import { deriveUnitsFromObjects } from '@/utils/lkUnits';
 
 const PAGE_LIMIT = 20;
-
-const countActiveFilters = (f: LkFilterValue): number => {
-  let count = 0;
-  if (f.unitId) count++;
-  if (f.objectId) count++;
-  if (f.statusId) count++;
-  if (f.urgencyId) count++;
-  // dateFrom + dateTo — один фильтр «период»
-  if (f.dateFrom || f.dateTo) count++;
-  return count;
-};
 
 const CustomerRequestsList = (): JSX.Element => {
   const navigate = useNavigate();
@@ -94,6 +84,7 @@ const CustomerRequestsList = (): JSX.Element => {
   }, [data, items.length, isFetching]);
 
   const total = data?.total ?? 0;
+  const activeCount = countActiveFilters(filters);
   const noResults = !isFetching && items.length === 0;
 
   return (
@@ -104,7 +95,7 @@ const CustomerRequestsList = (): JSX.Element => {
       <div className="lk-toolbar">
         <button type="button" onClick={() => setFilterOpen(true)}>
           Фильтры
-          {countActiveFilters(filters) > 0 ? ` (${countActiveFilters(filters)})` : ''}
+          {activeCount > 0 ? ` (${activeCount})` : ''}
         </button>
         <LkSelect
           size="sm"

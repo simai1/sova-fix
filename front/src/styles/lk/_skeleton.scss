@@ -5,15 +5,23 @@
 // background-position на linear-gradient — никаких pseudo-элементов
 // и box-shadow-хитростей: проще, дешевле, лучше на мобильных.
 
-.lk-skeleton {
-  background: linear-gradient(
+// Локальный mixin для shimmer-эффекта. $alpha управляет «яркостью» блика
+// в середине градиента: у крупного skeleton'а он чуть выше (0.6), чем у
+// тонких текстовых линий (0.4) — иначе на 0.875rem-полоске блик читается
+// как «вспышка», а не плавный sweep.
+@mixin lk-skeleton-shine($alpha: 0.6) {
+  background-image: linear-gradient(
     90deg,
     var(--lk-surface-2) 0%,
-    rgba(245, 245, 244, 0.6) 50%,
+    rgba(245, 245, 244, $alpha) 50%,
     var(--lk-surface-2) 100%
   );
   background-size: 200% 100%;
   animation: lk-skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+.lk-skeleton {
+  @include lk-skeleton-shine;
   border-radius: var(--lk-r-md);
   display: block;
 }
@@ -37,14 +45,7 @@
   &__line {
     height: 0.875rem;
     border-radius: var(--lk-r-sm);
-    background-image: linear-gradient(
-      90deg,
-      var(--lk-surface-2) 0%,
-      rgba(245, 245, 244, 0.4) 50%,
-      var(--lk-surface-2) 100%
-    );
-    background-size: 200% 100%;
-    animation: lk-skeleton-shimmer 1.4s ease-in-out infinite;
+    @include lk-skeleton-shine(0.4);
 
     // Утилитарные ширины — лезть в _utilities.scss ради трёх правил
     // не имеет смысла, оставляем рядом с самим компонентом.

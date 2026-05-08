@@ -131,3 +131,12 @@ $lk-bp-ws: 2400px;  // Widescreen         | 2400+
     @media (max-width: 1366px) { @content; }  // Laptop и уже
   }
 }
+
+// Унифицированный focus-ring для интерактивных элементов ЛК. Подключается
+// внутри `&:focus-visible { @include lk-focus-ring; }`. Если у элемента уже
+// есть дополнительные правила в фокусе (например, цветной border у input'а) —
+// добавляй их рядом с @include, mixin сам их не перетирает.
+@mixin lk-focus-ring {
+  outline: 0;
+  box-shadow: var(--lk-ring);
+}
