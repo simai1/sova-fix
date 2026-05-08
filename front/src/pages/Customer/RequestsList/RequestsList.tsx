@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import {
   RequestDto,
@@ -9,16 +10,30 @@ import {
 } from '@/API/rtkQuery/lk.api';
 import FilterModal, { LkFilterValue } from '@/components/Lk/FilterModal';
 import LkEmpty from '@/components/Lk/LkEmpty';
+import LkErrorBanner from '@/components/Lk/LkErrorBanner';
 import LkListItem from '@/components/Lk/LkListItem';
 import LkSearchInput from '@/components/Lk/LkSearchInput';
 import LkSelect from '@/components/Lk/LkSelect';
+import LkSkeleton from '@/components/Lk/LkSkeleton';
 import LkSpinner from '@/components/Lk/LkSpinner';
 import { SORT_OPTIONS } from '@/components/Lk/sortOptions';
 import { deriveUnitsFromObjects } from '@/utils/lkUnits';
 
 const PAGE_LIMIT = 20;
 
+const countActiveFilters = (f: LkFilterValue): number => {
+  let count = 0;
+  if (f.unitId) count++;
+  if (f.objectId) count++;
+  if (f.statusId) count++;
+  if (f.urgencyId) count++;
+  // dateFrom + dateTo — один фильтр «период»
+  if (f.dateFrom || f.dateTo) count++;
+  return count;
+};
+
 const CustomerRequestsList = (): JSX.Element => {
+  const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState<LkFilterValue>({});
@@ -89,7 +104,7 @@ const CustomerRequestsList = (): JSX.Element => {
       <div className="lk-toolbar">
         <button type="button" onClick={() => setFilterOpen(true)}>
           Фильтры
-          {Object.keys(filters).length > 0 ? ` (${Object.keys(filters).length})` : ''}
+          {countActiveFilters(filters) > 0 ? ` (${countActiveFilters(filters)})` : ''}
         </button>
         <LkSelect
           size="sm"
@@ -101,19 +116,51 @@ const CustomerRequestsList = (): JSX.Element => {
         />
       </div>
 
-      {isError ? <LkEmpty text="Не удалось загрузить заявки" /> : null}
+      {isError ? <LkErrorBanner text="Не удалось загрузить заявки" /> : null}
 
       {items.length > 0 ? (
         <div className="lk-card-grid">
-          {items.map((req) => (
-            <LkListItem key={req.id} request={req} to={`/customer/requests/${req.id}`} />
+          {items.map((req, i) => (
+            <LkListItem
+              key={req.id}
+              request={req}
+              to={`/customer/requests/${req.id}`}
+              index={i < PAGE_LIMIT ? i : undefined}
+            />
           ))}
         </div>
       ) : null}
 
-      {noResults && !isError ? <LkEmpty text="У вас пока нет заявок" /> : null}
+      {noResults && !isError ? (
+        <LkEmpty
+          icon={
+            <svg
+              width="32"
+              height="32"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden
+            >
+              <path d="M22 12h-6l-2 3h-4l-2-3H2" />
+              <path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
+            </svg>
+          }
+          title="У вас пока нет заявок"
+          text="Создайте первую заявку, чтобы начать работу."
+          action={{
+            label: 'Создать заявку',
+            onClick: () => navigate('/customer/requests/new'),
+            variant: 'accent',
+          }}
+        />
+      ) : null}
 
-      {isFetching ? <LkSpinner /> : null}
+      {isFetching && items.length === 0 ? <LkSkeleton variant="list" count={5} /> : null}
+      {isFetching && items.length > 0 ? <LkSpinner /> : null}
 
       <div ref={sentinelRef} style={{ height: 1 }} />
 
