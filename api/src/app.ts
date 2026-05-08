@@ -28,6 +28,7 @@ import settingsRoute from './routes/settings.route';
 import directoryCategory from './routes/directoryCategory.route';
 import reportRoute from './routes/reports.route';
 import lkRoute from './routes/lk.route';
+import adminRoute from './routes/admin.route';
 
 import logger from './utils/logger';
 import winston from 'winston';
@@ -106,6 +107,7 @@ app.use('/settings', settingsRoute);
 app.use('/directoryCategory', directoryCategory);
 app.use('/reports', reportRoute);
 app.use('/lk', lkRoute);
+app.use('/admin', adminRoute);
 
 // websocket section
 //
