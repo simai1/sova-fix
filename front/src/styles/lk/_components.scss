@@ -1,12 +1,20 @@
 @use './tokens' as *;
 
+// ═══════════════════════════════════════════════════════════════════════════
+// BEM-блоки ЛК. Этап P2 редизайна «утилитарный modern». Все цвета — через
+// CSS-переменные из _tokens.scss; размеры — в rem (исключения: px в @media,
+// 1px solid для тонких линий, px в shadow rgba).
+// Эталон: .memory-base/specs/2026-05-08-lk-redesign-utility-modern-design.md
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ── 1. .lk-page ──────────────────────────────────────────────────────────────
+// font-family задан на :root (см. _tokens.scss) и наследуется — локально не
+// переопределяем, чтобы Inter Variable доходил до всех потомков ЛК.
 .lk-page {
   background: var(--lk-bg);
   color: var(--lk-text);
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  font-size: var(--lk-font-base);
   min-height: 100vh;
-  padding-bottom: 72px;
+  padding-bottom: 4rem;
   max-width: 100%;
   margin-inline: auto;
   position: relative;
@@ -18,29 +26,24 @@
     box-sizing: border-box;
   }
 
-  // Container max-widths по шкале Frontend Breakpoints.
-  // На Mobile Landscape (768+) и Tablet Landscape (1025+) контент капается;
-  // на Laptop+ переходим к grid'у с sidebar.
+  // Container max-widths — теперь в rem. На Mobile Landscape (768+) и Tablet
+  // Landscape (1025+) контент капается; на Laptop+ переходим к grid'у с sidebar.
   @include lk-mq-up(ml) {
-    font-size: var(--lk-font-md-base);
-    max-width: 720px;
+    max-width: 45rem; // 720px эквивалент
   }
 
   @include lk-mq-up(tl) {
-    font-size: var(--lk-font-lg-base);
-    max-width: 960px;
-    // padding-bottom оставляем — на Tablet Landscape BottomNav ещё показывается.
+    max-width: 60rem; // 960px эквивалент
   }
 
-  // Laptop (1201+): добавляем sidebar слева. Header спанит обе колонки через grid-area.
-  // Здесь же отключаем нижний отступ под BottomNav — он скрывается с laptop+.
+  // Laptop (1201+): добавляем sidebar слева. Header спанит обе колонки.
   // grid-template-rows: header auto + content 1fr — иначе при коротком content
-  // grid равномерно распределяет min-height:100vh, и header распухает на сотни px.
+  // grid равномерно распределяет min-height:100vh, и header распухает.
   @include lk-mq-up(lt) {
-    max-width: 1140px;
+    max-width: 71.25rem; // 1140px эквивалент
     padding-bottom: 0;
     display: grid;
-    grid-template-columns: 240px 1fr;
+    grid-template-columns: 14rem 1fr;
     grid-template-rows: auto 1fr;
     grid-template-areas:
       'header header'
@@ -49,20 +52,20 @@
   }
 
   @include lk-mq-up(dt) {
-    max-width: 1320px;
+    max-width: 82.5rem; // 1320px эквивалент
   }
 
   &__header {
     position: sticky;
     top: 0;
     min-height: var(--lk-header-h);
-    background: var(--lk-yellow);
-    color: var(--lk-black);
+    background: var(--lk-surface);
+    color: var(--lk-text);
+    border-bottom: 1px solid var(--lk-border);
     padding: var(--lk-sp-3) var(--lk-sp-4);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     z-index: 50;
     gap: var(--lk-sp-3);
 
@@ -71,48 +74,119 @@
     }
   }
 
+  &__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--lk-sp-2);
+    flex-shrink: 0;
+    font-weight: 600;
+    font-size: var(--lk-fs-md);
+    color: var(--lk-text);
+    text-decoration: none;
+  }
+
   &__title {
     font-weight: 600;
     font-size: var(--lk-fs-lg);
     margin: 0;
     flex: 1;
     text-align: center;
+    color: var(--lk-text);
 
     @include lk-mq-up(ml) {
-      font-size: 22px;
+      font-size: var(--lk-fs-xl);
     }
 
-    @include lk-mq-up(tl) {
-      font-size: 26px;
+    @include lk-mq-up(lt) {
+      // На laptop+ заголовок переезжает в контент — в шапке выравнивание
+      // не нужно. Оставляем тот же flex:1, но без центрирования, чтобы при
+      // отсутствии brand слева title прижимался к левому краю.
+      text-align: left;
+      font-size: var(--lk-fs-2xl);
     }
   }
 
-  &__back {
+  &__actions {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--lk-sp-1);
+    flex-shrink: 0;
+  }
+
+  // Иконочная кнопка в шапке (logout, back, и пр.). Квадрат 2.25rem,
+  // прозрачная по умолчанию, hover — surface-2.
+  &__action-btn {
+    width: 2.25rem;
+    height: 2.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     background: transparent;
     border: none;
-    color: inherit;
-    font-size: 22px;
-    line-height: 1;
+    color: var(--lk-text-muted);
     cursor: pointer;
-    padding: var(--lk-sp-1) var(--lk-sp-2);
     border-radius: var(--lk-r-sm);
+    padding: 0;
+    transition: all 0.12s ease-out;
 
     &:hover {
-      background: rgba(0, 0, 0, 0.05);
+      background: var(--lk-surface-2);
+      color: var(--lk-text);
+    }
+
+    &:focus-visible {
+      outline: 0;
+      box-shadow: var(--lk-ring);
     }
   }
 
+  // Кнопка «назад» — то же поведение, что у action-btn, но иконка крупнее.
+  &__back {
+    width: 2.25rem;
+    height: 2.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: var(--lk-text);
+    cursor: pointer;
+    font-size: 1.25rem;
+    line-height: 1;
+    border-radius: var(--lk-r-sm);
+    padding: 0;
+    transition: all 0.12s ease-out;
+
+    &:hover {
+      background: var(--lk-surface-2);
+    }
+
+    &:focus-visible {
+      outline: 0;
+      box-shadow: var(--lk-ring);
+    }
+  }
+
+  // Историческая кнопка «Выход» — теперь визуально равна action-btn,
+  // оставлена ради обратной совместимости с TSX, где её ещё используют.
   &__logout {
     background: transparent;
     border: none;
-    color: inherit;
+    color: var(--lk-text-muted);
     font-size: var(--lk-fs-sm);
     cursor: pointer;
     padding: var(--lk-sp-1) var(--lk-sp-2);
     border-radius: var(--lk-r-sm);
+    transition: all 0.12s ease-out;
 
     &:hover {
-      background: rgba(0, 0, 0, 0.05);
+      background: var(--lk-surface-2);
+      color: var(--lk-text);
+    }
+
+    &:focus-visible {
+      outline: 0;
+      box-shadow: var(--lk-ring);
     }
   }
 
@@ -128,27 +202,37 @@
 
     @include lk-mq-up(lt) {
       grid-area: content;
-      padding: var(--lk-sp-6) 0 var(--lk-sp-6) 0;
+      padding: var(--lk-sp-6) 0;
     }
   }
 }
 
+// ── 2. .lk-card ──────────────────────────────────────────────────────────────
 .lk-card {
-  background: #fff;
+  background: var(--lk-surface);
+  border: 1px solid var(--lk-border);
   border-radius: var(--lk-r-md);
-  padding: var(--lk-sp-4);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  padding: var(--lk-sp-5) var(--lk-sp-4);
   display: flex;
   flex-direction: column;
   gap: var(--lk-sp-2);
 
+  @include lk-mq-up(tl) {
+    padding: var(--lk-sp-5);
+  }
+
   &--clickable {
     cursor: pointer;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    transition: border-color 0.12s ease-out, background 0.12s ease-out;
 
     &:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      border-color: var(--lk-border-strong);
+      background: var(--lk-surface-2);
+    }
+
+    &:focus-visible {
+      outline: 0;
+      box-shadow: var(--lk-ring);
     }
   }
 
@@ -161,12 +245,13 @@
 
   &__title {
     font-weight: 600;
-    font-size: var(--lk-fs-md);
+    font-size: var(--lk-fs-xl);
     margin: 0;
+    color: var(--lk-text);
   }
 
   &__muted {
-    color: var(--lk-muted);
+    color: var(--lk-text-muted);
     font-size: var(--lk-fs-sm);
   }
 
@@ -175,37 +260,43 @@
     flex-direction: column;
     gap: var(--lk-sp-2);
     border-top: 1px solid var(--lk-border);
-    padding-top: var(--lk-sp-3);
-    margin-top: var(--lk-sp-2);
+    padding-top: var(--lk-sp-4);
+    margin-top: var(--lk-sp-3);
   }
 
   &__section-title {
-    font-size: var(--lk-fs-sm);
-    color: var(--lk-brown);
+    font-size: var(--lk-fs-xs);
+    color: var(--lk-text-subtle);
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin: 0 0 var(--lk-sp-1);
+    letter-spacing: 0.05em;
+    margin: 0 0 var(--lk-sp-2);
   }
 }
 
+// ── 3. .lk-button ────────────────────────────────────────────────────────────
 .lk-button {
-  height: 44px;
+  height: 2.5rem;
   border-radius: var(--lk-r-md);
   padding: 0 var(--lk-sp-4);
-  font-weight: 600;
-  font-size: 14px;
+  font-weight: 500;
+  font-size: var(--lk-fs-md);
+  font-family: inherit;
   cursor: pointer;
   border: 1px solid transparent;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--lk-sp-2);
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  transition: all 0.12s ease-out;
 
   @include lk-mq-up(tl) {
-    height: 48px;
-    font-size: 15px;
+    height: 2.75rem;
+  }
+
+  &:focus-visible {
+    outline: 0;
+    box-shadow: var(--lk-ring);
   }
 
   &:disabled,
@@ -214,30 +305,55 @@
     cursor: not-allowed;
   }
 
+  // Главная утилитарная primary — чёрная (zinc-900).
   &--primary {
-    background: var(--lk-yellow);
-    color: var(--lk-brown-dark);
-    border-color: var(--lk-yellow);
+    background: var(--lk-text);
+    color: var(--lk-surface);
+    border-color: var(--lk-text);
 
     &:hover:not(:disabled) {
-      background: var(--lk-yellow-dark);
+      // Чуть светлее, чем text — даёт ощутимый hover на тёмном фоне.
+      background: #27272A;
+      border-color: #27272A;
+    }
+  }
+
+  // Жёлтый CTA-акцент — точечный (главное действие на странице).
+  &--accent {
+    background: var(--lk-accent);
+    color: var(--lk-accent-fg);
+    border-color: var(--lk-accent);
+
+    &:hover:not(:disabled) {
+      background: var(--lk-accent-deep);
+      color: #fff;
+      border-color: var(--lk-accent-deep);
     }
   }
 
   &--ghost {
     background: transparent;
-    color: var(--lk-brown);
-    border-color: var(--lk-brown);
+    color: var(--lk-text);
+    border-color: var(--lk-border);
 
     &:hover:not(:disabled) {
-      background: var(--lk-sand-light);
+      background: var(--lk-surface-2);
+      border-color: var(--lk-border-strong);
     }
   }
 
+  // Опасное действие: pastel-фон, насыщенный текст; на hover — обращение
+  // (заливка danger, белый текст).
   &--danger {
-    background: var(--lk-danger);
-    color: #fff;
-    border-color: var(--lk-danger);
+    background: var(--lk-danger-soft);
+    color: var(--lk-danger);
+    border-color: var(--lk-danger-soft);
+
+    &:hover:not(:disabled) {
+      background: var(--lk-danger);
+      color: #fff;
+      border-color: var(--lk-danger);
+    }
   }
 
   &--block {
@@ -245,52 +361,60 @@
   }
 }
 
+// ── 4. .lk-input, .lk-textarea ───────────────────────────────────────────────
 .lk-input,
 .lk-textarea {
   width: 100%;
-  padding: 12px 14px;
+  padding: 0 var(--lk-sp-3);
   border: 1px solid var(--lk-border);
   border-radius: var(--lk-r-md);
-  font-size: 14px;
-  background: #fff;
+  font-size: var(--lk-fs-md);
+  background: var(--lk-surface);
   color: var(--lk-text);
   font-family: inherit;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color 0.12s ease-out, box-shadow 0.12s ease-out;
 
-  @include lk-mq-up(tl) {
-    padding: 14px 16px;
-    font-size: 15px;
+  &:hover:not(:disabled) {
+    border-color: var(--lk-border-strong);
   }
 
+  &:focus-visible,
   &:focus {
-    outline: none;
-    border-color: var(--lk-yellow);
-    box-shadow: 0 0 0 3px rgba(245, 197, 24, 0.2);
+    outline: 0;
+    border-color: var(--lk-accent);
+    box-shadow: var(--lk-ring);
   }
 
   &::placeholder {
-    color: var(--lk-muted);
+    color: var(--lk-text-subtle);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
   }
 }
 
 .lk-input {
-  height: 44px;
+  height: 2.5rem;
 
   @include lk-mq-up(tl) {
-    height: 48px;
+    height: 2.75rem;
   }
 }
 
 .lk-textarea {
-  min-height: 88px;
+  padding: var(--lk-sp-3);
+  min-height: 5.5rem;
   resize: vertical;
+  line-height: 1.4;
 }
 
-// Кастомный dropdown для всех ЛК. Реализуется компонентом LkSelect:
-// trigger-кнопка + меню рендерится через React-портал в document.body
-// (position: fixed по координатам триггера) — это нужно, чтобы меню
-// не клипалось overflow: auto у .lk-modal__sheet и не зажималось
-// stacking-контекстом sticky-хедера.
+// ── 5. .lk-select ────────────────────────────────────────────────────────────
+// Кастомный dropdown для всех ЛК. trigger-кнопка + меню рендерится через
+// React-портал в document.body (position: fixed) — чтобы меню не клипалось
+// overflow: auto у .lk-modal__sheet и не зажималось stacking-контекстом
+// sticky-хедера.
 .lk-select {
   position: relative;
   width: 100%;
@@ -303,35 +427,34 @@
 
   &__trigger {
     width: 100%;
-    height: 44px;
-    padding: 0 var(--lk-sp-3) 0 var(--lk-sp-4);
-    background: #fff;
+    height: 2.5rem;
+    padding: 0 var(--lk-sp-3);
+    background: var(--lk-surface);
     border: 1px solid var(--lk-border);
     border-radius: var(--lk-r-md);
     color: var(--lk-text);
     font: inherit;
-    font-size: 14px;
+    font-size: var(--lk-fs-md);
     text-align: left;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: var(--lk-sp-2);
-    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    transition: border-color 0.12s ease-out, box-shadow 0.12s ease-out, background 0.12s ease-out;
 
     @include lk-mq-up(tl) {
-      height: 48px;
-      font-size: 15px;
+      height: 2.75rem;
     }
 
     &:hover:not(:disabled) {
-      border-color: var(--lk-brown);
+      border-color: var(--lk-border-strong);
     }
 
     &:focus-visible {
-      outline: none;
-      border-color: var(--lk-yellow);
-      box-shadow: 0 0 0 3px rgba(245, 197, 24, 0.2);
+      outline: 0;
+      border-color: var(--lk-accent);
+      box-shadow: var(--lk-ring);
     }
 
     &:disabled {
@@ -340,20 +463,18 @@
   }
 
   &--sm &__trigger {
-    height: 40px;
+    height: 2.25rem;
     font-size: var(--lk-fs-sm);
     padding: 0 var(--lk-sp-2) 0 var(--lk-sp-3);
 
     @include lk-mq-up(tl) {
-      height: 40px;
-      font-size: var(--lk-fs-sm);
-      padding: 0 var(--lk-sp-2) 0 var(--lk-sp-3);
+      height: 2.25rem;
     }
   }
 
   &--open &__trigger {
-    border-color: var(--lk-yellow);
-    box-shadow: 0 0 0 3px rgba(245, 197, 24, 0.2);
+    border-color: var(--lk-accent);
+    box-shadow: var(--lk-ring);
   }
 
   &__value,
@@ -369,12 +490,12 @@
   }
 
   &__placeholder {
-    color: var(--lk-muted);
+    color: var(--lk-text-subtle);
   }
 
   &__chevron {
     flex-shrink: 0;
-    color: var(--lk-brown);
+    color: var(--lk-text-muted);
     transition: transform 0.18s ease;
   }
 
@@ -382,15 +503,14 @@
     transform: rotate(180deg);
   }
 
-  // Меню рендерится в портале — selector работает по классу,
-  // не по дереву DOM, поэтому правила сидят рядом с триггером.
+  // Меню рендерится в портале — selector работает по классу, не по дереву DOM.
   &__menu {
-    background: #fff;
+    background: var(--lk-surface);
     border-radius: var(--lk-r-md);
     border: 1px solid var(--lk-border);
-    box-shadow: 0 12px 32px rgba(123, 75, 42, 0.18), 0 2px 8px rgba(0, 0, 0, 0.06);
+    box-shadow: var(--lk-shadow-md);
     padding: var(--lk-sp-1);
-    max-height: 280px;
+    max-height: 17.5rem;
     overflow-y: auto;
     // Должен быть выше .lk-modal__overlay (1000) и .lk-toast-area (2000):
     // dropdown в FilterModal иначе уходит под оверлей модалки.
@@ -417,35 +537,30 @@
     display: flex;
     align-items: center;
     gap: var(--lk-sp-2);
-    padding: 10px var(--lk-sp-3);
+    padding: var(--lk-sp-2) var(--lk-sp-3);
     border-radius: var(--lk-r-sm);
     cursor: pointer;
     color: var(--lk-text);
-    font-size: 14px;
+    font-size: var(--lk-fs-md);
     line-height: 1.3;
     user-select: none;
     transition: background 0.12s ease, color 0.12s ease;
 
-    @include lk-mq-up(tl) {
-      font-size: 15px;
-      padding: 12px var(--lk-sp-3);
-    }
-
     &--active {
-      background: var(--lk-sand-light);
-      color: var(--lk-brown-dark);
+      background: var(--lk-surface-2);
+      color: var(--lk-text);
     }
 
     &--selected {
-      background: var(--lk-sand-light);
-      color: var(--lk-brown-dark);
+      background: var(--lk-surface-2);
+      color: var(--lk-text);
       font-weight: 600;
     }
   }
 
   &__dot {
-    width: 8px;
-    height: 8px;
+    width: 0.5rem;
+    height: 0.5rem;
     border-radius: 50%;
     background: transparent;
     flex-shrink: 0;
@@ -453,7 +568,7 @@
   }
 
   &__option--selected &__dot {
-    background: var(--lk-yellow);
+    background: var(--lk-accent);
   }
 
   &__label {
@@ -467,7 +582,7 @@
 @keyframes lk-select-in {
   from {
     opacity: 0;
-    transform: translateY(-4px) scale(0.98);
+    transform: translateY(-0.25rem) scale(0.98);
   }
   to {
     opacity: 1;
@@ -478,7 +593,7 @@
 @keyframes lk-select-in-up {
   from {
     opacity: 0;
-    transform: translateY(4px) scale(0.98);
+    transform: translateY(0.25rem) scale(0.98);
   }
   to {
     opacity: 1;
@@ -486,6 +601,7 @@
   }
 }
 
+// ── 6. .lk-field ─────────────────────────────────────────────────────────────
 .lk-field {
   margin-bottom: var(--lk-sp-3);
   display: flex;
@@ -494,7 +610,8 @@
 
   &__label {
     font-size: var(--lk-fs-sm);
-    color: var(--lk-brown);
+    color: var(--lk-text);
+    font-weight: 500;
     margin-bottom: var(--lk-sp-1);
   }
 
@@ -505,26 +622,38 @@
 
   &__hint {
     font-size: var(--lk-fs-sm);
-    color: var(--lk-muted);
+    color: var(--lk-text-muted);
   }
 }
 
+// ── 7. .lk-list-item ─────────────────────────────────────────────────────────
+// Stagger-fade-in через CSS-переменную --lk-i (опционально из inline-style).
+// Анимация запускается на первом рендере; на догрузке (page > 1) JSX не
+// передаёт --lk-i, и delay равен 0 — fade всё равно проигрывается, но не
+// «волной». См. design-doc § 8.
 .lk-list-item {
   display: flex;
   flex-direction: column;
-  padding: var(--lk-sp-3);
+  padding: var(--lk-sp-4);
   border-radius: var(--lk-r-md);
-  background: #fff;
-  gap: var(--lk-sp-1);
+  background: var(--lk-surface);
+  border: 1px solid var(--lk-border);
+  gap: var(--lk-sp-2);
   text-decoration: none;
   color: inherit;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color 0.12s ease-out, background 0.12s ease-out;
+  animation: lk-fade-up 0.3s ease-out both;
+  animation-delay: calc(var(--lk-i, 0) * 30ms);
 
   &:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-color: var(--lk-border-strong);
+    background: var(--lk-surface-2);
+  }
+
+  &:focus-visible {
+    outline: 0;
+    box-shadow: var(--lk-ring);
   }
 
   &__top {
@@ -536,20 +665,45 @@
 
   &__number {
     font-weight: 600;
-    color: var(--lk-brown);
+    font-size: var(--lk-fs-md);
+    color: var(--lk-text);
+    font-feature-settings: 'tnum';
   }
 
   &__title {
-    font-weight: 500;
+    font-weight: 600;
+    font-size: var(--lk-fs-lg);
     line-height: 1.3;
+    color: var(--lk-text);
     word-break: break-word;
+  }
+
+  &__desc {
+    font-size: var(--lk-fs-md);
+    color: var(--lk-text-muted);
+    line-height: 1.4;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  &__bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--lk-sp-2);
+    margin-top: var(--lk-sp-1);
   }
 
   &__date {
     font-size: var(--lk-fs-sm);
-    color: var(--lk-muted);
+    color: var(--lk-text-subtle);
+    font-feature-settings: 'tnum';
   }
 
+  // Совместимость со старой структурой (часть карточек ещё рендерит chips).
   &__chips {
     display: flex;
     gap: var(--lk-sp-2);
@@ -557,76 +711,104 @@
   }
 }
 
-// Сетка для списка заявок: на десктопе несколько колонок,
-// на мобильном — одна. Обёртывается вокруг списка LkListItem.
+// ── 8. .lk-card-grid ─────────────────────────────────────────────────────────
+// Сетка для списка заявок: на десктопе несколько колонок, на мобильном — одна.
 .lk-card-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--lk-sp-3);
 
   @include lk-mq-up(ml) {
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(17.5rem, 1fr));
     gap: var(--lk-sp-4);
   }
 
   @include lk-mq-up(tl) {
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
     gap: var(--lk-sp-5);
   }
 
   @include lk-mq-up(dt) {
-    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
   }
 }
 
+// ── 9. .lk-bottom-nav ────────────────────────────────────────────────────────
 .lk-bottom-nav {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 64px;
-  background: #fff;
+  height: 4rem;
+  background: var(--lk-surface);
   border-top: 1px solid var(--lk-border);
   display: flex;
-  max-width: 768px;
+  max-width: 48rem;
   margin-inline: auto;
   z-index: 100;
 
-  // Скрываем bottom-nav только на Laptop+ (десктоп с sidebar). На Tablet Landscape она ещё нужна.
+  // Скрываем bottom-nav только на Laptop+ (десктоп с sidebar). На Tablet
+  // Landscape она ещё нужна.
   @include lk-mq-up(lt) {
     display: none;
   }
 
   &__item {
+    position: relative;
     flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
+    font-size: var(--lk-fs-xs);
     padding: var(--lk-sp-2);
-    color: var(--lk-muted);
+    color: var(--lk-text-muted);
     text-decoration: none;
     cursor: pointer;
     background: transparent;
     border: none;
-    gap: 2px;
+    gap: 0.125rem;
+    transition: color 0.12s ease-out;
+
+    &:hover {
+      color: var(--lk-text);
+    }
+
+    &:focus-visible {
+      outline: 0;
+      box-shadow: var(--lk-ring);
+      border-radius: var(--lk-r-sm);
+    }
 
     &--active {
-      color: var(--lk-brown);
-      background: var(--lk-sand-light);
+      color: var(--lk-text);
+      font-weight: 500;
+
+      // Нижняя полоска-индикатор. Расположение: 0.25rem над нижним краем,
+      // ширина 1.5rem, центр по item.
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: 0.25rem;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 1.5rem;
+        height: 0.125rem;
+        border-radius: 999px;
+        background: var(--lk-accent);
+      }
     }
   }
 
   &__icon {
     display: block;
-    width: 24px;
-    height: 24px;
-    margin-bottom: 4px;
+    width: 1.5rem;
+    height: 1.5rem;
     color: currentColor;
   }
 }
 
+// ── 10. .lk-sidebar ──────────────────────────────────────────────────────────
 // Боковая навигация для Laptop+. Рендерится всегда, видимостью управляет CSS.
 .lk-sidebar {
   display: none;
@@ -635,7 +817,7 @@
     grid-area: sidebar;
     display: flex;
     flex-direction: column;
-    gap: var(--lk-sp-2);
+    gap: var(--lk-sp-1);
     padding: var(--lk-sp-5) var(--lk-sp-3) var(--lk-sp-5) var(--lk-sp-4);
     border-right: 1px solid var(--lk-border);
     position: sticky;
@@ -643,26 +825,57 @@
     align-self: start;
   }
 
+  // Small-caps лейбл «Меню» перед списком навигации.
+  &__group-label {
+    font-size: var(--lk-fs-xs);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--lk-text-subtle);
+    padding: var(--lk-sp-3) var(--lk-sp-4) var(--lk-sp-2);
+  }
+
   &__item {
+    position: relative;
     display: flex;
     align-items: center;
     gap: var(--lk-sp-3);
-    padding: var(--lk-sp-3) var(--lk-sp-4);
+    padding: var(--lk-sp-2) var(--lk-sp-4);
     border-radius: var(--lk-r-md);
-    color: var(--lk-muted);
+    color: var(--lk-text-muted);
     text-decoration: none;
     font-weight: 500;
-    transition: background 0.15s ease, color 0.15s ease;
+    font-size: var(--lk-fs-md);
+    transition: background 0.12s ease-out, color 0.12s ease-out;
     cursor: pointer;
 
-    &:hover {
-      background: var(--lk-sand-light);
-      color: var(--lk-brown);
+    &:hover:not(.lk-sidebar__item--active) {
+      background: var(--lk-surface-2);
+      color: var(--lk-text);
+    }
+
+    &:focus-visible {
+      outline: 0;
+      box-shadow: var(--lk-ring);
     }
 
     &--active {
-      background: var(--lk-sand-light);
-      color: var(--lk-brown);
+      background: var(--lk-surface-2);
+      color: var(--lk-text);
+      font-weight: 600;
+
+      // Левая вертикальная полоска-индикатор. Высота: с отступами 0.375rem
+      // сверху/снизу, чтобы не доходила до границ item'а.
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0.375rem;
+        bottom: 0.375rem;
+        width: 0.1875rem;
+        border-radius: 0 var(--lk-r-sm) var(--lk-r-sm) 0;
+        background: var(--lk-accent);
+      }
     }
   }
 
@@ -672,11 +885,12 @@
   }
 }
 
+// ── 11. .lk-modal ────────────────────────────────────────────────────────────
 .lk-modal {
   &__overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(24, 24, 27, 0.4);
     display: flex;
     align-items: flex-end;
     justify-content: center;
@@ -689,24 +903,25 @@
   }
 
   &__sheet {
-    background: #fff;
+    background: var(--lk-surface);
     border-radius: var(--lk-r-lg) var(--lk-r-lg) 0 0;
     padding: var(--lk-sp-4);
     max-height: 90vh;
     overflow: auto;
     width: 100%;
-    max-width: 600px;
+    max-width: 37.5rem;
     animation: lk-slide-up 0.25s ease;
 
     @include lk-mq-up(tl) {
-      border-radius: var(--lk-r-md);
+      border-radius: var(--lk-r-xl);
     }
   }
 
   &__title {
-    font-size: var(--lk-fs-lg);
+    font-size: var(--lk-fs-xl);
     font-weight: 600;
     margin: 0 0 var(--lk-sp-3);
+    color: var(--lk-text);
   }
 
   &__actions {
@@ -734,82 +949,90 @@
   }
 }
 
+// ── 12. .lk-chip ─────────────────────────────────────────────────────────────
 .lk-chip {
   display: inline-flex;
   align-items: center;
-  padding: var(--lk-sp-1) 10px;
+  padding: 0.125rem 0.5rem;
   border-radius: 999px;
-  font-size: var(--lk-fs-sm);
-  font-weight: 600;
+  font-size: var(--lk-fs-xs);
+  font-weight: 500;
   white-space: nowrap;
+  font-feature-settings: 'tnum';
 
+  // Статусы (1..5)
   &--status-1 {
-    background: var(--lk-sand);
-    color: var(--lk-brown-dark);
+    background: var(--lk-surface-2);
+    color: var(--lk-text-muted);
+    border: 1px solid var(--lk-border);
   }
 
   &--status-2 {
-    background: var(--lk-yellow);
-    color: var(--lk-black);
+    background: var(--lk-accent-soft);
+    color: var(--lk-accent-deep);
   }
 
   &--status-3 {
-    background: var(--lk-success);
-    color: #fff;
+    background: var(--lk-success-soft);
+    color: var(--lk-success);
   }
 
   &--status-4 {
-    background: var(--lk-muted);
-    color: #fff;
+    background: var(--lk-surface-2);
+    color: var(--lk-text-muted);
   }
 
   &--status-5 {
-    background: var(--lk-danger);
-    color: #fff;
+    background: var(--lk-danger-soft);
+    color: var(--lk-danger);
   }
 
+  // Срочности
   &--urgency-low {
-    background: var(--lk-sand);
-    color: var(--lk-brown-dark);
+    background: var(--lk-surface-2);
+    color: var(--lk-text-muted);
+    border: 1px solid var(--lk-border);
   }
 
   &--urgency-mid {
-    background: var(--lk-yellow);
-    color: var(--lk-black);
+    background: var(--lk-accent-soft);
+    color: var(--lk-accent-deep);
   }
 
   &--urgency-high {
-    background: var(--lk-danger);
-    color: #fff;
+    background: var(--lk-danger-soft);
+    color: var(--lk-danger);
   }
 
-  // Состояния push-секции профиля. Цвета синхронизированы с design-doc §5.3.
+  // Push-секция профиля
   &--push-on {
-    background: var(--lk-success);
-    color: #fff;
+    background: var(--lk-success-soft);
+    color: var(--lk-success);
   }
 
   &--push-off {
-    background: var(--lk-sand);
-    color: var(--lk-brown-dark);
+    background: var(--lk-surface-2);
+    color: var(--lk-text-muted);
+    border: 1px solid var(--lk-border);
   }
 
   &--push-denied {
-    background: var(--lk-danger);
-    color: #fff;
+    background: var(--lk-danger-soft);
+    color: var(--lk-danger);
   }
 
   &--push-warn {
-    background: var(--lk-yellow);
-    color: var(--lk-black);
+    background: var(--lk-accent-soft);
+    color: var(--lk-accent-deep);
   }
 
   &--push-muted {
-    background: var(--lk-sand-light);
-    color: var(--lk-muted);
+    background: var(--lk-surface-2);
+    color: var(--lk-text-subtle);
   }
 }
 
+// ── 13. .lk-photo-grid ───────────────────────────────────────────────────────
 .lk-photo-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -832,7 +1055,7 @@
     position: relative;
     border-radius: var(--lk-r-md);
     overflow: hidden;
-    background: var(--lk-sand-light);
+    background: var(--lk-surface-2);
 
     img,
     video {
@@ -845,56 +1068,100 @@
 
   &__remove {
     position: absolute;
-    top: 4px;
-    right: 4px;
-    width: 24px;
-    height: 24px;
+    top: 0.25rem;
+    right: 0.25rem;
+    width: 1.5rem;
+    height: 1.5rem;
     border-radius: 50%;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(24, 24, 27, 0.6);
     color: #fff;
     border: none;
     cursor: pointer;
-    font-size: 14px;
+    font-size: var(--lk-fs-md);
     line-height: 1;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: background 0.12s ease-out;
+
+    &:hover {
+      background: rgba(24, 24, 27, 0.8);
+    }
   }
 
   &__add {
     aspect-ratio: 1 / 1;
-    border: 2px dashed var(--lk-border);
+    border: 1px dashed var(--lk-border-strong);
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    color: var(--lk-muted);
+    color: var(--lk-text-muted);
     background: transparent;
     border-radius: var(--lk-r-md);
     cursor: pointer;
     font-size: var(--lk-fs-sm);
     gap: var(--lk-sp-1);
+    transition: border-color 0.12s ease-out, color 0.12s ease-out, background 0.12s ease-out;
 
     &:hover {
-      border-color: var(--lk-brown);
-      color: var(--lk-brown);
+      border-color: var(--lk-text);
+      color: var(--lk-text);
+      background: var(--lk-surface-2);
     }
   }
 }
 
+// ── 14. .lk-empty ────────────────────────────────────────────────────────────
+// Расширенный empty-state: иконка в круге + title + text + (опц.) action-кнопка.
 .lk-empty {
   text-align: center;
-  padding: var(--lk-sp-6) var(--lk-sp-4);
-  color: var(--lk-muted);
-  font-size: var(--lk-fs-md);
+  padding: var(--lk-sp-7) var(--lk-sp-4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--lk-sp-3);
+  color: var(--lk-text-muted);
+
+  &__icon {
+    width: 4.5rem;
+    height: 4.5rem;
+    background: var(--lk-surface-2);
+    color: var(--lk-text-muted);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  &__title {
+    font-size: var(--lk-fs-xl);
+    font-weight: 600;
+    color: var(--lk-text);
+    margin: 0;
+  }
+
+  &__text {
+    font-size: var(--lk-fs-md);
+    color: var(--lk-text-muted);
+    max-width: 22rem;
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  &__action {
+    margin-top: var(--lk-sp-2);
+  }
 }
 
+// ── 15. .lk-spinner ──────────────────────────────────────────────────────────
 .lk-spinner {
   display: inline-block;
-  width: 24px;
-  height: 24px;
-  border: 3px solid var(--lk-border);
-  border-top-color: var(--lk-brown);
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 0.1875rem solid var(--lk-border);
+  border-top-color: var(--lk-text);
   border-radius: 50%;
   animation: lk-spin 0.8s linear infinite;
 }
@@ -911,6 +1178,7 @@
   }
 }
 
+// ── 16. .lk-toast-area / .lk-toast ───────────────────────────────────────────
 .lk-toast-area {
   position: fixed;
   top: var(--lk-sp-4);
@@ -920,19 +1188,21 @@
   flex-direction: column;
   gap: var(--lk-sp-2);
   pointer-events: none;
-  max-width: calc(100vw - 32px);
+  max-width: calc(100vw - 2rem);
 }
 
 .lk-toast {
-  background: #fff;
+  background: var(--lk-surface);
+  border: 1px solid var(--lk-border);
   border-radius: var(--lk-r-md);
   padding: var(--lk-sp-3) var(--lk-sp-4);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-  min-width: 220px;
-  max-width: 360px;
+  box-shadow: var(--lk-shadow-md);
+  min-width: 13.75rem;
+  max-width: 22.5rem;
   font-size: var(--lk-fs-sm);
+  color: var(--lk-text);
   pointer-events: auto;
-  border-left: 4px solid var(--lk-muted);
+  border-left: 0.25rem solid var(--lk-text-muted);
   animation: lk-fade-in 0.2s ease;
 
   &--success {
@@ -944,31 +1214,90 @@
   }
 
   &--info {
-    border-left-color: var(--lk-yellow);
+    border-left-color: var(--lk-accent);
   }
 }
 
+// ── 17. .lk-search ───────────────────────────────────────────────────────────
+// Поиск в toolbar'е. Иконка лупы абсолютным позиционированием слева,
+// clear-крест — справа (виден только при наличии текста, JSX-логика).
 .lk-search {
   position: relative;
   flex: 1;
 
   &__input {
     width: 100%;
-    height: 40px;
-    padding: 0 var(--lk-sp-3);
+    height: 2.5rem;
+    padding: 0 2.25rem 0 2.25rem;
     border: 1px solid var(--lk-border);
     border-radius: var(--lk-r-md);
-    background: #fff;
+    background: var(--lk-surface);
+    color: var(--lk-text);
     font-size: var(--lk-fs-md);
+    font-family: inherit;
+    transition: border-color 0.12s ease-out, box-shadow 0.12s ease-out;
 
+    &:hover:not(:disabled) {
+      border-color: var(--lk-border-strong);
+    }
+
+    &:focus-visible,
     &:focus {
-      outline: none;
-      border-color: var(--lk-yellow);
-      box-shadow: 0 0 0 3px rgba(245, 197, 24, 0.2);
+      outline: 0;
+      border-color: var(--lk-accent);
+      box-shadow: var(--lk-ring);
+    }
+
+    &::placeholder {
+      color: var(--lk-text-subtle);
+    }
+  }
+
+  &__icon {
+    position: absolute;
+    top: 50%;
+    left: 0.75rem;
+    transform: translateY(-50%);
+    color: var(--lk-text-subtle);
+    pointer-events: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1rem;
+    height: 1rem;
+  }
+
+  &__clear {
+    position: absolute;
+    top: 50%;
+    right: 0.5rem;
+    transform: translateY(-50%);
+    width: 1.5rem;
+    height: 1.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: var(--lk-text-muted);
+    cursor: pointer;
+    border-radius: 50%;
+    padding: 0;
+    transition: background 0.12s ease-out, color 0.12s ease-out;
+
+    &:hover {
+      background: var(--lk-surface-2);
+      color: var(--lk-text);
+    }
+
+    &:focus-visible {
+      outline: 0;
+      box-shadow: var(--lk-ring);
     }
   }
 }
 
+// ── 18. .lk-toolbar ──────────────────────────────────────────────────────────
 .lk-toolbar {
   position: sticky;
   top: var(--lk-header-h);
@@ -979,23 +1308,35 @@
   z-index: 40;
 
   & > button {
-    height: 40px;
+    height: 2.5rem;
     padding: 0 var(--lk-sp-3);
     border: 1px solid var(--lk-border);
-    background: #fff;
+    background: var(--lk-surface);
     border-radius: var(--lk-r-md);
     cursor: pointer;
     font-size: var(--lk-fs-sm);
     font-weight: 500;
-    color: var(--lk-brown);
+    font-family: inherit;
+    color: var(--lk-text);
     white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--lk-sp-2);
+    transition: border-color 0.12s ease-out, background 0.12s ease-out;
 
     &:hover {
-      background: var(--lk-sand-light);
+      background: var(--lk-surface-2);
+      border-color: var(--lk-border-strong);
+    }
+
+    &:focus-visible {
+      outline: 0;
+      box-shadow: var(--lk-ring);
     }
   }
 }
 
+// ── 19. .lk-comments / .lk-comment ───────────────────────────────────────────
 .lk-comments {
   display: flex;
   flex-direction: column;
@@ -1003,15 +1344,17 @@
 }
 
 .lk-comment {
-  background: var(--lk-sand-light);
+  background: var(--lk-surface-2);
   padding: var(--lk-sp-3);
   border-radius: var(--lk-r-md);
   font-size: var(--lk-fs-sm);
   color: var(--lk-text);
   white-space: pre-wrap;
   word-break: break-word;
+  line-height: 1.4;
 }
 
+// ── 20. Утилиты ──────────────────────────────────────────────────────────────
 .lk-actions {
   display: flex;
   flex-direction: column;
@@ -1026,7 +1369,59 @@
 }
 
 .lk-link {
-  color: var(--lk-brown);
+  color: var(--lk-text);
   text-decoration: underline;
   font-size: var(--lk-fs-sm);
+  transition: color 0.12s ease-out;
+
+  &:hover {
+    color: var(--lk-accent-deep);
+  }
+}
+
+// ── 21. .lk-pill-count ───────────────────────────────────────────────────────
+// Счётчик активных фильтров внутри кнопки «Фильтры». Рисуется тёмной
+// pill-плашкой на светлой кнопке — даёт максимальный контраст.
+.lk-pill-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.125rem;
+  height: 1.125rem;
+  padding: 0 0.375rem;
+  background: var(--lk-text);
+  color: var(--lk-surface);
+  border-radius: 999px;
+  font-size: 0.625rem;
+  font-weight: 600;
+  margin-left: var(--lk-sp-1);
+  font-feature-settings: 'tnum';
+}
+
+// ── 22. .lk-error-banner ─────────────────────────────────────────────────────
+// Inline-баннер ошибок. Используется вместо LkEmpty в error-cases (не загрузить
+// заявки и т.п.) — даёт более узнаваемую сигнатуру «ошибка», а не «пусто».
+.lk-error-banner {
+  background: var(--lk-danger-soft);
+  color: var(--lk-danger);
+  border: 1px solid var(--lk-danger-soft);
+  border-radius: var(--lk-r-md);
+  padding: var(--lk-sp-3) var(--lk-sp-4);
+  display: flex;
+  align-items: center;
+  gap: var(--lk-sp-3);
+  font-size: var(--lk-fs-md);
+  line-height: 1.4;
+}
+
+// ── 23. Keyframes для list-item stagger-fade ─────────────────────────────────
+@keyframes lk-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(0.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
