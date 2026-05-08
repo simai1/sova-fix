@@ -13,6 +13,7 @@
 //     их userId / role. На фрейм subscribe сервер проверяет read-доступ к заявке
 //     через lk.service.canRead — без подписки клиент не получит COMMENT_CREATE.
 
+import crypto from 'crypto';
 import type { WebSocket as WsWebSocket } from 'ws';
 import WebSocket from 'ws';
 import { aWss } from '../app';
@@ -72,10 +73,15 @@ export const authenticateSubprotocol = async (subprotocol: string | null): Promi
     if (!subprotocol) return null;
 
     if (subprotocol.startsWith('bot.')) {
-        const masterKey = process.env.MASTER_API_KEY;
+        const masterKey = process.env.MASTER_API_KEY ?? '';
         if (!masterKey) return null;
         const provided = subprotocol.slice('bot.'.length);
-        if (provided !== masterKey) return null;
+        // Timing-safe сравнение (sec-audit M-5, ровно как в verify-ApiKey.ts):
+        // обычный `!==` short-circuit'ит на первом несовпадающем байте, что
+        // позволяет восстанавливать master-key через timing-side-channel.
+        const a = Buffer.from(provided);
+        const b = Buffer.from(masterKey);
+        if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return null;
         return { userId: null, role: null, isBot: true };
     }
 

@@ -214,5 +214,9 @@ export function useLkWebSocket(me: MeDto | undefined): void {
         socketRef.current = null;
       }
     };
-  }, [dispatch]);
+    // me?.user?.id в deps: если userId сменится (logout → login без unmount
+    // LkLayout — теоретически возможно при ре-навигации внутри SPA), пере-
+    // создаём ws-сессию с актуальным токеном вместо того, чтобы оставить
+    // старый сокет с устаревшими credentials.
+  }, [dispatch, me?.user?.id]);
 }

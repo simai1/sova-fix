@@ -36,12 +36,23 @@ const getContractorUserId = async (request: RepairRequest): Promise<string | nul
     return contractor?.userId ?? null;
 };
 
+// Best-effort: при сбое БД возвращаем [] и логируем — иначе исключение
+// пробросилось бы в createRequest/registerPublic и юзер получил бы 500
+// при уже сделанной записи в БД (нарушает инвариант «push не ронит бизнес-операцию»).
 const getManagerUserIds = async (): Promise<string[]> => {
-    const managers = await User.findAll({
-        where: { role: roles.ADMIN, pendingApproval: false },
-        attributes: ['id'],
-    });
-    return managers.map(m => m.id);
+    try {
+        const managers = await User.findAll({
+            where: { role: roles.ADMIN, pendingApproval: false },
+            attributes: ['id'],
+        });
+        return managers.map(m => m.id);
+    } catch (err) {
+        logger.log({
+            level: 'error',
+            message: `notification.getManagerUserIds failed: ${(err as Error).message}`,
+        });
+        return [];
+    }
 };
 
 // Заворачиваем в try/catch отдельно от sendToUsers (там уже есть
