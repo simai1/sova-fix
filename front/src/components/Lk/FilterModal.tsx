@@ -2,6 +2,7 @@ import { format } from 'date-fns';
 import { useEffect, useMemo, useState } from 'react';
 
 import { LkObject, LkStatus, LkUrgency } from '@/API/rtkQuery/lk.api';
+import LkChipSelect, { LkChipOption } from '@/components/Lk/LkChipSelect';
 import LkDatePicker from '@/components/Lk/LkDatePicker';
 import LkSelect, { LkSelectOption } from '@/components/Lk/LkSelect';
 import { LkUnitOption } from '@/utils/lkUnits';
@@ -64,18 +65,14 @@ const FilterModal = ({ open, onClose, value, onApply, options }: Props): JSX.Ele
     ],
     [filteredObjects],
   );
-  const statusOptions: LkSelectOption[] = useMemo(
-    () => [
-      { value: '', label: 'Все статусы' },
-      ...options.statuses.map((s) => ({ value: s.id, label: s.name })),
-    ],
+  // Для chip-select'ов «пустой» опции нет — пустое значение моделируется
+  // снятием выбора (повторный клик по активному чипу). См. LkChipSelect.
+  const statusOptions: LkChipOption[] = useMemo(
+    () => options.statuses.map((s) => ({ value: s.id, label: s.name })),
     [options.statuses],
   );
-  const urgencyOptions: LkSelectOption[] = useMemo(
-    () => [
-      { value: '', label: 'Любая' },
-      ...options.urgencies.map((u) => ({ value: u.id, label: u.name })),
-    ],
+  const urgencyOptions: LkChipOption[] = useMemo(
+    () => options.urgencies.map((u) => ({ value: u.id, label: u.name })),
     [options.urgencies],
   );
 
@@ -146,26 +143,28 @@ const FilterModal = ({ open, onClose, value, onApply, options }: Props): JSX.Ele
         </div>
 
         <div className="lk-field">
-          <label className="lk-field__label" htmlFor="lk-filter-status">
+          <div className="lk-field__label" id="lk-filter-status-label">
             Статус
-          </label>
-          <LkSelect
+          </div>
+          <LkChipSelect
             id="lk-filter-status"
-            value={draft.statusId ?? ''}
-            onChange={(v) => update('statusId', v || undefined)}
+            value={draft.statusId}
+            onChange={(v) => update('statusId', v)}
             options={statusOptions}
+            ariaLabel="Статус заявки"
           />
         </div>
 
         <div className="lk-field">
-          <label className="lk-field__label" htmlFor="lk-filter-urgency">
+          <div className="lk-field__label" id="lk-filter-urgency-label">
             Срочность
-          </label>
-          <LkSelect
+          </div>
+          <LkChipSelect
             id="lk-filter-urgency"
-            value={draft.urgencyId ?? ''}
-            onChange={(v) => update('urgencyId', v || undefined)}
+            value={draft.urgencyId}
+            onChange={(v) => update('urgencyId', v)}
             options={urgencyOptions}
+            ariaLabel="Срочность заявки"
           />
         </div>
 

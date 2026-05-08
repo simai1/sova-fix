@@ -1050,6 +1050,69 @@
   }
 }
 
+// ── 12b. .lk-chip-select ─────────────────────────────────────────────────────
+// Single-select группа чипов (см. LkChipSelect.tsx). Используется в
+// FilterModal для статуса и срочности вместо LkSelect — на коротких списках
+// чипы дают сразу видимый выбор без открытия dropdown'а.
+//
+// Активный чип — заливка var(--lk-accent) (жёлтый), неактивный — outline.
+// Это согласовано с .lk-button--accent (главный CTA), но визуально легче:
+// меньше padding, меньше font-size, без shadow.
+.lk-chip-select {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lk-sp-1);
+
+  &__item {
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    padding: var(--lk-sp-1) var(--lk-sp-3);
+    border: 1px solid var(--lk-border);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--lk-text-muted);
+    font-size: var(--lk-fs-sm);
+    font-weight: 500;
+    line-height: 1.2;
+    cursor: pointer;
+    transition:
+      background-color 120ms ease,
+      border-color 120ms ease,
+      color 120ms ease;
+    white-space: nowrap;
+
+    &:hover:not(:disabled) {
+      background: var(--lk-surface-2);
+      color: var(--lk-text);
+    }
+
+    &:focus-visible {
+      @include lk-focus-ring;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    &--active {
+      background: var(--lk-accent);
+      border-color: var(--lk-accent);
+      color: var(--lk-accent-fg);
+
+      &:hover:not(:disabled) {
+        // Не «прыгаем» обратно к surface-2 на hover — для активного варианта
+        // hover остаётся accent-deep, чтобы клик «снять выбор» был ощутим
+        // как изменение, а не наведение.
+        background: var(--lk-accent-deep);
+        border-color: var(--lk-accent-deep);
+        color: var(--lk-accent-fg);
+      }
+    }
+  }
+}
+
 // ── 13. .lk-photo-grid ───────────────────────────────────────────────────────
 .lk-photo-grid {
   display: grid;
