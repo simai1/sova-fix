@@ -9,6 +9,7 @@ import TgUser from '../models/tgUser';
 import { sendMsg, WsMsgData } from '../utils/ws';
 import Contractor from '../models/contractor';
 import wsEvents from '../config/wsEvents';
+import notificationService from './notification.service';
 import UserObject from '../models/userObject';
 import ObjectDir from '../models/object';
 import { sequelize } from '../models';
@@ -68,6 +69,11 @@ const approveUser = async (userId: string): Promise<UserDto> => {
         await Contractor.create({ name: user.name, userId: user.id });
     }
     sendMsg({ msg: { userId: user.id }, event: wsEvents.USER_CONFIRM } as WsMsgData);
+
+    // Зеркало: одобрённый юзер получает push о подтверждении регистрации
+    // (TG-flow аналог — TGUSER_CONFIRM из бот-flow). Текст без слов про «бота».
+    await notificationService.notifyRegistrationApproved(user.id);
+
     return new UserDto(user);
 };
 

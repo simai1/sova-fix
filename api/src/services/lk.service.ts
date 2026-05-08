@@ -21,8 +21,8 @@ import { sendMsg, WsMsgData } from '../utils/ws';
 import wsEvents from '../config/wsEvents';
 import { normalizeFileNames } from '../utils/normalizeData';
 import roles from '../config/roles';
-import statuses, { mapStatusesRuLocale } from '../config/statuses';
-import pushNotificationService from './pushNotification.service';
+import statuses from '../config/statuses';
+import notificationService from './notification.service';
 
 type Role = 'CONTRACTOR' | 'CUSTOMER' | 'ADMIN';
 
@@ -461,29 +461,10 @@ const createComment = async (
         event: 'COMMENT_UPDATE',
     } as WsMsgData);
 
-    // Push другой стороне диалога: автор CONTRACTOR → пушим CUSTOMER (createdByUserId),
-    // автор CUSTOMER → пушим назначенному CONTRACTOR (через Contractor.userId, если есть).
-    // Body трим до 200 символов — RFC по push рекомендует короткие пейлоады, плюс UI
-    // нотификации в любом случае обрезает длинный текст.
-    const pushTargets = new Set<string>();
-    if (role === 'CONTRACTOR' && request.createdByUserId && request.createdByUserId !== userId) {
-        pushTargets.add(request.createdByUserId);
-    } else if (role === 'CUSTOMER' && request.contractorId) {
-        const contractorOwner = await Contractor.findByPk(request.contractorId);
-        if (contractorOwner?.userId && contractorOwner.userId !== userId) {
-            pushTargets.add(contractorOwner.userId);
-        }
-    }
-    if (pushTargets.size > 0) {
-        const trimmed = text.length > 200 ? `${text.slice(0, 197)}…` : text;
-        await pushNotificationService.sendToUsers(Array.from(pushTargets), {
-            title: `Новый комментарий по заявке #${request.number}`,
-            body: trimmed,
-            url: `/lk/${role === 'CONTRACTOR' ? 'customer' : 'contractor'}/requests/${request.id}`,
-            tag: `request-${request.id}-comments`,
-            requestId: request.id,
-        });
-    }
+    // Push другой стороне диалога — текст и формат через notification.service
+    // (UI-словарь, единый источник для push и TG, см. config/notificationLabels.ts).
+    // Текст комментария в payload не уходит (PII), юзер прочитает в чате.
+    await notificationService.notifyCommentChanged(request, role, userId);
 
     // Подгружаем Author для DTO. Можно было руками подложить user, но повторный
     // findByPk проще читать и согласован с DTO-форматом.
@@ -558,20 +539,9 @@ const setStatusForContractor = async (userId: string, requestId: string, statusN
         event: wsEvents.STATUS_UPDATE,
     } as WsMsgData);
 
-    // Push CUSTOMER / создателю заявки. PII в payload не кладём (см. §7 design-doc).
-    // sendToUsers сам ловит ошибки в Promise.allSettled — не оборачиваем в try/catch.
-    const recipientUserIds = new Set<string>();
-    if (request.createdByUserId) recipientUserIds.add(request.createdByUserId);
-    if (recipientUserIds.size > 0) {
-        const statusName = (mapStatusesRuLocale as Record<number, string>)[statusNumber] || `статус ${statusNumber}`;
-        await pushNotificationService.sendToUsers(Array.from(recipientUserIds), {
-            title: `Заявка #${request.number}`,
-            body: `Статус изменён на «${statusName}»`,
-            url: `/lk/customer/requests/${request.id}`,
-            tag: `request-${request.id}-status`,
-            requestId: request.id,
-        });
-    }
+    // Push другой стороне (создателю заявки) с тем же текстом, что у TG-нотификации.
+    // Источник — сам подрядчик, исключаем его, чтобы не пушить self.
+    await notificationService.notifyStatusChanged(request, statusNumber, { excludeUserId: userId });
 
     return new LkRequestDto(request);
 };
@@ -636,6 +606,10 @@ const createForCustomer = async (userId: string, body: CreateRequestBody, files:
         msg: { requestId: created.id, objectId: created.objectId },
         event: 'REQUEST_CREATE',
     } as WsMsgData);
+
+    // Зеркало TG-нотификации «новая заявка» для менеджеров — тот же текст
+    // юзер видит и в боте, и в push.
+    await notificationService.notifyRequestCreated(created);
 
     const fresh = await loadRequest(created.id);
     return new LkRequestDto(fresh);

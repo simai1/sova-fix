@@ -6,72 +6,67 @@ from common.keyboard import to_start_btn, to_start_kb
 from data import const
 from util import logger, crm
 
-notification_texts = \
-{
-    "STATUS_UPDATE":
-    {
-        2:  # в работе
-        {
-            "CUSTOMER": "Ваша заявка №{number} передана в работу исполнителю!",
-            "CONTRACTOR": ""
-        },
-        3:  # выполнена
-        {
-            "customer": "Ваша заявка №{number} выполнена, пожалуйста, проверьте качество выполнения ремонта!",
-            "contractor": ""
-        }
-    },
-    "URGENCY_UPDATE":
-    {
-        "customer": "",
-        "contractor": ""
-    },
-    "COMMENT_UPDATE":
-    {
-        "customer": "",
-        "contractor": ""
-    },
+
+# Локальный словарь UI-наименований статусов — Title-Case ровно как в
+# front/src/components/Lk/StatusChip.tsx::STATUS_LABELS и в backend
+# api/src/config/notificationLabels.ts. Зеркалирование TG ↔ push: юзер
+# должен видеть одни и те же слова. crm.get_status_name() ходит на API
+# и тянет name из таблицы Status (там хранится lowercase для legacy-логики),
+# поэтому в push-уведомлении используем именно этот словарь.
+STATUS_UI_LABELS: dict[int, str] = {
+    1: "Новая",
+    2: "В работе",
+    3: "Выполнена",
+    4: "Неактуальна",
+    5: "Выезд без выполнения",
 }
 
 
-def get_status_update_text(new_status: int, role: int, request_number: int):
-    string = notification_texts["STATUS_UPDATE"][new_status][crm.roles.get_str(role)]
-
-    if string is None:
-        return None
-
-    return string.format(number=request_number)
-
-
-def get_urgency_update_text(role: int, request_number: int):
-    string = notification_texts["URGENCY_UPDATE"][crm.roles.get_str(role)]
-
-    if string is None:
-        return None
-
-    return string.format(number=request_number)
+def _get_status_ui_label(status_number: int) -> str:
+    return STATUS_UI_LABELS.get(status_number, f"Статус {status_number}")
 
 
 async def get_simple_notification_text(event: str, msg: dict):
     match event:
         case "STATUS_UPDATE":
             rr_number = await crm.get_repair_request_number(msg["requestId"])
-            status = await crm.get_status_name(msg['newStatus'])
-            return f"<b>❗️ИЗМЕНЕНИЕ СТАТУСА ЗАЯВКИ❗️</b>\nСтатус заявки №{rr_number} был изменён на \"{status}\""
+            status_label = _get_status_ui_label(msg['newStatus'])
+            return (
+                f"<b>Изменение статуса заявки</b>\n"
+                f"Заявка № {rr_number} — статус «{status_label}»."
+            )
         case "URGENCY_UPDATE":
             rr_number = await crm.get_repair_request_number(msg["requestId"])
-            return f"<b>❗ИЗМЕНЕНИЕ СРОЧНОСТИ ЗАЯВКИ❗️</b>\nСрочность завки №{rr_number} была изменена на \"{msg['newUrgency']}\""
+            return (
+                f"<b>Изменение срочности заявки</b>\n"
+                f"Срочность заявки № {rr_number} — «{msg['newUrgency']}»."
+            )
         case "COMMENT_UPDATE":
             rr_number = await crm.get_repair_request_number(msg["requestId"])
-            return f"<b>❗ИЗМЕНЕНИЕ КОММЕНТАРИЯ ЗАЯВКИ❗️</b>\nКомментарий заявки №{rr_number} был изменён.\nОткройте заявку, чтобы увидеть изменения"
+            return (
+                f"<b>Новый комментарий по заявке</b>\n"
+                f"По заявке № {rr_number} добавлен комментарий. "
+                f"Откройте заявку, чтобы увидеть детали."
+            )
         case "REQUEST_CREATE":
             rr_number = await crm.get_repair_request_number(msg["requestId"])
-            return f"<b>❗НОВАЯ ЗАЯВКА❗️</b>\nЗаказчиком была добавлена новая заявка №{rr_number}"
+            return (
+                f"<b>Новая заявка</b>\n"
+                f"Создана заявка № {rr_number}."
+            )
         case "TGUSER_CREATE":
             user = await crm.get_user_by_id(msg['userId'])
-            return f"<b>❗ЗАЯВКА НА РЕГИСТРАЦИЮ❗️</b>\nНовая заявка на регистрацию!\n<i>Имя: <b>{user['name']}</b>\nРоль: <b>{crm.roles.get_rus(user['role'])}</b></i>"
+            return (
+                f"<b>Заявка на регистрацию</b>\n"
+                f"Поступила новая заявка на регистрацию.\n"
+                f"<i>Имя: <b>{user['name']}</b>\n"
+                f"Роль: <b>{crm.roles.get_rus(user['role'])}</b></i>"
+            )
         case "TGUSER_CONFIRM":
-            return f"<b>❗ЗАЯВКА НА РЕГИСТРАЦИЮ ОДОБРЕНА❗️</b>\nВаша заявка на регистрацию одобрена.\nНаслаждайтесь использованием нашего бота!"
+            return (
+                f"<b>Регистрация подтверждена</b>\n"
+                f"Учётная запись активирована — можно войти в личный кабинет."
+            )
         case _:
             return None
 
@@ -93,8 +88,8 @@ async def from_websocket_message(bot: Bot, message_string: str) -> None:
 
     msg = message_dict["msg"]
     event = message_dict["event"]
-    
-    
+
+
     request_id = msg.get("requestId")
     if request_id:
         request_info = await crm.get_repair_request(request_id)
@@ -117,21 +112,21 @@ async def from_websocket_message(bot: Bot, message_string: str) -> None:
             contractor_id = await crm.get_tg_id_by_id(msg["contractor"])
     else:
         contractor_id = None
-        
+
     if "tgUser" in msg.keys() and msg['tgUser'] is not None:
         if str(msg['tgUser']).isdigit():
             tg_user_id = int(msg['tgUser'])
         else:
             user = await crm.get_user_by_id(msg['tgUser'])
             tg_user_id = int(user['tgId']) if user and 'tgId' in user else None
-            
+
     else:
         tg_user_id = None
 
     admin_ids = await crm.get_all_manager_tg_ids()
 
     text = await get_simple_notification_text(event, msg)
-    
+
     # Отслеживаем кому уже отправили уведомление для избежания дублирования
     notified_users = set()
 

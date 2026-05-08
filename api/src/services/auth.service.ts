@@ -12,6 +12,7 @@ import tgUserService from './tgUser.service';
 import { sendMsg, WsMsgData } from '../utils/ws';
 import wsEvents from '../config/wsEvents';
 import logger from '../utils/logger';
+import notificationService from './notification.service';
 
 type data = {
     accessToken: string;
@@ -125,6 +126,11 @@ const registerPublic = async (login: string, password: string, name: string, rol
         msg: { userId: dto.id },
         event: wsEvents.USER_REGISTRATION_REQUEST,
     } as WsMsgData);
+
+    // Зеркало: тот же триггер уходит в push менеджерам с шаблонным текстом.
+    // Имя/email не кладём (PII), но роль кладём в формате UI («Заказчик» /
+    // «Исполнитель» / «Менеджер») — без неё менеджер не понимает, кого ждёт.
+    await notificationService.notifyRegistrationRequest(role);
 
     return dto;
 };

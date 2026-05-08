@@ -24,6 +24,7 @@ import { normalizeFileNames } from '../utils/normalizeData';
 import DirectoryCategory from '../models/directoryCategory';
 import Settings from '../models/settings';
 import wsEvents from '../config/wsEvents';
+import notificationService from './notification.service';
 
 const getAllRequests = async (filter: any, order: any, pagination: any, userId?: string) => {
     try {
@@ -532,6 +533,8 @@ const createRequest = async (
         },
         event: 'REQUEST_CREATE',
     } as WsMsgData);
+
+    await notificationService.notifyRequestCreated(request);
     return new RequestDto(request);
 };
 
@@ -577,6 +580,7 @@ const createRequestWithoutPhoto = async (
         event: 'REQUEST_CREATE',
     } as WsMsgData);
 
+    await notificationService.notifyRequestCreated(request);
     return new RequestDto(request);
 };
 
@@ -624,6 +628,7 @@ const createRequestWithMultiplePhotos = async (
         event: 'REQUEST_CREATE',
     } as WsMsgData);
 
+    await notificationService.notifyRequestCreated(request);
     return new RequestDto(request);
 };
 
@@ -679,6 +684,8 @@ const setContractor = async (requestId: string, contractorId: string, managerId?
                     event: 'STATUS_UPDATE',
                 } as WsMsgData);
 
+                await notificationService.notifyStatusChanged(request, 2);
+
                 return;
             }
         }
@@ -716,6 +723,8 @@ const setContractor = async (requestId: string, contractorId: string, managerId?
                 },
                 event: 'STATUS_UPDATE',
             } as WsMsgData);
+
+            await notificationService.notifyStatusChanged(request, 2);
 
             return;
         }
@@ -766,6 +775,11 @@ const setContractor = async (requestId: string, contractorId: string, managerId?
                     },
                     event: wsEvents.REQUEST_ASSIGNED,
                 } as WsMsgData);
+
+                // Зеркальный push: заказчику — про смену статуса (как в TG),
+                // исполнителю — про назначение заявки.
+                await notificationService.notifyStatusChanged(request, 2);
+                await notificationService.notifyRequestAssigned(request);
             } catch (error) {
                 logger.error(`Error while setting contractor for request ${requestId}: ${error}`);
                 throw error;
@@ -829,6 +843,8 @@ const setExtContractor = async (requestId: string, extContractorId: string): Pro
             event: 'STATUS_UPDATE',
         } as WsMsgData);
 
+        await notificationService.notifyStatusChanged(request, 2);
+
         logger.info(`Successfully set external contractor ${extContractor.name} for request ${requestId}`);
     } catch (error) {
         logger.error(`Error in setExtContractor for request ${requestId}: ${error}`);
@@ -852,6 +868,12 @@ const setComment = async (requestId: string, comment: string): Promise<void> => 
         event: 'COMMENT_UPDATE',
     } as WsMsgData);
     await request.update({ comment });
+
+    // Зеркало TG: коммент через admin-flow считаем «от менеджера», поэтому
+    // получатель — сторона заказчика. Для назначенного inhouse-исполнителя
+    // notifyCommentChanged также найдёт contractor.userId (если есть).
+    // authorUserId=null → admin-flow, никого не исключаем по author.
+    await notificationService.notifyCommentChanged(request, 'ADMIN', null);
 };
 
 const setCommentAttachment = async (requestId: string, filename: string): Promise<RequestDto> => {
@@ -923,6 +945,8 @@ const setStatus = async (requestId: string, status: number, statusId: string): P
                 : undefined,
         exitDate: status === 5 ? dateNow : null,
     });
+
+    await notificationService.notifyStatusChanged(request, status);
 };
 
 const updateDirectoryCategoryBuilder = async (requestId: string, directoryCategoryId: string) => {
@@ -1002,6 +1026,14 @@ const update = async (
     if (planCompleteDate !== undefined) updateData.planCompleteDate = planCompleteDate;
     if (managerTgId !== undefined) updateData.managerTgId = managerTgId;
 
+    // Снимаем snapshot ДО request.update() — иначе после мутации Sequelize-instance
+    // request.status/urgency/comment уже равны новым значениям, и проверки
+    // status !== request.status ниже всегда давали бы false (pre-existing bug:
+    // в этом случае ни sendMsg, ни push не отправлялись).
+    const oldStatus = request.status;
+    const oldUrgency = request.urgency;
+    const oldComment = request.comment;
+
     await request.update(updateData);
 
     // Если статус обновлен на "выполнено", устанавливаем дату завершения
@@ -1014,49 +1046,53 @@ const update = async (
     }
 
     // ws section
-    if (typeof status !== 'undefined' && status !== request.status) {
+    if (typeof status !== 'undefined' && status !== oldStatus) {
         const customer = await TgUser.findByPk(request.createdBy);
         const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
         sendMsg({
             msg: {
                 newStatus: status,
-                oldStatus: request.status,
+                oldStatus,
                 requestId: requestId,
                 contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
                 customer: customer ? customer.tgId : null,
             },
             event: 'STATUS_UPDATE',
         } as WsMsgData);
+        await notificationService.notifyStatusChanged(request, status);
     }
 
-    if (typeof urgency !== 'undefined' && urgency !== request.urgency) {
+    if (typeof urgency !== 'undefined' && urgency !== oldUrgency) {
         const customer = await TgUser.findByPk(request.createdBy);
         const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
         sendMsg({
             msg: {
                 newUrgency: urgency,
-                oldUrgency: request.urgency,
+                oldUrgency,
                 requestId: requestId,
                 contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
                 customer: customer ? customer.tgId : null,
             },
             event: 'URGENCY_UPDATE',
         } as WsMsgData);
+        await notificationService.notifyUrgencyChanged(request, urgency);
     }
 
-    if (typeof comment !== 'undefined' && comment !== request.comment) {
+    if (typeof comment !== 'undefined' && comment !== oldComment) {
         const customer = await TgUser.findByPk(request.createdBy);
         const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
         sendMsg({
             msg: {
                 newComment: comment,
-                oldComment: request.comment,
+                oldComment,
                 requestId: requestId,
                 contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
                 customer: customer ? customer.tgId : null,
             },
             event: 'COMMENT_UPDATE',
         } as WsMsgData);
+        // Источник — admin-flow update, см. setComment.
+        await notificationService.notifyCommentChanged(request, 'ADMIN', null);
     }
 
     // Получаем objectDir только если objectId передан
@@ -1243,6 +1279,7 @@ const bulkSetStatus = async (ids: object, status: number): Promise<void> => {
             },
             event: 'STATUS_UPDATE',
         } as WsMsgData);
+        await notificationService.notifyStatusChanged(request, status);
     }
 };
 
@@ -1266,6 +1303,7 @@ const bulkSetUrgency = async (ids: object, urgency: string): Promise<void> => {
             },
             event: 'URGENCY_UPDATE',
         } as WsMsgData);
+        await notificationService.notifyUrgencyChanged(request, urgency);
     }
 };
 
@@ -1301,6 +1339,13 @@ const bulkSetContractor = async (ids: object, contractorId: string): Promise<voi
             },
             event: 'STATUS_UPDATE',
         } as WsMsgData);
+        await notificationService.notifyStatusChanged(request, 2);
+        // bulkSetContractor только для inhouse → дополнительно push исполнителю.
+        // notifyRequestAssigned сам no-op'нет, если у contractor нет userId
+        // (TG-only flow без web-LK-привязки).
+        if (request.contractorId) {
+            await notificationService.notifyRequestAssigned(request);
+        }
     }
 };
 
@@ -1377,6 +1422,8 @@ const setManager = async (requestId: string, managerId: string): Promise<void> =
         },
         event: 'STATUS_UPDATE',
     } as WsMsgData);
+
+    await notificationService.notifyStatusChanged(request, 2);
 };
 
 const changeUrgency = async (prevName: string, urgencyId: string) => {
