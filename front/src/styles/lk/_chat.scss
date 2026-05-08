@@ -161,12 +161,22 @@
     overflow: hidden;
     display: block;
     background: var(--lk-surface-2);
+    // Reset для button-варианта (lightbox-кнопка): убираем рамку и padding,
+    // которые ломали бы grid-плитку.
+    padding: 0;
+    border: none;
+    cursor: pointer;
 
     img {
       width: 100%;
       height: 100%;
       object-fit: cover;
       display: block;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--lk-accent);
+      outline-offset: 2px;
     }
   }
 
@@ -232,6 +242,15 @@
     border-radius: var(--lk-r-md);
     font-size: var(--lk-fs-sm);
     color: var(--lk-text);
+  }
+
+  &__attach-thumb {
+    width: 3rem;
+    height: 3rem;
+    object-fit: cover;
+    border-radius: var(--lk-r-sm);
+    flex-shrink: 0;
+    background: var(--lk-surface);
   }
 
   &__attach-name {

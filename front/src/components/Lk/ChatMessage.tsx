@@ -4,6 +4,9 @@ import { API_URL } from '@/constants/env.constant';
 type Props = {
   message: ChatMessageType;
   isMine: boolean;
+  // Если задано, клик по фото-вложению вызывает onOpenPhoto(url). Контейнер (ChatStream)
+  // прокидывает обработчик и сам управляет lightbox'ом для всей ленты.
+  onOpenPhoto?: (url: string) => void;
 };
 
 const buildFileUrl = (fileName: string | null | undefined): string | null => {
@@ -12,6 +15,9 @@ const buildFileUrl = (fileName: string | null | undefined): string | null => {
   if (fileName.startsWith('/uploads/')) return `${API_URL}${fileName}`;
   return `${API_URL}/uploads/${fileName}`;
 };
+
+const isImageName = (name: string | null | undefined): boolean =>
+  !!name && /\.(jpe?g|png|webp|gif)$/i.test(name);
 
 const formatTime = (iso: string): string => {
   if (!iso) return '';
@@ -43,9 +49,11 @@ const roleConfig = (
   }
 };
 
-const ChatMessage = ({ message, isMine }: Props): JSX.Element => {
+const ChatMessage = ({ message, isMine, onOpenPhoto }: Props): JSX.Element => {
   const role = roleConfig(message.author?.roleName);
-  const attachmentUrl = buildFileUrl(message.attachment ?? message.fileName ?? null);
+  const rawName = message.attachment ?? message.fileName ?? null;
+  const attachmentUrl = buildFileUrl(rawName);
+  const isImage = isImageName(rawName);
   const authorName = message.author?.name ?? (isMine ? 'Вы' : 'Пользователь удалён');
 
   const cls = `lk-chat__msg lk-chat__msg--${isMine ? 'mine' : 'other'}`;
@@ -60,15 +68,26 @@ const ChatMessage = ({ message, isMine }: Props): JSX.Element => {
       {message.text ? <div className="lk-chat__msg-text">{message.text}</div> : null}
       {attachmentUrl ? (
         <div className="lk-chat__msg-photos">
-          <a
-            href={attachmentUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="lk-chat__photo"
-            aria-label="Открыть вложение"
-          >
-            <img src={attachmentUrl} alt="Вложение" />
-          </a>
+          {isImage && onOpenPhoto ? (
+            <button
+              type="button"
+              className="lk-chat__photo"
+              onClick={() => onOpenPhoto(attachmentUrl)}
+              aria-label="Открыть фото"
+            >
+              <img src={attachmentUrl} alt="Вложение" />
+            </button>
+          ) : (
+            <a
+              href={attachmentUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="lk-chat__photo"
+              aria-label="Открыть вложение"
+            >
+              {isImage ? <img src={attachmentUrl} alt="Вложение" /> : <span>Вложение</span>}
+            </a>
+          )}
         </div>
       ) : null}
     </article>

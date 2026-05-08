@@ -1,7 +1,8 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import CommentPreview from './CommentPreview';
+import LkPhotoLightbox from './LkPhotoLightbox';
 import StatusChip from './StatusChip';
 import { showToast } from './toastBus';
 import UrgencyChip from './UrgencyChip';
@@ -40,11 +41,19 @@ const buildFileUrl = (fileName: string | null | undefined): string | null => {
 const splitFileNames = (req: RequestDto): string[] => {
   if (Array.isArray(req.fileNames) && req.fileNames.length > 0) return req.fileNames;
   if (!req.fileName) return [];
-  // Иногда бэк хранит несколько имён через запятую
-  return req.fileName
-    .split(',')
-    .map((s) => s.trim())
-    .filter(Boolean);
+  // Бэк хранит либо одну строку, либо JSON.stringify(array). Симметрично api/src/utils/normalizeData.ts.
+  const raw = req.fileName.trim();
+  if (raw.startsWith('[')) {
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        return parsed.map((s: unknown) => String(s).trim()).filter(Boolean);
+      }
+    } catch {
+      // fallthrough — отдадим как одиночное имя
+    }
+  }
+  return [raw];
 };
 
 const formatDate = (iso: string | null): string => {
@@ -90,6 +99,9 @@ const RequestCard = ({ request, mode, me }: Props): JSX.Element => {
   const [setStatus, setStatusState] = useSetStatusMutation();
   const [uploadCheckPhoto, uploadCheckPhotoState] = useUploadCheckPhotoMutation();
 
+  // Индекс фото в lightbox: null = закрыт, число = открыт на этом фото в общем массиве [...photos, checkPhoto].
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
   // Тянем последнюю страницу комментариев для preview. limit=1 + cursor=null
   // → бэкенд возвращает hasMore + total в смежных полях; нам достаточно
   // первого элемента и nextCursor для счётчика. Если бэкенд ещё не отдаёт
@@ -101,7 +113,10 @@ const RequestCard = ({ request, mode, me }: Props): JSX.Element => {
 
   const statusNumber = getStatusNumber(request);
   const photos = splitFileNames(request);
+  const photoUrls = photos.map(buildFileUrl).filter((u): u is string => Boolean(u));
   const checkPhotoUrl = buildFileUrl(request.checkPhoto);
+  // Объединённый массив для lightbox: поломка → подтверждение. Один источник навигации ←/→.
+  const lightboxPhotos = checkPhotoUrl ? [...photoUrls, checkPhotoUrl] : photoUrls;
 
   const isMyAssignedContractor = !!me?.contractor?.id && request.contractorId === me.contractor.id;
   // Customer-режим: показываем доп. фото только автору заявки. Это исключает
@@ -202,26 +217,45 @@ const RequestCard = ({ request, mode, me }: Props): JSX.Element => {
         </div>
       ) : null}
 
-      {photos.length > 0 ? (
+      {photoUrls.length > 0 || canAddPhotos ? (
         <div className="lk-card__section">
           <h3 className="lk-card__section-title">Фото поломки</h3>
           <div className="lk-photo-grid">
-            {photos.map((name) => {
-              const url = buildFileUrl(name);
-              if (!url) return null;
-              return (
-                <a
-                  key={name}
-                  href={url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="lk-photo-grid__item"
-                >
-                  <img src={url} alt="Фото поломки" />
-                </a>
-              );
-            })}
+            {photoUrls.map((url, i) => (
+              <button
+                key={url}
+                type="button"
+                className="lk-photo-grid__item"
+                onClick={() => setLightboxIndex(i)}
+                aria-label={`Открыть фото ${i + 1}`}
+              >
+                <img src={url} alt="Фото поломки" />
+              </button>
+            ))}
+            {canAddPhotos ? (
+              <button
+                type="button"
+                className="lk-photo-grid__add"
+                onClick={handleAddPhotosClick}
+                disabled={addPhotosState.isLoading}
+                aria-label="Добавить фото"
+              >
+                <span aria-hidden="true">+</span>
+                <span>Добавить фото</span>
+              </button>
+            ) : null}
           </div>
+          {canAddPhotos ? (
+            <input
+              ref={photoInputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              multiple
+              style={{ display: 'none' }}
+              onChange={handlePhotosPick}
+            />
+          ) : null}
         </div>
       ) : null}
 
@@ -229,14 +263,14 @@ const RequestCard = ({ request, mode, me }: Props): JSX.Element => {
         <div className="lk-card__section">
           <h3 className="lk-card__section-title">Фото-подтверждение</h3>
           <div className="lk-photo-grid">
-            <a
-              href={checkPhotoUrl}
-              target="_blank"
-              rel="noreferrer"
+            <button
+              type="button"
               className="lk-photo-grid__item"
+              onClick={() => setLightboxIndex(photoUrls.length)}
+              aria-label="Открыть фото-подтверждение"
             >
               <img src={checkPhotoUrl} alt="Фото-подтверждение" />
-            </a>
+            </button>
           </div>
         </div>
       ) : null}
@@ -296,29 +330,13 @@ const RequestCard = ({ request, mode, me }: Props): JSX.Element => {
         </div>
       ) : null}
 
-      {canAddPhotos ? (
-        <div className="lk-card__section">
-          <h3 className="lk-card__section-title">Фото</h3>
-          <div className="lk-actions">
-            <button
-              type="button"
-              className="lk-button lk-button--ghost lk-button--block"
-              onClick={handleAddPhotosClick}
-              disabled={addPhotosState.isLoading}
-            >
-              Добавить фото поломки
-            </button>
-            <input
-              ref={photoInputRef}
-              type="file"
-              accept="image/*"
-              capture="environment"
-              multiple
-              style={{ display: 'none' }}
-              onChange={handlePhotosPick}
-            />
-          </div>
-        </div>
+      {lightboxIndex !== null && lightboxPhotos.length > 0 ? (
+        <LkPhotoLightbox
+          photos={lightboxPhotos}
+          index={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+          onNavigate={setLightboxIndex}
+        />
       ) : null}
     </div>
   );

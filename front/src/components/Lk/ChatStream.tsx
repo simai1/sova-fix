@@ -1,9 +1,11 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import ChatMessage from './ChatMessage';
 import LkEmpty from './LkEmpty';
+import LkPhotoLightbox from './LkPhotoLightbox';
 import LkSpinner from './LkSpinner';
 
+import { API_URL } from '@/constants/env.constant';
 import { ChatMessage as ChatMessageType } from '@/API/rtkQuery/lk.api';
 
 type Props = {
@@ -52,6 +54,16 @@ const dayLabel = (iso: string): string => {
   }
 };
 
+const isImageName = (name: string | null | undefined): boolean =>
+  !!name && /\.(jpe?g|png|webp|gif)$/i.test(name);
+
+const buildFileUrl = (fileName: string | null | undefined): string | null => {
+  if (!fileName) return null;
+  if (fileName.startsWith('http://') || fileName.startsWith('https://')) return fileName;
+  if (fileName.startsWith('/uploads/')) return `${API_URL}${fileName}`;
+  return `${API_URL}/uploads/${fileName}`;
+};
+
 const ChatStream = ({
   messages,
   meUserId,
@@ -66,6 +78,25 @@ const ChatStream = ({
   const topSentinelRef = useRef<HTMLDivElement | null>(null);
   const lastIdRef = useRef<string | null>(null);
   const lastCountRef = useRef<number>(0);
+
+  // Все фото-вложения в ленте — для общего lightbox с навигацией ←/→.
+  // Пересобираем при изменении messages: пагинация подгружает старые сверху,
+  // и индексы сдвигаются — поэтому ищем по url, а не по индексу.
+  const photoUrls = useMemo<string[]>(() => {
+    const urls: string[] = [];
+    for (const m of messages) {
+      const raw = m.attachment ?? m.fileName ?? null;
+      if (!isImageName(raw)) continue;
+      const url = buildFileUrl(raw);
+      if (url) urls.push(url);
+    }
+    return urls;
+  }, [messages]);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const handleOpenPhoto = (url: string): void => {
+    const idx = photoUrls.indexOf(url);
+    if (idx >= 0) setLightboxIndex(idx);
+  };
 
   // Авто-скролл вниз при первом маунте и при появлении нового сообщения.
   // Но не при подгрузке СТАРЫХ сообщений сверху (там lastIdRef не меняется).
@@ -138,7 +169,9 @@ const ChatStream = ({
       lastDay = k;
     }
     const isMine = !!meUserId && msg.author?.id === meUserId;
-    rendered.push(<ChatMessage key={msg.id} message={msg} isMine={isMine} />);
+    rendered.push(
+      <ChatMessage key={msg.id} message={msg} isMine={isMine} onOpenPhoto={handleOpenPhoto} />,
+    );
   });
 
   return (
@@ -147,6 +180,14 @@ const ChatStream = ({
       {isFetchingMore ? <LkSpinner /> : null}
       {rendered}
       <div ref={bottomRef} style={{ height: 1 }} />
+      {lightboxIndex !== null && photoUrls.length > 0 ? (
+        <LkPhotoLightbox
+          photos={photoUrls}
+          index={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+          onNavigate={setLightboxIndex}
+        />
+      ) : null}
     </div>
   );
 };

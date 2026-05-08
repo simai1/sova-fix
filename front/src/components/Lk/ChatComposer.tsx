@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 type Props = {
   onSubmit: (payload: { text: string; file?: File }) => Promise<void>;
@@ -47,10 +47,24 @@ const ChatComposer = ({ onSubmit, isSending }: Props): JSX.Element => {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
+  // ObjectURL для миниатюры выбранной картинки. Освобождаем при смене файла,
+  // чтобы не утечка blob: ссылок при многократной отправке.
+  const previewUrl = useMemo<string | null>(() => {
+    if (!file || !file.type.startsWith('image/')) return null;
+    return URL.createObjectURL(file);
+  }, [file]);
+  useEffect(() => {
+    if (!previewUrl) return;
+    return () => URL.revokeObjectURL(previewUrl);
+  }, [previewUrl]);
+
   return (
     <form className="lk-chat__composer" onSubmit={handleSubmit}>
       {file ? (
         <div className="lk-chat__attach-preview">
+          {previewUrl ? (
+            <img className="lk-chat__attach-thumb" src={previewUrl} alt={`Превью ${file.name}`} />
+          ) : null}
           <span className="lk-chat__attach-name">{file.name}</span>
           <button
             type="button"
