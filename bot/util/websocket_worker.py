@@ -26,8 +26,15 @@ class WebSocketWorker:
     def __init__(self, bot: Bot, loop) -> None:
         self.bot = bot
         self.loop = loop
+        # Subprotocol `bot.<MASTER_API_KEY>` нужен для ws-handshake-аутентификации
+        # на сервере с включённым ws-auth: backend проверяет, что header
+        # Sec-WebSocket-Protocol совпадает с MASTER_API_KEY, и помечает соединение
+        # как isBot=True (получает все targeted-события через fanout). Без него
+        # backend закроет соединение с code=1008.
+        subprotocols = [f"bot.{cf.MASTER_API_KEY}"] if cf.MASTER_API_KEY else None
         self.ws = websocket.WebSocketApp(
             url=cf.WEBSOKET_URL,
+            subprotocols=subprotocols,
             on_open=self.on_open,
             on_message=self.on_message,
             on_close=self.on_close,

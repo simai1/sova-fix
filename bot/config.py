@@ -9,6 +9,11 @@ BOT_TOKEN = getenv('BOT_TOKEN')
 API_URL = getenv('API_URL')
 WEBSOKET_URL = getenv('WEBSOKET_URL')
 WEB_URL = getenv('WEB_URL')
+# Master API key для ws-handshake. Совпадает с api/.env::MASTER_API_KEY.
+# Сервер с ws-auth требует subprotocol `bot.<MASTER_API_KEY>` — без него
+# соединение закрывается с code=1008 (см. дизайн в
+# .memory-base/specs/2026-05-07-contractor-lk-followups-design.md §E).
+MASTER_API_KEY = getenv('MASTER_API_KEY', '')
 
 print(API_URL, WEBSOKET_URL)
 
