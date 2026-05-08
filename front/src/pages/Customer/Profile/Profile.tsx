@@ -1,5 +1,6 @@
 import { useGetMeQuery, useGetMyObjectsQuery } from '@/API/rtkQuery/lk.api';
 import LkEmpty from '@/components/Lk/LkEmpty';
+import LkErrorBanner from '@/components/Lk/LkErrorBanner';
 import LkSpinner from '@/components/Lk/LkSpinner';
 import ProfilePushSection from '@/components/Lk/ProfilePushSection';
 import ProfileTelegramSection from '@/components/Lk/ProfileTelegramSection';
@@ -24,7 +25,7 @@ const CustomerProfile = (): JSX.Element => {
   const { data: myObjects = [] } = useGetMyObjectsQuery();
 
   if (isLoading) return <LkSpinner />;
-  if (isError || !me) return <LkEmpty text="Не удалось загрузить профиль" />;
+  if (isError || !me) return <LkErrorBanner text="Не удалось загрузить профиль" />;
 
   const handleLogout = (): void => {
     void logout();
@@ -54,7 +55,10 @@ const CustomerProfile = (): JSX.Element => {
       <div className="lk-card">
         <h2 className="lk-card__title">Мои объекты</h2>
         {myObjects.length === 0 ? (
-          <div className="lk-card__muted">Нет назначенных объектов</div>
+          <LkEmpty
+            title="Нет назначенных объектов"
+            text="Менеджер свяжется с вами для назначения."
+          />
         ) : (
           myObjects.map((o) => (
             <div key={o.id} className="lk-card__row">
