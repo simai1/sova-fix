@@ -1,6 +1,8 @@
+import { format } from 'date-fns';
 import { useEffect, useMemo, useState } from 'react';
 
 import { LkObject, LkStatus, LkUrgency } from '@/API/rtkQuery/lk.api';
+import LkDatePicker from '@/components/Lk/LkDatePicker';
 import LkSelect, { LkSelectOption } from '@/components/Lk/LkSelect';
 import { LkUnitOption } from '@/utils/lkUnits';
 
@@ -167,31 +169,26 @@ const FilterModal = ({ open, onClose, value, onApply, options }: Props): JSX.Ele
           />
         </div>
 
-        <div className="lk-row-gap-2">
-          <div className="lk-field" style={{ flex: 1 }}>
-            <label className="lk-field__label" htmlFor="lk-filter-from">
-              С
-            </label>
-            <input
-              id="lk-filter-from"
-              type="date"
-              className="lk-input"
-              value={draft.dateFrom ?? ''}
-              onChange={(e) => update('dateFrom', e.target.value || undefined)}
-            />
-          </div>
-          <div className="lk-field" style={{ flex: 1 }}>
-            <label className="lk-field__label" htmlFor="lk-filter-to">
-              По
-            </label>
-            <input
-              id="lk-filter-to"
-              type="date"
-              className="lk-input"
-              value={draft.dateTo ?? ''}
-              onChange={(e) => update('dateTo', e.target.value || undefined)}
-            />
-          </div>
+        <div className="lk-field">
+          <div className="lk-field__label">Период</div>
+          <LkDatePicker
+            value={
+              draft.dateFrom || draft.dateTo
+                ? {
+                    from: draft.dateFrom ? new Date(draft.dateFrom) : undefined,
+                    to: draft.dateTo ? new Date(draft.dateTo) : undefined,
+                  }
+                : null
+            }
+            onChange={(range) => {
+              setDraft((prev) => ({
+                ...prev,
+                dateFrom: range?.from ? format(range.from, 'yyyy-MM-dd') : undefined,
+                dateTo: range?.to ? format(range.to, 'yyyy-MM-dd') : undefined,
+              }));
+            }}
+            placeholder="— выбрать —"
+          />
         </div>
 
         <div className="lk-modal__actions">

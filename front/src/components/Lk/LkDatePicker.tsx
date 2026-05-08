@@ -57,6 +57,16 @@ const LkDatePicker = ({
     setPos({ top: rect.bottom + 4, left: rect.left, width: rect.width });
   }, [open]);
 
+  // Автофокус popover'а при открытии — закрывает наследие WAI-ARIA dialog
+  // pattern: role="dialog" подразумевает, что фокус переходит внутрь при
+  // открытии. Сам контейнер фокусируем (tabIndex=-1), дальнейшую навигацию
+  // по дням обрабатывает RDP внутри (стрелки, Enter).
+  useEffect(() => {
+    if (open && popoverRef.current) {
+      popoverRef.current.focus();
+    }
+  }, [open]);
+
   // Клик-вне (по mousedown, чтобы успеть до click) и Esc для закрытия.
   useEffect(() => {
     if (!open) return;
@@ -155,6 +165,7 @@ const LkDatePicker = ({
               }}
               role="dialog"
               aria-label="Выбор периода"
+              tabIndex={-1}
             >
               <DayPicker
                 mode="range"
