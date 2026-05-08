@@ -34,6 +34,14 @@ function Pending() {
     const connect = () => {
       if (cancelled) return
       try {
+        // FOLLOWUP WS-AUTH-PENDING: после внедрения ws-auth (P1) сервер
+        // закрывает соединения без bearer-токена с code=1008. У pending-юзера
+        // токена нет (login до approve возвращает 403). Сокет подключится,
+        // но сразу закроется — мы попадём в onclose-ветку с code=1008 и
+        // больше не реконнектим. Менеджер всё ещё может одобрить юзера,
+        // и страница Pending обновится при ручном refresh / повторном login.
+        // Альтернатива (отдельная задача): добавить subprotocol 'pending.<verifyToken>'
+        // на бэкенде и выдавать verifyToken при register-public.
         ws = new WebSocket(WS_URL)
       } catch {
         scheduleReconnect()
@@ -67,8 +75,14 @@ function Pending() {
         // ошибка приведёт к onclose, перезапуск там
       }
 
-      ws.onclose = () => {
+      ws.onclose = (ev) => {
         if (cancelled) return
+        // 1008 — сервер отказал в аутентификации. У pending-юзера токена нет;
+        // не зацикливаемся, страница останется ожидать manual refresh.
+        if (ev?.code === 1008) {
+          cancelled = true
+          return
+        }
         scheduleReconnect()
       }
     }

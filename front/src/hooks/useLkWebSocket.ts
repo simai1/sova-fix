@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import { lkApi, MeDto } from '@/API/rtkQuery/lk.api';
 import { showToast } from '@/components/Lk/toastBus';
 import { WS_URL } from '@/constants/env.constant';
+import { lkSocket } from '@/utils/lkSocket';
 
 const RECONNECT_INITIAL = 1000;
 const RECONNECT_MAX = 30000;
@@ -30,6 +31,17 @@ const KNOWN_EVENTS = new Set([
   'USER_TG_BIND_OK',
 ]);
 
+// Достаём JWT из sessionStorage. Auth-флоу пишет access-token туда же,
+// где и userData (см. API/API.js / utils/auth.ts).
+const getAccessToken = (): string | null => {
+  try {
+    const t = sessionStorage.getItem('accessToken');
+    return t && t !== 'null' ? t : null;
+  } catch {
+    return null;
+  }
+};
+
 export function useLkWebSocket(me: MeDto | undefined): void {
   const dispatch = useDispatch();
   // Идемпотентность для StrictMode: храним сокет/таймер в ref, очищаем в cleanup
@@ -45,18 +57,31 @@ export function useLkWebSocket(me: MeDto | undefined): void {
     closedManuallyRef.current = false;
 
     const connect = (): void => {
+      const token = getAccessToken();
+      if (!token) {
+        // Без токена ws-handshake завершится 1008. Не шумим reconnect-циклом —
+        // подождём, пока юзер залогинится и вернётся в LK с новым токеном.
+        return;
+      }
+
       let ws: WebSocket;
       try {
-        ws = new WebSocket(WS_URL);
+        // Subprotocol-формат "bearer.<jwt>" согласован с api/src/utils/ws.ts.
+        // Браузер передаст токен в заголовке Sec-WebSocket-Protocol при upgrade,
+        // в логах reverse-proxy он не остаётся (в отличие от query-string).
+        ws = new WebSocket(WS_URL, [`bearer.${token}`]);
       } catch {
         scheduleReconnect();
         return;
       }
       socketRef.current = ws;
+      lkSocket.attach(ws);
 
       ws.onopen = () => {
         // Сброс backoff на успешном open — следующий разрыв стартует с 1с
         reconnectDelayRef.current = RECONNECT_INITIAL;
+        // Переподписка на все активные requestId (после reconnect).
+        lkSocket.resubscribeAll();
       };
 
       ws.onmessage = (ev) => {
@@ -67,10 +92,19 @@ export function useLkWebSocket(me: MeDto | undefined): void {
           // не JSON — может быть строкой-литералом (TGUSER_*); игнорируем
         }
         const evType = typeof msg === 'string' ? msg : (msg.type ?? msg.event ?? '');
+        // Сервер шлёт control-фреймы { type: 'subscribed' | 'unsubscribed' | 'error', ... }
+        // в ответ на наши subscribe/unsubscribe — для UI они не интересны, не реагируем.
+        if (
+          typeof msg === 'object' &&
+          msg !== null &&
+          ['subscribed', 'unsubscribed', 'error'].includes(String(msg.type ?? ''))
+        ) {
+          return;
+        }
         if (!KNOWN_EVENTS.has(evType)) return;
 
         // Бэкенд кладёт детальный payload либо плоско в корне, либо во вложенный
-        // объект `msg` (см. `sendMsg(msg)` в utils/ws.ts). Поддерживаем оба варианта.
+        // объект `msg` (см. `emitTo(...)` в utils/ws.ts). Поддерживаем оба варианта.
         const payloadRaw: WsMessage = typeof msg === 'string' ? {} : msg;
         const nested = (
           payloadRaw.msg && typeof payloadRaw.msg === 'object'
@@ -131,8 +165,15 @@ export function useLkWebSocket(me: MeDto | undefined): void {
         }
       };
 
-      ws.onclose = () => {
+      ws.onclose = (ev) => {
         socketRef.current = null;
+        lkSocket.detach(ws);
+        // 1008 = Policy Violation — токен не принят сервером. Не реконнектим
+        // в loop'е: пользователь должен пере-залогиниться.
+        if (ev.code === 1008) {
+          closedManuallyRef.current = true;
+          return;
+        }
         if (!closedManuallyRef.current) scheduleReconnect();
       };
 
@@ -169,6 +210,7 @@ export function useLkWebSocket(me: MeDto | undefined): void {
         } catch {
           /* noop */
         }
+        lkSocket.detach(socketRef.current);
         socketRef.current = null;
       }
     };

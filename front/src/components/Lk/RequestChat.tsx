@@ -14,6 +14,7 @@ import {
   useGetMyRequestQuery,
   useGetRequestCommentsQuery,
 } from '@/API/rtkQuery/lk.api';
+import { useRequestSubscription } from '@/hooks/useRequestSubscription';
 import { getErrorMessage } from '@/utils/getErrorMessage';
 
 type Props = {
@@ -27,6 +28,10 @@ const RequestChat = ({ mode }: Props): JSX.Element => {
 
   const { data: me } = useGetMeQuery();
   const { data: request } = useGetMyRequestQuery(requestId, { skip: !requestId });
+
+  // Подписываемся на ws-события заявки — без этого сервер не пришлёт
+  // COMMENT_CREATE/STATUS_UPDATE на этот сокет (см. utils/ws.ts).
+  useRequestSubscription(requestId);
 
   // Cursor-state живёт в компоненте: при достижении верха ленты выставляем
   // cursor предыдущего batch'а и подгружаем след. страницу. Аккумулируем
