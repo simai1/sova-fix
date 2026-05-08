@@ -9,6 +9,15 @@
 // Popover рендерится через React-портал в document.body c position:fixed —
 // та же стратегия, что и для .lk-select__menu (избегаем clipping
 // overflow:auto родителей и stacking-контекста sticky-хедера).
+//
+// Дизайн: минималистичный round-cell календарь (Linear/Notion-flavor):
+// - дни — круглые ячейки 36×36 без рамок и фоновых заливок (по умолчанию);
+// - hover на дне — soft-grey круг (var(--lk-surface-2));
+// - start/end диапазона — жёлтый круг (var(--lk-accent)) с тёмным текстом;
+// - range_middle — soft-yellow «полоса» (var(--lk-accent-soft)) на td (.rdp-day);
+// - today (без selection) — точка-индикатор под цифрой жёлтым акцентом;
+// - caption и nav — в одной горизонтальной линии (nav абсолютно над caption);
+// - footer — text-only кнопки слева, dark primary справа.
 
 .lk-datepicker {
   position: relative;
@@ -45,38 +54,97 @@
     border: 1px solid var(--lk-border);
     border-radius: var(--lk-r-lg);
     box-shadow: var(--lk-shadow-md);
-    padding: var(--lk-sp-3);
+    padding: var(--lk-sp-3) var(--lk-sp-3) var(--lk-sp-2);
     // Должен быть выше .lk-modal__overlay (1000) и .lk-toast-area (2000):
     // когда LkDatePicker используется внутри FilterModal, popover не должен
     // уйти под оверлей модалки.
     z-index: 2100;
     animation: lk-popover-in 0.16s ease-out both;
     transform-origin: top left;
+    width: max-content;
   }
 
   &__footer {
     display: flex;
-    justify-content: space-between;
-    gap: var(--lk-sp-2);
-    padding-top: var(--lk-sp-3);
+    align-items: center;
+    gap: var(--lk-sp-1);
+    padding: var(--lk-sp-2) var(--lk-sp-1) 0;
+    margin-top: var(--lk-sp-2);
     border-top: 1px solid var(--lk-border);
-    margin-top: var(--lk-sp-3);
+  }
+
+  &__footer-spacer {
+    flex: 1;
+  }
+
+  // Тонкие text-only кнопки футера. Намеренно НЕ используем .lk-button —
+  // там высота 2.5rem и border-frame, что разбивает минималистичный popover.
+  // Вариант --primary остаётся плотным (dark fill), но всё равно компактнее
+  // глобальной .lk-button.
+  &__btn {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    font: inherit;
+    font-size: var(--lk-fs-sm);
+    font-weight: 500;
+    color: var(--lk-text-muted);
+    height: 1.875rem;
+    padding: 0 var(--lk-sp-3);
+    border-radius: var(--lk-r-sm);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+      background 0.12s ease-out,
+      color 0.12s ease-out;
+
+    &:hover:not(:disabled) {
+      background: var(--lk-surface-2);
+      color: var(--lk-text);
+    }
+
+    &:focus-visible {
+      @include lk-focus-ring;
+    }
+
+    &:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    &--primary {
+      background: var(--lk-text);
+      color: var(--lk-surface);
+      padding-inline: var(--lk-sp-4);
+
+      &:hover:not(:disabled) {
+        background: #27272a;
+        color: var(--lk-surface);
+      }
+    }
   }
 }
 
-// Override react-day-picker CSS variables. rdp v10 публикует их под
-// .rdp-root — задаём свои значения, чтобы календарь жил в палитре ЛК.
+// ── react-day-picker (v10) overrides ────────────────────────────────────────
+// rdp v10 публикует CSS-переменные на .rdp-root — задаём свои, плюс точечные
+// css-правила там, где переменных не хватает (reset нативных <button>,
+// abs-layout caption/nav, range gradient на td).
 .rdp-root {
   --rdp-accent-color: var(--lk-accent);
   --rdp-accent-background-color: var(--lk-accent-soft);
-  --rdp-day_button-border-radius: var(--lk-r-sm);
-  --rdp-day_button-height: 2.25rem;
-  --rdp-day_button-width: 2.25rem;
   --rdp-day-height: 2.25rem;
   --rdp-day-width: 2.25rem;
-  --rdp-weekday-padding: 0.25rem 0;
+  --rdp-day_button-height: 2.25rem;
+  --rdp-day_button-width: 2.25rem;
+  // Круглые ячейки — главный визуальный «токен» минималистичного календаря.
+  --rdp-day_button-border-radius: 999px;
+  --rdp-weekday-padding: var(--lk-sp-2) 0;
   --rdp-weekday-text-color: var(--lk-text-subtle);
-  --rdp-month_caption-font: 600 var(--lk-fs-md) 'Inter Variable', sans-serif;
+  // Caption font задаётся css-переменной rdp@10 — но ниже мы ещё переопределяем
+  // .rdp-caption_label напрямую, чтобы capitalize работало гарантированно.
+  --rdp-month_caption-font: 500 var(--lk-fs-md) 'Inter Variable', sans-serif;
   --rdp-range_middle-background-color: var(--lk-accent-soft);
   --rdp-range_middle-color: var(--lk-text);
   --rdp-range_start-background: var(--lk-accent);
@@ -84,10 +152,250 @@
   --rdp-range_end-background: var(--lk-accent);
   --rdp-range_end-color: var(--lk-accent-fg);
   --rdp-today-color: var(--lk-accent-deep);
+  --rdp-cell-size: 2.25rem;
 
-  // font-family наследуется от :root (см. _tokens.scss) — rdp@10 не сбрасывает
-  // его на root-классе, локальное переопределение было дублем.
   font-feature-settings: 'tnum';
+}
+
+// Caption + nav в одной линии. rdp@10 рендерит .rdp-nav как сиблинга
+// .rdp-month, поэтому позиционируем nav абсолютно поверх caption — caption
+// центрирован, кнопки прижаты к краям. Высоты nav и caption (2rem) совпадают,
+// поэтому overlap визуально не заметен.
+.rdp-months {
+  position: relative;
+}
+
+.rdp-month_caption {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2rem;
+  margin-bottom: var(--lk-sp-2);
+  padding-inline: 2.5rem; // защита от overlap с nav-кнопками на длинных месяцах
+}
+
+.rdp-caption_label {
+  text-transform: capitalize;
+  font-size: var(--lk-fs-md);
+  font-weight: 500;
+  color: var(--lk-text);
+  letter-spacing: 0.005em;
+  font-feature-settings: 'tnum';
+}
+
+.rdp-nav {
+  position: absolute;
+  top: 0;
+  inset-inline: 0;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.rdp-button_previous,
+.rdp-button_next {
+  pointer-events: auto;
+  appearance: none;
+  background: transparent;
+  border: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--lk-r-sm);
+  color: var(--lk-text-muted);
+  cursor: pointer;
+  transition:
+    background 0.12s ease-out,
+    color 0.12s ease-out;
+
+  & svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  &:hover:not(:disabled) {
+    background: var(--lk-surface-2);
+    color: var(--lk-text);
+  }
+
+  &:focus-visible {
+    @include lk-focus-ring;
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+}
+
+// Сетка
+.rdp-month_grid {
+  border-collapse: separate; // нужно для round-corners на range gradient td
+  border-spacing: 0;
+}
+
+.rdp-weekday {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--lk-text-subtle);
+}
+
+// Сброс td-уровня (.rdp-day): по умолчанию rdp выставляет padding/box-rules,
+// мы хотим, чтобы фон ложился на td (для range полосы) без gap'ов.
+.rdp-day {
+  padding: 0;
+  text-align: center;
+  vertical-align: middle;
+}
+
+// Сброс button-уровня (.rdp-day_button): убираем user-agent border/background,
+// чтобы остался только наш круг.
+.rdp-day_button {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  width: var(--rdp-day_button-width);
+  height: var(--rdp-day_button-height);
+  border-radius: var(--rdp-day_button-border-radius);
+  font: inherit;
+  font-size: var(--lk-fs-md);
+  color: var(--lk-text);
+  cursor: pointer;
+  font-feature-settings: 'tnum';
+  transition:
+    background 0.12s ease-out,
+    color 0.12s ease-out;
+
+  &:hover:not(:disabled) {
+    background: var(--lk-surface-2);
+  }
+
+  &:focus-visible {
+    @include lk-focus-ring;
+  }
+}
+
+// Today (без selection): точка-индикатор под цифрой. Тонкий жёлтый акцент,
+// без перекраски всей кнопки — текст остаётся обычного цвета.
+.rdp-today:not(.rdp-selected) .rdp-day_button {
+  position: relative;
+  font-weight: 600;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0.25rem;
+    left: 50%;
+    width: 0.25rem;
+    height: 0.25rem;
+    border-radius: 999px;
+    background: var(--lk-accent);
+    transform: translateX(-50%);
+  }
+}
+
+// Outside month — скрываем содержимое; фон td всё равно может рисоваться,
+// но в default-конфиге rdp range_middle на outside не выставляется.
+.rdp-outside {
+  visibility: hidden;
+}
+
+.rdp-disabled .rdp-day_button {
+  color: var(--lk-text-subtle);
+  cursor: not-allowed;
+
+  &:hover {
+    background: transparent;
+  }
+}
+
+// ── Selection / Range ───────────────────────────────────────────────────────
+// Range middle: мягкая жёлтая полоса на td. Кнопка остаётся «прозрачной»
+// (без круга), чтобы из start/end складывалась сплошная плашка.
+.rdp-range_middle {
+  background: var(--lk-accent-soft);
+}
+
+.rdp-range_middle .rdp-day_button {
+  background: transparent;
+  color: var(--lk-text);
+  border-radius: 0;
+
+  &:hover:not(:disabled) {
+    background: rgba(24, 24, 27, 0.04);
+  }
+}
+
+// Range start: жёлтый круг + soft-yellow gradient в правую половину td,
+// чтобы стыковаться с полосой range_middle без визуального gap'а.
+.rdp-range_start {
+  background: linear-gradient(
+    to right,
+    transparent 0,
+    transparent 50%,
+    var(--lk-accent-soft) 50%,
+    var(--lk-accent-soft) 100%
+  );
+}
+
+.rdp-range_start .rdp-day_button {
+  background: var(--lk-accent);
+  color: var(--lk-accent-fg);
+  font-weight: 500;
+
+  &:hover:not(:disabled) {
+    background: var(--lk-accent-deep);
+    color: #fff;
+  }
+}
+
+// Range end: симметрично start (gradient в ЛЕВУЮ половину).
+.rdp-range_end {
+  background: linear-gradient(
+    to left,
+    transparent 0,
+    transparent 50%,
+    var(--lk-accent-soft) 50%,
+    var(--lk-accent-soft) 100%
+  );
+}
+
+.rdp-range_end .rdp-day_button {
+  background: var(--lk-accent);
+  color: var(--lk-accent-fg);
+  font-weight: 500;
+
+  &:hover:not(:disabled) {
+    background: var(--lk-accent-deep);
+    color: #fff;
+  }
+}
+
+// Случай «start === end» (одиночный день): обнуляем gradient, остаётся только
+// жёлтый круг.
+.rdp-range_start.rdp-range_end {
+  background: transparent;
+}
+
+// Selected, не входящий в range_middle/start/end (single mode или fallback):
+// жёлтый круг.
+.rdp-selected:not(.rdp-range_middle):not(.rdp-range_start):not(.rdp-range_end) .rdp-day_button {
+  background: var(--lk-accent);
+  color: var(--lk-accent-fg);
+  font-weight: 500;
+
+  &:hover:not(:disabled) {
+    background: var(--lk-accent-deep);
+    color: #fff;
+  }
 }
 
 @keyframes lk-popover-in {

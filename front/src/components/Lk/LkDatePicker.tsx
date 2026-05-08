@@ -193,13 +193,18 @@ const LkDatePicker = ({
                 numberOfMonths={1}
               />
               <div className="lk-datepicker__footer">
-                <button type="button" className="lk-button lk-button--ghost" onClick={handleToday}>
+                <button type="button" className="lk-datepicker__btn" onClick={handleToday}>
                   Сегодня
                 </button>
-                <button type="button" className="lk-button lk-button--ghost" onClick={handleClear}>
+                <button type="button" className="lk-datepicker__btn" onClick={handleClear}>
                   Очистить
                 </button>
-                <button type="button" className="lk-button lk-button--accent" onClick={handleApply}>
+                <span className="lk-datepicker__footer-spacer" aria-hidden />
+                <button
+                  type="button"
+                  className="lk-datepicker__btn lk-datepicker__btn--primary"
+                  onClick={handleApply}
+                >
                   Применить
                 </button>
               </div>
