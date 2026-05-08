@@ -62,12 +62,20 @@
     background: var(--lk-surface);
     color: var(--lk-text);
     border-bottom: 1px solid var(--lk-border);
+    // Horizontal padding синхронизирован с .lk-page__content и .lk-bottom-nav,
+    // чтобы header / контент / bottom-nav стояли по единой сетке (центральная
+    // симметрия: левый край brand'а ↔ левая колонка nav, правый край actions
+    // ↔ правая колонка nav).
     padding: var(--lk-sp-3) var(--lk-sp-4);
     display: flex;
     align-items: center;
     justify-content: space-between;
     z-index: 50;
     gap: var(--lk-sp-3);
+
+    @include lk-mq-up(tl) {
+      padding-inline: var(--lk-sp-5);
+    }
 
     @include lk-mq-up(lt) {
       grid-area: header;
@@ -199,7 +207,11 @@
 
     @include lk-mq-up(lt) {
       grid-area: content;
-      padding: var(--lk-sp-6) 0;
+      // Слева отступ создаётся sidebar'ом + column-gap у .lk-page, поэтому
+      // padding-left = 0. Справа же между content и краем .lk-page нет
+      // ничего — без padding-right карточки упираются в правую границу,
+      // тогда как header (через :host padding-inline) уже отступает на sp-5.
+      padding: var(--lk-sp-6) var(--lk-sp-5) var(--lk-sp-6) 0;
     }
   }
 }
@@ -736,9 +748,24 @@
   background: var(--lk-surface);
   border-top: 1px solid var(--lk-border);
   display: flex;
-  max-width: 48rem;
   margin-inline: auto;
   z-index: 100;
+
+  // Mobile Portrait — full-width, как и .lk-page.
+  max-width: 100%;
+
+  // Ширина bottom-nav синхронизирована с .lk-page на каждом breakpoint:
+  // только так центральные оси трёх item'ов (Заявки / Создать / Профиль)
+  // совпадут с центральной осью контента и шапки, давая «центральную
+  // симметрию». При max-width: 48rem на TL nav оказывалась уже контента
+  // (60rem), и item'ы плыли к центру относительно содержимого.
+  @include lk-mq-up(ml) {
+    max-width: 45rem;
+  }
+
+  @include lk-mq-up(tl) {
+    max-width: 60rem;
+  }
 
   // Скрываем bottom-nav только на Laptop+ (десктоп с sidebar). На Tablet
   // Landscape она ещё нужна.
@@ -1494,7 +1521,27 @@
   line-height: 1.4;
 }
 
-// ── 23. Keyframes для list-item stagger-fade ─────────────────────────────────
+// ── 23. .lk-button-grid ──────────────────────────────────────────────────────
+// Унифицированная сетка для группы кнопок (любая карточка ЛК с 2+ действиями).
+// На mobile-portrait — одна колонка (стек), на ml+ (Mobile Landscape, 881px+)
+// — auto-fit row: число колонок подстраивается под количество кнопок и
+// доступную ширину карточки. Дочерние .lk-button растягиваются на ячейку,
+// поэтому модификатор `--block` внутри сетки опционален.
+.lk-button-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--lk-sp-2);
+
+  @include lk-mq-up(ml) {
+    grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  }
+
+  > .lk-button {
+    width: 100%;
+  }
+}
+
+// ── 24. Keyframes для list-item stagger-fade ─────────────────────────────────
 @keyframes lk-fade-up {
   from {
     opacity: 0;

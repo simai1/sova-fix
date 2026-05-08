@@ -4,7 +4,6 @@ import LkErrorBanner from '@/components/Lk/LkErrorBanner';
 import LkSpinner from '@/components/Lk/LkSpinner';
 import ProfilePushSection from '@/components/Lk/ProfilePushSection';
 import ProfileTelegramSection from '@/components/Lk/ProfileTelegramSection';
-import { useLogout } from '@/hooks/useLogout';
 
 const roleLabel = (role: string | undefined): string => {
   switch (role) {
@@ -20,16 +19,11 @@ const roleLabel = (role: string | undefined): string => {
 };
 
 const CustomerProfile = (): JSX.Element => {
-  const logout = useLogout();
   const { data: me, isLoading, isError } = useGetMeQuery();
   const { data: myObjects = [] } = useGetMyObjectsQuery();
 
   if (isLoading) return <LkSpinner />;
   if (isError || !me) return <LkErrorBanner text="Не удалось загрузить профиль" />;
-
-  const handleLogout = (): void => {
-    void logout();
-  };
 
   return (
     <>
@@ -68,14 +62,6 @@ const CustomerProfile = (): JSX.Element => {
           ))
         )}
       </div>
-
-      <button
-        type="button"
-        className="lk-button lk-button--ghost lk-button--block"
-        onClick={handleLogout}
-      >
-        Выйти
-      </button>
     </>
   );
 };

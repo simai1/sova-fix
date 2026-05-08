@@ -74,38 +74,26 @@ const ProfilePushSection = (): JSX.Element => {
             : null}
         </p>
 
-        <div className="lk-profile__push-actions">
+        <div className="lk-button-grid">
           {state === 'granted-not-subscribed' ? (
-            <button
-              type="button"
-              className="lk-button lk-button--accent lk-button--block"
-              onClick={handleEnable}
-            >
+            <button type="button" className="lk-button lk-button--accent" onClick={handleEnable}>
               Включить уведомления
             </button>
           ) : null}
 
           {state === 'subscribed' ? (
             <>
-              <button
-                type="button"
-                className="lk-button lk-button--danger lk-button--block"
-                onClick={handleDisable}
-              >
+              <button type="button" className="lk-button lk-button--danger" onClick={handleDisable}>
                 Отключить
               </button>
-              <button
-                type="button"
-                className="lk-button lk-button--ghost lk-button--block"
-                onClick={handleTest}
-              >
+              <button type="button" className="lk-button lk-button--ghost" onClick={handleTest}>
                 Отправить тестовое
               </button>
             </>
           ) : null}
 
           {state === 'loading' ? (
-            <button type="button" className="lk-button lk-button--ghost lk-button--block" disabled>
+            <button type="button" className="lk-button lk-button--ghost" disabled>
               Подключение…
             </button>
           ) : null}
