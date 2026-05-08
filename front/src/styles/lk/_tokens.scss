@@ -1,60 +1,93 @@
+// Дизайн-токены ЛК. Эталон палитры/размеров — см.
+// .memory-base/specs/2026-05-08-lk-redesign-utility-modern-design.md § 2.
+// Стиль: Linear/Notion (утилитарный modern). Жёлтый — точечный CTA-акцент,
+// не фоновая доминанта.
+
 :root {
-  --lk-yellow: #F5C518;
-  --lk-yellow-dark: #D9A800;
-  --lk-sand: #E8DAB2;
-  --lk-sand-light: #F5EBD0;
-  --lk-brown: #7B4B2A;
-  --lk-brown-dark: #5C3820;
-  --lk-black: #1A1A1A;
-  --lk-bg: #FFFAF0;
-  --lk-text: #1A1A1A;
-  --lk-muted: #8A7A66;
-  --lk-danger: #C0392B;
-  --lk-success: #2E7D32;
-  --lk-border: rgba(123, 75, 42, 0.18);
+  // ── Типографика ──────────────────────────────────────────────────────
+  font-family: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  // cv11 — характерный одноэтажный 'a', ss01 — альтернативный 'g/I'. Эти
+  // включения дают «фирменный» Inter (как у Linear/Vercel), без них шрифт
+  // выглядит generic.
+  font-feature-settings: 'cv11', 'ss01';
 
-  --lk-sp-1: 4px;
-  --lk-sp-2: 8px;
-  --lk-sp-3: 12px;
-  --lk-sp-4: 16px;
-  --lk-sp-5: 24px;
-  --lk-sp-6: 32px;
+  // ── Палитра ──────────────────────────────────────────────────────────
+  // Нейтрали (база)
+  --lk-bg          : #FAFAF9;  // фон страницы (warm off-white)
+  --lk-surface     : #FFFFFF;  // карточки, шапка
+  --lk-surface-2   : #F5F5F4;  // alt-фон, hover-row, skeleton
+  --lk-text        : #18181B;  // основной текст
+  --lk-text-muted  : #71717A;  // вторичный
+  --lk-text-subtle : #A1A1AA;  // placeholder, мета, декор
+  --lk-border      : #E7E5E4;
+  --lk-border-strong: #D6D3D1;
 
-  --lk-r-sm: 6px;
-  --lk-r-md: 12px;
-  --lk-r-lg: 20px;
+  // Акценты (бренд-жёлтый — только точечный CTA)
+  --lk-accent      : #F5C518;
+  --lk-accent-fg   : #18181B;  // текст на жёлтом
+  --lk-accent-soft : #FEF3C7;  // мягкий жёлтый для плашек
+  --lk-accent-deep : #B8890D;  // hover/dark-вариант
 
-  --lk-fs-sm: 13px;
-  --lk-fs-md: 15px;
-  --lk-fs-lg: 18px;
-  --lk-fs-xl: 22px;
+  // Семантика
+  --lk-success      : #15803D;
+  --lk-success-soft : #DCFCE7;
+  --lk-danger       : #B91C1C;
+  --lk-danger-soft  : #FEE2E2;
+  --lk-warn         : #C2410C;
+  --lk-warn-soft    : #FED7AA;
 
-  --lk-font-base: 14px;
-  --lk-font-md-base: 15px;
-  --lk-font-lg-base: 16px;
+  // Тени (warm, минимальные — без чёрного)
+  --lk-shadow-xs   : 0 1px 2px rgba(24, 24, 27, 0.04);
+  --lk-shadow-sm   : 0 1px 3px rgba(24, 24, 27, 0.06), 0 1px 2px rgba(24, 24, 27, 0.04);
+  --lk-shadow-md   : 0 4px 12px rgba(24, 24, 27, 0.08), 0 2px 4px rgba(24, 24, 27, 0.04);
+
+  // Focus ring (Linear-стиль)
+  --lk-ring        : 0 0 0 3px rgba(245, 197, 24, 0.25);
+
+  // ── Размеры (всё в rem; 1rem = 16px по-умолчанию) ────────────────────
+  // Spacing — 4px шаг от 16px base
+  --lk-sp-1: 0.25rem;   // 4
+  --lk-sp-2: 0.5rem;    // 8
+  --lk-sp-3: 0.75rem;   // 12
+  --lk-sp-4: 1rem;      // 16
+  --lk-sp-5: 1.5rem;    // 24
+  --lk-sp-6: 2rem;      // 32
+  --lk-sp-7: 3rem;      // 48 — крупные секции, empty-state
+
+  // Radius — острее под Linear-feel
+  --lk-r-sm: 0.375rem;  // 6
+  --lk-r-md: 0.5rem;    // 8
+  --lk-r-lg: 0.75rem;   // 12
+  --lk-r-xl: 1rem;      // 16 — модалки
+
+  // Font-size
+  --lk-fs-xs : 0.75rem;    // 12 — badge, мета
+  --lk-fs-sm : 0.8125rem;  // 13 — label, hint
+  --lk-fs-md : 0.875rem;   // 14 — body
+  --lk-fs-lg : 1rem;       // 16 — large body
+  --lk-fs-xl : 1.125rem;   // 18 — section-title
+  --lk-fs-2xl: 1.375rem;   // 22 — page-title
 
   // Высота sticky-хедера. Переопределяется ниже по breakpoint'ам, чтобы
   // .lk-toolbar / .lk-sidebar и прочие sticky-смещения не зависели от
   // magic-чисел и не «уезжали» при изменении header'а.
-  --lk-header-h: 56px;
+  --lk-header-h: 3.5rem;
 }
 
-// Брейкпоинты синхронизированы с глобальной шкалой из ~/.claude/CLAUDE.md
-// (Frontend Breakpoints). Шкала задана через max-width — сюда мы кладём
-// граничные min-width значения, чтобы оба варианта (lk-mq-up / lk-mq-down)
-// давали один и тот же набор переходов.
 @media (min-width: 768px) {  // ≥ Mobile Landscape
-  :root {
-    --lk-header-h: 60px;
-  }
+  :root { --lk-header-h: 3.75rem; }
 }
 
 @media (min-width: 1025px) { // ≥ Tablet Landscape
-  :root {
-    --lk-header-h: 64px;
-  }
+  :root { --lk-header-h: 4rem; }
 }
 
+// ── Брейкпоинты ──────────────────────────────────────────────────────────
+// Синхронизированы с глобальной шкалой из ~/.claude/CLAUDE.md (Frontend
+// Breakpoints). Шкала задана через max-width — сюда мы кладём граничные
+// min-width значения, чтобы оба варианта (lk-mq-up / lk-mq-down) давали
+// один и тот же набор переходов.
+//
 // Граничные min-width: первый «не попадает» в диапазон max-width предыдущего
 // устройства (например, Mobile Portrait — это max-width:767, поэтому Mobile
 // Landscape начинается с 768).
@@ -84,8 +117,7 @@ $lk-bp-ws: 2400px;  // Widescreen         | 2400+
 }
 
 // Desktop-first: сработает на устройстве $bp и уже. Значения совпадают с
-// max-width глобальной шкалы (мы не считаем «-1px» — глобальная шкала уже
-// записана в нужном виде, а min-width-границы выше учитывают exclusive).
+// max-width глобальной шкалы.
 @mixin lk-mq-down($bp) {
   @if $bp == mp {
     @media (max-width: 767px) { @content; }   // Mobile Portrait
