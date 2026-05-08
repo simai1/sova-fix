@@ -85,7 +85,8 @@
   --rdp-range_end-color: var(--lk-accent-fg);
   --rdp-today-color: var(--lk-accent-deep);
 
-  font-family: 'Inter Variable', system-ui, sans-serif;
+  // font-family наследуется от :root (см. _tokens.scss) — rdp@10 не сбрасывает
+  // его на root-классе, локальное переопределение было дублем.
   font-feature-settings: 'tnum';
 }
 

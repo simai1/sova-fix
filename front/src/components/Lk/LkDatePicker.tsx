@@ -19,6 +19,10 @@ type Position = {
   width: number;
 };
 
+// Визуальный gap между триггером и popover'ом — иначе край календаря «прилипает»
+// к нижней границе input'а и focus-ring триггера сливается с border'ом popover'а.
+const POPOVER_GAP_PX = 4;
+
 const formatRange = (range: DateRange | null): string => {
   if (!range || (!range.from && !range.to)) return '';
   const f = range.from ? format(range.from, 'dd.MM.yyyy') : '—';
@@ -59,7 +63,7 @@ const LkDatePicker = ({
     const recompute = (): void => {
       if (!triggerRef.current) return;
       const rect = triggerRef.current.getBoundingClientRect();
-      setPos({ top: rect.bottom + 4, left: rect.left, width: rect.width });
+      setPos({ top: rect.bottom + POPOVER_GAP_PX, left: rect.left, width: rect.width });
     };
     recompute();
     window.addEventListener('scroll', recompute, true);
