@@ -78,7 +78,7 @@ const ProfilePushSection = (): JSX.Element => {
           {state === 'granted-not-subscribed' ? (
             <button
               type="button"
-              className="lk-button lk-button--primary lk-button--block"
+              className="lk-button lk-button--accent lk-button--block"
               onClick={handleEnable}
             >
               Включить уведомления
@@ -89,7 +89,7 @@ const ProfilePushSection = (): JSX.Element => {
             <>
               <button
                 type="button"
-                className="lk-button lk-button--ghost lk-button--block"
+                className="lk-button lk-button--danger lk-button--block"
                 onClick={handleDisable}
               >
                 Отключить
