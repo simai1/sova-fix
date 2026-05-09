@@ -67,12 +67,18 @@ const registerCustomerCrm = catchAsync(async (req, res) => {
 
 const registerPublic = catchAsync(async (req, res) => {
     const { login, password, name, role } = req.body;
-    const userDto = await authService.registerPublic(login, password, name, role);
+    const result = await authService.registerPublic(login, password, name, role);
+    // pendingVerifyToken — единственный канал, по которому plain-токен уходит
+    // наружу. Клиент кладёт его в sessionStorage и использует для ws-handshake
+    // pending.<token> на странице ожидания approve. На бэкенде в БД хранится
+    // только sha256-хеш.
     res.status(201).json({
-        userId: userDto.id,
-        login: userDto.login,
-        name: userDto.name,
-        role: userDto.role,
+        userId: result.user.id,
+        login: result.user.login,
+        name: result.user.name,
+        role: result.user.role,
+        pendingVerifyToken: result.pendingVerifyToken,
+        pendingVerifyTokenExpiresAt: result.pendingVerifyTokenExpiresAt.toISOString(),
     });
 });
 

@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { describe, it, expect, beforeEach } from 'vitest';
 import request from 'supertest';
 import app from '../../src/app';
@@ -22,6 +23,33 @@ describe('POST /auth/register-public', () => {
         const u = await User.findOne({ where: { login } });
         expect(u?.pendingApproval).toBe(true);
         expect(u?.isActivated).toBe(true);
+    });
+
+    it('возвращает pendingVerifyToken, в БД лежит только sha256-хеш', async () => {
+        const res = await request(app)
+            .post('/auth/register-public')
+            .send({ login, password: 'pass1234', name: 'P', role: 4 });
+        expect(res.status).toBe(201);
+
+        const plainToken = res.body.pendingVerifyToken;
+        expect(typeof plainToken).toBe('string');
+        // 32 байта рандома → 64 hex-символа.
+        expect(plainToken).toMatch(/^[0-9a-f]{64}$/);
+        expect(typeof res.body.pendingVerifyTokenExpiresAt).toBe('string');
+        // Срок жизни — 24 часа; 23..25 — диапазон с запасом на CI-задержки.
+        const expiresAtMs = new Date(res.body.pendingVerifyTokenExpiresAt).getTime();
+        const diffH = (expiresAtMs - Date.now()) / 3_600_000;
+        expect(diffH).toBeGreaterThan(23);
+        expect(diffH).toBeLessThan(25);
+
+        const u = await User.findOne({ where: { login } });
+        expect(u?.pendingVerifyToken).toBeTruthy();
+        // Plain в БД храниться не должен.
+        expect(u?.pendingVerifyToken).not.toBe(plainToken);
+        // Хранится именно sha256(plain).
+        const expectedHash = crypto.createHash('sha256').update(plainToken).digest('hex');
+        expect(u?.pendingVerifyToken).toBe(expectedHash);
+        expect(u?.pendingVerifyTokenExpiresAt).toBeInstanceOf(Date);
     });
 
     it('400 если email занят', async () => {

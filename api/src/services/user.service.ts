@@ -6,6 +6,9 @@ import httpStatus from 'http-status';
 import roles from '../config/roles';
 import UserDto from '../dtos/user.dto';
 import TgUser from '../models/tgUser';
+// sendMsg/WsMsgData нужны только для legacy bot-flow в confirmTgUser ниже.
+// approveUser больше не делает broadcast — pending-клиент подключён через
+// subprotocol pending.<token> и получает USER_CONFIRM через emitTo({kind:'user'}).
 import { emitTo, sendMsg, WsMsgData } from '../utils/ws';
 import Contractor from '../models/contractor';
 import wsEvents from '../config/wsEvents';
@@ -64,21 +67,27 @@ const approveUser = async (userId: string): Promise<UserDto> => {
     if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'Пользователь не найден');
     if (!user.pendingApproval) throw new ApiError(httpStatus.BAD_REQUEST, 'Пользователь уже подтверждён');
 
-    await user.update({ pendingApproval: false });
+    // Снимаем pending-флаг и одновременно обнуляем pending verify-token:
+    // после approve subprotocol pending.<token> больше не должен пускать в
+    // ws-сессию (он перестаёт быть pending-юзером). Это важный security-
+    // инвариант: повторный коннект с тем же токеном после approve
+    // должен закрываться 1008.
+    await user.update({
+        pendingApproval: false,
+        pendingVerifyToken: null,
+        pendingVerifyTokenExpiresAt: null,
+    });
     if (user.role === roles.CONTRACTOR) {
         await Contractor.create({ name: user.name, userId: user.id });
     }
-    // Адресуем строго одному юзеру — он же подписан через `bearer.<jwt>`,
-    // когда после approve откроет ЛК. Pending.jsx сейчас на legacy-канале
-    // не имеет access-токена (см. followups: WS-AUTH-PENDING) — для него
-    // `kind:'broadcast'` пока сохраняется как fallback ниже.
+    // Targeted emit: pending-клиент подключён через subprotocol pending.<token>
+    // и зарегистрирован с userId=user.id (см. ws.authenticateSubprotocol
+    // ветку pending.). Bearer-сессии того же юзера (если он успел залогиниться
+    // в другой вкладке после approve) тоже получат это сообщение —
+    // matchAudience сравнивает по userId. Broadcast-fallback убран (P1-2):
+    // он шёл всем подключённым клиентам и нарушал PII-инвариант, при этом
+    // Pending.jsx до P1-1 его всё равно не получал (handshake падал).
     emitTo({ kind: 'user', userId: user.id }, wsEvents.USER_CONFIRM, { userId: user.id });
-    // Pending.jsx (страница ожидания approve) подключается к ws ДО получения
-    // access-токена и слушает USER_CONFIRM с фильтром на свой userId. Чтобы
-    // не сломать этот флоу до отдельной задачи (см. followup WS-AUTH-PENDING
-    // в design §E) — параллельно шлём broadcast-копию. Это безопасно: payload
-    // содержит только userId, без PII.
-    sendMsg({ msg: { userId: user.id }, event: wsEvents.USER_CONFIRM } as WsMsgData);
 
     // Зеркало: одобрённый юзер получает push о подтверждении регистрации
     // (TG-flow аналог — TGUSER_CONFIRM из бот-flow). Текст без слов про «бота».

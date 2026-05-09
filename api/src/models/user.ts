@@ -12,6 +12,13 @@ export default class User extends Model {
     pendingApproval!: boolean;
     role!: number;
     tgManagerId?: string;
+    // Хеш одноразового pending-токена (sha256 hex). Plain plain-токен не хранится:
+    // он отдаётся в ответе register-public ровно один раз и живёт у клиента
+    // в sessionStorage. Используется для ws-handshake subprotocol pending.<token>
+    // на странице ожидания approve — pending-юзер ещё не имеет access-токена
+    // (login для него отдаёт 401), но должен слышать USER_CONFIRM live.
+    pendingVerifyToken?: string | null;
+    pendingVerifyTokenExpiresAt?: Date | null;
     TgUser?: TgUser;
 
     static initialize(sequelize: Sequelize) {
@@ -54,6 +61,22 @@ export default class User extends Model {
                     type: DataTypes.BOOLEAN,
                     allowNull: false,
                     defaultValue: false,
+                },
+                // STRING(64) — sha256 hex от plain-токена. Без unique-constraint:
+                // sync({ alter: true }) при каждом старте плодит дубль-индексы
+                // на unique-полях (известный backlog), здесь сознательно не
+                // создаём такую проблему. Уникальность не требуется логически:
+                // токен резолвится через findOne, коллизия sha256(32bytes)
+                // практически невозможна.
+                pendingVerifyToken: {
+                    type: DataTypes.STRING(64),
+                    allowNull: true,
+                    defaultValue: null,
+                },
+                pendingVerifyTokenExpiresAt: {
+                    type: DataTypes.DATE,
+                    allowNull: true,
+                    defaultValue: null,
                 },
             },
             {

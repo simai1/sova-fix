@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import User from '../models/user';
 import UserDto from '../dtos/user.dto';
 import ApiError from '../utils/ApiError';
@@ -14,6 +15,17 @@ import roles from '../config/roles';
 import wsEvents from '../config/wsEvents';
 import logger from '../utils/logger';
 import notificationService from './notification.service';
+
+// TTL pending-токена. 24 часа — компромисс: достаточно, чтобы менеджер
+// одобрил заявку в течение рабочего дня, но короче, чем web-LK refresh-сессия.
+// Токен не secret-уровня (он даёт только право слышать USER_CONFIRM для
+// конкретного userId, без действий), поэтому короткий TTL и sha256 (вместо
+// bcrypt) достаточны.
+const PENDING_TOKEN_TTL_MS = 24 * 60 * 60 * 1000;
+
+// sha256 от plain hex-токена. Используется и при выдаче (registerPublic),
+// и при handshake-проверке (ws.authenticateSubprotocol).
+export const hashPendingToken = (plain: string): string => crypto.createHash('sha256').update(plain).digest('hex');
 
 type data = {
     accessToken: string;
@@ -106,7 +118,21 @@ const refresh = async (refreshToken: string): Promise<data> => {
     return await jwtUtils.refresh(refreshToken);
 };
 
-const registerPublic = async (login: string, password: string, name: string, role: number): Promise<UserDto> => {
+type RegisterPublicResult = {
+    user: UserDto;
+    // Plain-токен; уходит наружу ровно один раз — в ответе register-public.
+    // Клиент сохраняет его в sessionStorage и использует как subprotocol
+    // pending.<token> при ws-handshake до approve.
+    pendingVerifyToken: string;
+    pendingVerifyTokenExpiresAt: Date;
+};
+
+const registerPublic = async (
+    login: string,
+    password: string,
+    name: string,
+    role: number
+): Promise<RegisterPublicResult> => {
     const checkUser = await userService.getUserByEmail(login);
     if (checkUser) throw new ApiError(httpStatus.BAD_REQUEST, 'Пользователь с такой почтой уже зарегистрирован');
 
@@ -120,10 +146,22 @@ const registerPublic = async (login: string, password: string, name: string, rol
         pendingApproval: true,
     });
 
+    // Генерим одноразовый pending-токен для ws-аутентификации страницы Pending.jsx.
+    // 32 байта randomBytes → 64 hex-символа (~256 бит энтропии). В БД храним
+    // только sha256(plain) — plain отдаём клиенту один раз и больше нигде не
+    // светим (логи, события — без него).
+    const plainToken = crypto.randomBytes(32).toString('hex');
+    const tokenHash = hashPendingToken(plainToken);
+    const expiresAt = new Date(Date.now() + PENDING_TOKEN_TTL_MS);
+    await user.update({
+        pendingVerifyToken: tokenHash,
+        pendingVerifyTokenExpiresAt: expiresAt,
+    });
+
     const dto = new UserDto(user);
     // Видят только менеджеры (роль ADMIN), сам pending-юзер ws-сессию не открывает
-    // (authenticateSubprotocol режет pendingApproval=true). Менеджер увидит
-    // детали через GET /users/pending-registrations (с auth).
+    // через bearer-канал. Pending.jsx подключается через subprotocol pending.<token>
+    // и получает USER_CONFIRM через emitTo({kind:'user'}) после approve.
     emitTo({ kind: 'role', roles: [roles.ADMIN] }, wsEvents.USER_REGISTRATION_REQUEST, { userId: dto.id });
 
     // Зеркало: тот же триггер уходит в push менеджерам с шаблонным текстом.
@@ -131,7 +169,7 @@ const registerPublic = async (login: string, password: string, name: string, rol
     // «Исполнитель» / «Менеджер») — без неё менеджер не понимает, кого ждёт.
     await notificationService.notifyRegistrationRequest(role);
 
-    return dto;
+    return { user: dto, pendingVerifyToken: plainToken, pendingVerifyTokenExpiresAt: expiresAt };
 };
 
 const registerCustomerCrm = async (login: string, tgId: string): Promise<UserDto> => {

@@ -28,6 +28,11 @@ type WsUser = {
     userId: string | null;
     role: number | null;
     isBot: boolean;
+    // Pending-юзер: подключён через subprotocol pending.<verifyToken> на странице
+    // ожидания approve. У него ещё нет access-токена и role=null. Может слушать
+    // USER_CONFIRM (через kind:'user', userId=this.userId), но НЕ может
+    // subscribe'нуться на requestId — это закрывается в ensureSubscribeAccess.
+    isPending?: boolean;
 };
 
 // Расширяем тип WebSocket-клиента, чтобы хранить состояние сессии прямо на нём.
@@ -107,6 +112,27 @@ export const authenticateSubprotocol = async (subprotocol: string | null): Promi
         }
     }
 
+    if (subprotocol.startsWith('pending.')) {
+        const provided = subprotocol.slice('pending.'.length);
+        if (!provided) return null;
+        // sha256(plain) — то же преобразование, что в auth.service.registerPublic.
+        // Хеш сравниваем через findOne — timing-side-channel здесь не страшен:
+        // вход в БД-запрос на порядки медленнее, чем разница в string-compare,
+        // и plain-токен не утекает (мы сравниваем уже хеши).
+        const hash = crypto.createHash('sha256').update(provided).digest('hex');
+        const user = await User.findOne({ where: { pendingVerifyToken: hash } });
+        if (!user) return null;
+        // approve уже был, но токен почему-то ещё не обнулился — отказываем.
+        // approveUser обнуляет токен в одной транзакции с pendingApproval:false,
+        // так что эта ветка должна быть мёртвой. Дополнительная защита от
+        // ошибочной ручной правки БД.
+        if (!user.pendingApproval) return null;
+        if (!user.pendingVerifyTokenExpiresAt || new Date(user.pendingVerifyTokenExpiresAt).getTime() < Date.now()) {
+            return null;
+        }
+        return { userId: user.id, role: null, isBot: false, isPending: true };
+    }
+
     return null;
 };
 
@@ -135,6 +161,11 @@ type SubscribeResult = 'ok' | 'not_found' | 'forbidden';
 export const ensureSubscribeAccess = async (user: WsUser, requestId: string): Promise<SubscribeResult> => {
     // Бот видит всё (legacy) — пускаем без проверки.
     if (user.isBot) return 'ok';
+    // Pending-юзер не имеет ни role, ни доступа к заявкам — он подключён
+    // только чтобы слышать USER_CONFIRM на свой userId. Любые subscribe-фреймы
+    // от него отвергаем без обращения к БД, чтобы исключить даже намёк на
+    // утечку чужих заявок через этот канал.
+    if (user.isPending) return 'forbidden';
     if (!user.userId) return 'forbidden';
 
     const repairRequest = await RepairRequest.findByPk(requestId);
