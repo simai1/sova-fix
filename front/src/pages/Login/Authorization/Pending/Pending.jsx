@@ -22,7 +22,17 @@ function Pending() {
       return
     }
     if (!WS_URL) {
-      // если переменная окружения не задана — просто остаёмся ждать без сокета
+      // Нет WS_URL → ws-канал просто не запускаем; страница будет ждать
+      // ручного refresh после approve. Это режим деградации, а не ошибка.
+      return
+    }
+
+    // pendingVerifyToken выдаётся /auth/register-public и кладётся в
+    // sessionStorage в Register.jsx. Если юзер вернулся на эту страницу через
+    // bookmark в новой вкладке — токена нет; ws-канал тоже не открываем,
+    // юзер будет ждать ручного refresh / повторного входа после approve.
+    const verifyToken = sessionStorage.getItem('pendingVerifyToken')
+    if (!verifyToken) {
       return
     }
 
@@ -34,15 +44,12 @@ function Pending() {
     const connect = () => {
       if (cancelled) return
       try {
-        // FOLLOWUP WS-AUTH-PENDING: после внедрения ws-auth (P1) сервер
-        // закрывает соединения без bearer-токена с code=1008. У pending-юзера
-        // токена нет (login до approve возвращает 403). Сокет подключится,
-        // но сразу закроется — мы попадём в onclose-ветку с code=1008 и
-        // больше не реконнектим. Менеджер всё ещё может одобрить юзера,
-        // и страница Pending обновится при ручном refresh / повторном login.
-        // Альтернатива (отдельная задача): добавить subprotocol 'pending.<verifyToken>'
-        // на бэкенде и выдавать verifyToken при register-public.
-        ws = new WebSocket(WS_URL)
+        // subprotocol pending.<verifyToken> — handshake-аутентификация для
+        // pending-юзера (см. api/src/utils/ws.ts::authenticateSubprotocol
+        // и .memory-base/specs/2026-05-08-mini-sprint-review.md P1-1).
+        // Сервер по этому каналу пускает строго на USER_CONFIRM для своего
+        // userId, любые subscribe-фреймы отвергает с {error,'forbidden'}.
+        ws = new WebSocket(WS_URL, [`pending.${verifyToken}`])
       } catch {
         scheduleReconnect()
         return
@@ -64,6 +71,7 @@ function Pending() {
               // ignore
             }
             localStorage.removeItem('pendingRegistration')
+            sessionStorage.removeItem('pendingVerifyToken')
             navigate('/Authorization', { state: { approvedLogin: pending.login } })
           }
         } catch {
@@ -77,8 +85,10 @@ function Pending() {
 
       ws.onclose = (ev) => {
         if (cancelled) return
-        // 1008 — сервер отказал в аутентификации. У pending-юзера токена нет;
-        // не зацикливаемся, страница останется ожидать manual refresh.
+        // 1008 — токен битый/истёк/approve уже был. Не реконнектим:
+        // в случае «approve уже был» это нормальное завершение (но юзер
+        // не дождался ws-сообщения — тогда нужно будет refresh). В случае
+        // битого/истёкшего токена реконнект тоже бесполезен.
         if (ev?.code === 1008) {
           cancelled = true
           return
@@ -119,6 +129,7 @@ function Pending() {
 
   const onLogout = () => {
     localStorage.removeItem('pendingRegistration')
+    sessionStorage.removeItem('pendingVerifyToken')
     navigate('/Authorization')
   }
 

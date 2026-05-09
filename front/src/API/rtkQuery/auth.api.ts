@@ -14,6 +14,13 @@ export type RegisterPublicResp = {
   login: string;
   name: string;
   role: string;
+  // Plain pending-токен для ws-handshake страницы Pending: подключаемся через
+  // subprotocol pending.<token>, чтобы слышать USER_CONFIRM в реалтайме.
+  // Бэкенд хранит только sha256-хеш; этот plain — единственный канал, через
+  // который он попадает к клиенту. Сохраняем в sessionStorage (вкладка-scoped),
+  // не в localStorage. На случай старого backend-а без поля — делаем optional.
+  pendingVerifyToken?: string;
+  pendingVerifyTokenExpiresAt?: string;
 };
 
 export const authApi = createApi({
