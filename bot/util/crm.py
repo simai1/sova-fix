@@ -37,6 +37,53 @@ class User:
         self.linkId = data['linkId']
         self.is_confirmed = data['isConfirmed']
 
+async def bind_tg(token: str, tg_id: int, username: str | None) -> dict:
+    """
+    Привязывает Telegram-аккаунт к web-User через POST /tgUsers/bind.
+
+    Защищённый master-key endpoint (см. api/src/routes/tgUser.route.ts:15).
+    Сервер делает атомарный consume токена + создаёт/связывает TgUser
+    + для CONTRACTOR обновляет Contractor.tgUserId. После успеха клиент
+    в веб-ЛК получает ws-событие USER_TG_BIND_OK на свой userId.
+
+    Args:
+        token: plaintext-токен из deep-link payload `link_<token>`.
+        tg_id: Telegram ID юзера, нажавшего /start (message.from_user.id).
+        username: Telegram username для имени TgUser; None допустим.
+
+    Returns:
+        {"ok": True, "userId": "...", "tgUserId": "..."} при success;
+        {"ok": False, "status": int, "message": str} при бизнес-ошибке (400/409);
+        {"ok": False, "status": 0, "message": str} при network exception.
+    """
+    url = f'{cf.API_URL}/tgUsers/bind'
+
+    headers = {'master-api-key': cf.MASTER_API_KEY}
+    body: dict = {'token': token, 'tgId': str(tg_id)}
+    if username:
+        body['username'] = username
+
+    try:
+        response = requests.post(url, json=body, headers=headers, timeout=10)
+    except Exception as e:
+        logger.error(f'API: exception during tg bind, tg_id={tg_id}, error={str(e)}')
+        return {'ok': False, 'status': 0, 'message': 'Сервер недоступен'}
+
+    if response.status_code == 200:
+        data = response.json()
+        logger.info(f'API: tg bind ok, tg_id={tg_id}, userId={data.get("userId")}')
+        return {'ok': True, 'userId': data.get('userId'), 'tgUserId': data.get('tgUserId')}
+
+    # 400 → невалидный/истёкший токен; 409 → tgId занят; 5xx → проблема сервера.
+    try:
+        message = response.json().get('message', 'Не удалось привязать Telegram')
+    except Exception:
+        message = response.text or 'Не удалось привязать Telegram'
+
+    logger.error(f'API: tg bind failed, tg_id={tg_id}, status={response.status_code}, msg={message}')
+    return {'ok': False, 'status': response.status_code, 'message': message}
+
+
 async def register_user(user_id: int, name: str, role: int, username: str) -> dict | None:
     """
     Регистрирует нового пользователя.
