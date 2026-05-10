@@ -62,6 +62,34 @@ const levelLabel = (level: SystemLogLevel) => {
   return 'Инфо';
 };
 
+// Backend пишет в meta поля контекста запроса. Тип не строгий — admin.api.ts
+// объявил meta как Record<string, unknown> | null, чтобы не ломаться при
+// расширениях. Приводим только то, что используем в UI.
+type LogMeta = {
+  userId?: string | null;
+  login?: string | null;
+  role?: number | null;
+  method?: string | null;
+  path?: string | null;
+  statusCode?: number | null;
+  friendly?: string | null;
+};
+
+// Соответствие числовых ролей строковым меткам — дублирует api/src/config/roles.ts.
+// Менеджеру так проще читать: «Менеджер» вместо «2».
+const roleLabels: Record<number, string> = {
+  1: 'Пользователь',
+  2: 'Менеджер',
+  3: 'Заказчик',
+  4: 'Исполнитель',
+  5: 'Наблюдатель',
+};
+
+const formatRole = (role: number | null | undefined) => {
+  if (role == null) return null;
+  return roleLabels[role] ? `${roleLabels[role]} (${role})` : String(role);
+};
+
 function SystemLogs() {
   const role = useMemo(() => {
     try {
@@ -215,34 +243,54 @@ function SystemLogs() {
           <tr>
             <th className={styles.colDate}>Дата (МСК)</th>
             <th className={styles.colLevel}>Уровень</th>
-            <th className={styles.colService}>Сервис</th>
+            <th className={styles.colUser}>Пользователь</th>
+            <th className={styles.colRequest}>Запрос</th>
             <th className={styles.colMessage}>Сообщение</th>
           </tr>
         </thead>
         <tbody>
           {items.length === 0 && !isFetching && (
             <tr>
-              <td colSpan={4} className={styles.empty}>
+              <td colSpan={5} className={styles.empty}>
                 Логи не найдены
               </td>
             </tr>
           )}
-          {items.map((it) => (
-            <tr key={it.id} onClick={() => setSelected(it)} title="Открыть подробности">
-              <td className={styles.colDate}>{formatMoscow(it.createdAt)}</td>
-              <td className={styles.colLevel}>
-                <span className={`${styles.chip} ${levelChipClass(it.level)}`}>
-                  {levelLabel(it.level)}
-                </span>
-              </td>
-              <td className={styles.colService}>{it.service}</td>
-              <td className={styles.colMessage}>
-                <div className={styles.message} title={it.message}>
-                  {it.message}
-                </div>
-              </td>
-            </tr>
-          ))}
+          {items.map((it) => {
+            const m = (it.meta || {}) as LogMeta;
+            // Friendly-объяснение приоритетнее «сырого» message — это и есть
+            // цель аннотаций (что значит ошибка для менеджера). Сырое
+            // message со стектрейсами и SQL'ом остаётся в детальной модалке.
+            const headline = m.friendly || it.message;
+            const userLabel = m.login || (m.userId ? m.userId.slice(0, 8) + '…' : '—');
+            const requestLabel =
+              m.method && m.path ? `${m.method} ${m.path}` : m.path || m.method || '—';
+            const status = m.statusCode ? ` · ${m.statusCode}` : '';
+            return (
+              <tr key={it.id} onClick={() => setSelected(it)} title="Открыть подробности">
+                <td className={styles.colDate}>{formatMoscow(it.createdAt)}</td>
+                <td className={styles.colLevel}>
+                  <span className={`${styles.chip} ${levelChipClass(it.level)}`}>
+                    {levelLabel(it.level)}
+                  </span>
+                </td>
+                <td className={styles.colUser} title={m.userId || ''}>
+                  {userLabel}
+                </td>
+                <td className={styles.colRequest}>
+                  <span className={styles.requestCell} title={requestLabel}>
+                    {requestLabel}
+                    {status && <span className={styles.statusBadge}>{m.statusCode}</span>}
+                  </span>
+                </td>
+                <td className={styles.colMessage}>
+                  <div className={styles.message} title={headline}>
+                    {headline}
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
 
@@ -271,36 +319,79 @@ function SystemLogs() {
               </button>
             </div>
             <div className={styles.modalBody}>
-              <div className={styles.modalRow}>
-                <strong>Дата:</strong>
-                <span>{formatMoscow(selected.createdAt)} (МСК)</span>
-              </div>
-              <div className={styles.modalRow}>
-                <strong>Уровень:</strong>
-                <span>
-                  <span className={`${styles.chip} ${levelChipClass(selected.level)}`}>
-                    {levelLabel(selected.level)}
-                  </span>
-                </span>
-              </div>
-              <div className={styles.modalRow}>
-                <strong>Сервис:</strong>
-                <span>{selected.service}</span>
-              </div>
-              <div className={styles.modalRow}>
-                <strong>ID:</strong>
-                <span>{selected.id}</span>
-              </div>
-              <div>
-                <strong>Сообщение:</strong>
-                <div className={styles.fullMessage}>{selected.message}</div>
-              </div>
-              {selected.meta && Object.keys(selected.meta).length > 0 && (
-                <div className={styles.metaBlock}>
-                  <strong>Дополнительные поля:</strong>
-                  <pre>{JSON.stringify(selected.meta, null, 2)}</pre>
-                </div>
-              )}
+              {(() => {
+                const m = (selected.meta || {}) as LogMeta;
+                return (
+                  <>
+                    {m.friendly && (
+                      <div className={styles.friendlyBox}>
+                        <strong>Что значит для менеджера:</strong>
+                        <div>{m.friendly}</div>
+                      </div>
+                    )}
+                    <div className={styles.modalRow}>
+                      <strong>Дата:</strong>
+                      <span>{formatMoscow(selected.createdAt)} (МСК)</span>
+                    </div>
+                    <div className={styles.modalRow}>
+                      <strong>Уровень:</strong>
+                      <span>
+                        <span className={`${styles.chip} ${levelChipClass(selected.level)}`}>
+                          {levelLabel(selected.level)}
+                        </span>
+                      </span>
+                    </div>
+                    <div className={styles.modalRow}>
+                      <strong>Сервис:</strong>
+                      <span>{selected.service}</span>
+                    </div>
+                    <div className={styles.modalRow}>
+                      <strong>ID записи:</strong>
+                      <span>{selected.id}</span>
+                    </div>
+                    {(m.userId || m.login || m.role != null) && (
+                      <>
+                        <div className={styles.modalRow}>
+                          <strong>Пользователь:</strong>
+                          <span>{m.login || '—'}</span>
+                        </div>
+                        <div className={styles.modalRow}>
+                          <strong>User ID:</strong>
+                          <span>{m.userId || '—'}</span>
+                        </div>
+                        <div className={styles.modalRow}>
+                          <strong>Роль:</strong>
+                          <span>{formatRole(m.role) || '—'}</span>
+                        </div>
+                      </>
+                    )}
+                    {(m.method || m.path || m.statusCode != null) && (
+                      <>
+                        <div className={styles.modalRow}>
+                          <strong>Запрос:</strong>
+                          <span>
+                            {m.method ? <code>{m.method}</code> : null} {m.path || '—'}
+                          </span>
+                        </div>
+                        <div className={styles.modalRow}>
+                          <strong>HTTP-статус:</strong>
+                          <span>{m.statusCode ?? '—'}</span>
+                        </div>
+                      </>
+                    )}
+                    <div>
+                      <strong>Техническое сообщение:</strong>
+                      <div className={styles.fullMessage}>{selected.message}</div>
+                    </div>
+                    {selected.meta && Object.keys(selected.meta).length > 0 && (
+                      <div className={styles.metaBlock}>
+                        <strong>Все meta-поля (raw):</strong>
+                        <pre>{JSON.stringify(selected.meta, null, 2)}</pre>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           </div>
         </div>
