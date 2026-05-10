@@ -2,9 +2,13 @@ import { DataTypes, Model, Sequelize } from 'sequelize';
 import TgUser from './tgUser';
 import User from './user';
 
+// Имя контрактора — производное от связанного User.name (web-flow)
+// или TgUser.name (legacy bot-flow). Колонки contractors.name намеренно нет:
+// иметь два независимых поля для одного и того же ФИО — путь к рассинхрону
+// (см. инцидент 2026-05-10: User.name='LK Contractor', а Contractor.name был
+// руками переписан на 'ИП Иванов А.А.', и в админке/профиле показывались разные имена).
 export default class Contractor extends Model {
     id!: string;
-    name!: string;
     tgUserId?: string;
     userId?: string;
     TgUser?: TgUser;
@@ -18,10 +22,6 @@ export default class Contractor extends Model {
                     defaultValue: DataTypes.UUIDV4,
                     allowNull: false,
                     primaryKey: true,
-                },
-                name: {
-                    type: DataTypes.STRING,
-                    allowNull: false,
                 },
                 tgUserId: {
                     type: DataTypes.UUID,

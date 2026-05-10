@@ -1,6 +1,7 @@
 import Equipment from '../models/equipment';
 import strftime from 'strftime';
 import TechServiceDto from './techService';
+import { getContractorNameOrThrow } from '../utils/contractorName';
 
 export default class EquipmentDto {
     id!: string;
@@ -43,7 +44,7 @@ export default class EquipmentDto {
         this.category = model.Nomenclature?.Category?.name;
         this.unit = model.Object?.Unit?.name;
         this.object = model.Object?.name;
-        this.contractor = model.Contractor?.name;
+        this.contractor = model.Contractor ? getContractorNameOrThrow(model.Contractor) : undefined;
         this.extContractor = model.ExtContractor?.name;
         this.name = model.Nomenclature?.name;
         this.comment = model.comment;
@@ -51,6 +52,6 @@ export default class EquipmentDto {
             ? // @ts-expect-error operands
               model.TechServices.map(ts => new TechServiceDto(ts)).sort((a, b) => new Date(b.date) - new Date(a.date))
             : undefined;
-        this.copiedEquipmentId = model.copiedEquipmentId
+        this.copiedEquipmentId = model.copiedEquipmentId;
     }
 }

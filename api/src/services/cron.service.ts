@@ -15,6 +15,7 @@ import TgUser from '../models/tgUser';
 import LegalEntity from '../models/legalEntity';
 import { emitTo } from '../utils/ws';
 import roles from '../config/roles';
+import { contractorInclude } from '../utils/contractorInclude';
 
 function isDifferenceGreaterThan7Days(date2: Date) {
     try {
@@ -117,7 +118,7 @@ export default {
             const equipments = await Equipment.findAll({
                 include: [
                     { model: Nomenclature, include: [{ model: Category }] },
-                    { model: Contractor },
+                    contractorInclude,
                     { model: ExtContractor },
                     { model: ObjectDir, include: [{ model: Unit }, { model: LegalEntity }] },
                 ],

@@ -26,6 +26,16 @@ import DirectoryCategory from '../models/directoryCategory';
 import Settings from '../models/settings';
 import wsEvents from '../config/wsEvents';
 import notificationService from './notification.service';
+import { contractorInclude } from '../utils/contractorInclude';
+import { getContractorName } from '../utils/contractorName';
+import {
+    contractorNameIn,
+    contractorNameNotIn,
+    contractorNameILike,
+    contractorNameIsNull,
+    contractorNameIsNotNull,
+    contractorNameOrderExpr,
+} from '../utils/contractorNameFilter';
 
 const getAllRequests = async (filter: any, order: any, pagination: any, userId?: string) => {
     try {
@@ -68,14 +78,14 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
                             {
                                 contractorId: value.includes('null') ? { [Op.not]: null } : { [Op.is]: null },
                             },
-                            { '$Contractor.name$': { [Op.notIn]: value } },
+                            contractorNameNotIn(value),
                         ];
                     } else {
                         whereParams[Op.or] = [
                             {
                                 contractorId: value.includes('null') ? { [Op.not]: null } : { [Op.is]: null },
                             },
-                            { '$Contractor.name$': { [Op.notIn]: value } },
+                            contractorNameNotIn(value),
                         ];
                     }
                 } else {
@@ -84,14 +94,14 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
                             {
                                 contractorId: value.includes('null') ? { [Op.is]: null } : { [Op.not]: null },
                             },
-                            { '$Contractor.name$': { [Op.in]: value } },
+                            contractorNameIn(value),
                         ];
                     } else {
                         whereParams[Op.and] = [
                             {
                                 contractorId: value.includes('null') ? { [Op.is]: null } : { [Op.not]: null },
                             },
-                            { '$Contractor.name$': { [Op.in]: value } },
+                            contractorNameIn(value),
                         ];
                     }
                 }
@@ -205,7 +215,7 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
                                 [Op.or]: [
                                     {
                                         [Op.or]: [
-                                            { '$Contractor.name$': { [Op.not]: null } },
+                                            contractorNameIsNotNull(),
                                             { '$ExtContractor.name$': { [Op.not]: null } },
                                         ],
                                     },
@@ -252,10 +262,7 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
                                             },
                                         },
                                         {
-                                            [Op.or]: [
-                                                { '$Contractor.id$': { [Op.is]: null } },
-                                                { '$Contractor.name$': { [Op.is]: null } },
-                                            ],
+                                            [Op.or]: [{ '$Contractor.id$': { [Op.is]: null } }, contractorNameIsNull()],
                                         },
                                     ],
                                 },
@@ -297,10 +304,7 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
                                             },
                                         },
                                         {
-                                            [Op.or]: [
-                                                { contractorName: { [Op.is]: null } },
-                                                { '$Contractor.name$': { [Op.is]: null } },
-                                            ],
+                                            [Op.or]: [{ contractorName: { [Op.is]: null } }, contractorNameIsNull()],
                                         },
                                     ],
                                 },
@@ -341,7 +345,7 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
                 }),
                 { comment: { [Op.iLike]: `%${filter.search}%` } },
                 { '$LegalEntity.name$': { [Op.iLike]: `%${filter.search}%` } },
-                { '$Contractor.name$': { [Op.iLike]: `%${filter.search}%` } },
+                contractorNameILike(`%${filter.search}%`),
             ];
             if (Number.isInteger(filter.search)) {
                 // @ts-expect-error skip
@@ -361,7 +365,7 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
                     ],
                 },
                 include: [
-                    { model: Contractor },
+                    contractorInclude,
                     { model: ObjectDir },
                     { model: Unit },
                     { model: LegalEntity },
@@ -372,7 +376,7 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
                 order:
                     order.col && order.type
                         ? order.col === 'contractor'
-                            ? [['Contractor', 'name', order.type]]
+                            ? [[contractorNameOrderExpr(), order.type]]
                             : [[order.col, order.type]]
                         : [['number', 'desc']],
                 limit: pagination.limit,
@@ -388,9 +392,7 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
                     ],
                 },
                 include: [
-                    {
-                        model: Contractor,
-                    },
+                    contractorInclude,
                     {
                         model: ObjectDir,
                     },
@@ -413,7 +415,7 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
             requests = await RepairRequest.findAll({
                 where: whereParams,
                 include: [
-                    { model: Contractor },
+                    contractorInclude,
                     { model: ObjectDir },
                     { model: Unit },
                     { model: LegalEntity },
@@ -424,7 +426,7 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
                 order:
                     order.col && order.type
                         ? order.col === 'contractor'
-                            ? [['Contractor', 'name', order.type]]
+                            ? [[contractorNameOrderExpr(), order.type]]
                             : [[order.col, order.type]]
                         : [['number', 'desc']],
                 limit: pagination.limit,
@@ -433,7 +435,7 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
             totalCount = await RepairRequest.count({
                 where: whereParams,
                 include: [
-                    { model: Contractor },
+                    contractorInclude,
                     { model: ObjectDir },
                     { model: Unit },
                     { model: LegalEntity },
@@ -477,7 +479,7 @@ const getRequestCount = async () => {
 const getRequestById = async (requestId: string): Promise<RequestDto> => {
     const request = await RepairRequest.findByPk(requestId, {
         include: [
-            { model: Contractor },
+            contractorInclude,
             { model: ObjectDir },
             { model: Unit },
             { model: LegalEntity },
@@ -723,13 +725,17 @@ const setContractor = async (requestId: string, contractorId: string, managerId?
         // Проверяем существование подрядчика с переданным ID
         if (contractorId) {
             try {
-                const contractor = await Contractor.findByPk(contractorId);
+                const contractor = await Contractor.findByPk(contractorId, {
+                    include: [{ model: User }, { model: TgUser }],
+                });
                 if (!contractor) {
                     logger.error(`Contractor with ID ${contractorId} not found`);
                     throw new ApiError(httpStatus.BAD_REQUEST, `Contractor with ID ${contractorId} not found`);
                 }
 
-                logger.info(`Setting contractor ${contractor.name} (ID: ${contractorId}) for request: ${requestId}`);
+                logger.info(
+                    `Setting contractor ${getContractorName(contractor) ?? '(no name)'} (ID: ${contractorId}) for request: ${requestId}`
+                );
 
                 await request.update({
                     contractorId,
@@ -743,7 +749,9 @@ const setContractor = async (requestId: string, contractorId: string, managerId?
                 });
 
                 const customer = await TgUser.findByPk(request.createdBy);
-                const tgContractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
+                const tgContractor = await Contractor.findByPk(request.contractorId, {
+                    include: [{ model: User }, { model: TgUser }],
+                });
 
                 emitTo({ kind: 'request', requestId: requestId }, 'STATUS_UPDATE', {
                     newStatus: 2,
@@ -848,7 +856,9 @@ const setComment = async (requestId: string, comment: string): Promise<void> => 
     const request = await RepairRequest.findByPk(requestId);
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
     const customer = await TgUser.findByPk(request.createdBy);
-    const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
+    const contractor = await Contractor.findByPk(request.contractorId, {
+        include: [{ model: User }, { model: TgUser }],
+    });
     emitTo({ kind: 'request', requestId: requestId }, 'COMMENT_UPDATE', {
         newComment: comment,
         oldComment: request.comment,
@@ -871,7 +881,7 @@ const setCommentAttachment = async (requestId: string, filename: string): Promis
             { model: Unit },
             { model: ObjectDir },
             { model: LegalEntity },
-            { model: Contractor },
+            contractorInclude,
             { model: ExtContractor },
             { model: DirectoryCategory },
         ],
@@ -912,7 +922,9 @@ const setStatus = async (requestId: string, status: number, statusId: string): P
     const request = await RepairRequest.findByPk(requestId);
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
     const customer = await TgUser.findByPk(request.createdBy);
-    const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
+    const contractor = await Contractor.findByPk(request.contractorId, {
+        include: [{ model: User }, { model: TgUser }],
+    });
     emitTo({ kind: 'request', requestId: requestId }, 'STATUS_UPDATE', {
         newStatus: status,
         oldStatus: request.status,
@@ -1034,7 +1046,9 @@ const update = async (
     // ws section
     if (typeof status !== 'undefined' && status !== oldStatus) {
         const customer = await TgUser.findByPk(request.createdBy);
-        const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
+        const contractor = await Contractor.findByPk(request.contractorId, {
+            include: [{ model: User }, { model: TgUser }],
+        });
         emitTo({ kind: 'request', requestId: requestId }, 'STATUS_UPDATE', {
             newStatus: status,
             oldStatus,
@@ -1047,7 +1061,9 @@ const update = async (
 
     if (typeof urgency !== 'undefined' && urgency !== oldUrgency) {
         const customer = await TgUser.findByPk(request.createdBy);
-        const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
+        const contractor = await Contractor.findByPk(request.contractorId, {
+            include: [{ model: User }, { model: TgUser }],
+        });
         emitTo({ kind: 'request', requestId: requestId }, 'URGENCY_UPDATE', {
             newUrgency: urgency,
             oldUrgency,
@@ -1060,7 +1076,9 @@ const update = async (
 
     if (typeof comment !== 'undefined' && comment !== oldComment) {
         const customer = await TgUser.findByPk(request.createdBy);
-        const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
+        const contractor = await Contractor.findByPk(request.contractorId, {
+            include: [{ model: User }, { model: TgUser }],
+        });
         emitTo({ kind: 'request', requestId: requestId }, 'COMMENT_UPDATE', {
             newComment: comment,
             oldComment,
@@ -1104,13 +1122,17 @@ const update = async (
 const getCustomersRequests = async (tgUserId: string, filter: any): Promise<RequestDto[]> => {
     let requests;
     const whereParams: any = {};
-    Object.keys(filter).forEach((k: any) =>
-        k === 'search'
-            ? null
-            : k !== 'contractor'
-              ? (whereParams[k] = filter[k])
-              : (whereParams['$Contractor.name$'] = filter[k])
-    );
+    Object.keys(filter).forEach((k: any) => {
+        if (k === 'search') return;
+        if (k !== 'contractor') {
+            whereParams[k] = filter[k];
+        } else {
+            whereParams[Op.and] = [
+                ...(whereParams[Op.and] || []),
+                contractorNameIn(Array.isArray(filter[k]) ? filter[k] : [filter[k]]),
+            ];
+        }
+    });
 
     try {
         const userObjects = await (models.TgUserObject as any).findAll({
@@ -1155,7 +1177,7 @@ const getCustomersRequests = async (tgUserId: string, filter: any): Promise<Requ
                 }),
                 { comment: { [Op.iLike]: `%${filter.search}%` } },
                 { '$LegalEntity.name$': { [Op.iLike]: `%${filter.search}%` } },
-                { '$Contractor.name$': { [Op.iLike]: `%${filter.search}%` } },
+                contractorNameILike(`%${filter.search}%`),
             ];
             if (Number.isInteger(filter.search)) {
                 searchParams.push({ number: { [Op.eq]: filter.search } });
@@ -1173,7 +1195,7 @@ const getCustomersRequests = async (tgUserId: string, filter: any): Promise<Requ
                     ],
                 },
                 include: [
-                    { model: Contractor },
+                    contractorInclude,
                     { model: ObjectDir },
                     { model: Unit },
                     { model: LegalEntity },
@@ -1187,7 +1209,7 @@ const getCustomersRequests = async (tgUserId: string, filter: any): Promise<Requ
             requests = await RepairRequest.findAll({
                 where: whereParams,
                 include: [
-                    { model: Contractor },
+                    contractorInclude,
                     { model: ObjectDir },
                     { model: Unit },
                     { model: LegalEntity },
@@ -1245,7 +1267,9 @@ const bulkSetStatus = async (ids: object, status: number): Promise<void> => {
 
         // Отправляем уведомление о смене статуса
         const customer = await TgUser.findByPk(request.createdBy);
-        const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
+        const contractor = await Contractor.findByPk(request.contractorId, {
+            include: [{ model: User }, { model: TgUser }],
+        });
         emitTo({ kind: 'request', requestId: request.id }, 'STATUS_UPDATE', {
             newStatus: status,
             oldStatus: oldStatus,
@@ -1266,7 +1290,9 @@ const bulkSetUrgency = async (ids: object, urgency: string): Promise<void> => {
 
         // Отправляем уведомление о смене срочности
         const customer = await TgUser.findByPk(request.createdBy);
-        const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
+        const contractor = await Contractor.findByPk(request.contractorId, {
+            include: [{ model: User }, { model: TgUser }],
+        });
         emitTo({ kind: 'request', requestId: request.id }, 'URGENCY_UPDATE', {
             newUrgency: urgency,
             oldUrgency: oldUrgency,
@@ -1282,7 +1308,8 @@ const bulkSetContractor = async (ids: object, contractorId: string): Promise<voi
     const repairRequests = await RepairRequest.findAll({ where: { id: ids } });
     if (repairRequests.length === 0) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found any requests');
     let contractor;
-    if (contractorId.toLowerCase() !== 'внешний подрядчик') contractor = await Contractor.findByPk(contractorId);
+    if (contractorId.toLowerCase() !== 'внешний подрядчик')
+        contractor = await Contractor.findByPk(contractorId, { include: [{ model: User }, { model: TgUser }] });
     if (!contractor && contractorId.toLowerCase() !== 'внешний подрядчик')
         throw new ApiError(httpStatus.BAD_REQUEST, 'Not found contractor with id ' + contractorId);
     for (const request of repairRequests) {
@@ -1299,7 +1326,9 @@ const bulkSetContractor = async (ids: object, contractorId: string): Promise<voi
                 isExternal: false,
             });
         const customer = await TgUser.findByPk(request.createdBy);
-        const contractor = await Contractor.findByPk(request.contractorId, { include: [{ model: TgUser }] });
+        const contractor = await Contractor.findByPk(request.contractorId, {
+            include: [{ model: User }, { model: TgUser }],
+        });
         emitTo({ kind: 'request', requestId: request.id }, 'STATUS_UPDATE', {
             newStatus: 2,
             oldStatus: oldStatus,
@@ -1477,7 +1506,7 @@ export const getActualRequestsByObjectId = async (tgUserId: string, unitId: stri
         where: whereClause,
         include: [
             { model: Unit },
-            { model: Contractor },
+            contractorInclude,
             { model: TgUser },
             { model: DirectoryCategory },
             { model: ObjectDir },

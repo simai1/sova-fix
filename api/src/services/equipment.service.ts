@@ -13,6 +13,7 @@ import TechServiceDto from '../dtos/techService';
 import QRCode from 'qrcode-generator';
 import fs from 'node:fs';
 import { v4 } from 'uuid';
+import { contractorInclude } from '../utils/contractorInclude';
 
 const create = async (
     supportFrequency: number | undefined,
@@ -73,7 +74,7 @@ const getAll = async (pagination: any) => {
     const equipment = await Equipment.findAll({
         include: [
             { model: Nomenclature, include: [{ model: Category }] },
-            { model: Contractor },
+            contractorInclude,
             { model: ExtContractor },
             { model: ObjectDir, include: [{ model: Unit }] },
         ],
@@ -88,10 +89,10 @@ const getOne = async (equipmentId: string) => {
     const equipment = await Equipment.findByPk(equipmentId, {
         include: [
             { model: Nomenclature, include: [{ model: Category }] },
-            { model: Contractor },
+            contractorInclude,
             { model: ExtContractor },
             { model: ObjectDir, include: [{ model: Unit }] },
-            { model: TechService, include: [{ model: ExtContractor }, { model: Contractor }] },
+            { model: TechService, include: [{ model: ExtContractor }, contractorInclude] },
         ],
     });
     if (!equipment) throw new ApiError(httpStatus.BAD_REQUEST, 'No equipment with id ' + equipmentId);
@@ -232,7 +233,8 @@ const copyEquipments = async (equipmentId: string, quantity: number): Promise<vo
     const equipment = await Equipment.findByPk(equipmentId);
     if (!equipment) throw new ApiError(httpStatus.BAD_REQUEST, 'No equipment with id ' + equipmentId);
 
-    for (let i = 0; i < quantity; i++) { // <-- делаем N копий
+    for (let i = 0; i < quantity; i++) {
+        // <-- делаем N копий
         await Equipment.create({
             supportFrequency: equipment.supportFrequency,
             lastTO: equipment.lastTO,
@@ -248,8 +250,8 @@ const copyEquipments = async (equipmentId: string, quantity: number): Promise<vo
             contractorId: equipment.contractorId,
             extContractorId: equipment.extContractorId,
             nomenclatureId: equipment.nomenclatureId,
-            copiedEquipmentId: equipment.id, 
-            number: equipment.id
+            copiedEquipmentId: equipment.id,
+            number: equipment.id,
         });
     }
     return;

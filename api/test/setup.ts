@@ -18,7 +18,7 @@ if (!(buffer as any).SlowBuffer) {
 dotenv.config({ path: `.env.${process.env.NODE_ENV}.local` });
 
 // SAFEGUARD: убеждаемся, что мы в test-среде и БД содержит "test".
-// Тяжёлый sync({ alter: true }) теперь делает test/global-setup.ts (один раз
+// Тяжёлый sync({ force: true }) теперь делает test/global-setup.ts (один раз
 // перед спавном workers), но safety-чек дублируем — на случай прямого запуска
 // `vitest run` без globalSetup.
 const dbName = process.env.DB_NAME || '';
@@ -35,12 +35,13 @@ if (!dbName.toLowerCase().includes('test')) {
     throw new Error(
         `[test/setup] Отказ: DB_NAME="${dbName}" не содержит подстроку "test". ` +
             'Создайте отдельную тестовую БД (например, sova_fix_test) и пропишите её в api/.env.test.local. ' +
-            'Это защита от случайного применения sync({ alter: true }) к dev/prod-БД.'
+            'Это защита от случайного применения sync({ force: true }) к dev/prod-БД ' +
+            '(force: true дропает все таблицы перед пересозданием).'
     );
 }
 
 beforeAll(async () => {
-    // Эквивалент `dbUtils.initializeDbModels()`, но БЕЗ sync({ alter: true }) и
+    // Эквивалент `dbUtils.initializeDbModels()`, но БЕЗ sync({ force: true }) и
     // без seedInitialSettings — оба тяжёлых шага уже выполнены один раз в
     // test/global-setup.ts перед спавном vitest-workers. Здесь нам нужно
     // только инициализировать JS-классы моделей в текущем процессе worker'а

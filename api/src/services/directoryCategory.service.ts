@@ -15,7 +15,14 @@ const getAllDirectoryCategory = async () => {
     const directoryCategory = await DirectoryCategory.findAll({
         order: [['number', 'ASC']],
         include: [
-            { model: Contractor, as: 'builder' },
+            {
+                model: Contractor,
+                as: 'builder',
+                include: [
+                    { model: User, attributes: ['id', 'name'] },
+                    { model: TgUser, attributes: ['id', 'name', 'tgId'] },
+                ],
+            },
             { model: ExtContractor, as: 'builderExternal' },
             { model: TgUser, as: 'manager' },
             { model: TgUser, as: 'customers' },
@@ -58,7 +65,14 @@ const createDirectoryCategory = async (
 
         const fullCategory = await DirectoryCategory.findByPk(directoryCategory.id, {
             include: [
-                { model: Contractor, as: 'builder' },
+                {
+                    model: Contractor,
+                    as: 'builder',
+                    include: [
+                        { model: User, attributes: ['id', 'name'] },
+                        { model: TgUser, attributes: ['id', 'name', 'tgId'] },
+                    ],
+                },
                 { model: ExtContractor, as: 'builderExternal' },
                 { model: TgUser, as: 'manager' },
                 { model: TgUser, as: 'customers' },
@@ -112,7 +126,14 @@ const updateDirectoryCategory = async (
 
     const fullCategory = await DirectoryCategory.findByPk(directoryCategory.id, {
         include: [
-            { model: Contractor, as: 'builder' },
+            {
+                model: Contractor,
+                as: 'builder',
+                include: [
+                    { model: User, attributes: ['id', 'name'] },
+                    { model: TgUser, attributes: ['id', 'name', 'tgId'] },
+                ],
+            },
             { model: ExtContractor, as: 'builderExternal' },
             { model: TgUser, as: 'manager' },
             { model: TgUser, as: 'customers' },
@@ -131,12 +152,17 @@ const deleteDirectoryCategory = async (directoryCategoryId: string) => {
 };
 
 const getAllBuilders = async () => {
-    const allContractors = await Contractor.findAll();
+    const allContractors = await Contractor.findAll({
+        include: [
+            { model: User, attributes: ['id', 'name'] },
+            { model: TgUser, attributes: ['id', 'name', 'tgId'] },
+        ],
+    });
     const allExtContractors = await ExtContractor.findAll();
     const allManagers = await tgUserService.getAllManagers();
 
     const contractorsData = allContractors?.map(c => ({
-        label: `Внутренний: ${c.name}`,
+        label: `Внутренний: ${c.User?.name ?? c.TgUser?.name ?? ''}`,
         value: c.id,
         isExternal: false,
         isManager: false,
@@ -191,7 +217,7 @@ const getUsersDirectoryCategories = async (tgId: string) => {
     const categoriesForAll = await DirectoryCategory.findAll({ where: { isForAllCustomers: true } });
 
     const mapedCategories = categories?.map(c => new DirectoryCategoryDto(c));
-    return [...categoriesForAll, ...mapedCategories ?? []];
+    return [...categoriesForAll, ...(mapedCategories ?? [])];
 };
 
 export default {

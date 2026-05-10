@@ -78,7 +78,7 @@ const approveUser = async (userId: string): Promise<UserDto> => {
         pendingVerifyTokenExpiresAt: null,
     });
     if (user.role === roles.CONTRACTOR) {
-        await Contractor.create({ name: user.name, userId: user.id });
+        await Contractor.create({ userId: user.id });
     }
     // Targeted emit: pending-клиент подключён через subprotocol pending.<token>
     // и зарегистрирован с userId=user.id (см. ws.authenticateSubprotocol

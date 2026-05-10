@@ -9,11 +9,14 @@ import RepairRequest from '../models/repairRequest';
 export const TABLE_FOR_REPORT: Record<string, any> = {
     unit: { model: Unit, as: 'Unit', field: 'name', name: 'unit' },
     object: { model: ObjectDir, as: 'Object', field: 'name', name: 'object' },
-    contractor: { model: Contractor, as: 'Contractor', field: 'name', name: 'contractor' },
+    // contractor: специальная ветка в reports.service.ts (getAllContractorsFromRequests)
+    // не использует field — имя контрактора берётся из COALESCE(User.name, TgUser.name).
+    // field оставлен только для совместимости с типом Record, не читается для key='contractor'.
+    contractor: { model: Contractor, as: 'Contractor', field: 'id', name: 'contractor' },
     status: { model: Status, as: 'Status', field: 'name', name: 'status' },
     urgency: { model: Urgency, as: 'Urgency', field: 'name', name: 'urgency' },
     legalEntity: { model: LegalEntity, as: 'LegalEntity', field: 'name', name: 'legalEntity' },
-    builder: { model: RepairRequest, as: '', field: 'builder', name: 'builder' }
+    builder: { model: RepairRequest, as: '', field: 'builder', name: 'builder' },
 };
 
 /**

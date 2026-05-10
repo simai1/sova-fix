@@ -13,6 +13,7 @@ import { models } from '../models';
 import TgUserObject from '../models/tgUserObject';
 import RepairRequest from '../models/repairRequest';
 import ObjectDir from '../models/object';
+import { contractorInclude } from '../utils/contractorInclude';
 
 const create = async (name: string, role: number, tgId: string, linkId: string | undefined): Promise<TgUserDto> => {
     role = parseInt(String(role));
@@ -26,7 +27,7 @@ const create = async (name: string, role: number, tgId: string, linkId: string |
     });
     const user = await TgUser.create({ name, role, tgId, linkId });
     if (role === 4) {
-        user.Contractor = await Contractor.create({ name, tgUserId: user.id });
+        user.Contractor = await Contractor.create({ tgUserId: user.id });
     }
     await user.save();
     // Legacy-событие для бота (literal, не вынесен в wsEvents): саморегистрация
@@ -60,12 +61,27 @@ const syncManagerToTgUser = async (
 };
 
 const findUserByTgId = async (tgId: string): Promise<TgUserDto | null> => {
-    const user = await TgUser.findOne({ where: { tgId }, include: [{ model: Contractor }, { model: User }] });
+    // Contractor нужен с nested User/TgUser, иначе ContractorDto в TgUserDto
+    // упадёт «no derivable name». Воспроизводилось после web-flow tg-binding,
+    // когда у contractor есть только userId (без TgUser до bind), а после bind
+    // запрос приходит на старый эндпоинт `/tgUsers/:tgId` (used by bot's start_handler).
+    const user = await TgUser.findOne({ where: { tgId }, include: [contractorInclude, { model: User }] });
     return user ? new TgUserDto(user) : null;
 };
 
 const getAll = async (): Promise<TgUserDto[]> => {
-    const users = await TgUser.findAll({ include: [{ model: Contractor }, { model: User }] });
+    const users = await TgUser.findAll({
+        include: [
+            {
+                model: Contractor,
+                include: [
+                    { model: User, attributes: ['id', 'name'] },
+                    { model: TgUser, attributes: ['id', 'name', 'tgId'] },
+                ],
+            },
+            { model: User },
+        ],
+    });
     return users.map(user => new TgUserDto(user));
 };
 
@@ -86,7 +102,18 @@ const getAllManagers = async (): Promise<TgUserDto[]> => {
 };
 
 const getOneUser = async (tgUserId: string): Promise<TgUserDto> => {
-    const user = await TgUser.findByPk(tgUserId, { include: [{ model: Contractor }, { model: User }] });
+    const user = await TgUser.findByPk(tgUserId, {
+        include: [
+            {
+                model: Contractor,
+                include: [
+                    { model: User, attributes: ['id', 'name'] },
+                    { model: TgUser, attributes: ['id', 'name', 'tgId'] },
+                ],
+            },
+            { model: User },
+        ],
+    });
     if (!user) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found tgUser with id ' + tgUserId);
     return new TgUserDto(user);
 };

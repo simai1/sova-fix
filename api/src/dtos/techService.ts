@@ -1,5 +1,6 @@
 import strftime from 'strftime';
 import TechService from '../models/techService';
+import { getContractorNameOrThrow } from '../utils/contractorName';
 
 export default class TechServiceDto {
     id!: string;
@@ -19,7 +20,7 @@ export default class TechServiceDto {
         this.dateHuman = model.date ? strftime('%d.%m.%y', model.date) : '';
         this.extContractor = model.ExtContractor ? model.ExtContractor.name : undefined;
         this.extContractorId = model.extContractorId ? model.extContractorId : undefined;
-        this.contractor = model.Contractor ? model.Contractor.name : undefined;
+        this.contractor = model.Contractor ? getContractorNameOrThrow(model.Contractor) : undefined;
         this.contractorId = model.contractorId ? model.contractorId : undefined;
         this.sum = model.sum;
         this.countEquipment = model.countEquipment;

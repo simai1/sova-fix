@@ -71,8 +71,11 @@ export const createObjectFor = async (user: User, namePrefix = 'LK Obj'): Promis
 };
 
 // Создаёт Contractor.userId для пользователя (исполнитель).
-export const createContractorFor = async (user: User, name = 'LK Contractor'): Promise<Contractor> => {
-    return await Contractor.create({ name: `${name}-${user.id.slice(0, 6)}`, userId: user.id });
+// Параметр name больше не используется (имя контрактора берётся из User.name через ассоциацию),
+// но оставлен в сигнатуре для обратной совместимости с существующими тестами — игнорируется.
+export const createContractorFor = async (user: User, _name = 'LK Contractor'): Promise<Contractor> => {
+    void _name;
+    return await Contractor.create({ userId: user.id });
 };
 
 // Создаёт RepairRequest c минимальным набором полей.

@@ -1,4 +1,5 @@
 import Contractor from '../models/contractor';
+import { getContractorNameOrThrow } from '../utils/contractorName';
 
 export default class ContractorDto {
     id!: string;
@@ -6,6 +7,6 @@ export default class ContractorDto {
 
     constructor(model: Contractor) {
         this.id = model.id;
-        this.name = model.name;
+        this.name = getContractorNameOrThrow(model);
     }
 }

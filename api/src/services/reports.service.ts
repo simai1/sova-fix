@@ -10,6 +10,7 @@ import { Op } from 'sequelize';
 import Contractor from '../models/contractor';
 import ExtContractor from '../models/externalContractor';
 import TgUser from '../models/tgUser';
+import User from '../models/user';
 import dayjs from 'dayjs';
 
 const applyFilterData = (combined: any[], filterData: Record<string, any[]>) => {
@@ -93,7 +94,15 @@ const getAllContractorsFromRequests = async () => {
     const requests = await RepairRequest.findAll({
         attributes: ['id', 'contractorId', 'extContractorId', 'managerId', 'isExternal'],
         include: [
-            { model: Contractor, attributes: ['id', 'name'], required: false },
+            {
+                model: Contractor,
+                attributes: ['id'],
+                required: false,
+                include: [
+                    { model: User, attributes: ['id', 'name'] },
+                    { model: TgUser, attributes: ['id', 'name'] },
+                ],
+            },
             { model: ExtContractor, attributes: ['id', 'name'], required: false },
             { model: TgUser, attributes: ['name'], required: false },
         ],
@@ -124,9 +133,10 @@ const getAllContractorsFromRequests = async () => {
                 contractor: r.ExtContractor.name,
             });
         } else if (r.Contractor?.id) {
+            const cName = (r.Contractor as any).User?.name ?? (r.Contractor as any).TgUser?.name ?? null;
             result.set(r.Contractor.id, {
                 contractorId: r.Contractor.id,
-                contractor: r.Contractor.name,
+                contractor: cName ?? '',
             });
         } else if (!r.Contractor?.id && !r.ExtContractor?.id && !r.managerId && !r.isExternal) {
             result.set('none', {
@@ -430,7 +440,8 @@ export const addTotalRow = async (
 
     for (const key of enabledKeys) totalRow[key] = key === enabledKeys[0] ? 'Итого' : '-';
 
-    const getValue = (r: any, key: string) => (r[key] && typeof r[key] === 'object' ? r[key].value ?? 0 : r[key] ?? 0);
+    const getValue = (r: any, key: string) =>
+        r[key] && typeof r[key] === 'object' ? (r[key].value ?? 0) : (r[key] ?? 0);
 
     // Суммируем обычные показатели
     const addField = (key: string, isPercent = false) => {

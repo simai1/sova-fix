@@ -25,24 +25,44 @@ if (!dbName.toLowerCase().includes('test')) {
     throw new Error(
         `[test/global-setup] Отказ: DB_NAME="${dbName}" не содержит подстроку "test". ` +
             'Создайте отдельную тестовую БД (например, sova_fix_test) и пропишите её в api/.env.test.local. ' +
-            'Это защита от случайного применения sync({ alter: true }) к dev/prod-БД.'
+            'Это защита от случайного применения sync({ force: true }) к dev/prod-БД ' +
+            '(force: true дропает все таблицы перед пересозданием).'
     );
 }
 
 // vitest вызывает setup() ОДИН раз перед спавном workers и teardown() после
-// завершения всех файлов. Тяжёлый sync({ alter: true }) + seedInitialSettings
-// делаем ровно здесь — workers подключаются к уже синхронизированной схеме
-// и в своём `beforeAll` только инициализируют JS-классы моделей.
+// завершения всех файлов. Тяжёлый sync + seedInitialSettings делаем ровно
+// здесь — workers подключаются к уже синхронизированной схеме и в своём
+// `beforeAll` только инициализируют JS-классы моделей.
+//
+// Используем sync({ force: true }), а не alter: true, по двум причинам:
+//   1) alter: true в Sequelize при каждом запуске добавляет новый FK-constraint
+//      с автогенерируемым именем, не проверяя дубликаты — на 100+ ранов схема
+//      обрастает мусорными FK на одной колонке (упирались в зависание
+//      contractors.tg_user_id), и следующий alter становится O(N²).
+//   2) Тестовая БД эфемерна по смыслу — фикстуры пишутся в beforeEach, между
+//      ранами ничего сохранять не нужно. force: true гарантирует чистую схему
+//      на каждый `npm test` без накопления артефактов.
+// sequelize.sync (а не цикл по моделям) сам выстраивает порядок drop/create
+// с учётом FK-зависимостей.
 export async function setup() {
-    const dbUtils = (await import('../src/utils/db')).default;
-    await dbUtils.initializeDbModels();
-    const { sequelize } = await import('../src/models');
+    const { models, sequelize } = await import('../src/models');
+    const setupAssociations = (await import('../src/models/setup-associations')).default;
+    const { seedInitialSettings } = await import('../src/models/seedSettings');
+
+    for (const model of Object.values(models)) {
+        if (typeof (model as any).initialize === 'function') (model as any).initialize(sequelize);
+    }
+    setupAssociations();
+    await sequelize.sync({ force: true });
+    await seedInitialSettings();
+
     // Закрываем соединение из main-процесса — workers создадут свои пулы.
     await sequelize.close();
 }
 
 export async function teardown() {
     // Ничего не делаем: каждый worker сам закрывает свой пул в afterAll
-    // (test/setup.ts). Тестовая схема намеренно остаётся между запусками,
-    // чтобы следующий npm test попадал в кеш Postgres.
+    // (test/setup.ts). Схему намеренно НЕ дропаем здесь — следующий npm test
+    // всё равно вызовет sync({ force: true }) и пересоздаст её с нуля.
 }
