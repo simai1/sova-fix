@@ -75,8 +75,8 @@ describe('lkService — инварианты', () => {
         meId = me.id;
         void other;
 
-        const myContr = await Contractor.create({ name: `MyC-${me.id.slice(0, 6)}`, userId: me.id });
-        const otherContr = await Contractor.create({ name: `OtherC-${other.id.slice(0, 6)}`, userId: other.id });
+        const myContr = await Contractor.create({ userId: me.id });
+        const otherContr = await Contractor.create({ userId: other.id });
         myContractorId = myContr.id;
         otherContractorId = otherContr.id;
 

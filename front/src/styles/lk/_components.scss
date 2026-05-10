@@ -249,13 +249,17 @@
     justify-content: space-between;
     align-items: center;
     gap: var(--lk-sp-2);
+    flex-wrap: wrap;
   }
 
   &__title {
-    font-weight: 600;
-    font-size: var(--lk-fs-xl);
+    font-weight: 700;
+    font-size: var(--lk-fs-2xl);
+    line-height: 1.2;
     margin: 0;
     color: var(--lk-text);
+    letter-spacing: -0.015em;
+    font-feature-settings: 'tnum', 'cv11', 'ss01';
   }
 
   &__muted {
@@ -279,6 +283,57 @@
     text-transform: uppercase;
     letter-spacing: 0.05em;
     margin: 0 0 var(--lk-sp-2);
+  }
+}
+
+// ── 2b. Inline-редактор «Дата выезда» ───────────────────────────────────────
+// Заменяет inline `style={{display:'flex',flexWrap,...}}` из RequestCard.
+// На mobile — пикер растягивается, кнопки уезжают на новую строку под ним;
+// на ml+ — пикер ограничен по ширине (вёрстка как у формы), кнопки рядом.
+// Это решает проблему скриншота: раньше popover календаря накрывал кнопки
+// «Сохранить»/«Отмена» — теперь они находятся вне зоны popover'а на mobile
+// и сбоку на десктопе (popover опускается под триггер).
+.lk-exit-date-edit {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lk-sp-2);
+
+  &__input {
+    width: 100%;
+
+    @include lk-mq-up(ml) {
+      max-width: 14rem;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--lk-sp-2);
+  }
+
+  @include lk-mq-up(ml) {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+}
+
+.lk-exit-date-view {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--lk-sp-3);
+
+  &__value {
+    font-feature-settings: 'tnum';
+  }
+
+  // Ghost-кнопка «Изменить»/«Указать» поменьше дефолта .lk-button — это
+  // вспомогательное действие в строке метаданных, не самостоятельный CTA.
+  &__btn {
+    height: 2rem;
+    padding: 0 var(--lk-sp-3);
+    font-size: var(--lk-fs-sm);
   }
 }
 
@@ -638,41 +693,66 @@
 // передаёт --lk-i, и delay равен 0 — fade всё равно проигрывается, но не
 // «волной». См. design-doc § 8.
 .lk-list-item {
+  position: relative;
   display: flex;
   flex-direction: column;
   padding: var(--lk-sp-4);
-  border-radius: var(--lk-r-md);
+  border-radius: var(--lk-r-lg);
   background: var(--lk-surface);
   border: 1px solid var(--lk-border);
   gap: var(--lk-sp-2);
   text-decoration: none;
   color: inherit;
   cursor: pointer;
-  transition: border-color 0.12s ease-out, background 0.12s ease-out;
+  // Лёгкий «утилитарный» подъём на hover: смещаем на 1px и подсвечиваем
+  // тенью — будто карточка слегка приподнимается, не теряя плоскости.
+  // box-shadow: lk-shadow-xs стартовая, чтобы transition был плавным.
+  box-shadow: var(--lk-shadow-xs);
+  transition:
+    border-color 0.16s ease-out,
+    background 0.16s ease-out,
+    box-shadow 0.16s ease-out,
+    transform 0.16s ease-out;
   animation: lk-fade-up 0.3s ease-out both;
   animation-delay: calc(var(--lk-i, 0) * 30ms);
 
   &:hover {
     border-color: var(--lk-border-strong);
-    background: var(--lk-surface-2);
+    background: var(--lk-surface);
+    box-shadow: var(--lk-shadow-sm);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: var(--lk-shadow-xs);
   }
 
   &:focus-visible {
     @include lk-focus-ring;
   }
 
+  // Группа «номер + статус + Моя» — все три элемента стоят слева в одну линию,
+  // а не №-слева/статус-справа. Раньше использовали justify-content:space-between,
+  // и «Моя» оказывалась изолирована у правого края, разрывая визуальный
+  // ритм с группой статусов. Все три — связанные метаданные заявки, держим
+  // их рядом.
   &__top {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
     gap: var(--lk-sp-2);
+    flex-wrap: wrap;
   }
 
+  // «№ 6» — это мета, не главная информация. Делаем subtle и monospace-tnum,
+  // чтобы цифры разной длины (№ 1 / № 999) визуально не «прыгали» в списке.
   &__number {
-    font-weight: 600;
-    font-size: var(--lk-fs-md);
-    color: var(--lk-text);
+    font-weight: 500;
+    font-size: var(--lk-fs-sm);
+    color: var(--lk-text-subtle);
     font-feature-settings: 'tnum';
+    letter-spacing: 0.02em;
   }
 
   &__title {
@@ -681,12 +761,13 @@
     line-height: 1.3;
     color: var(--lk-text);
     word-break: break-word;
+    letter-spacing: -0.005em;
   }
 
   &__desc {
     font-size: var(--lk-fs-md);
     color: var(--lk-text-muted);
-    line-height: 1.4;
+    line-height: 1.45;
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -699,13 +780,16 @@
     justify-content: space-between;
     align-items: center;
     gap: var(--lk-sp-2);
-    margin-top: var(--lk-sp-1);
+    margin-top: var(--lk-sp-2);
+    padding-top: var(--lk-sp-2);
+    border-top: 1px dashed var(--lk-border);
   }
 
   &__date {
-    font-size: var(--lk-fs-sm);
+    font-size: var(--lk-fs-xs);
     color: var(--lk-text-subtle);
     font-feature-settings: 'tnum';
+    letter-spacing: 0.01em;
   }
 
   // Совместимость со старой структурой (часть карточек ещё рендерит chips).
@@ -788,10 +872,16 @@
     background: transparent;
     border: none;
     gap: 0.125rem;
-    transition: color 0.12s ease-out;
+    transition:
+      color 0.16s ease-out,
+      transform 0.18s ease-out;
 
     &:hover {
       color: var(--lk-text);
+    }
+
+    &:active {
+      transform: translateY(1px);
     }
 
     &:focus-visible {
@@ -801,20 +891,29 @@
 
     &--active {
       color: var(--lk-text);
-      font-weight: 500;
+      font-weight: 600;
 
       // Нижняя полоска-индикатор. Расположение: 0.25rem над нижним краем,
-      // ширина 1.5rem, центр по item.
+      // ширина 2rem, центр по item — чуть шире, чем раньше, чтобы при
+      // соседстве с jumbo-FAB «Создать» не казаться обрезком.
       &::after {
         content: '';
         position: absolute;
         bottom: 0.25rem;
         left: 50%;
         transform: translateX(-50%);
-        width: 1.5rem;
-        height: 0.125rem;
+        width: 2rem;
+        height: 0.1875rem;
         border-radius: 999px;
         background: var(--lk-accent);
+        box-shadow: 0 0 0 3px var(--lk-accent-soft);
+      }
+
+      // Soft-yellow halo вокруг иконки активного пункта — даёт «глубину»
+      // без перекрашивания всей плашки. Halo рисуем псевдоэлементом ::before,
+      // чтобы не вклинивать обёртку в иконку (она встроена как svg напрямую).
+      .lk-bottom-nav__icon {
+        color: var(--lk-accent-deep);
       }
     }
   }
@@ -824,6 +923,7 @@
     width: 1.5rem;
     height: 1.5rem;
     color: currentColor;
+    transition: color 0.16s ease-out;
   }
 }
 
@@ -846,9 +946,9 @@
 
   // Small-caps лейбл «Меню» перед списком навигации.
   &__group-label {
-    font-size: var(--lk-fs-xs);
+    font-size: 0.6875rem;
     font-weight: 600;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--lk-text-subtle);
     padding: var(--lk-sp-3) var(--lk-sp-4) var(--lk-sp-2);
@@ -865,7 +965,10 @@
     text-decoration: none;
     font-weight: 500;
     font-size: var(--lk-fs-md);
-    transition: background 0.12s ease-out, color 0.12s ease-out;
+    transition:
+      background 0.16s ease-out,
+      color 0.16s ease-out,
+      transform 0.18s ease-out;
     cursor: pointer;
 
     &:hover:not(.lk-sidebar__item--active) {
@@ -873,17 +976,26 @@
       color: var(--lk-text);
     }
 
+    &:active {
+      transform: translateX(1px);
+    }
+
     &:focus-visible {
       @include lk-focus-ring;
     }
 
     &--active {
-      background: var(--lk-surface-2);
-      color: var(--lk-text);
+      // Soft-yellow заливка вместо нейтральной серой — активный пункт ощущается
+      // «выбранным», а не «hovered». Текст — accent-deep, чтобы был достаточный
+      // контраст по AA на soft-yellow (lk-text на жёлтом тоже читаем, но
+      // accent-deep даёт чуть более тёплый «фирменный» оттенок).
+      background: var(--lk-accent-soft);
+      color: var(--lk-accent-deep);
       font-weight: 600;
 
-      // Левая вертикальная полоска-индикатор. Высота: с отступами 0.375rem
-      // сверху/снизу, чтобы не доходила до границ item'а.
+      // Левая вертикальная полоска-индикатор + soft-glow вокруг неё (через
+      // box-shadow). Высота: с отступами 0.375rem сверху/снизу, чтобы не
+      // доходила до границ item'а.
       &::before {
         content: '';
         position: absolute;
@@ -893,6 +1005,7 @@
         width: 0.1875rem;
         border-radius: 0 var(--lk-r-sm) var(--lk-r-sm) 0;
         background: var(--lk-accent);
+        box-shadow: 0 0 0 1px var(--lk-accent-soft);
       }
     }
   }
@@ -900,6 +1013,11 @@
   &__icon {
     flex-shrink: 0;
     color: currentColor;
+    opacity: 0.85;
+  }
+
+  &__item--active &__icon {
+    opacity: 1;
   }
 }
 
@@ -1047,6 +1165,30 @@
   &--push-muted {
     background: var(--lk-surface-2);
     color: var(--lk-text-subtle);
+  }
+
+  // «Моя» / «Закреплена за мной» — outline-акцент. Не заливаем фон жёлтым,
+  // чтобы не конкурировать с .lk-button--accent (главный CTA на странице).
+  // Тонкая жёлтая обводка + soft-yellow заливка — заметно, но не «кричит».
+  // На скриншоте до правки этого правила вообще не было — чип рендерился
+  // без фона и сливался с заголовком карточки.
+  &--accent {
+    background: var(--lk-accent-soft);
+    color: var(--lk-accent-deep);
+    border: 1px solid color-mix(in srgb, var(--lk-accent) 35%, transparent);
+    // Маленький жёлтый dot слева — визуальный «pin» закреплённой заявки.
+    padding-left: 0.4rem;
+    gap: 0.3rem;
+
+    &::before {
+      content: '';
+      display: inline-block;
+      width: 0.375rem;
+      height: 0.375rem;
+      border-radius: 999px;
+      background: var(--lk-accent);
+      flex-shrink: 0;
+    }
   }
 }
 

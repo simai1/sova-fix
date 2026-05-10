@@ -57,6 +57,19 @@ export const statusSchema = Joi.object({
     query: Joi.object().unknown(true),
 });
 
+// PATCH /lk/requests/:id/exit-date — фиксация даты выезда исполнителем.
+// exitDate: ISO-строка либо null (для сброса). Joi.date().iso() принимает оба
+// формата 'YYYY-MM-DDTHH:mm:ss.sssZ' и 'YYYY-MM-DD'.
+export const exitDateSchema = Joi.object({
+    body: Joi.object({
+        exitDate: Joi.date().iso().allow(null).required().messages(ru('exitDate')),
+    }).unknown(false),
+    params: Joi.object({
+        id: Joi.string().uuid().required().messages(ru('id')),
+    }),
+    query: Joi.object().unknown(true),
+});
+
 // Текст чат-сообщения: лимит 4000 — UI допускает многострочный ввод.
 // Старый лимит 2000 был связан с overwrite-only legacy `RepairRequest.comment`;
 // новая семантика append'а (RequestComment) позволяет более ёмкие сообщения.

@@ -77,6 +77,11 @@ export type RequestDto = {
   comments?: LkComment[];
   createdAt: string;
   completeDate: string | null;
+  // Поля, добавленные при выравнивании ЛК с админ-таблицей.
+  // Все опционально-nullable — старые заявки могут быть без значения.
+  daysAtWork?: number;
+  planCompleteDate?: string | null;
+  exitDate?: string | null;
   contractorId: string | null;
   createdByUserId: string | null;
   objectId: string;
@@ -85,6 +90,10 @@ export type RequestDto = {
   Status?: LkStatus | null;
   Urgency?: LkUrgency | null;
   Contractor?: LkContractorRef | null;
+  Category?: { id: string; name: string } | null;
+  // true — заявка назначена текущему пользователю-исполнителю.
+  // null — поле не было вычислено (legacy/админ-вызовы).
+  isAssigned?: boolean | null;
 };
 
 export type ListParams = {
@@ -282,6 +291,20 @@ export const lkApi = createApi({
       invalidatesTags: (_r, _e, { id }) => [{ type: 'LkRequest', id }],
     }),
 
+    // Фиксация даты выезда исполнителем. exitDate — ISO либо null (сброс).
+    // Бэкенд: PATCH /lk/requests/:id/exit-date (только assigned-исполнитель/admin).
+    updateExitDate: build.mutation<void, { id: string; exitDate: string | null }>({
+      query: ({ id, exitDate }) => ({
+        url: `/lk/requests/${id}/exit-date`,
+        method: 'PATCH',
+        body: { exitDate },
+      }),
+      invalidatesTags: (_r, _e, { id }) => [
+        { type: 'LkRequest', id },
+        { type: 'LkRequest', id: 'LIST' },
+      ],
+    }),
+
     getStatuses: build.query<LkStatus[], void>({
       query: () => '/status',
     }),
@@ -321,6 +344,7 @@ export const {
   useAddPhotosMutation,
   useSetStatusMutation,
   useUploadCheckPhotoMutation,
+  useUpdateExitDateMutation,
   useGetStatusesQuery,
   useGetUrgenciesQuery,
   useInitTgBindingMutation,

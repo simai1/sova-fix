@@ -20,6 +20,7 @@ import {
     listQuerySchema,
     createRequestSchema,
     statusSchema,
+    exitDateSchema,
     addCommentSchema,
     commentListQuerySchema,
     requestIdParamSchema,
@@ -147,6 +148,15 @@ router.post(
     imageOnly.single('file'),
     validator(requestIdParamSchema),
     lkController.uploadCheckPhoto
+);
+
+router.patch(
+    '/requests/:id/exit-date',
+    validateUuidParam('id'),
+    verifyAnyRole(['CONTRACTOR', 'ADMIN']),
+    requireRequestAccess('id', 'write'),
+    validator(exitDateSchema),
+    lkController.updateExitDate
 );
 
 // =====================

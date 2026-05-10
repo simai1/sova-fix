@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import CommentPreview from './CommentPreview';
 import LkPhotoLightbox from './LkPhotoLightbox';
+import LkSingleDatePicker from './LkSingleDatePicker';
 import StatusChip from './StatusChip';
 import { showToast } from './toastBus';
 import UrgencyChip from './UrgencyChip';
@@ -13,6 +14,7 @@ import {
   useAddPhotosMutation,
   useGetRequestCommentsQuery,
   useSetStatusMutation,
+  useUpdateExitDateMutation,
   useUploadCheckPhotoMutation,
 } from '@/API/rtkQuery/lk.api';
 import { API_URL } from '@/constants/env.constant';
@@ -73,6 +75,51 @@ const formatDate = (iso: string | null): string => {
   }
 };
 
+// Только дата без времени — для planCompleteDate/exitDate/completeDate.
+// Время в этих полях обычно либо 00:00 (в админке выставляют дату), либо точное —
+// но в карточке исполнителя время не показываем для краткости.
+const formatDateOnly = (iso: string | null | undefined): string => {
+  if (!iso) return '—';
+  try {
+    return new Date(iso).toLocaleDateString('ru-RU', {
+      timeZone: 'Europe/Moscow',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+  } catch {
+    return iso;
+  }
+};
+
+// ISO → Date для LkSingleDatePicker (rdp хранит выбранный день как Date в
+// локальной TZ браузера). Берём момент 00:00 в МСК — иначе исполнитель в МСК,
+// у которого `exitDate` ровно «10.05», в UTC мог бы попасть в 09.05.
+const toDateValue = (iso: string | null | undefined): Date | null => {
+  if (!iso) return null;
+  try {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return null;
+    const ymd = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Europe/Moscow',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(d);
+    return new Date(`${ymd}T00:00:00`);
+  } catch {
+    return null;
+  }
+};
+
+// Date (00:00 локального дня) → 'YYYY-MM-DD' для последующей сборки ISO в МСК.
+const toYmd = (d: Date): string => {
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+};
+
 const getStatusNumber = (req: RequestDto): number | null => {
   if (typeof req.status === 'number') return req.status;
   if (req.status && typeof req.status === 'object') return req.status.number ?? null;
@@ -98,9 +145,16 @@ const RequestCard = ({ request, mode, me }: Props): JSX.Element => {
   const [addPhotos, addPhotosState] = useAddPhotosMutation();
   const [setStatus, setStatusState] = useSetStatusMutation();
   const [uploadCheckPhoto, uploadCheckPhotoState] = useUploadCheckPhotoMutation();
+  const [updateExitDate, updateExitDateState] = useUpdateExitDateMutation();
 
   // Индекс фото в lightbox: null = закрыт, число = открыт на этом фото в общем массиве [...photos, checkPhoto].
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  // Inline-редактирование даты выезда. Открыто — показываем календарь LK +
+  // Сохранить/Отмена. Черновик хранит Date (00:00 локального дня) либо null —
+  // null = «сбросить exitDate» (бэкенд принимает явный null).
+  const [exitDateEditing, setExitDateEditing] = useState(false);
+  const [exitDateDraft, setExitDateDraft] = useState<Date | null>(null);
 
   // Тянем последнюю страницу комментариев для preview. limit=1 + cursor=null
   // → бэкенд возвращает hasMore + total в смежных полях; нам достаточно
@@ -180,11 +234,57 @@ const RequestCard = ({ request, mode, me }: Props): JSX.Element => {
 
   const closeDisabled = !checkPhotoUrl || statusNumber === STATUS_DONE;
 
+  // «Закреплена за мной» — для контрактора используем server-side флаг
+  // isAssigned (он точнее, чем сравнение contractorId === me.contractor.id,
+  // на случай нескольких UserObject и т.п.). Customer-режим этого чипа не
+  // показывает — для заказчика не имеет смысла «моя закреплённая заявка».
+  const showAssignedChip = mode === 'contractor' && request.isAssigned === true;
+  // Редактирование exitDate — только assigned-исполнитель и не-DONE заявки.
+  // На DONE/IRRELEVANT/FALSE менять дату выезда задним числом не нужно.
+  const canEditExitDate =
+    mode === 'contractor' && isMyAssignedContractor && statusNumber !== STATUS_DONE;
+
+  const handleExitDateEdit = (): void => {
+    setExitDateDraft(toDateValue(request.exitDate));
+    setExitDateEditing(true);
+  };
+
+  const handleExitDateCancel = (): void => {
+    setExitDateEditing(false);
+    setExitDateDraft(null);
+  };
+
+  const handleExitDateSave = async (): Promise<void> => {
+    // null → сброс exitDate; Date → ISO с 00:00 МСК (совпадёт с тем, что
+    // увидит админ в своей TZ-нейтральной таблице — все exitDate привязаны к МСК).
+    let iso: string | null = null;
+    if (exitDateDraft) {
+      const local = new Date(`${toYmd(exitDateDraft)}T00:00:00+03:00`);
+      if (Number.isNaN(local.getTime())) {
+        showToast('error', 'Некорректная дата');
+        return;
+      }
+      iso = local.toISOString();
+    }
+    try {
+      await updateExitDate({ id: request.id, exitDate: iso }).unwrap();
+      showToast('success', iso ? 'Дата выезда сохранена' : 'Дата выезда сброшена');
+      setExitDateEditing(false);
+    } catch (err) {
+      showToast('error', getErrorMessage(err));
+    }
+  };
+
   return (
     <div className="lk-card">
       <div className="lk-card__row">
         <h2 className="lk-card__title">Заявка № {request.number}</h2>
         <StatusChip statusNumber={statusNumber} />
+        {showAssignedChip ? (
+          <span className="lk-chip lk-chip--accent" aria-label="Заявка закреплена за вами">
+            Закреплена за мной
+          </span>
+        ) : null}
       </div>
 
       <div className="lk-card__row" style={{ flexWrap: 'wrap', gap: 8 }}>
@@ -205,6 +305,94 @@ const RequestCard = ({ request, mode, me }: Props): JSX.Element => {
             <div className="lk-col-12 lk-col-ml-6">
               <div className="lk-field__label">Бизнес-юнит</div>
               <div>{request.Unit.name}</div>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
+      {/* Блок «Параметры» — показываем поля, которые ранее были только в админ-таблице:
+          Категория, Плановая дата, Дата выезда (редактируемая для assigned), Дней в работе,
+          Дата выполнения (для DONE). Скрываем целиком, если все поля пустые — лишний
+          заголовок без данных шумит. */}
+      {request.Category?.name ||
+      request.planCompleteDate ||
+      request.exitDate ||
+      typeof request.daysAtWork === 'number' ||
+      request.completeDate ? (
+        <div className="lk-row">
+          {request.Category?.name ? (
+            <div className="lk-col-12 lk-col-ml-6">
+              <div className="lk-field__label">Категория</div>
+              <div>{request.Category.name}</div>
+            </div>
+          ) : null}
+
+          {request.planCompleteDate ? (
+            <div className="lk-col-12 lk-col-ml-6">
+              <div className="lk-field__label">Плановая дата выполнения</div>
+              <div>{formatDateOnly(request.planCompleteDate)}</div>
+            </div>
+          ) : null}
+
+          <div className="lk-col-12 lk-col-ml-6">
+            <div className="lk-field__label">Дата выезда</div>
+            {exitDateEditing ? (
+              <div className="lk-exit-date-edit">
+                <div className="lk-exit-date-edit__input">
+                  <LkSingleDatePicker
+                    value={exitDateDraft}
+                    onChange={setExitDateDraft}
+                    placeholder="дд.мм.гггг"
+                    disabled={updateExitDateState.isLoading}
+                  />
+                </div>
+                <div className="lk-exit-date-edit__actions">
+                  <button
+                    type="button"
+                    className="lk-button lk-button--accent"
+                    onClick={handleExitDateSave}
+                    disabled={updateExitDateState.isLoading}
+                  >
+                    Сохранить
+                  </button>
+                  <button
+                    type="button"
+                    className="lk-button lk-button--ghost"
+                    onClick={handleExitDateCancel}
+                    disabled={updateExitDateState.isLoading}
+                  >
+                    Отмена
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="lk-exit-date-view">
+                <span className="lk-exit-date-view__value">{formatDateOnly(request.exitDate)}</span>
+                {canEditExitDate ? (
+                  <button
+                    type="button"
+                    className="lk-button lk-button--ghost lk-exit-date-view__btn"
+                    onClick={handleExitDateEdit}
+                    aria-label="Изменить дату выезда"
+                  >
+                    {request.exitDate ? 'Изменить' : 'Указать'}
+                  </button>
+                ) : null}
+              </div>
+            )}
+          </div>
+
+          {typeof request.daysAtWork === 'number' && request.daysAtWork > 0 ? (
+            <div className="lk-col-12 lk-col-ml-6">
+              <div className="lk-field__label">Дней в работе</div>
+              <div>{request.daysAtWork}</div>
+            </div>
+          ) : null}
+
+          {request.completeDate ? (
+            <div className="lk-col-12 lk-col-ml-6">
+              <div className="lk-field__label">Дата выполнения</div>
+              <div>{formatDateOnly(request.completeDate)}</div>
             </div>
           ) : null}
         </div>

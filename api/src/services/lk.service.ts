@@ -23,6 +23,7 @@ import { normalizeFileNames } from '../utils/normalizeData';
 import roles from '../config/roles';
 import statuses from '../config/statuses';
 import notificationService from './notification.service';
+import { contractorInclude } from '../utils/contractorInclude';
 
 type Role = 'CONTRACTOR' | 'CUSTOMER' | 'ADMIN';
 
@@ -52,7 +53,7 @@ const COMMENT_PAGE_DEFAULT = 30;
 const COMMENT_PAGE_MAX = 50;
 
 const lkInclude = [
-    { model: Contractor },
+    contractorInclude,
     { model: ObjectDir, as: 'Object' },
     { model: Unit },
     { model: LegalEntity },
@@ -173,7 +174,14 @@ const buildBaseFilter = (query: ListQuery, ownership: WhereOptions): WhereOption
     return where;
 };
 
-const fetchAndCount = async (where: WhereOptions, order: Order, page: number, limit: number, offset: number) => {
+const fetchAndCount = async (
+    where: WhereOptions,
+    order: Order,
+    page: number,
+    limit: number,
+    offset: number,
+    currentUserId?: string
+) => {
     const { rows, count } = await RepairRequest.findAndCountAll({
         where,
         include: lkInclude,
@@ -183,7 +191,7 @@ const fetchAndCount = async (where: WhereOptions, order: Order, page: number, li
         distinct: true,
     });
     return {
-        items: rows.map(r => new LkRequestDto(r)),
+        items: rows.map(r => new LkRequestDto(r, { currentUserId })),
         total: count,
         page,
         limit,
@@ -206,7 +214,7 @@ const listForContractor = async (userId: string, query: ListQuery) => {
     ownership[Op.or] = orParts;
 
     const where = buildBaseFilter(query, ownership);
-    return fetchAndCount(where, order, page, limit, offset);
+    return fetchAndCount(where, order, page, limit, offset, userId);
 };
 
 const listForCustomer = async (userId: string, query: ListQuery) => {
@@ -219,7 +227,7 @@ const listForCustomer = async (userId: string, query: ListQuery) => {
     };
 
     const where = buildBaseFilter(query, ownership);
-    return fetchAndCount(where, order, page, limit, offset);
+    return fetchAndCount(where, order, page, limit, offset, userId);
 };
 
 // Pure-предикаты доступа без throw — используются middleware'ом requireRequestAccess,
@@ -308,7 +316,7 @@ const loadRequest = async (requestId: string) => {
 const getOneForRole = async (userId: string, requestId: string, role: Role) => {
     const request = await loadRequest(requestId);
     await ensureAccess(userId, request, role);
-    return new LkRequestDto(request);
+    return new LkRequestDto(request, { currentUserId: userId });
 };
 
 // =====================
@@ -498,7 +506,7 @@ const addPhotos = async (userId: string, requestId: string, role: Role, files: E
 
     const value = merged.length > 1 ? JSON.stringify(merged) : merged[0];
     await request.update({ fileName: value });
-    return new LkRequestDto(request);
+    return new LkRequestDto(request, { currentUserId: userId });
 };
 
 // State-machine для подрядчика: разрешены только NEW_REQUEST→AT_WORK и AT_WORK→DONE.
@@ -546,7 +554,7 @@ const setStatusForContractor = async (userId: string, requestId: string, statusN
     // Источник — сам подрядчик, исключаем его, чтобы не пушить self.
     await notificationService.notifyStatusChanged(request, statusNumber, { excludeUserId: userId });
 
-    return new LkRequestDto(request);
+    return new LkRequestDto(request, { currentUserId: userId });
 };
 
 const uploadCheckPhoto = async (userId: string, requestId: string, file: Express.Multer.File, role: Role) => {
@@ -557,7 +565,37 @@ const uploadCheckPhoto = async (userId: string, requestId: string, file: Express
         throw new ApiError(httpStatus.FORBIDDEN, 'Эту операцию может выполнять только назначенный исполнитель');
     }
     await request.update({ checkPhoto: file.filename });
-    return new LkRequestDto(request);
+    return new LkRequestDto(request, { currentUserId: userId });
+};
+
+// PATCH /lk/requests/:id/exit-date — исполнитель сам фиксирует дату выезда.
+// Менеджер также может менять exitDate из админки (старый flow), эта ручка
+// нужна именно для self-service из ЛК. Для CUSTOMER эта операция запрещена —
+// дата выезда — это операционный факт исполнителя, заказчик его не должен править.
+const updateExitDate = async (userId: string, requestId: string, exitDate: string | null, role: Role) => {
+    const request = await loadRequest(requestId);
+    const { contractor } = await ensureAccess(userId, request, role);
+    if (role !== 'CONTRACTOR' && role !== 'ADMIN') {
+        throw new ApiError(httpStatus.FORBIDDEN, 'Дату выезда может фиксировать только исполнитель или менеджер');
+    }
+    if (role === 'CONTRACTOR' && (!contractor || request.contractorId !== contractor.id)) {
+        throw new ApiError(httpStatus.FORBIDDEN, 'Изменять заявку может только назначенный исполнитель');
+    }
+
+    const value = exitDate ? new Date(exitDate) : null;
+    if (exitDate && Number.isNaN(value!.getTime())) {
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Некорректная дата выезда');
+    }
+    await request.update({ exitDate: value });
+
+    // WS-событие для подписчиков заявки — карточка у других участников
+    // (заказчик, менеджер) обновится без F5.
+    emitTo({ kind: 'request', requestId: request.id }, wsEvents.REQUEST_UPDATE, {
+        requestId: request.id,
+        field: 'exitDate',
+    });
+
+    return new LkRequestDto(request, { currentUserId: userId });
 };
 
 type CreateRequestBody = {
@@ -617,7 +655,7 @@ const createForCustomer = async (userId: string, body: CreateRequestBody, files:
     await notificationService.notifyRequestCreated(created);
 
     const fresh = await loadRequest(created.id);
-    return new LkRequestDto(fresh);
+    return new LkRequestDto(fresh, { currentUserId: userId });
 };
 
 // Хелпер для контроллера: разрешить query.role только если он совпадает с ролью
@@ -645,6 +683,7 @@ export default {
     addPhotos,
     setStatusForContractor,
     uploadCheckPhoto,
+    updateExitDate,
     createForCustomer,
     resolveListRole,
 };

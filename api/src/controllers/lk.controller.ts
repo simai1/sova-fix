@@ -110,6 +110,15 @@ const uploadCheckPhoto = catchAsync(async (req, res) => {
     res.json(dto);
 });
 
+const updateExitDate = catchAsync(async (req, res) => {
+    const { userId } = getCurrent(req);
+    const role = resolveRole(req);
+    // exitDate = ISO-строка либо null/undefined для сброса.
+    const exitDate = req.body?.exitDate ?? null;
+    const dto = await lkService.updateExitDate(userId, req.params.id, exitDate, role);
+    res.json(dto);
+});
+
 // =====================
 // Self-binding TG_ID (см. design-doc §D)
 // =====================
@@ -184,6 +193,7 @@ export default {
     addPhotos,
     setStatus,
     uploadCheckPhoto,
+    updateExitDate,
     tgBindingInit,
     tgBindingStatus,
     tgBindingUnbind,

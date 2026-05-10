@@ -133,8 +133,12 @@ const GetDataEquipment = (id) =>{
 }
 
 const UpdateForse = () =>{
-  let url = `?offset=${ofset}&limit=${limit}&userId=${JSON.parse(sessionStorage.getItem("userData"))?.user?.id}`;
-  
+  // userId добавляем только если он реально есть в sessionStorage:
+  // template-literal превращал undefined в строку "undefined", и backend падал
+  // на `WHERE id = 'undefined'` (UUID-колонка) → 500 в логах.
+  const userId = JSON.parse(sessionStorage.getItem("userData"))?.user?.id;
+  let url = `?offset=${ofset}&limit=${limit}${userId ? `&userId=${userId}` : ''}`;
+
   GetAllRequests(url).then((resp) => {
     if (resp) {
       setTotalCount(resp?.data?.maxCount);
@@ -328,7 +332,9 @@ const UpdateStatus = () => {
 
   
   function UpdateTableReguest() {
-    let url = `?offset=${ofset}&limit=${limit}&isAutoCreated=${Boolean(enabledTo)}&userId=${JSON.parse(sessionStorage.getItem("userData"))?.user?.id}`;
+    // см. комментарий в UpdateForse — userId опционален.
+    const userId = JSON.parse(sessionStorage.getItem("userData"))?.user?.id;
+    let url = `?offset=${ofset}&limit=${limit}&isAutoCreated=${Boolean(enabledTo)}${userId ? `&userId=${userId}` : ''}`;
     
     const uniqueData = getUniqueItems(storeFilter.isChecked);
     if (uniqueData.length !== 0) {

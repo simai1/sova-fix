@@ -65,6 +65,13 @@ const LkListItem = ({ request, to, index }: Props): JSX.Element => {
       <div className="lk-list-item__top">
         <span className="lk-list-item__number">№ {request.number}</span>
         <StatusChip statusNumber={statusNumber} />
+        {/* Чип «Закреплена за мной» — даёт исполнителю быстро отделить
+            свои назначенные заявки от тех, что видны через UserObject. */}
+        {request.isAssigned ? (
+          <span className="lk-chip lk-chip--accent" aria-label="Заявка закреплена за вами">
+            Моя
+          </span>
+        ) : null}
       </div>
       <div className="lk-list-item__title">{objectName}</div>
       {desc ? <div className="lk-list-item__desc">{desc}</div> : null}
