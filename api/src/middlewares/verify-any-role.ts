@@ -3,7 +3,7 @@ import catchAsync from '../utils/catchAsync';
 import userService from '../services/user.service';
 import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
-import roles, { mapRoles } from '../config/roles';
+import roles, { roleNamesRu } from '../config/roles';
 
 // Проверяет, что у пользователя из refresh-cookie есть одна из перечисленных ролей.
 // Принимает массив имён ролей (например, ['CONTRACTOR', 'CUSTOMER']) — на стороне
@@ -24,13 +24,8 @@ const verifyAnyRole = (roleNames: string[]) =>
             .filter((n): n is number => typeof n === 'number');
 
         if (!allowedNumbers.includes(user.role)) {
-            const userRoleName = (mapRoles as Record<number, string>)[user.role] ?? String(user.role);
-            return next(
-                new ApiError(
-                    httpStatus.FORBIDDEN,
-                    `Доступ запрещён: для текущей роли (${userRoleName}) операция недоступна`
-                )
-            );
+            const userRoleRu = roleNamesRu[user.role] ?? 'вашей роли';
+            return next(new ApiError(httpStatus.FORBIDDEN, `Операция недоступна для роли «${userRoleRu}».`));
         }
         return next();
     });
