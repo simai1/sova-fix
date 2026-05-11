@@ -1,22 +1,17 @@
 import { models, sequelize } from '../models';
 import { seedInitialSettings } from '../models/seedSettings';
 import setupAssociations from '../models/setup-associations';
-import ensureSchema from './ensure-schema';
+import { runPendingMigrations } from './migrator';
 
 async function initializeDbModels() {
     for (const model of Object.values(models)) if (typeof model.initialize === 'function') model.initialize(sequelize);
     setupAssociations();
 
-    // Idempotent raw DDL — гарантирует наличие новых таблиц/колонок ДО Sequelize.sync.
-    // Защищает от двух классов проблем: (1) db-transport логгера пишет в system_logs
-    // на самом первом запросе и фейлится, если sync ещё не дошёл до этой модели;
-    // (2) sync({alter:true}) исторически плохо справляется с добавлением колонок
-    // в таблицы с существующими данными (тенанты с pgdata из прошлых релизов).
-    await ensureSchema(sequelize);
-
-    // sync({alter:true}) поштучно с логом — раньше любая ошибка ломала весь цикл
-    // молча (catch в index.ts проглатывал и уходил в retry). Теперь видим
-    // конкретную модель, и одна сломанная не блокирует остальные.
+    // sync({alter:true}) оставлен только для bootstrap новых тенантов — он
+    // создаёт изначальный набор таблиц из моделей. На тенантах с существующей
+    // pgdata sync часто не справляется с добавлением колонок к не-пустым
+    // таблицам и молча проглатывает ошибки (см. инцидент 2026-05-11 на demo).
+    // Поштучный try/catch — чтобы одна сломанная модель не блокировала остальные.
     for (const model of Object.values(models)) {
         try {
             await model.sync({ alter: true });
@@ -25,6 +20,13 @@ async function initializeDbModels() {
         }
     }
     console.log('models initialized');
+
+    // Канонический способ менять схему prod-системы — миграции через umzug.
+    // Применяются после sync: миграции корректируют то, что sync не смог
+    // (добавление колонок к таблицам с данными, новые индексы и т.д.) и
+    // ведут трекинг через таблицу SequelizeMeta, поэтому повторный запуск
+    // безопасен (no-op для уже применённых).
+    await runPendingMigrations();
 
     await seedInitialSettings();
 

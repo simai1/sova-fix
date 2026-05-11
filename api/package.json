@@ -80,6 +80,7 @@
     "resend": "^6.9.4",
     "sequelize": "^6.37.3",
     "strftime": "^0.10.3",
+    "umzug": "^3.8.3",
     "uuid": "^10.0.0",
     "web-push": "^3.6.7",
     "winston": "^3.15.0",
