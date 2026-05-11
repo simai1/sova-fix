@@ -600,7 +600,7 @@ function UniversalTable(props) {
                   (row.role === "Пользователь" || row.role === "Администратор" || row.role === "Наблюдатель") &&
                   JSON.parse(sessionStorage.getItem("userData"))?.user?.role === "ADMIN"
                     ? styles.statusClick
-                    : ""
+                    : styles.statusReadonly
                 }
               >
                 {row.role}

@@ -148,9 +148,22 @@
   background-color: var(--dark-grey-color);
   text-align: center;
   position: relative;
+  cursor: pointer;
   &:hover {
     background-color: var(--Active-gray-color);
   }
+}
+// Read-only бейдж: визуально такой же, как кликабельный, чтобы все роли
+// в колонке выглядели одинаково (UX-замечание — нередактируемые роли
+// «Заказчик»/«Исполнитель» выводились голым текстом и казались обделёнными).
+// cursor:default — намеренно, чтобы не вводить в заблуждение кликабельностью.
+.statusReadonly {
+  padding: 4px 8px;
+  border-radius: 8px;
+  background-color: var(--dark-grey-color);
+  text-align: center;
+  position: relative;
+  cursor: default;
 }
 .tgIdLink{
   text-decoration: none;
