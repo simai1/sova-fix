@@ -3,7 +3,6 @@ import LkEmpty from '@/components/Lk/LkEmpty';
 import LkErrorBanner from '@/components/Lk/LkErrorBanner';
 import LkSpinner from '@/components/Lk/LkSpinner';
 import ProfilePushSection from '@/components/Lk/ProfilePushSection';
-import ProfileTelegramSection from '@/components/Lk/ProfileTelegramSection';
 
 const roleLabel = (role: string | undefined): string => {
   switch (role) {
@@ -41,8 +40,6 @@ const CustomerProfile = (): JSX.Element => {
         <div className="lk-field__label">Роль</div>
         <div>{roleLabel(me.user.role)}</div>
       </div>
-
-      <ProfileTelegramSection telegram={me.telegram ?? null} />
 
       <ProfilePushSection />
 
