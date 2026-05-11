@@ -50,8 +50,12 @@ export const userObjectsApi = createApi({
       invalidatesTags: (_r, _e, { userId }) => [{ type: 'UserObjects', id: userId }],
     }),
 
-    getAllObjects: build.query<UserObjectsObject[], void>({
-      query: () => '/objects',
+    // Контроллер /objects без query-параметров отдаёт `[]` (object.controller.ts:36).
+    // Чтобы получить все объекты, нужен `?userId=<id>` юзера-админа: ветка `user.role === 2`
+    // в контроллере вызывает `objectService.getAllObjects(unitId)` без дополнительной фильтрации.
+    // Параметр обязательный — это снимает риск молчаливого пустого ответа.
+    getAllObjects: build.query<UserObjectsObject[], string>({
+      query: (adminUserId) => `/objects?userId=${adminUserId}`,
       providesTags: ['AllObjects'],
     }),
   }),

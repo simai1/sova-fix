@@ -8,6 +8,10 @@ export default class TgUser extends Model {
     id!: string;
     name!: string;
     role!: number;
+    // На уровне БД tgId nullable (после миграции 2026-05-11). Тип оставлен `string`
+    // намеренно — все потребители уже null-safe (truthy-проверка, template literal),
+    // а расширение типа на `string | null` каскадно ломает 20+ мест в request.service
+    // ради честности с runtime. Уйдёт целиком вместе со стэком TG.
     tgId!: string;
     linkId?: string;
     isConfirmed!: boolean;
@@ -15,7 +19,7 @@ export default class TgUser extends Model {
     Contractor?: Contractor;
     userId?: string;
     User?: User;
-    categories?: DirectoryCategory[]; 
+    categories?: DirectoryCategory[];
 
     static initialize(sequelize: Sequelize) {
         TgUser.init(
@@ -38,9 +42,14 @@ export default class TgUser extends Model {
                     },
                     defaultValue: 1,
                 },
+                // tg_id опционален: после миграции на User-ориентированную модель
+                // (UserObject вместо TgUserObject, web-flow саморегистрации без TG)
+                // TgUser может существовать без привязки к Telegram-аккаунту.
+                // Postgres допускает несколько NULL под unique-constraint —
+                // уникальность tgId среди не-NULL значений сохраняется.
                 tgId: {
                     type: DataTypes.STRING,
-                    allowNull: false,
+                    allowNull: true,
                     unique: 'tgId',
                 },
                 linkId: {

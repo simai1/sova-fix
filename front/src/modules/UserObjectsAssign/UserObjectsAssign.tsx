@@ -22,9 +22,21 @@ type OptionGroup = {
 };
 
 const UserObjectsAssign = ({ open, userId, userName, onClose }: Props): JSX.Element => {
-  const { data: allObjects = [], isLoading: objLoading } = useGetAllObjectsQuery(undefined, {
-    skip: !open,
-  });
+  // Контроллер `/objects` требует `?userId=<id>` — без него возвращает []. Берём id
+  // текущего админа из sessionStorage: для роли ADMIN контроллер отдаёт все объекты.
+  const adminUserId: string | undefined = (() => {
+    try {
+      return JSON.parse(sessionStorage.getItem('userData') ?? '{}')?.user?.id;
+    } catch {
+      return undefined;
+    }
+  })();
+  const { data: allObjects = [], isLoading: objLoading } = useGetAllObjectsQuery(
+    adminUserId ?? '',
+    {
+      skip: !open || !adminUserId,
+    },
+  );
   const { data: userObjects, isLoading: prefillLoading } = useGetUserObjectsQuery(userId ?? '', {
     skip: !open || !userId,
   });

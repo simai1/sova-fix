@@ -12,7 +12,6 @@ import PopUpGoodMessage from "../../UI/PopUpGoodMessage/PopUpGoodMessage";
 import СonfirmDeleteUser from "./../../components/СonfirmDeleteUser/СonfirmDeleteUser";
 import ClearImg from "./../../assets/images/ClearFilter.svg"
 import { resetFilters } from "../../store/samplePoints/samplePoits";
-import { useNavigate } from "react-router-dom";
 import UserObjectsAssign from "../UserObjectsAssign/UserObjectsAssign";
 
 function UsersDirectory() {
@@ -22,7 +21,6 @@ function UsersDirectory() {
     const [Email, setEmail] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const dispatch = useDispatch();
-    const navigate = useNavigate();
     const [objectsAssignFor, setObjectsAssignFor] = useState(null);
     const isCurrentUserManager = JSON.parse(sessionStorage.getItem("userData"))?.user?.role === "ADMIN";
 
@@ -36,8 +34,11 @@ function UsersDirectory() {
             tgUserId: item?.tgUserId || "___",
             name: item?.name || "___",
             role: funFixRole(item?.role),
-            accessButton: (isCurrentUserManager && item?.tgId) ? "button" : null,
-            objectsButton: (isCurrentUserManager && (item?.role === 3 || item?.role === 4)) ? "button" : null,
+            // Единая кнопка «Доступы» — открывает UserObjectsAssign (User.id ↔ Object).
+            // Старый канал через TgUserObject ушёл миграцией 2026-05-11; ролей-владельцев
+            // объектов всего две (Заказчик / Исполнитель), админу/наблюдателю/пользователю
+            // не положено.
+            accessButton: (isCurrentUserManager && (item?.role === 3 || item?.role === 4)) ? "button" : null,
           };
         });
       }
@@ -118,32 +119,14 @@ function UsersDirectory() {
       context.setPopupErrorText("Вы не можете изменить свою роль!");
     }
     };
-    const handleAccessClick = (userId) => {
-      navigate(`/Directory/TgUserObjects?userId=${userId}`);
-    };
-
     const renderAccessButton = (value, row) => {
-      if (value) {
-        return (
-          <button
-            className={styles.accessButton}
-            onClick={() => handleAccessClick(row.id)}
-          >
-            Доступы
-          </button>
-        );
-      }
-      return null;
-    };
-
-    const renderObjectsButton = (value, row) => {
       if (value) {
         return (
           <button
             className={styles.accessButton}
             onClick={() => setObjectsAssignFor({ id: row.id, name: row.name })}
           >
-            Объекты
+            Доступы
           </button>
         );
       }
@@ -210,7 +193,6 @@ function UsersDirectory() {
           heightTable="calc(100vh - 285px)"
           customRender={{
             accessButton: renderAccessButton,
-            objectsButton: renderObjectsButton
           }}
         />
         <UserObjectsAssign
