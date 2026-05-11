@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - development-maksim
 
 jobs:
   build_and_publish:
@@ -17,6 +18,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Resolve image tag
+        id: tag
+        run: |
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            echo "value=latest" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=dev" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Log into registry ghcr.io
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v3.3.0
@@ -27,10 +37,10 @@ jobs:
 
       - name: Build and push the api container
         run: |
-          docker build -t ghcr.io/simai1/sova-fix/sova-api:latest ./api
-          docker push ghcr.io/simai1/sova-fix/sova-api:latest
+          docker build -t ghcr.io/simai1/sova-fix/sova-api:${{ steps.tag.outputs.value }} ./api
+          docker push ghcr.io/simai1/sova-fix/sova-api:${{ steps.tag.outputs.value }}
 
       - name: Build and push the bot container
         run: |
-          docker build -t ghcr.io/simai1/sova-fix/sova-bot:latest ./bot
-          docker push ghcr.io/simai1/sova-fix/sova-bot:latest
+          docker build -t ghcr.io/simai1/sova-fix/sova-bot:${{ steps.tag.outputs.value }} ./bot
+          docker push ghcr.io/simai1/sova-fix/sova-bot:${{ steps.tag.outputs.value }}
