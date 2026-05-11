@@ -7,25 +7,25 @@ async function initializeDbModels() {
     for (const model of Object.values(models)) if (typeof model.initialize === 'function') model.initialize(sequelize);
     setupAssociations();
 
-    // sync({alter:true}) оставлен только для bootstrap новых тенантов — он
-    // создаёт изначальный набор таблиц из моделей. На тенантах с существующей
-    // pgdata sync часто не справляется с добавлением колонок к не-пустым
-    // таблицам и молча проглатывает ошибки (см. инцидент 2026-05-11 на demo).
-    // Поштучный try/catch — чтобы одна сломанная модель не блокировала остальные.
+    // sync() без alter — bootstrap новых тенантов: создаёт отсутствующие
+    // таблицы из моделей. Существующие не трогаются. Изменения схемы
+    // (новые колонки, индексы, типы) идут ИСКЛЮЧИТЕЛЬНО через миграции umzug
+    // ниже, потому что sync({alter:true}) в продакшене не рекомендован
+    // официальной докой Sequelize и на практике зависает / молча проглатывает
+    // ошибки на тенантах с существующей pgdata (инцидент 2026-05-11 на demo).
+    // Поштучный try/catch — изоляция между моделями.
     for (const model of Object.values(models)) {
         try {
-            await model.sync({ alter: true });
+            await model.sync();
         } catch (e) {
-            console.error(`[db] sync alter failed for ${model.name || 'unknown model'}:`, (e as Error).message);
+            console.error(`[db] sync failed for ${model.name || 'unknown model'}:`, (e as Error).message);
         }
     }
     console.log('models initialized');
 
     // Канонический способ менять схему prod-системы — миграции через umzug.
-    // Применяются после sync: миграции корректируют то, что sync не смог
-    // (добавление колонок к таблицам с данными, новые индексы и т.д.) и
-    // ведут трекинг через таблицу SequelizeMeta, поэтому повторный запуск
-    // безопасен (no-op для уже применённых).
+    // SequelizeStorage ведёт трекинг через таблицу SequelizeMeta, повторный
+    // запуск безопасен (no-op для уже применённых).
     await runPendingMigrations();
 
     await seedInitialSettings();
