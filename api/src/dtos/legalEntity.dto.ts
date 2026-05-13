@@ -1,5 +1,5 @@
 import LegalEntity from '../models/legalEntity';
-import strftime from 'strftime';
+import strftime from '../utils/strftime';
 
 export default class LegalEntityDto {
     id!: string;

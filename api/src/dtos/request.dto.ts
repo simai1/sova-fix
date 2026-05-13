@@ -1,6 +1,6 @@
 import RepairRequest from '../models/repairRequest';
 import ContractorDto from './contractor.dto';
-import strftime from 'strftime';
+import strftime from '../utils/strftime';
 import ExtContractorDto from './extContractor.dto';
 import { DirectoryCategoryDto } from './directoryCategory.dto';
 

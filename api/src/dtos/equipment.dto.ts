@@ -1,5 +1,5 @@
 import Equipment from '../models/equipment';
-import strftime from 'strftime';
+import strftime from '../utils/strftime';
 import TechServiceDto from './techService';
 import { getContractorNameOrThrow } from '../utils/contractorName';
 

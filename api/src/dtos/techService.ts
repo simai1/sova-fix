@@ -1,4 +1,4 @@
-import strftime from 'strftime';
+import strftime from '../utils/strftime';
 import TechService from '../models/techService';
 import { getContractorNameOrThrow } from '../utils/contractorName';
 
