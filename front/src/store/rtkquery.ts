@@ -5,9 +5,9 @@ import {
   FetchBaseQueryError,
 } from '@reduxjs/toolkit/query/react';
 
+import { getRefreshPromise, clearAuthSession } from '../API/API';
 import { API_URL } from '../constants/env.constant';
 import { isNotification } from '../types/typesguards/notification';
-import { isRefreshResponse } from '../types/typesguards/refresh';
 
 const baseQuery = fetchBaseQuery({
   credentials: 'include',
@@ -21,6 +21,13 @@ const baseQuery = fetchBaseQuery({
     return headers;
   },
 });
+
+const AUTH_PATHS = ['/Authorization', '/reset-password', '/reset-password-request', '/Activate'];
+const redirectToLogin = (): void => {
+  if (AUTH_PATHS.some((p) => window.location.pathname.startsWith(p))) return;
+  window.location.href = '/Authorization';
+};
+
 const fetchMainBaseQuery =
   (basePath: string): BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> =>
   async (args, api, extraOptions) => {
@@ -35,11 +42,15 @@ const fetchMainBaseQuery =
     let result = await baseQuery(updatedArgs, api, extraOptions);
 
     if (result.error && result.error.status === 401) {
-      const refreshResponse = await baseQuery(`${API_URL}/auth/refresh`, api, extraOptions);
-      if (isRefreshResponse(refreshResponse.data))
-        sessionStorage.setItem('accessToken', refreshResponse.data.accessToken);
-      if (!refreshResponse.error) {
+      // Делим один и тот же refresh-promise с axios-интерсептором, чтобы
+      // одновременные 401 не делали два параллельных /auth/refresh (второй
+      // получит «not found token» — saveToken переписывает запись по userId).
+      const newToken = await getRefreshPromise();
+      if (newToken) {
         result = await baseQuery(updatedArgs, api, extraOptions);
+      } else {
+        clearAuthSession();
+        redirectToLogin();
       }
     }
 

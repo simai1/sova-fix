@@ -1,5 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
+import withReauth from './withReauth';
+
 import { API_URL } from '@/constants/env.constant';
 
 export type PendingUser = {
@@ -24,7 +26,7 @@ const baseQueryWithAuth = fetchBaseQuery({
 
 export const usersApi = createApi({
   reducerPath: 'usersApi',
-  baseQuery: baseQueryWithAuth,
+  baseQuery: withReauth(baseQueryWithAuth),
   tagTypes: ['PendingUsers'],
   endpoints: (build) => ({
     getPendingRegistrations: build.query<PendingUser[], void>({

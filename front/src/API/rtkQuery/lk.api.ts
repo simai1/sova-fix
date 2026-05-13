@@ -1,5 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
+import withReauth from './withReauth';
+
 import { API_URL } from '@/constants/env.constant';
 
 export type LkUser = {
@@ -170,7 +172,7 @@ const lkBaseQuery = fetchBaseQuery({
 
 export const lkApi = createApi({
   reducerPath: 'lkApi',
-  baseQuery: lkBaseQuery,
+  baseQuery: withReauth(lkBaseQuery),
   // LkRequestComments — отдельный тег для пагинации чата по requestId.
   tagTypes: ['LkRequest', 'LkMe', 'LkObject', 'LkRequestComments'],
   endpoints: (build) => ({

@@ -1,5 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
+import withReauth from './withReauth';
+
 import { API_URL } from '@/constants/env.constant';
 
 export type SystemLogLevel = 'info' | 'warn' | 'error';
@@ -42,7 +44,7 @@ const baseQueryWithAuth = fetchBaseQuery({
 
 export const adminApi = createApi({
   reducerPath: 'adminApi',
-  baseQuery: baseQueryWithAuth,
+  baseQuery: withReauth(baseQueryWithAuth),
   tagTypes: ['SystemLogs'],
   endpoints: (build) => ({
     getSystemLogs: build.query<SystemLogsResponse, GetSystemLogsArgs | void>({

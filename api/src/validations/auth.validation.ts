@@ -39,6 +39,7 @@ export const loginSchema = Joi.object({
             'string.empty': 'Пароль обязателен',
             'any.required': 'Пароль обязателен',
         }),
+        rememberMe: Joi.boolean().default(false),
     }),
     params: Joi.object().unknown(true),
     query: Joi.object().unknown(true),

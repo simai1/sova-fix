@@ -1,5 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
+import withReauth from './withReauth';
+
 import { API_URL } from '@/constants/env.constant';
 
 export type VapidPublicKeyResponse = {
@@ -37,7 +39,7 @@ const lkPushBaseQuery = fetchBaseQuery({
 
 export const lkPushApi = createApi({
   reducerPath: 'lkPushApi',
-  baseQuery: lkPushBaseQuery,
+  baseQuery: withReauth(lkPushBaseQuery),
   tagTypes: ['Push'],
   endpoints: (build) => ({
     getVapidPublicKey: build.query<VapidPublicKeyResponse, void>({

@@ -6,12 +6,15 @@ import httpStatus from 'http-status';
 // Cookie с refreshToken — главный auth-носитель: HttpOnly запрещает JS-доступ
 // (XSS-mitigation), Secure включён только в проде (в dev по http браузер не пошлёт),
 // SameSite=Lax защищает от базового CSRF, оставляя топ-навигацию рабочей.
-const refreshCookieOptions = {
-    maxAge: 30 * 24 * 60 * 60 * 1000,
+// rememberMe определяет persistence: при true — cookie живёт 30 дней (как
+// refresh-токен), при false — session-cookie (исчезает при закрытии браузера),
+// чтобы поведение совпадало с ожиданием юзера от чекбокса «Запомнить меня».
+const buildRefreshCookieOptions = (rememberMe: boolean) => ({
+    ...(rememberMe ? { maxAge: 30 * 24 * 60 * 60 * 1000 } : {}),
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax' as const,
-};
+});
 
 const registerViaEmail = catchAsync(async (req, res) => {
     const { login } = req.body;
@@ -20,10 +23,10 @@ const registerViaEmail = catchAsync(async (req, res) => {
 });
 
 const login = catchAsync(async (req, res) => {
-    const { login, password } = req.body;
-    const userData = await authService.login(login, password);
+    const { login, password, rememberMe } = req.body;
+    const userData = await authService.login(login, password, Boolean(rememberMe));
     if (userData.user.isActivated) {
-        res.cookie('refreshToken', userData.refreshToken, refreshCookieOptions);
+        res.cookie('refreshToken', userData.refreshToken, buildRefreshCookieOptions(userData.rememberMe));
         res.json(userData);
     } else res.json({ userId: userData.user.id });
 });
@@ -34,7 +37,7 @@ const activate = catchAsync(async (req, res) => {
     if (!password) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing password');
     if (!name) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing name');
     const userData = await authService.activate(password, name, userId);
-    res.cookie('refreshToken', userData.refreshToken, refreshCookieOptions);
+    res.cookie('refreshToken', userData.refreshToken, buildRefreshCookieOptions(userData.rememberMe));
     res.json(userData);
 });
 
@@ -54,7 +57,7 @@ const logout = catchAsync(async (req, res) => {
 const refresh = catchAsync(async (req, res) => {
     const { refreshToken } = req.cookies;
     const data = await authService.refresh(refreshToken);
-    res.cookie('refreshToken', data.refreshToken, refreshCookieOptions);
+    res.cookie('refreshToken', data.refreshToken, buildRefreshCookieOptions(Boolean(data.rememberMe)));
     res.json(data);
 });
 

@@ -1,5 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
+import withReauth from './withReauth';
+
 import { API_URL } from '@/constants/env.constant';
 
 export type UserObjectsObject = {
@@ -24,7 +26,7 @@ const baseQuery = fetchBaseQuery({
 
 export const userObjectsApi = createApi({
   reducerPath: 'userObjectsApi',
-  baseQuery,
+  baseQuery: withReauth(baseQuery),
   tagTypes: ['UserObjects', 'AllObjects'],
   endpoints: (build) => ({
     getUserObjects: build.query<string[], string>({

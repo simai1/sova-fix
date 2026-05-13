@@ -30,6 +30,7 @@ export const hashPendingToken = (plain: string): string => crypto.createHash('sh
 type data = {
     accessToken: string;
     refreshToken: string;
+    rememberMe: boolean;
     user: UserDto;
 };
 const register = async (login: string): Promise<UserDto> => {
@@ -52,7 +53,7 @@ const register = async (login: string): Promise<UserDto> => {
     return new UserDto(user);
 };
 
-const login = async (email: string, password: string): Promise<data> => {
+const login = async (email: string, password: string, rememberMe = false): Promise<data> => {
     // Единый 401 для всех негативных исходов: иначе разная семантика
     // ответа (401 vs 403) позволяет валидировать существование email.
     const failMessage = 'Неверный логин или пароль';
@@ -84,11 +85,12 @@ const login = async (email: string, password: string): Promise<data> => {
     }
 
     const userDto = new UserDto(user);
-    const { accessToken, refreshToken } = jwtUtils.generate({ ...userDto });
+    const { accessToken, refreshToken } = jwtUtils.generate({ ...userDto }, rememberMe);
     await jwtUtils.saveToken(userDto.id, refreshToken);
     return {
         accessToken: accessToken,
         refreshToken: refreshToken,
+        rememberMe,
         user: userDto,
     };
 };
@@ -101,11 +103,15 @@ const activate = async (password: string, name: string, userId: string): Promise
     const encryptedPassword = await encrypt(password);
     await user.update({ isActivated: true, password: encryptedPassword, name });
     const userDto = new UserDto(user);
-    const { accessToken, refreshToken } = jwtUtils.generate({ ...userDto });
+    // activate — финал саморегистрации, пользователь только что задал пароль:
+    // дефолтно сессия не запоминается (закрытие браузера = logout), как при
+    // обычном login без чекбокса.
+    const { accessToken, refreshToken } = jwtUtils.generate({ ...userDto }, false);
     await jwtUtils.saveToken(userDto.id, refreshToken);
     return {
         accessToken: accessToken,
         refreshToken: refreshToken,
+        rememberMe: false,
         user: userDto,
     };
 };

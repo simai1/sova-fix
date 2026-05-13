@@ -11,22 +11,112 @@ const client = WEB_URL;
 const REFRESH_INTERVAL = 500000; // 15 минут 900000
 let refreshTokensTimeout;
 
+// Singleton-promise для /auth/refresh: одновременные 401 от нескольких запросов
+// (axios + RTK Query) делят один и тот же in-flight refresh — иначе несколько
+// параллельных refresh’ей инвалидируют друг другу токен (saveToken переписывает
+// запись по userId, и более ранний refresh-token становится «not found»).
+let refreshPromise = null;
+
+export const getRefreshPromise = () => {
+  if (refreshPromise) return refreshPromise;
+  refreshPromise = (async () => {
+    try {
+      // _skipAuthRefresh — флажок для interceptor’а, чтобы он сам не запустил
+      // повторный refresh на 401 от самого /auth/refresh (бесконечная рекурсия).
+      const response = await http.get(`${server}/auth/refresh`, {
+        _skipAuthRefresh: true,
+      });
+      const { accessToken, refreshToken, ...userData } = response.data;
+      sessionStorage.setItem("accessToken", accessToken);
+      sessionStorage.setItem("refreshToken", refreshToken);
+      // userData приходит при успешном refresh (см. jwt.refresh на бэке) — кладём,
+      // чтобы UI после silent refresh видел актуальную роль/имя.
+      if (userData && Object.keys(userData).length > 0) {
+        sessionStorage.setItem("userData", JSON.stringify(userData));
+      }
+      sessionStorage.setItem("lastRefreshTime", String(Date.now()));
+      return accessToken;
+    } catch (err) {
+      return null;
+    } finally {
+      refreshPromise = null;
+    }
+  })();
+  return refreshPromise;
+};
+
+// Сохраняется как именованный экспорт для обратной совместимости — refreshTokensTimer
+// и старый код продолжают звать refreshTokens(). Новый код использует getRefreshPromise().
 export const refreshTokens = async () => {
-  try {
-    const response = await http.get(`${server}/auth/refresh`);
-    sessionStorage.removeItem("accessToken");
-    sessionStorage.removeItem("refreshToken");
+  const token = await getRefreshPromise();
+  return token ? { data: { accessToken: token } } : undefined;
+};
 
-    const { accessToken, refreshToken } = response.data;
+export const clearAuthSession = () => {
+  sessionStorage.removeItem("accessToken");
+  sessionStorage.removeItem("refreshToken");
+  sessionStorage.removeItem("userData");
+  sessionStorage.removeItem("lastRefreshTime");
+  sessionStorage.removeItem("refreshTokensInterval");
+  // rememberMe — UX-маркер для самого Authorization (показывать чекбокс
+  // выставленным при возврате на страницу). Никаких секретов в нём нет.
+  localStorage.removeItem("rememberMe");
+};
 
-    sessionStorage.setItem("accessToken", accessToken);
-    sessionStorage.setItem("refreshToken", refreshToken);
+// Страницы, на которых редирект «обратно на логин» не нужен (мы уже там).
+const AUTH_PATHS = [
+  "/Authorization",
+  "/reset-password",
+  "/reset-password-request",
+  "/Activate",
+];
+const isOnAuthPage = () =>
+  AUTH_PATHS.some((p) => window.location.pathname.startsWith(p));
 
-    return response;
-  } catch (error) {
-    console.error("Tokens were not updated!");
+const redirectToLogin = () => {
+  if (isOnAuthPage()) return;
+  window.location.href = `${client}/Authorization`;
+};
+
+const setAuthHeader = (config, token) => {
+  if (!config || !config.headers) return;
+  if (typeof config.headers.set === "function") {
+    config.headers.set("Authorization", `Bearer ${token}`);
+  } else {
+    config.headers.Authorization = `Bearer ${token}`;
   }
 };
+
+http.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const original = error?.config;
+    const status = error?.response?.status;
+    // Без config нечего повторять (network-error до отправки). _skipAuthRefresh
+    // выставляется на /auth/login и /auth/refresh — для них 401 это легитимный
+    // результат, а не сигнал «нужен refresh».
+    if (!original || original._skipAuthRefresh || status !== 401) {
+      return Promise.reject(error);
+    }
+    if (original._retry) {
+      // Повторный 401 после успешного refresh — токены уже не помогут (например,
+      // у юзера отозваны права). Чистим и редиректим.
+      clearAuthSession();
+      redirectToLogin();
+      return Promise.reject(error);
+    }
+    original._retry = true;
+
+    const newAccessToken = await getRefreshPromise();
+    if (!newAccessToken) {
+      clearAuthSession();
+      redirectToLogin();
+      return Promise.reject(error);
+    }
+    setAuthHeader(original, newAccessToken);
+    return http(original);
+  }
+);
 
 const refreshTokensTimer = () => {
   clearTimeout(refreshTokensTimeout);
@@ -59,15 +149,29 @@ window.addEventListener("unload", () => {
   clearTimeout(refreshTokensTimeout);
 });
 
-export const LoginFunc = async (UserData) => {
+export const LoginFunc = async (UserData, rememberMe = false) => {
   // Намеренно не глотаем ошибку: страница авторизации различает 401/403/429,
   // чтобы показать пользователю осмысленный текст. До этого 403 редиректил
   // обратно на /Authorization бесконечным циклом.
-  const response = await http.post(`${server}/auth/login`, UserData);
+  // _skipAuthRefresh — interceptor НЕ должен пытаться refresh на 401 от
+  // /auth/login (неверный пароль).
+  const response = await http.post(
+    `${server}/auth/login`,
+    { ...UserData, rememberMe: Boolean(rememberMe) },
+    { _skipAuthRefresh: true }
+  );
   const { accessToken, refreshToken, ...userData } = response.data;
   sessionStorage.setItem("accessToken", accessToken);
   sessionStorage.setItem("refreshToken", refreshToken);
   sessionStorage.setItem("userData", JSON.stringify(userData));
+  // Маркер «Запомнить меня» для UX (предзаполнение чекбокса при следующем
+  // возврате на форму). Сами токены лежат в sessionStorage — это сознательно
+  // (см. utils/auth.ts: XSS-surface уже).
+  if (rememberMe) {
+    localStorage.setItem("rememberMe", "true");
+  } else {
+    localStorage.removeItem("rememberMe");
+  }
   refreshTokensTimer();
   return response;
 };

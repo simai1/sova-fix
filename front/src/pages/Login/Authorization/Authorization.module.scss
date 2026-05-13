@@ -98,6 +98,58 @@
           color: var(--ActiveText-color);
         }
       }
+      .rememberMe {
+        align-self: flex-start;
+        margin-top: -0.25rem;
+        padding-left: 0.25rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        color: #353535;
+        cursor: pointer;
+        user-select: none;
+        // Кастомный визуал чекбокса: нативный скрываем, рисуем квадрат через
+        // ::before на соседнем span. Так стабильно по всем браузерам и можно
+        // настраивать палитру под форму без overrides на input[type=checkbox].
+        input {
+          position: absolute;
+          opacity: 0;
+          pointer-events: none;
+          width: 0 !important;
+          height: 0 !important;
+          padding: 0 !important;
+          margin: 0 !important;
+        }
+        .checkbox {
+          width: 1.125rem;
+          height: 1.125rem;
+          border: 0.0625rem solid #c4c4c4;
+          border-radius: 0.25rem;
+          background: #fff;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          transition: background-color 0.15s, border-color 0.15s;
+          flex-shrink: 0;
+        }
+        input:focus-visible + .checkbox {
+          outline: 0.125rem solid var(--turquoise-color, #2cb1bc);
+          outline-offset: 0.125rem;
+        }
+        input:checked + .checkbox {
+          background: var(--turquoise-color, #2cb1bc);
+          border-color: var(--turquoise-color, #2cb1bc);
+          &::after {
+            content: '';
+            width: 0.3125rem;
+            height: 0.625rem;
+            border: solid #fff;
+            border-width: 0 0.125rem 0.125rem 0;
+            transform: rotate(45deg) translate(-0.0125rem, -0.0625rem);
+          }
+        }
+      }
       .button {
         @include button(var(--turquoise-color));
         width: 100%;

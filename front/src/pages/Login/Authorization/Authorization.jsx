@@ -20,6 +20,12 @@ function Authorization() {
     login: "",
     password: "",
   });
+  // rememberMe — UX-маркер «помнить выбор» восстанавливается из localStorage,
+  // чтобы при возврате на форму чекбокс был выставлен. Никаких токенов
+  // в localStorage не лежит — только этот булев флажок (см. API.js).
+  const [rememberMe, setRememberMe] = useState(
+    () => localStorage.getItem("rememberMe") === "true"
+  );
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -55,7 +61,7 @@ function Authorization() {
     if (!formIsValid) return;
 
     try {
-      const resp = await LoginFunc(formData);
+      const resp = await LoginFunc(formData, rememberMe);
       if (resp?.status !== 200) {
         setErrorAuth("Неверный логин или пароль");
         return;
@@ -136,11 +142,20 @@ function Authorization() {
               onChange={handleInputChange}
               style={{ borderColor: errors.password ? "red" : "" }}
             />
-            <Link to={'/reset-password-request'} className={styles.resetPassword}>Забыли пароль?</Link>
+            <label className={styles.rememberMe}>
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+              />
+              <span className={styles.checkbox} aria-hidden="true" />
+              Запомнить меня
+            </label>
             <button className={styles.button} onClick={handleLogin}>
               Войти
             </button>
             <Link to={'/Authorization/Register'} className={styles.resetPassword}>Регистрация</Link>
+            <Link to={'/reset-password-request'} className={styles.resetPassword}>Забыли пароль?</Link>
           </div>
         </div>
         <div
