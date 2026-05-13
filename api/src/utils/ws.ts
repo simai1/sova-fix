@@ -101,10 +101,12 @@ export const authenticateSubprotocol = async (subprotocol: string | null): Promi
 
             const user = await User.findByPk(userId);
             if (!user) return null;
-            // Pending-юзер не может открывать ws-сессию: его JWT либо
-            // не выдан (login возвращает 403), либо был выдан до approval —
-            // в любом случае для авторизованного канала он не подходит.
-            if (user.pendingApproval) return null;
+            // Web-self-reg pending-юзер не может открывать bearer ws-сессию:
+            // его JWT либо не выдан (login возвращает 401), либо выдан до
+            // approve — в любом случае для авторизованного канала он не
+            // подходит. Признак — `!isActivated && pendingVerifyToken`
+            // (тот же критерий, что в auth.service.login).
+            if (!user.isActivated && user.pendingVerifyToken) return null;
 
             return { userId: user.id, role: user.role, isBot: false };
         } catch {
@@ -123,10 +125,10 @@ export const authenticateSubprotocol = async (subprotocol: string | null): Promi
         const user = await User.findOne({ where: { pendingVerifyToken: hash } });
         if (!user) return null;
         // approve уже был, но токен почему-то ещё не обнулился — отказываем.
-        // approveUser обнуляет токен в одной транзакции с pendingApproval:false,
+        // approveUser обнуляет токен в одной транзакции с isActivated:true,
         // так что эта ветка должна быть мёртвой. Дополнительная защита от
         // ошибочной ручной правки БД.
-        if (!user.pendingApproval) return null;
+        if (user.isActivated) return null;
         if (!user.pendingVerifyTokenExpiresAt || new Date(user.pendingVerifyTokenExpiresAt).getTime() < Date.now()) {
             return null;
         }

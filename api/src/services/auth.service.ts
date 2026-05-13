@@ -67,7 +67,13 @@ const login = async (email: string, password: string, rememberMe = false): Promi
         logger.info(`[auth.login] fail: bad_password userId=${user.id}`);
         throw new ApiError(httpStatus.UNAUTHORIZED, failMessage);
     }
-    if (user.pendingApproval) {
+    // Web-self-reg юзер ждёт менеджерское одобрение: `isActivated=false` +
+    // `pendingVerifyToken` живой. Возвращаем единый 401 (anti-enumeration F-H2):
+    // разная семантика (401 vs 200{userId}) позволяет валидировать существование
+    // email через web-self-reg регистрацию. Admin-flow юзеры (`!isActivated`
+    // без pendingVerifyToken) обрабатываются в контроллере: им возвращается
+    // `{userId}` для перехода на экран ввода email-кода.
+    if (!user.isActivated && user.pendingVerifyToken) {
         logger.info(`[auth.login] fail: pending_approval userId=${user.id}`);
         throw new ApiError(httpStatus.UNAUTHORIZED, failMessage);
     }
@@ -99,6 +105,12 @@ const activate = async (password: string, name: string, userId: string): Promise
     const user = await userService.getUserById(userId);
     if (!user) throw new ApiError(httpStatus.BAD_REQUEST, 'User doesnt exists');
     if (user.isActivated) throw new ApiError(httpStatus.BAD_REQUEST, 'User already activated');
+    // Web-self-reg юзер не должен активироваться через email-код: его flow —
+    // одобрение менеджером (см. user.service.approveUser). Раньше эта ветка
+    // была закрыта неявно через `pendingApproval:true` + `isActivated:true`
+    // (вторая ветка валилась как «User already activated»). После объединения
+    // флагов нужна явная проверка по `pendingVerifyToken`.
+    if (user.pendingVerifyToken) throw new ApiError(httpStatus.BAD_REQUEST, 'User already activated');
 
     const encryptedPassword = await encrypt(password);
     await user.update({ isActivated: true, password: encryptedPassword, name });
@@ -143,13 +155,16 @@ const registerPublic = async (
     if (checkUser) throw new ApiError(httpStatus.BAD_REQUEST, 'Пользователь с такой почтой уже зарегистрирован');
 
     const encryptedPassword = await encrypt(password);
+    // `isActivated: false` — единый флаг ожидания: менеджер должен одобрить
+    // (web-self-reg). После approve user.service.approveUser ставит true и
+    // обнуляет pending verify-token. Различение web-self-reg vs admin-flow
+    // по `pendingVerifyToken !== null` (см. auth.service.login).
     const user = await User.create({
         login,
         name,
         password: encryptedPassword,
         role,
-        isActivated: true,
-        pendingApproval: true,
+        isActivated: false,
     });
 
     // Генерим одноразовый pending-токен для ws-аутентификации страницы Pending.jsx.

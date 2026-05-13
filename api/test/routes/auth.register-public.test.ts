@@ -11,7 +11,7 @@ describe('POST /auth/register-public', () => {
         await User.destroy({ where: { login }, force: true });
     });
 
-    it('создаёт User с pendingApproval=true и без токенов', async () => {
+    it('создаёт User с isActivated=false и без токенов', async () => {
         const res = await request(app)
             .post('/auth/register-public')
             .send({ login, password: 'pass1234', name: 'P', role: 4 });
@@ -21,8 +21,9 @@ describe('POST /auth/register-public', () => {
         expect(res.body.accessToken).toBeUndefined();
 
         const u = await User.findOne({ where: { login } });
-        expect(u?.pendingApproval).toBe(true);
-        expect(u?.isActivated).toBe(true);
+        // Единый флаг: web-self-reg pending = !isActivated + pendingVerifyToken.
+        // approve менеджером поменяет на true и обнулит токен.
+        expect(u?.isActivated).toBe(false);
     });
 
     it('возвращает pendingVerifyToken, в БД лежит только sha256-хеш', async () => {

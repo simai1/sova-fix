@@ -1,4 +1,4 @@
-import { Op } from 'sequelize';
+import { Op, WhereOptions } from 'sequelize';
 import User from '../models/user';
 import tokenService from './token.service';
 import ApiError from '../utils/ApiError';
@@ -55,8 +55,16 @@ const getAllUsers = async (): Promise<UserDto[]> => {
 };
 
 const getPendingRegistrations = async (): Promise<UserDto[]> => {
+    // Только web-self-reg юзеры: `isActivated=false` + `pendingVerifyToken`
+    // выдан (см. registerPublic). Admin-flow юзеры, тоже `isActivated=false`,
+    // но ждущие email-код активации (не менеджерское одобрение), сюда не
+    // попадают — у них pendingVerifyToken=null.
+    const where: WhereOptions = {
+        isActivated: false,
+        pendingVerifyToken: { [Op.ne]: null },
+    };
     const users = await User.findAll({
-        where: { pendingApproval: true },
+        where,
         order: [['createdAt', 'DESC']],
     });
     return users.map(u => new UserDto(u));
@@ -65,15 +73,19 @@ const getPendingRegistrations = async (): Promise<UserDto[]> => {
 const approveUser = async (userId: string): Promise<UserDto> => {
     const user = await User.findByPk(userId);
     if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'Пользователь не найден');
-    if (!user.pendingApproval) throw new ApiError(httpStatus.BAD_REQUEST, 'Пользователь уже подтверждён');
+    // Считаем web-self-reg pending по тем же признакам, что и
+    // getPendingRegistrations: `!isActivated` + есть pendingVerifyToken.
+    // Иначе approveUser сработал бы и на admin-flow юзеров (ждущих email-кода)
+    // — это другой workflow, активируется через /auth/activate/:userId.
+    const isWebSelfRegPending = !user.isActivated && !!user.pendingVerifyToken;
+    if (!isWebSelfRegPending) throw new ApiError(httpStatus.BAD_REQUEST, 'Пользователь уже подтверждён');
 
-    // Снимаем pending-флаг и одновременно обнуляем pending verify-token:
-    // после approve subprotocol pending.<token> больше не должен пускать в
-    // ws-сессию (он перестаёт быть pending-юзером). Это важный security-
-    // инвариант: повторный коннект с тем же токеном после approve
-    // должен закрываться 1008.
+    // Активируем + одновременно обнуляем pending verify-token: после approve
+    // subprotocol pending.<token> больше не должен пускать в ws-сессию
+    // (юзер уже активен). Security-инвариант: повторный коннект с тем же
+    // токеном после approve должен закрываться 1008.
     await user.update({
-        pendingApproval: false,
+        isActivated: true,
         pendingVerifyToken: null,
         pendingVerifyTokenExpiresAt: null,
     });

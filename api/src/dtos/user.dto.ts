@@ -6,7 +6,6 @@ export default class UserDto {
     login!: string;
     name?: string;
     isActivated!: boolean;
-    pendingApproval!: boolean;
     role!: number;
     createdAt?: string;
 
@@ -15,7 +14,6 @@ export default class UserDto {
         this.login = model.login;
         this.name = model.name;
         this.isActivated = model.isActivated;
-        this.pendingApproval = model.pendingApproval;
         // @ts-expect-error all checks on top level
         this.role = mapRoles[model.role];
         // createdAt нужен админке /Directory/RegistrationRequests, чтобы

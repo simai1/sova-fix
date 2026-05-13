@@ -94,8 +94,9 @@ describe('WS handshake — pending.<verifyToken>', () => {
             password: await encrypt('pass1234'),
             name: 'Pending WS',
             role: roles.CONTRACTOR,
-            isActivated: true,
-            pendingApproval: true,
+            // Объединённая семантика: web-self-reg pending = isActivated:false +
+            // живой pendingVerifyToken. После approve флаг переключится в true.
+            isActivated: false,
         });
         userId = user.id;
         plainToken = crypto.randomBytes(32).toString('hex');
@@ -123,9 +124,9 @@ describe('WS handshake — pending.<verifyToken>', () => {
     });
 
     it('approved юзер с тем же токеном → close 1008', async () => {
-        // Эмуляция: pendingApproval=false, но токен мы не успели обнулить.
+        // Эмуляция: isActivated=true, но токен мы не успели обнулить.
         // approveUser делает это в одной транзакции — здесь лезем в БД сами.
-        await User.update({ pendingApproval: false }, { where: { id: userId } });
+        await User.update({ isActivated: true }, { where: { id: userId } });
         const result = await handshake(`ws://127.0.0.1:${port}/`, [`pending.${plainToken}`]);
         expect(result.kind).toBe('close');
         if (result.kind === 'close') {

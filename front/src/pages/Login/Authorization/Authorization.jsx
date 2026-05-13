@@ -84,9 +84,10 @@ function Authorization() {
       }
     } catch (err) {
       // F-H2: backend для login возвращает единый 401 «Неверный логин или пароль»
-      // даже если pendingApproval=true — иначе разные статусы позволяют валидировать
-      // существование email. Pending-flow ведётся в отдельной странице после
-      // /auth/register-public (см. Pending.jsx), не через login-ошибку.
+      // даже для web-self-reg pending-юзера (!isActivated && pendingVerifyToken) —
+      // иначе разные статусы позволяют валидировать существование email.
+      // Pending-flow ведётся в отдельной странице после /auth/register-public
+      // (см. Pending.jsx), не через login-ошибку.
       const status = err?.response?.status ?? err?.status;
       const serverMessage = err?.response?.data?.message ?? err?.data?.message;
       if (status === 429) {

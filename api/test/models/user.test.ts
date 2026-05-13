@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import User from '../../src/models/user';
 
-describe('User.pendingApproval', () => {
+describe('User.isActivated', () => {
     beforeEach(async () => {
         await User.destroy({ where: { login: 't_pending@test.local' }, force: true });
     });
@@ -13,17 +13,17 @@ describe('User.pendingApproval', () => {
             name: 'Test',
             role: 3,
         });
-        expect(u.pendingApproval).toBe(false);
+        expect(u.isActivated).toBe(false);
     });
 
-    it('сохраняет pendingApproval=true', async () => {
+    it('сохраняет isActivated=true', async () => {
         const u = await User.create({
             login: 't_pending@test.local',
             password: 'x',
             name: 'Test',
             role: 3,
-            pendingApproval: true,
+            isActivated: true,
         });
-        expect(u.pendingApproval).toBe(true);
+        expect(u.isActivated).toBe(true);
     });
 });

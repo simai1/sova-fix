@@ -42,7 +42,7 @@ const getContractorUserId = async (request: RepairRequest): Promise<string | nul
 const getManagerUserIds = async (): Promise<string[]> => {
     try {
         const managers = await User.findAll({
-            where: { role: roles.ADMIN, pendingApproval: false },
+            where: { role: roles.ADMIN, isActivated: true },
             attributes: ['id'],
         });
         return managers.map(m => m.id);
