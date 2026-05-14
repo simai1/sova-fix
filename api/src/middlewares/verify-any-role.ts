@@ -14,7 +14,16 @@ const verifyAnyRole = (roleNames: string[]) =>
         if (!refreshToken) {
             return next(new ApiError(httpStatus.UNAUTHORIZED, 'Пользователь не авторизован'));
         }
-        const user = await userService.getUserByRefreshToken(refreshToken);
+        let user;
+        try {
+            user = await userService.getUserByRefreshToken(refreshToken);
+        } catch {
+            // getUserByRefreshToken бросает 400 «Not found token», если cookie не нашлась
+            // в БД (после ротации/чистки refresh-таблицы). Для клиента это «не авторизован» —
+            // нормализуем в 401, иначе withReauth на фронте не запустит silent refresh
+            // и юзер навсегда залипает на 400 до перезагрузки.
+            return next(new ApiError(httpStatus.UNAUTHORIZED, 'Пользователь не авторизован'));
+        }
         if (!user) {
             return next(new ApiError(httpStatus.UNAUTHORIZED, 'Пользователь не авторизован'));
         }

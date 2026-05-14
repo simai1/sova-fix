@@ -18,13 +18,18 @@ import { useRequestSubscription } from '@/hooks/useRequestSubscription';
 import { getErrorMessage } from '@/utils/getErrorMessage';
 
 type Props = {
-  mode: 'contractor' | 'customer';
+  mode: 'contractor' | 'customer' | 'admin';
+  // admin-режим — компонент рендерится внутри модалки HomePageAdmin,
+  // requestId приходит пропсом, навигации «← К заявке» нет. В contractor/customer
+  // компонент сидит на отдельной странице и берёт id из URL.
+  requestId?: string;
 };
 
-const RequestChat = ({ mode }: Props): JSX.Element => {
+const RequestChat = ({ mode, requestId: requestIdProp }: Props): JSX.Element => {
   const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>();
-  const requestId = id ?? '';
+  const params = useParams<{ id: string }>();
+  const requestId = requestIdProp ?? params.id ?? '';
+  const isEmbedded = mode === 'admin';
 
   const { data: me } = useGetMeQuery();
   const { data: request } = useGetMyRequestQuery(requestId, { skip: !requestId });
@@ -90,6 +95,7 @@ const RequestChat = ({ mode }: Props): JSX.Element => {
   };
 
   const handleBack = (): void => {
+    if (mode === 'admin') return;
     const back =
       mode === 'contractor'
         ? `/contractor/requests/${requestId}`
@@ -102,19 +108,21 @@ const RequestChat = ({ mode }: Props): JSX.Element => {
   if (!request) return <LkSpinner />;
 
   return (
-    <div className="lk-chat">
-      <div className="lk-chat__subhead">
-        <button type="button" className="lk-chat__back" onClick={handleBack}>
-          ← К заявке
-        </button>
-        <span className="lk-chat__subhead-title">№ {request.number}</span>
-        {request.Object?.name ? (
-          <>
-            <span aria-hidden="true">·</span>
-            <span>{request.Object.name}</span>
-          </>
-        ) : null}
-      </div>
+    <div className={isEmbedded ? 'lk-chat lk-chat--embedded' : 'lk-chat'}>
+      {isEmbedded ? null : (
+        <div className="lk-chat__subhead">
+          <button type="button" className="lk-chat__back" onClick={handleBack}>
+            ← К заявке
+          </button>
+          <span className="lk-chat__subhead-title">№ {request.number}</span>
+          {request.Object?.name ? (
+            <>
+              <span aria-hidden="true">·</span>
+              <span>{request.Object.name}</span>
+            </>
+          ) : null}
+        </div>
+      )}
 
       <ChatStream
         messages={accumulated}
@@ -126,7 +134,11 @@ const RequestChat = ({ mode }: Props): JSX.Element => {
         onLoadMore={handleLoadMore}
       />
 
-      <ChatComposer onSubmit={handleSend} isSending={addCommentState.isLoading} />
+      <ChatComposer
+        onSubmit={handleSend}
+        isSending={addCommentState.isLoading}
+        autoGrow={!isEmbedded}
+      />
     </div>
   );
 };

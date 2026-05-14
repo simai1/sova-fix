@@ -311,6 +311,210 @@
   }
 }
 
+// Embedded-вариант чата для админской модалки: высота от родителя,
+// без sticky-subhead и без min-height: 100vh — иначе лента в модалке
+// вытянется за её пределы. Сам stream сохраняет внутренний overflow,
+// composer — обычный flex-child внизу колонки (sticky тут не нужен).
+.lk-chat--embedded {
+  min-height: 0;
+  height: 100%;
+  gap: 0;
+
+  .lk-chat__stream {
+    padding: var(--lk-sp-4);
+  }
+
+  // Композер в модалке: одна строка из attach + textarea + send,
+  // все элементы одной высоты (`--lk-sp-7` = 2.75rem), центрированы по вертикали.
+  // Кнопка «Отправить» — фиксированной ширины, не растягивается на всю строку.
+  .lk-chat__composer {
+    position: static;
+    padding: var(--lk-sp-3) var(--lk-sp-4) var(--lk-sp-4);
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: var(--lk-sp-3);
+  }
+
+  .lk-chat__composer-row {
+    flex: 1;
+    align-items: center;
+    gap: var(--lk-sp-2);
+  }
+
+  // Textarea одной высоты с кнопками. Auto-grow отключён через autoGrow={false}
+  // в ChatComposer; здесь жёстко фиксируем высоту и убираем resize.
+  // Padding-y подобран так, чтобы текст центрировался в строке 2.75rem с line-height 1.4.
+  .lk-chat__textarea {
+    height: 2.75rem;
+    min-height: 2.75rem;
+    max-height: 2.75rem;
+    padding: 0.4375rem var(--lk-sp-3);
+    line-height: 1.4;
+    resize: none;
+    overflow-y: auto;
+  }
+
+  .lk-chat__attach-btn {
+    height: 2.75rem;
+    width: 2.75rem;
+  }
+
+  .lk-chat__send-btn {
+    flex: 0 0 auto;
+    height: 2.75rem;
+    min-height: 2.75rem;
+    min-width: 8rem;
+    padding-inline: var(--lk-sp-4);
+  }
+
+  // Превью прикреплённого файла — отдельной строкой над композером.
+  .lk-chat__attach-preview {
+    flex: 1 1 100%;
+  }
+}
+
+// Модалка чата для веб-ЛК Менеджера. Поднимает overlay над общими `.lk-modal*`
+// классами (используем их базу — overlay/sheet — и дополняем размером и шапкой).
+.lk-chat-modal {
+  &__overlay {
+    // Перекрывает desktop-таблицу — на десктопе центрируем по обеим осям.
+    @include lk-mq-up(tl) {
+      padding: var(--lk-sp-4);
+    }
+  }
+
+  &__sheet {
+    // Большое окно как на референсе: ~80vh, до 60rem по ширине.
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    max-width: 60rem;
+    width: min(60rem, 100%);
+    max-height: 92vh;
+    overflow: hidden;
+
+    @include lk-mq-up(tl) {
+      height: 80vh;
+      max-height: 80vh;
+      border-radius: var(--lk-r-xl);
+    }
+  }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: var(--lk-sp-3);
+    padding: var(--lk-sp-3) var(--lk-sp-4);
+    border-bottom: 1px solid var(--lk-border);
+    flex-shrink: 0;
+  }
+
+  &__head-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    min-width: 0;
+    flex: 1;
+  }
+
+  &__title {
+    font-size: var(--lk-fs-lg);
+    font-weight: 600;
+    color: var(--lk-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__subtitle {
+    font-size: var(--lk-fs-sm);
+    color: var(--lk-text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__close {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: var(--lk-r-md);
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--lk-text);
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    &:hover {
+      background: var(--lk-surface-2);
+    }
+
+    &:focus-visible {
+      @include lk-focus-ring;
+    }
+  }
+
+  &__body {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+// Кнопка-триггер чата в ячейке админской таблицы.
+// Лёгкая, без бордера в стандартном состоянии — чтобы не перегружать строку.
+// Если есть превью последнего сообщения — текст ограничен 2 строками, общий стиль остаётся компактным.
+// Кнопка-иконка чата в ячейке админской таблицы. Только иконка пузыря —
+// превью текста не показываем (колонка узкая). Подсветка `--has-msg`
+// (мягкая жёлтая подложка) — единственный визуальный сигнал «идёт переписка».
+.lk-table-chat-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--lk-r-sm);
+  color: var(--lk-text-muted);
+  cursor: pointer;
+  transition: background 0.12s ease-out, border-color 0.12s ease-out, color 0.12s ease-out;
+
+  &:hover,
+  &:focus-visible {
+    background: var(--lk-surface-2);
+    border-color: var(--lk-border);
+    color: var(--lk-text);
+    outline: none;
+  }
+
+  &:focus-visible {
+    box-shadow: 0 0 0 2px var(--lk-ring);
+  }
+
+  &__icon {
+    flex-shrink: 0;
+  }
+
+  &--has-msg {
+    color: var(--lk-accent-deep);
+    background: var(--lk-accent-soft);
+
+    &:hover,
+    &:focus-visible {
+      background: var(--lk-accent-soft);
+      border-color: var(--lk-accent);
+      color: var(--lk-accent-deep);
+    }
+  }
+}
+
 // Роль-чипы для сообщений чата. Добавляются как модификаторы существующего
 // .lk-chip, не дублируя его структуру.
 .lk-chip {

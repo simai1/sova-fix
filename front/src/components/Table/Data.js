@@ -16,11 +16,10 @@ export const tableHeadAppoint = [
   { key: "completeDate", value: "Дата выполнения (факт)", isActive: true  },
   { key: "exitDate", value: "Дата выезда", isActive: true  },
   { key: "repairPrice", value: "Бюджет ремонта", isActive: true  },
-  { key: "comment", value: "Комментарий", isActive: true  },
-  { key: "commentAttachment", value: "Вложение к комментарию", isActive: true  },
+  { key: "chat", value: "Чат", isActive: true  },
   { key: "legalEntity", value: "Юр. Лицо", isActive: true  },
   { key: "checkPhoto", value: "Фото чека", isActive: true  },
-]; 
+];
 
 export const phoneHeaderData = [
   { key: "fileName", value: "Фото/Видео проблемы", isActive: true  },
@@ -38,9 +37,9 @@ export const phoneHeaderData = [
   { key: "planCompleteDate ", value: "Плановая дата выполнения", isActive: true  },
   { key: "completeDate", value: "Дата выполнения (факт)", isActive: true  },
   { key: "repairPrice", value: "Бюджет ремонта", isActive: true  },
-  { key: "comment", value: "Комментарий", isActive: true  },
+  { key: "chat", value: "Чат", isActive: true  },
   { key: "legalEntity", value: "Юр. Лицо", isActive: true  },
-]; 
+];
 
 
 export const tableList = [
@@ -58,7 +57,7 @@ export const tableList = [
   { key: "daysAtWork", value: "Дней в работе", isActive: true  },
   { key: "completeDate", value: "Дата выполнения (факт)", isActive: true  },
   { key: "repairPrice", value: "Бюджет ремонта", isActive: true  },
-  { key: "comment", value: "Комментарий", isActive: true  },
+  { key: "chat", value: "Чат", isActive: true  },
   { key: "legalEntity", value: "Юр. Лицо", isActive: true  },
 ]
 

@@ -25,6 +25,7 @@ import { normalizeFileNames, status } from './Data'
 import { funFixEducator } from '../../UI/SamplePoints/Function'
 import PhotoAndVideoSlider from '../../UI/PhotoAndVideoSlider/PhotoAndVideoSlider'
 import { API_URL } from '../../constants/env.constant'
+import { openAdminChat } from '../Lk/adminChatBus'
 
 function Table() {
   const isJsonString = (str) => {
@@ -423,7 +424,7 @@ function Table() {
       key !== 'number' &&
       key !== 'problemDescription' &&
       key !== 'repairPrice' &&
-      key !== 'commentAttachment' &&
+      key !== 'chat' &&
       key !== 'checkPhoto' &&
       key !== 'itineraryOrder' &&
       key !== 'daysAtWork' &&
@@ -534,7 +535,7 @@ function Table() {
       'daysAtWork',
       'completeDate',
       'repairPrice',
-      'commentAttachment',
+      'chat',
       'planCompleteDate',
     ].includes(key) || item === '___'
       ? 'center'
@@ -580,7 +581,7 @@ function Table() {
 
   //! Функция разрешения сортировки
   const filterAndNote = (key) => {
-    const arrayNotFilter = ['number', 'fileName', 'checkPhoto', 'commentAttachment']
+    const arrayNotFilter = ['number', 'fileName', 'checkPhoto', 'chat']
     if (arrayNotFilter.includes(key)) {
       return false
     } else {
@@ -837,7 +838,41 @@ function Table() {
         ) : (
           '___'
         )
-      case 'commentAttachment':
+      case 'chat': {
+        // Кнопка-иконка открытия чата по заявке. Превью последнего сообщения
+        // не показываем — колонка узкая, текст всё равно режется до 1–2 букв.
+        // Жёлтая подложка `--has-msg` сигнализирует, что в заявке уже идёт диалог
+        // (определяется по row.comment — legacy-поле с последним message.text).
+        const rawComment = typeof row.comment === 'string' ? row.comment.trim() : ''
+        const hasMessage = !!(rawComment && rawComment !== '___')
+        return (
+          <button
+            type="button"
+            key={key + row.id}
+            className={`${styles.chatBtn || ''} lk-table-chat-btn${hasMessage ? ' lk-table-chat-btn--has-msg' : ''}`}
+            onClick={(e) => {
+              e.stopPropagation()
+              openAdminChat(row.id)
+            }}
+            aria-label={`Открыть чат по заявке № ${row.number ?? ''}${hasMessage ? ' (есть переписка)' : ''}`}
+          >
+            <svg
+              className="lk-table-chat-btn__icon"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+            </svg>
+          </button>
+        )
+      }
       case 'checkPhoto':
         return value !== null && value !== '___' ? (
           <div key={key + row.id}>

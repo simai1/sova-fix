@@ -7,12 +7,15 @@ import { MAX_UPLOAD_BYTES, formatBytesMB } from '@/utils/uploadLimits';
 type Props = {
   onSubmit: (payload: { text: string; file?: File }) => Promise<void>;
   isSending: boolean;
+  // По умолчанию textarea растёт вверх под длинный текст (контрактор/заказчик).
+  // В админ-модалке высоту фиксируем размером кнопок — auto-grow не нужен.
+  autoGrow?: boolean;
 };
 
 const MAX_ROWS = 4;
 const LINE_HEIGHT_REM = 1.4;
 
-const ChatComposer = ({ onSubmit, isSending }: Props): JSX.Element => {
+const ChatComposer = ({ onSubmit, isSending, autoGrow = true }: Props): JSX.Element => {
   const [text, setText] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -21,13 +24,14 @@ const ChatComposer = ({ onSubmit, isSending }: Props): JSX.Element => {
   // Auto-grow textarea — высота = scrollHeight, но не больше MAX_ROWS строк.
   // Расчёт по line-height в rem гарантирует масштабирование вместе с шрифтом.
   useEffect(() => {
+    if (!autoGrow) return;
     const el = textareaRef.current;
     if (!el) return;
     el.style.height = 'auto';
     const rootFs = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
     const maxHeightPx = LINE_HEIGHT_REM * MAX_ROWS * rootFs + 24; /* + paddings */
     el.style.height = `${Math.min(el.scrollHeight, maxHeightPx)}px`;
-  }, [text]);
+  }, [text, autoGrow]);
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();

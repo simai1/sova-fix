@@ -10,6 +10,7 @@ import { PopUpError } from "../../../UI/PopUpError/PopUpError";
 import Header from "../../../components/Header/Header";
 import Layout from "../../../UI/Layout/Layout";
 import PhoneDataVizulizer from "../../../components/PhoneDataVizulizer/PhoneDataVizulizer";
+import AdminChatModal from "../../../components/Lk/AdminChatModal";
 function HomePageAdmin() {
   const { context } = React.useContext(DataContext);
   return (
@@ -37,6 +38,7 @@ function HomePageAdmin() {
       {context.popUp === "PopUpEditAppoint" && <PopUpEditAppoint />}
       {context.popUp === "PopUpCreateUser" && <PopUpCreateUser />}
       {context.popUp === "PopUpGoodMessage" && <PopUpGoodMessage />}
+      <AdminChatModal />
     </div>
   );
 }
