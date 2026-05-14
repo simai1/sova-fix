@@ -192,7 +192,6 @@ return (
                     <li className={styles.menuLi} onClick={() => LinkPage("Directory/ReferenceObjects")}>Объекты</li>
                     <li className={styles.menuLi} onClick={() => LinkPage("Directory/ThePerformersDirectory")}>Внешние подрядчики</li>
                     <li className={styles.menuLi} onClick={() => LinkPage("Directory/UsersDirectory")}>Пользователи</li>
-                    <li className={styles.menuLi} onClick={() => LinkPage("Directory/TgUserObjects")}>Доступ к объектам</li>
                     <li className={styles.menuLi} onClick={() => LinkPage("Directory/Urgency")}>Срочность заявок</li>
                     <li className={styles.menuLi} onClick={() => LinkPage("Directory/Status")}>Статус заявок</li>
                     <li className={styles.menuLi} onClick={() => LinkPage("Directory/Category")}>Категории</li>

@@ -26,7 +26,6 @@ import RangeEquipment from "./modules/RangeEquipment/RangeEquipment.jsx";
 import GraphicEquipment from "./modules/GraphicEquipment/GraphicEquipment.jsx";
 import EquipmentInfo from "./modules/EquipmentInfo/EquipmentInfo.jsx";
 import PageCardContractors from "./pages/AdminPages/PageCardContractors/PageCardContractors.jsx";
-import TgUserObjects from "./pages/AdminPages/Directory/TgUserObjects/index.jsx";
 import DirectoryUrgency from "./modules/DirectoryUrgencies/DirectoryUrgency.jsx";
 import DirectoryStatuses from "./modules/DirectoryStatuses/DirectoryStatuses.jsx";
 import RequestPasswordRequest from "./pages/Login/ResetPasswordRequest/RequestPasswordRequest.jsx";
@@ -447,7 +446,6 @@ const UpdateStatus = () => {
                <Route path="ReferenceObjects" element={<ReferenceObjects />}></Route>
                <Route path="ThePerformersDirectory" element={<ThePerformersDirectory />}></Route>
                <Route path="UsersDirectory" element={<UsersDirectory />}></Route>
-               <Route path="TgUserObjects" element={<TgUserObjects />}></Route>
                <Route path="Urgency" element={<DirectoryUrgency />}></Route>
                <Route path="Status" element={<DirectoryStatuses />}></Route>
                <Route path="Category" element={<DirectoryCategory />}></Route>
