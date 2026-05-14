@@ -159,6 +159,15 @@ export type TgBindingInitResponse = {
   token?: string;
 };
 
+// Серверный сеттинг (table Settings). Используем только для чтения публичных
+// флагов из ЛК (например, «обязательно ли фото при создании заявки»).
+export type LkSetting = {
+  id: string;
+  name: string;
+  setting: string;
+  value: boolean;
+};
+
 const lkBaseQuery = fetchBaseQuery({
   baseUrl: API_URL,
   credentials: 'include',
@@ -333,6 +342,14 @@ export const lkApi = createApi({
       }),
       invalidatesTags: ['LkMe'],
     }),
+
+    // Точечное чтение серверного сеттинга по его строковому ключу.
+    // Используется в форме создания заявки заказчика, чтобы понять, обязательно
+    // ли прикреплять фото (ключ `is_repair_request_without_photo`, name
+    // «Обязательно с фото»; value=true — фото обязательно).
+    getSettingByName: build.query<LkSetting, string>({
+      query: (name) => `/settings/${name}`,
+    }),
   }),
 });
 
@@ -352,4 +369,5 @@ export const {
   useGetUrgenciesQuery,
   useInitTgBindingMutation,
   useUnlinkTelegramMutation,
+  useGetSettingByNameQuery,
 } = lkApi;

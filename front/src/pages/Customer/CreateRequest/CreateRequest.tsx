@@ -5,6 +5,7 @@ import {
   useCreateRequestMutation,
   useGetMeQuery,
   useGetMyObjectsQuery,
+  useGetSettingByNameQuery,
   useGetUrgenciesQuery,
 } from '@/API/rtkQuery/lk.api';
 import LkEmpty from '@/components/Lk/LkEmpty';
@@ -12,6 +13,7 @@ import LkSelect, { LkSelectOption } from '@/components/Lk/LkSelect';
 import LkSpinner from '@/components/Lk/LkSpinner';
 import PhotoUploader from '@/components/Lk/PhotoUploader';
 import { showToast } from '@/components/Lk/toastBus';
+import { IS_PHOTO_REQUIRED } from '@/constants/settings.constants';
 import { getErrorMessage } from '@/utils/getErrorMessage';
 
 const MIN_DESCRIPTION_LEN = 10;
@@ -21,6 +23,10 @@ const CustomerCreateRequest = (): JSX.Element => {
   const { data: me, isLoading: meLoading } = useGetMeQuery();
   const { data: urgencies = [], isLoading: urgLoading } = useGetUrgenciesQuery();
   const { data: myObjects = [], isLoading: objLoading } = useGetMyObjectsQuery();
+  // Если сеттинг ещё не загрузился или эндпоинт упал — считаем фото обязательным
+  // (это безопасный дефолт, совпадающий с прежним поведением и с seedSettings).
+  const { data: photoSetting } = useGetSettingByNameQuery(IS_PHOTO_REQUIRED);
+  const isPhotoRequired = photoSetting?.value ?? true;
   const [createRequest, { isLoading: creating }] = useCreateRequestMutation();
 
   const [objectId, setObjectId] = useState('');
@@ -46,7 +52,7 @@ const CustomerCreateRequest = (): JSX.Element => {
       next.description = `Опишите проблему (минимум ${MIN_DESCRIPTION_LEN} символов)`;
     }
     if (!urgencyId) next.urgencyId = 'Выберите срочность';
-    if (files.length === 0) next.files = 'Добавьте хотя бы одно фото';
+    if (isPhotoRequired && files.length === 0) next.files = 'Добавьте хотя бы одно фото';
     if (files.length > 10) next.files = 'Не более 10 фото';
     setErrors(next);
     return Object.keys(next).length === 0;
@@ -127,7 +133,9 @@ const CustomerCreateRequest = (): JSX.Element => {
       </div>
 
       <div className="lk-field">
-        <label className="lk-field__label">Фото (1–10)</label>
+        <label className="lk-field__label">
+          {isPhotoRequired ? 'Фото (1–10)' : 'Фото (по желанию, до 10)'}
+        </label>
         <PhotoUploader
           files={files}
           onChange={setFiles}
