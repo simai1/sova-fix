@@ -41,6 +41,7 @@
     "preview": "vite preview",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
     "lint:fix": "eslint 'src/**/*.{ts,tsx}' --fix",
+    "lint:css-scope": "node scripts/check-css-modules-scope.cjs",
     "format": "prettier --write 'src/**/*.{ts,tsx}'"
   },
   "eslintConfig": {

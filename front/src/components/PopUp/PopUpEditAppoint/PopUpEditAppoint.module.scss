@@ -15,12 +15,26 @@
     }
   }
 }
-input {
-  height: 16px;
-}
 .popBox {
   display: flex;
   flex-direction: row;
+  // input/textarea-правила scoped под .popBox: top-level селекторы в *.module.scss
+  // CSS Modules не локализуют, и они утекают на весь проект (см.
+  // front/scripts/check-css-modules-scope.cjs). Здесь оставлены без изменения
+  // визуального поведения внутри самой формы PopUpEditAppoint.
+  input {
+    height: 16px;
+  }
+  input {
+    @media (max-width: 580px) {
+      width: 300px !important;
+    }
+  }
+  textarea {
+    @media (max-width: 580px) {
+      width: 270px !important;
+    }
+  }
   .popLeft {
     // margin-right: 20px;
     display: flex;
@@ -171,14 +185,3 @@ input {
  
 }
 
-input{
-  @media (max-width: 580px) {
-   width: 300px!important;
-    }
-}
-textarea {
-  @media (max-width: 580px) {
-    width: 270px !important;
-     }
-  
-}

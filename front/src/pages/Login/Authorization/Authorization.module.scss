@@ -74,7 +74,6 @@
         @include input-text(100%, 0.5rem);
         box-sizing: border-box;
         margin: 0;
-        width: auto !important;
         min-width: 0;
       }
       .select {
