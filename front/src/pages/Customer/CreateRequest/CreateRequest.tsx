@@ -132,7 +132,7 @@ const CustomerCreateRequest = (): JSX.Element => {
           files={files}
           onChange={setFiles}
           maxFiles={10}
-          hint="Снимите проблему с разных ракурсов"
+          hint="Снимите проблему с разных ракурсов. Форматы: JPG/JPEG или PNG, до 10 МБ."
         />
         {errors.files ? <div className="lk-field__error">{errors.files}</div> : null}
       </div>

@@ -1,5 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 
+import { showToast } from '@/components/Lk/toastBus';
+
+// Зеркалит whitelist multer'а в `api/src/routes/lk.route.ts::imageOnlyFilter`.
+// Если backend начнёт принимать что-то ещё (webp/heic) — расширить здесь.
+const ALLOWED_MIMES = new Set(['image/jpeg', 'image/png']);
+
 type Props = {
   files: File[];
   onChange: (files: File[]) => void;
@@ -14,7 +20,7 @@ const PhotoUploader = ({
   onChange,
   maxFiles = 10,
   multiple = true,
-  accept = 'image/*',
+  accept = 'image/jpeg,image/png',
   hint,
 }: Props): JSX.Element => {
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -33,7 +39,24 @@ const PhotoUploader = ({
     const list = e.target.files;
     if (!list) return;
     const incoming = Array.from(list);
-    const merged = multiple ? [...files, ...incoming] : incoming;
+    const accepted: File[] = [];
+    const rejected: string[] = [];
+    for (const f of incoming) {
+      if (ALLOWED_MIMES.has(f.type)) accepted.push(f);
+      else rejected.push(f.name);
+    }
+    // accept-атрибут на input не гарантирует фильтр (через «Все файлы»
+    // и DnD пользователь может прислать webp/heic/avif), поэтому отбрасываем
+    // на JS — иначе backend вернёт 400, а юзер увидит generic-тост.
+    if (rejected.length === 1) {
+      showToast('error', `«${rejected[0]}» не поддерживается. Загружайте только JPG/JPEG или PNG.`);
+    } else if (rejected.length > 1) {
+      showToast(
+        'error',
+        `Пропущено ${rejected.length} файлов с неподдерживаемым форматом. Используйте JPG/JPEG или PNG.`,
+      );
+    }
+    const merged = multiple ? [...files, ...accepted] : accepted;
     const limited = merged.slice(0, maxFiles);
     onChange(limited);
     // Сброс input — иначе повторный выбор того же файла не вызовет change
