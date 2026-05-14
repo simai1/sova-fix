@@ -8,19 +8,24 @@ import { Register } from "../../../API/API";
 
 function PopUpCreateUser() {
   const { context } = React.useContext(DataContext);
-  const [isInputValid, setIsInputValid] = useState(false);
+  const [isEmailValid, setIsEmailValid] = useState(false);
   const [dataApointment, setdataApointment] = useState({
     login: "",
+    role: "",
   });
 
   const handleInputChange = (name, value) => {
     setdataApointment((prevState) => ({ ...prevState, [name]: value }));
-    const isValid = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value);
-    setIsInputValid(isValid);
+    if (name === "login") {
+      const isValid = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value);
+      setIsEmailValid(isValid);
+    }
   };
 
+  const canSubmit = isEmailValid && Boolean(dataApointment.role);
+
   const CreateNewClient = () => {
-   Register(dataApointment).then((resp)=>{
+   Register({ login: dataApointment.login, role: Number(dataApointment.role) }).then((resp)=>{
     if(resp?.status === 200){
       context.setPopUp("PopUpGoodMessage")
       context.setPopupGoodText("Пользователь успешно создан!")
@@ -37,13 +42,23 @@ function PopUpCreateUser() {
             Textlabel={"E-mail"}
             handleInputChange={handleInputChange}
             name="login"
-            regex={/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/} 
+            regex={/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/}
             placeholder="aaa@gmail.com"
           />
+          <select
+            value={dataApointment.role}
+            onChange={(e) => handleInputChange("role", e.target.value)}
+          >
+            <option value="" disabled>Выберите роль...</option>
+            <option value="2">Администратор</option>
+            <option value="3">Заказчик</option>
+            <option value="4">Исполнитель</option>
+            <option value="5">Наблюдатель</option>
+          </select>
         </div>
       </div>
       <div className={styles.button}>
-        <button className={styles.buttonSave} onClick={CreateNewClient} disabled={!isInputValid} style={{ backgroundColor: isInputValid ? "#FFE20D" : "#B7AB9E", cursor: isInputValid ? "pointer" : "not-allowed" }}>
+        <button className={styles.buttonSave} onClick={CreateNewClient} disabled={!canSubmit} style={{ backgroundColor: canSubmit ? "#FFE20D" : "#B7AB9E", cursor: canSubmit ? "pointer" : "not-allowed" }}>
           Добавить
         </button>
       </div>

@@ -1,8 +1,13 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
 import Contractor from './contractor';
-import roles from '../config/roles';
 import User from './user';
 import DirectoryCategory from './directoryCategory';
+
+// TG-роли — отдельная классификация, не совпадает с web-ролями из config/roles.ts.
+// Здесь намеренно явный список (включая 1, который в TG-сценариях означает обычного
+// пользователя — см. request.controller.ts/resolveTgUser.ts). Уходит вместе с ботом,
+// поэтому не объединяем с web-ролями (где USER=1 удалён как мусорный sentinel).
+const TG_ROLES = [1, 2, 3, 4, 5];
 
 export default class TgUser extends Model {
     id!: string;
@@ -38,7 +43,7 @@ export default class TgUser extends Model {
                     type: DataTypes.SMALLINT,
                     allowNull: false,
                     validate: {
-                        isIn: [Object.values(roles)],
+                        isIn: [TG_ROLES],
                     },
                     defaultValue: 1,
                 },

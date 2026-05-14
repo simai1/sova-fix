@@ -13,7 +13,6 @@ const ROLE_LABELS = {
   CUSTOMER: 'Заказчик',
   CONTRACTOR: 'Исполнитель',
   ADMIN: 'Администратор',
-  USER: 'Пользователь',
   OBSERVER: 'Наблюдатель',
 }
 

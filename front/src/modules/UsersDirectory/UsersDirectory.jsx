@@ -19,6 +19,7 @@ function UsersDirectory() {
     const [popUpCreate, setPopUpCreate] = useState(false);
     const {context} = useContext(DataContext);
     const [Email, setEmail] = useState("");
+    const [NewRole, setNewRole] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const dispatch = useDispatch();
     const [objectsAssignFor, setObjectsAssignFor] = useState(null);
@@ -46,8 +47,6 @@ function UsersDirectory() {
     function funFixRole(value){
       if(value === 2){
         return "Администратор"
-      }else if(value === 1){
-        return "Пользователь"
       }else if(value === 3){
         return "Заказчик"
       }else if(value === 4){
@@ -95,9 +94,6 @@ function UsersDirectory() {
         case "Администратор":
           roleId = 2;
           break;
-        case "Пользователь":
-          roleId = 1;
-          break;
         case "Наблюдатель":
           roleId = 5;
           break;
@@ -134,12 +130,13 @@ function UsersDirectory() {
     };
 
     const handleCreateUnit = () => {
-        if (!Email) {
+        if (!Email || !NewRole) {
             setErrorMessage("Пожалуйста, заполните все поля!");
             return;
         }
         const dataApointment = {
-            login: Email
+            login: Email,
+            role: Number(NewRole),
         };
 
         Register(dataApointment).then((resp)=>{
@@ -148,6 +145,8 @@ function UsersDirectory() {
               context.setPopupGoodText("Пользователь успешно создан!")
               getData();
               setPopUpCreate(false);
+              setEmail("");
+              setNewRole("");
             }
         })
     }
@@ -207,11 +206,21 @@ function UsersDirectory() {
                         <div className={styles.PupUpCreateInputInner}>
                             <div>
                                 <div>
-                                    <input 
-                                        placeholder="Email..." 
-                                        value={Email} 
-                                        onChange={(e) => setEmail(e.target.value)} 
+                                    <input
+                                        placeholder="Email..."
+                                        value={Email}
+                                        onChange={(e) => setEmail(e.target.value)}
                                     />
+                                    <select
+                                        value={NewRole}
+                                        onChange={(e) => setNewRole(e.target.value)}
+                                    >
+                                        <option value="" disabled>Выберите роль...</option>
+                                        <option value="2">Администратор</option>
+                                        <option value="3">Заказчик</option>
+                                        <option value="4">Исполнитель</option>
+                                        <option value="5">Наблюдатель</option>
+                                    </select>
                                       <div>
                                     {errorMessage && <div className={styles.ErrorMessage}>{errorMessage}</div>}
                                 </div>

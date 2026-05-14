@@ -370,7 +370,7 @@ function UniversalTable(props) {
   };
 
   const handleRoleClick = (rowIndex, role) => {
-    (role === "Пользователь" || role === "Администратор" || role === "Наблюдатель") && JSON.parse(sessionStorage.getItem("userData"))?.user?.role === "ADMIN" && setDropdownVisible(dropdownVisible === rowIndex ? null : rowIndex);
+    (role === "Администратор" || role === "Наблюдатель") && JSON.parse(sessionStorage.getItem("userData"))?.user?.role === "ADMIN" && setDropdownVisible(dropdownVisible === rowIndex ? null : rowIndex);
   };
 
   const checkHeights = (arr, index) => {
@@ -597,7 +597,7 @@ function UniversalTable(props) {
               <div
                 onClick={() => handleRoleClick(rowIndex , row.role)}
                 className={
-                  (row.role === "Пользователь" || row.role === "Администратор" || row.role === "Наблюдатель") &&
+                  (row.role === "Администратор" || row.role === "Наблюдатель") &&
                   JSON.parse(sessionStorage.getItem("userData"))?.user?.role === "ADMIN"
                     ? styles.statusClick
                     : styles.statusReadonly
@@ -617,7 +617,6 @@ function UniversalTable(props) {
                 >
                   <ul>
                     <li onClick={() => {props?.ClickRole("Администратор", row.id); setDropdownVisible(null);}}>Администратор</li>
-                    <li onClick={() => {props?.ClickRole("Пользователь", row.id); setDropdownVisible(null);}}>Пользователь</li>
                     <li onClick={() => {props?.ClickRole("Наблюдатель", row.id); setDropdownVisible(null);}}>Наблюдатель</li>
                   </ul>
                 </div>

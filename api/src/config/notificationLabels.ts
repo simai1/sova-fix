@@ -19,7 +19,6 @@ export const requestStatusUiLabel: Record<number, string> = {
 
 // Названия ролей — без бэкенд-литералов CONTRACTOR/CUSTOMER, как видит их юзер.
 export const roleUiLabel: Record<number, string> = {
-    [roles.USER]: 'Пользователь',
     [roles.ADMIN]: 'Менеджер',
     [roles.CUSTOMER]: 'Заказчик',
     [roles.CONTRACTOR]: 'Исполнитель',

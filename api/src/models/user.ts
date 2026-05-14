@@ -55,7 +55,6 @@ export default class User extends Model {
                     validate: {
                         isIn: [Object.values(roles)],
                     },
-                    defaultValue: 1,
                 },
                 isActivated: {
                     type: DataTypes.BOOLEAN,

@@ -33,7 +33,7 @@ type data = {
     rememberMe: boolean;
     user: UserDto;
 };
-const register = async (login: string): Promise<UserDto> => {
+const register = async (login: string, role: number): Promise<UserDto> => {
     const checkUser = await userService.getUserByEmail(login);
     if (checkUser) throw new ApiError(httpStatus.BAD_REQUEST, 'User with this email already exists');
 
@@ -47,6 +47,7 @@ const register = async (login: string): Promise<UserDto> => {
         login,
         name: '',
         password: encryptedPassword,
+        role,
     });
 
     sendMail(login, 'registration', password, `${process.env.WEB_URL}`);

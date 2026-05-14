@@ -2,6 +2,7 @@ import catchAsync from '../utils/catchAsync';
 import authService from '../services/auth.service';
 import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
+import roles from '../config/roles';
 
 // Cookie с refreshToken — главный auth-носитель: HttpOnly запрещает JS-доступ
 // (XSS-mitigation), Secure включён только в проде (в dev по http браузер не пошлёт),
@@ -17,8 +18,11 @@ const buildRefreshCookieOptions = (rememberMe: boolean) => ({
 });
 
 const registerViaEmail = catchAsync(async (req, res) => {
-    const { login } = req.body;
-    const userDto = await authService.register(login);
+    const { login, role } = req.body;
+    if (typeof role !== 'number' || !Object.values(roles).includes(role)) {
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Некорректная роль');
+    }
+    const userDto = await authService.register(login, role);
     res.json(userDto);
 });
 
