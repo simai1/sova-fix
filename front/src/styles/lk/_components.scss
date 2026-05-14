@@ -1647,10 +1647,44 @@
     }
   }
 
+  // ── Quick toggle (например, «Мои» в списке заявок подрядчика). ──────────────
+  // Визуально это «контекстный быстрый фильтр», отдельный от модалки «Фильтры»:
+  //   - тонкий vertical divider слева отделяет от соседней обычной кнопки;
+  //   - иконка-индикатор + лейбл читаются как chip-toggle, а не как ещё одна кнопка;
+  //   - активное состояние — заполненный accent с лёгкой внутренней тенью для depth.
+  & > .lk-toolbar__toggle {
+    position: relative;
+    margin-left: var(--lk-sp-1);
+    padding-left: calc(var(--lk-sp-3) + var(--lk-sp-1));
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: calc(var(--lk-sp-1) * -1);
+      top: 50%;
+      transform: translateY(-50%);
+      width: 1px;
+      height: 1.25rem;
+      background: var(--lk-border);
+      pointer-events: none;
+    }
+
+    .lk-toolbar__toggle-icon {
+      flex-shrink: 0;
+      color: var(--lk-text-muted);
+      transition: color 0.12s ease-out;
+    }
+  }
+
   & > .lk-toolbar__toggle[aria-pressed='true'] {
     background: var(--lk-accent);
     border-color: var(--lk-accent);
     color: var(--lk-accent-fg);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.04), inset 0 -1px 0 rgba(0, 0, 0, 0.06);
+
+    .lk-toolbar__toggle-icon {
+      color: var(--lk-accent-fg);
+    }
 
     &:hover {
       background: var(--lk-accent-deep);

@@ -148,8 +148,25 @@ const ContractorRequestsList = (): JSX.Element => {
           type="button"
           className="lk-toolbar__toggle"
           aria-pressed={mineOnly}
+          aria-label={mineOnly ? 'Показать все заявки' : 'Показать только мои заявки'}
+          title="Только мои заявки"
           onClick={() => setMineOnly((v) => !v)}
         >
+          <svg
+            className="lk-toolbar__toggle-icon"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
           Мои
         </button>
         <LkSelect
