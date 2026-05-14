@@ -51,14 +51,22 @@ function PopUpEditEquipment() {
 
   // Загрузка данных из API
   useEffect(() => {
-    GetObjectsAll(`?userId=${JSON.parse(sessionStorage.getItem("userData"))?.user?.id}`).then((response) => {
-      if (response.status === 200) {
-        setObjects(response.data);
-      }
-    });
+    // API-обёртки из API.js на ошибку логируют и возвращают undefined — это контракт.
+    // Поэтому разделяем «нет ответа» (ранний выход) и «ответ есть, но не 200».
+    const userData = JSON.parse(sessionStorage.getItem("userData"));
+    const userId = userData && userData.user ? userData.user.id : null;
+    if (userId) {
+      GetObjectsAll(`?userId=${userId}`).then((response) => {
+        if (!response) return;
+        if (response.status === 200) {
+          setObjects(response.data);
+        }
+      });
+    }
 
     Promise.all([GetAllСontractors(), GetextContractorsAll()])
     .then(([response1, response2]) => {
+      if (!response1 || !response2) return;
       if (response1.status === 200 && response2.status === 200) {
         // Объединяем данные из обоих ответов
         const combinedData = [...response1.data, ...response2.data];
@@ -70,6 +78,7 @@ function PopUpEditEquipment() {
     });
 
     GetAllNomenclatures().then((response) => {
+      if (!response) return;
       if (response.status === 200) {
         console.log("nomenclatures", response.data)
         setNomenclatures(response.data);

@@ -1,6 +1,7 @@
 import { notification } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import { RcFile } from 'antd/es/upload';
+import { skipToken } from '@reduxjs/toolkit/query/react';
 import dayjs from 'dayjs';
 import { FC, useContext, useEffect, useMemo, useState } from 'react';
 
@@ -40,9 +41,9 @@ const RequestEditModalContainer: FC<IRequestEditModalContainer> = ({ open, handl
   const userDataRaw = sessionStorage.getItem('userData');
   const userId = userDataRaw ? JSON.parse(userDataRaw)?.user?.id : null;
 
-  const { data: objects, isLoading: isObjectsLoading } = useGetAllObjectsQuery({
-    userId,
-  });
+  const { data: objects, isLoading: isObjectsLoading } = useGetAllObjectsQuery(
+    userId ? { userId } : skipToken,
+  );
   const [getOneRequest, { data: requestData, isLoading: isRequestDataLoading }] =
     useLazyGetOneRequestQuery();
   const [attachMedia] = useAttachMediaMutation();
