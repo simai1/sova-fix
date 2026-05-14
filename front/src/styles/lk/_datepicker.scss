@@ -64,6 +64,48 @@
     width: max-content;
   }
 
+  // Backdrop для мобильного bottom-sheet'а. На десктопе календарь — anchored
+  // popover, оверлей не рендерится. Mousedown по оверлею ловится глобальным
+  // click-outside хендлером (cm. *.tsx), отдельный onClick не нужен.
+  &__overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(24, 24, 27, 0.4);
+    z-index: 2099;
+    display: flex;
+    align-items: flex-end;
+    justify-content: stretch;
+    animation: lk-popover-overlay-in 0.2s ease both;
+  }
+
+  // Mobile bottom-sheet вариант popover'а. На мобильной портретной (≤ 767px)
+  // anchored-popover схлопывается за нижний край viewport'а и rdp-grid
+  // растягивается из-за min-width:pos.width. В sheet-режиме popover пинится
+  // ко дну экрана, занимает всю ширину, листается скроллом.
+  &__popover--sheet {
+    position: static;
+    width: 100%;
+    max-width: none;
+    border-radius: var(--lk-r-lg) var(--lk-r-lg) 0 0;
+    border-bottom: 0;
+    padding: var(--lk-sp-4) var(--lk-sp-4) var(--lk-sp-3);
+    max-height: 85vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    transform-origin: bottom center;
+    animation: lk-sheet-slide-up 0.25s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+    // Декоративный grab-handle сверху — характерный признак mobile sheet'а.
+    &::before {
+      content: '';
+      display: block;
+      width: 2.25rem;
+      height: 0.25rem;
+      border-radius: 999px;
+      background: var(--lk-border);
+      margin: 0 auto var(--lk-sp-3);
+    }
+  }
+
   &__footer {
     display: flex;
     align-items: center;
@@ -134,6 +176,8 @@
 .rdp-root {
   --rdp-accent-color: var(--lk-accent);
   --rdp-accent-background-color: var(--lk-accent-soft);
+  // Размеры ячеек: 2.25rem на десктопе, 2.75rem на мобильной (Apple HIG —
+  // минимальная tap-зона 44px). Bump подняли только для sheet-варианта.
   --rdp-day-height: 2.25rem;
   --rdp-day-width: 2.25rem;
   --rdp-day_button-height: 2.25rem;
@@ -238,6 +282,27 @@
 .rdp-month_grid {
   border-collapse: separate; // нужно для round-corners на range gradient td
   border-spacing: 0;
+  // rdp@10 не задаёт width, но <table> по умолчанию принимает ширину контейнера
+  // при auto-layout если td не имеют фиксированного width. На мобильной, где
+  // bottom-sheet шире rdp-grid, td растягиваются и weekday-метки разъезжаются.
+  // Фиксируем сетку на её естественной ширине и центрируем в popover'е.
+  width: auto;
+  margin: 0 auto;
+  table-layout: fixed;
+}
+
+// rdp@10 оборачивает grid в .rdp-month/.rdp-months. Если popover/sheet шире
+// сетки, эти контейнеры по умолчанию тянутся в 100% ширины, и абсолютная
+// .rdp-nav (inset-inline:0) уезжает к краям, отрываясь от каркаса календаря.
+// Сжимаем оба контейнера до max-content (= ширина .rdp-month_grid) и
+// центрируем через margin:auto — тогда стрелки nav сидят на границах сетки.
+.rdp-months {
+  width: max-content;
+  margin: 0 auto;
+}
+
+.rdp-month {
+  width: 100%;
 }
 
 .rdp-weekday {
@@ -406,5 +471,45 @@
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes lk-popover-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes lk-sheet-slide-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0.6;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+// На мобильной портретной — крупнее ячейки и более воздушный padding в sheet,
+// чтобы соблюдать tap-target минимум и календарь не «выглядел игрушечным».
+@include lk-mq-down(mp) {
+  .lk-datepicker__popover--sheet .rdp-root {
+    --rdp-day-height: 2.75rem;
+    --rdp-day-width: 2.75rem;
+    --rdp-day_button-height: 2.75rem;
+    --rdp-day_button-width: 2.75rem;
+    --rdp-cell-size: 2.75rem;
+  }
+
+  .lk-datepicker__popover--sheet .rdp-day_button {
+    font-size: var(--lk-fs-md);
+  }
+
+  .lk-datepicker__popover--sheet .rdp-caption_label {
+    font-size: var(--lk-fs-lg);
   }
 }

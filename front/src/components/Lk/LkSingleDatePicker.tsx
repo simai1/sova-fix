@@ -23,6 +23,13 @@ type Position = {
 // к нижней границе input'а и focus-ring триггера сливается с border'ом popover'а.
 const POPOVER_GAP_PX = 4;
 
+// См. LkDatePicker.tsx — на мобильной портретной (≤ 767px) переключаемся на
+// bottom-sheet, чтобы календарь не уходил за нижний край viewport'а.
+const MOBILE_SHEET_MQ = '(max-width: 767px)';
+
+const getMatchesMobile = (): boolean =>
+  typeof window !== 'undefined' && window.matchMedia(MOBILE_SHEET_MQ).matches;
+
 const formatDate = (date: Date | null): string => {
   if (!date) return '';
   return format(date, 'dd.MM.yyyy');
@@ -44,11 +51,22 @@ const LkSingleDatePicker = ({
   const popoverRef = useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<Position | null>(null);
+  const [isMobile, setIsMobile] = useState<boolean>(getMatchesMobile);
 
-  // Позиционирование popover относительно триггера. См. комментарии в
-  // LkDatePicker.tsx: capture-listener на scroll нужен для scrollable-родителей.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const mq = window.matchMedia(MOBILE_SHEET_MQ);
+    const handler = (e: MediaQueryListEvent): void => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
+  // Позиционирование popover относительно триггера — только в desktop-режиме.
+  // На мобильной bottom-sheet прибит ко дну экрана, координаты не нужны.
+  // См. комментарии в LkDatePicker.tsx: capture-listener на scroll нужен для
+  // scrollable-родителей.
   useLayoutEffect(() => {
-    if (!open || !triggerRef.current) return;
+    if (!open || isMobile || !triggerRef.current) return;
     const recompute = (): void => {
       if (!triggerRef.current) return;
       const rect = triggerRef.current.getBoundingClientRect();
@@ -61,7 +79,7 @@ const LkSingleDatePicker = ({
       window.removeEventListener('scroll', recompute, true);
       window.removeEventListener('resize', recompute);
     };
-  }, [open]);
+  }, [open, isMobile]);
 
   useEffect(() => {
     if (open && popoverRef.current) {
@@ -150,39 +168,69 @@ const LkSingleDatePicker = ({
         <span className="lk-datepicker__trigger-value">{display || placeholder}</span>
       </button>
 
-      {open && pos
+      {open && (isMobile || pos)
         ? createPortal(
-            <div
-              ref={popoverRef}
-              className="lk-datepicker__popover"
-              style={{
-                position: 'fixed',
-                top: pos.top,
-                left: pos.left,
-                minWidth: pos.width,
-              }}
-              role="dialog"
-              aria-label="Выбор даты"
-              tabIndex={-1}
-            >
-              <DayPicker
-                mode="single"
-                weekStartsOn={1}
-                locale={ru}
-                selected={value ?? undefined}
-                onSelect={handleSelect}
-                numberOfMonths={1}
-              />
-              <div className="lk-datepicker__footer">
-                <button type="button" className="lk-datepicker__btn" onClick={handleToday}>
-                  Сегодня
-                </button>
-                <span className="lk-datepicker__footer-spacer" aria-hidden />
-                <button type="button" className="lk-datepicker__btn" onClick={handleClear}>
-                  Очистить
-                </button>
+            isMobile ? (
+              <div className="lk-datepicker__overlay">
+                <div
+                  ref={popoverRef}
+                  className="lk-datepicker__popover lk-datepicker__popover--sheet"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-label="Выбор даты"
+                  tabIndex={-1}
+                >
+                  <DayPicker
+                    mode="single"
+                    weekStartsOn={1}
+                    locale={ru}
+                    selected={value ?? undefined}
+                    onSelect={handleSelect}
+                    numberOfMonths={1}
+                  />
+                  <div className="lk-datepicker__footer">
+                    <button type="button" className="lk-datepicker__btn" onClick={handleToday}>
+                      Сегодня
+                    </button>
+                    <span className="lk-datepicker__footer-spacer" aria-hidden />
+                    <button type="button" className="lk-datepicker__btn" onClick={handleClear}>
+                      Очистить
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>,
+            ) : (
+              <div
+                ref={popoverRef}
+                className="lk-datepicker__popover"
+                style={{
+                  position: 'fixed',
+                  top: pos!.top,
+                  left: pos!.left,
+                }}
+                role="dialog"
+                aria-label="Выбор даты"
+                tabIndex={-1}
+              >
+                <DayPicker
+                  mode="single"
+                  weekStartsOn={1}
+                  locale={ru}
+                  selected={value ?? undefined}
+                  onSelect={handleSelect}
+                  numberOfMonths={1}
+                />
+                <div className="lk-datepicker__footer">
+                  <button type="button" className="lk-datepicker__btn" onClick={handleToday}>
+                    Сегодня
+                  </button>
+                  <span className="lk-datepicker__footer-spacer" aria-hidden />
+                  <button type="button" className="lk-datepicker__btn" onClick={handleClear}>
+                    Очистить
+                  </button>
+                </div>
+              </div>
+            ),
             document.body,
           )
         : null}
