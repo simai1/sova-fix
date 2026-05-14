@@ -111,6 +111,7 @@ export type ListParams = {
   dateTo?: string;
   sort?: string;
   order?: 'asc' | 'desc';
+  mine?: boolean;
 };
 
 export type ListResponse = {

@@ -40,6 +40,7 @@ type ListQuery = {
     dateTo?: string;
     sort?: string;
     order?: string;
+    mine?: boolean | string;
 };
 
 type CommentListQuery = {
@@ -202,6 +203,19 @@ const listForContractor = async (userId: string, query: ListQuery) => {
     const { contractor, objectIds } = await loadUserContext(userId);
     const { page, limit, offset } = parsePagination(query);
     const order = parseOrder(query);
+
+    // Joi.boolean() конвертирует 'true' → true, но контроллер дёргает
+    // listForContractor и из тестов / прямого вызова без Joi — отсюда
+    // поддержка обоих вариантов.
+    const mineOnly = query.mine === true || query.mine === 'true';
+
+    if (mineOnly) {
+        if (!contractor) {
+            return { items: [], total: 0, page, limit };
+        }
+        const where = buildBaseFilter(query, { contractorId: contractor.id });
+        return fetchAndCount(where, order, page, limit, offset, userId);
+    }
 
     if (!contractor && objectIds.length === 0) {
         return { items: [], total: 0, page, limit };

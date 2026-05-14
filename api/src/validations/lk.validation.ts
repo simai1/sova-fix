@@ -34,6 +34,7 @@ export const listQuerySchema = Joi.object({
         // (audit M1): сортировать по UUID бессмысленно, фронт использует 'urgency'.
         sort: Joi.string().valid('createdAt', 'status', 'urgency', 'date').optional().messages(ru('sort')),
         order: Joi.string().valid('asc', 'desc', 'ASC', 'DESC').optional().messages(ru('order')),
+        mine: Joi.boolean().optional().messages(ru('mine')),
     }).unknown(false),
 });
 

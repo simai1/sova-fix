@@ -1635,7 +1635,7 @@
     display: inline-flex;
     align-items: center;
     gap: var(--lk-sp-2);
-    transition: border-color 0.12s ease-out, background 0.12s ease-out;
+    transition: border-color 0.12s ease-out, background 0.12s ease-out, color 0.12s ease-out;
 
     &:hover {
       background: var(--lk-surface-2);
@@ -1644,6 +1644,17 @@
 
     &:focus-visible {
       @include lk-focus-ring;
+    }
+  }
+
+  & > .lk-toolbar__toggle[aria-pressed='true'] {
+    background: var(--lk-accent);
+    border-color: var(--lk-accent);
+    color: var(--lk-accent-fg);
+
+    &:hover {
+      background: var(--lk-accent-deep);
+      border-color: var(--lk-accent-deep);
     }
   }
 }

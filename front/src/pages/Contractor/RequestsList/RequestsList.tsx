@@ -41,6 +41,8 @@ const ContractorRequestsList = (): JSX.Element => {
     stored ? findSortIdx(stored.sort.sort, stored.sort.order) : 0,
   );
   const [filterOpen, setFilterOpen] = useState(false);
+  // Не сохраняем в useSavedFilters: это контекстный режим, не «настройка».
+  const [mineOnly, setMineOnly] = useState<boolean>(false);
   const [items, setItems] = useState<RequestDto[]>([]);
 
   const sort = SORT_OPTIONS[sortIdx]!;
@@ -58,6 +60,7 @@ const ContractorRequestsList = (): JSX.Element => {
     dateTo: filters.dateTo,
     sort: sort.sort,
     order: sort.order,
+    mine: mineOnly || undefined,
   });
 
   const { data: statuses = [] } = useGetStatusesQuery();
@@ -70,7 +73,7 @@ const ContractorRequestsList = (): JSX.Element => {
   useEffect(() => {
     setPage(1);
     setItems([]);
-  }, [search, filters, sortIdx]);
+  }, [search, filters, sortIdx, mineOnly]);
 
   useEffect(() => {
     if (!data) return;
@@ -140,6 +143,14 @@ const ContractorRequestsList = (): JSX.Element => {
         <button type="button" onClick={() => setFilterOpen(true)}>
           Фильтры
           {activeCount > 0 ? ` (${activeCount})` : ''}
+        </button>
+        <button
+          type="button"
+          className="lk-toolbar__toggle"
+          aria-pressed={mineOnly}
+          onClick={() => setMineOnly((v) => !v)}
+        >
+          Мои
         </button>
         <LkSelect
           size="sm"
