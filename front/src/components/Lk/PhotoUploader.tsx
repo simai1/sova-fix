@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { showToast } from '@/components/Lk/toastBus';
+import { MAX_UPLOAD_BYTES, formatBytesMB } from '@/utils/uploadLimits';
 
 // Зеркалит whitelist multer'а в `api/src/routes/lk.route.ts::imageOnlyFilter`.
 // Если backend начнёт принимать что-то ещё (webp/heic) — расширить здесь.
@@ -40,20 +41,44 @@ const PhotoUploader = ({
     if (!list) return;
     const incoming = Array.from(list);
     const accepted: File[] = [];
-    const rejected: string[] = [];
+    const rejectedFormat: string[] = [];
+    const rejectedSize: string[] = [];
     for (const f of incoming) {
-      if (ALLOWED_MIMES.has(f.type)) accepted.push(f);
-      else rejected.push(f.name);
+      if (!ALLOWED_MIMES.has(f.type)) {
+        rejectedFormat.push(f.name);
+        continue;
+      }
+      if (f.size > MAX_UPLOAD_BYTES) {
+        rejectedSize.push(f.name);
+        continue;
+      }
+      accepted.push(f);
     }
     // accept-атрибут на input не гарантирует фильтр (через «Все файлы»
     // и DnD пользователь может прислать webp/heic/avif), поэтому отбрасываем
     // на JS — иначе backend вернёт 400, а юзер увидит generic-тост.
-    if (rejected.length === 1) {
-      showToast('error', `«${rejected[0]}» не поддерживается. Загружайте только JPG/JPEG или PNG.`);
-    } else if (rejected.length > 1) {
+    if (rejectedFormat.length === 1) {
       showToast(
         'error',
-        `Пропущено ${rejected.length} файлов с неподдерживаемым форматом. Используйте JPG/JPEG или PNG.`,
+        `«${rejectedFormat[0]}» не поддерживается. Загружайте только JPG/JPEG или PNG.`,
+      );
+    } else if (rejectedFormat.length > 1) {
+      showToast(
+        'error',
+        `Пропущено ${rejectedFormat.length} файлов с неподдерживаемым форматом. Используйте JPG/JPEG или PNG.`,
+      );
+    }
+    // Size-check ловим ДО отправки: иначе nginx тенанта вернёт 413, а multer —
+    // LIMIT_FILE_SIZE без понятного текста, и фронт покажет generic-ошибку.
+    if (rejectedSize.length === 1) {
+      showToast(
+        'error',
+        `«${rejectedSize[0]}» больше ${formatBytesMB(MAX_UPLOAD_BYTES)}. Уменьшите фото и попробуйте снова.`,
+      );
+    } else if (rejectedSize.length > 1) {
+      showToast(
+        'error',
+        `Пропущено ${rejectedSize.length} файлов больше ${formatBytesMB(MAX_UPLOAD_BYTES)}. Уменьшите фото и попробуйте снова.`,
       );
     }
     const merged = multiple ? [...files, ...accepted] : accepted;

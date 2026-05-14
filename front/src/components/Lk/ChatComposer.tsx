@@ -1,5 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
+import { showToast } from './toastBus';
+
+import { MAX_UPLOAD_BYTES, formatBytesMB } from '@/utils/uploadLimits';
+
 type Props = {
   onSubmit: (payload: { text: string; file?: File }) => Promise<void>;
   isSending: boolean;
@@ -39,6 +43,16 @@ const ChatComposer = ({ onSubmit, isSending }: Props): JSX.Element => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const f = e.target.files?.[0] ?? null;
+    // Size-check ДО отправки: иначе nginx тенанта вернёт 413, multer —
+    // LIMIT_FILE_SIZE без понятного текста, а юзер увидит generic-ошибку.
+    if (f && f.size > MAX_UPLOAD_BYTES) {
+      showToast(
+        'error',
+        `«${f.name}» больше ${formatBytesMB(MAX_UPLOAD_BYTES)}. Уменьшите файл и попробуйте снова.`,
+      );
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
     setFile(f);
   };
 

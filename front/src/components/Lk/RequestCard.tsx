@@ -19,6 +19,7 @@ import {
 } from '@/API/rtkQuery/lk.api';
 import { API_URL } from '@/constants/env.constant';
 import { getErrorMessage } from '@/utils/getErrorMessage';
+import { MAX_UPLOAD_BYTES, formatBytesMB } from '@/utils/uploadLimits';
 
 type Mode = 'contractor' | 'customer';
 
@@ -191,6 +192,19 @@ const RequestCard = ({ request, mode, me }: Props): JSX.Element => {
     if (!list || list.length === 0) return;
     const files = Array.from(list);
     e.target.value = '';
+    // Size-check ловим ДО отправки: иначе nginx тенанта вернёт 413, multer —
+    // LIMIT_FILE_SIZE без понятного текста, а юзер увидит generic-ошибку.
+    const oversized = files.filter((f) => f.size > MAX_UPLOAD_BYTES);
+    const [firstOversized] = oversized;
+    if (firstOversized) {
+      const limit = formatBytesMB(MAX_UPLOAD_BYTES);
+      const message =
+        oversized.length === 1
+          ? `«${firstOversized.name}» больше ${limit}. Уменьшите фото и попробуйте снова.`
+          : `Пропущено ${oversized.length} файлов больше ${limit}. Уменьшите фото и попробуйте снова.`;
+      showToast('error', message);
+      return;
+    }
     try {
       await addPhotos({ id: request.id, files }).unwrap();
       showToast('success', 'Фото добавлены');
@@ -205,6 +219,13 @@ const RequestCard = ({ request, mode, me }: Props): JSX.Element => {
     const file = e.target.files?.[0];
     e.target.value = '';
     if (!file) return;
+    if (file.size > MAX_UPLOAD_BYTES) {
+      showToast(
+        'error',
+        `«${file.name}» больше ${formatBytesMB(MAX_UPLOAD_BYTES)}. Уменьшите фото и попробуйте снова.`,
+      );
+      return;
+    }
     try {
       await uploadCheckPhoto({ id: request.id, file }).unwrap();
       showToast('success', 'Фото-подтверждение загружено');
