@@ -112,7 +112,10 @@ export default class RepairRequest extends Model {
                     allowNull: true,
                 },
                 comment: {
-                    type: DataTypes.STRING,
+                    // TEXT, а не STRING: сюда write-through пишется последнее
+                    // сообщение чата заявки (lk.service createComment) —
+                    // произвольной длины, VARCHAR(255) его обрезал бы / ронял INSERT.
+                    type: DataTypes.TEXT,
                     allowNull: true,
                 },
                 commentAttachment: {
@@ -125,7 +128,10 @@ export default class RepairRequest extends Model {
                     defaultValue: 0,
                 },
                 fileName: {
-                    type: DataTypes.STRING,
+                    // TEXT, а не STRING: при нескольких фото сюда пишется
+                    // JSON.stringify([...имён файлов]) — до 10 имён по ~41 символу,
+                    // что переполняет VARCHAR(255).
+                    type: DataTypes.TEXT,
                     allowNull: true,
                 },
                 checkPhoto: {
