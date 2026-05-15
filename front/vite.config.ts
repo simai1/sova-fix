@@ -1,28 +1,39 @@
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 
 // https://vite.dev/config/
-export default defineConfig({
-    plugins: [react()],
+export default defineConfig(({ mode }) => {
+    // allowedHosts держим в env (.env.*.local — в .gitignore), а не хардкодом:
+    // demo/туннельные домены у каждого разработчика свои, общий конфиг ими не засоряем.
+    const env = loadEnv(mode, __dirname, "VITE_");
+    const allowedHosts = (env.VITE_ALLOWED_HOSTS ?? "")
+        .split(",")
+        .map((h) => h.trim())
+        .filter(Boolean);
 
-    server: {
-        port: 3002,
-    },
+    return {
+        plugins: [react()],
 
-    resolve: {
-        alias: {
-            "@": path.resolve(__dirname, "./src"),
+        server: {
+            port: 3002,
+            ...(allowedHosts.length > 0 ? { allowedHosts } : {}),
         },
-    },
-    css: {
-        preprocessorOptions: {
-            scss: {
-                additionalData: `@use "@/styles/index" as *;`,
+
+        resolve: {
+            alias: {
+                "@": path.resolve(__dirname, "./src"),
             },
         },
-    },
-    build: {
-    outDir: "build",
-  },
+        css: {
+            preprocessorOptions: {
+                scss: {
+                    additionalData: `@use "@/styles/index" as *;`,
+                },
+            },
+        },
+        build: {
+            outDir: "build",
+        },
+    };
 });
