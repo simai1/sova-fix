@@ -616,11 +616,20 @@ type CreateRequestBody = {
     objectId: string;
     problemDescription: string;
     urgencyId: string;
+    directoryCategoryId?: string;
 };
 
-const createForCustomer = async (userId: string, body: CreateRequestBody, files: Express.Multer.File[] = []) => {
+const createForCustomer = async (
+    userId: string,
+    body: CreateRequestBody,
+    files: Express.Multer.File[] = [],
+    actorRoleNumber?: number
+) => {
     const { objectIds } = await loadUserContext(userId);
-    if (!objectIds.includes(body.objectId)) {
+    // ADMIN заводит заявки на любой объект системы — он не привязан к objectIds
+    // через UserObject, в отличие от CUSTOMER, которому доступны только свои.
+    const isAdmin = actorRoleNumber === roles.ADMIN;
+    if (!isAdmin && !objectIds.includes(body.objectId)) {
         throw new ApiError(httpStatus.BAD_REQUEST, 'Объект не входит в список ваших доступных объектов');
     }
 
@@ -652,6 +661,7 @@ const createForCustomer = async (userId: string, body: CreateRequestBody, files:
         daysAtWork: 0,
         builder: 'Укажите подрядчика',
         fileName,
+        directoryCategoryId: body.directoryCategoryId ?? null,
         createdByUserId: userId,
         createdBy: null,
         number: 0,

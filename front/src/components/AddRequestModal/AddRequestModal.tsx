@@ -1,220 +1,252 @@
-import { Button, Flex, Form, Input, Modal, notification, Select, Typography, Upload } from 'antd';
-import { useForm, useWatch } from 'antd/es/form/Form';
-import { UploadFile } from 'antd/lib';
-import { FC, useContext, useEffect, useMemo, useState } from 'react';
+import { FC, useContext, useEffect, useState } from 'react';
 
-import { TAddRequestModalProps, TCreateRequestForm } from './types';
-import {
-  useCreateRequestSinglePhotoMutation,
-  useCreateRequestWithMultyPhotoMutation,
-  useCreateRequestWithoutPhotoMutation,
-  useGetAllUnitsQuery,
-  useLazyGetAllObjectsQuery,
-} from '../../API/rtkQuery/requests.api';
-import { FORM_RULES } from '../../constants/form.constants';
+import { TAddRequestModalProps } from './types';
+import { useCreateRequestMutation } from '../../API/rtkQuery/lk.api';
+import { useGetAllUnitsQuery, useLazyGetAllObjectsQuery } from '../../API/rtkQuery/requests.api';
 import { IS_PHOTO_REQUIRED } from '../../constants/settings.constants';
 import DataContext from '../../context';
-import { transformUrgencyListToOptions } from '../../utils/dataTrasformers';
-import { getUrgencyById } from '../../utils/getId.util';
+import { getErrorMessage } from '../../utils/getErrorMessage';
+import LkSelect, { LkSelectOption } from '../Lk/LkSelect';
+import PhotoUploader from '../Lk/PhotoUploader';
+import { showToast } from '../Lk/toastBus';
 
-const { Text } = Typography;
+// В админ-стеке нет LkLayout, который подгружает LK-стили — без этого импорта
+// .lk-modal/.lk-field/.lk-select не попадут в bundle при заходе сразу на
+// админ-главную. Тот же приём, что в AdminChatModal.
+import '../../styles/lk/index.scss';
+
+const MIN_DESCRIPTION_LEN = 10;
+const MAX_FILES = 10;
 
 const AddRequestModal: FC<TAddRequestModalProps> = ({ handleClose }) => {
   const { context } = useContext(DataContext);
-  const { urgencyList, directoryCategories } = context;
-  const [form] = useForm<TCreateRequestForm>();
+  const { urgencyList, directoryCategories, settingsList } = context;
+
   const userDataRaw = sessionStorage.getItem('userData');
-  const userId = userDataRaw ? JSON.parse(userDataRaw)?.user?.id : null;
-  const [fileList, setFileList] = useState<UploadFile[]>([]);
+  const userId: string | null = userDataRaw ? (JSON.parse(userDataRaw)?.user?.id ?? null) : null;
 
-  const isPhotoRequired = useMemo(
-    () => context.settingsList.find((s) => s.setting === IS_PHOTO_REQUIRED)?.value,
-    [context.settingsList],
-  );
+  // Сеттинг не загрузился (эндпоинт упал / не сидирован) — считаем фото
+  // обязательным: безопасный дефолт, совпадающий с ЛК заказчика и seedSettings.
+  const isPhotoRequired = settingsList?.find((s) => s.setting === IS_PHOTO_REQUIRED)?.value ?? true;
 
-  const unitId = useWatch('unitId', form);
+  const [unitId, setUnitId] = useState('');
+  const [objectId, setObjectId] = useState('');
+  const [categoryId, setCategoryId] = useState('');
+  const [urgencyId, setUrgencyId] = useState('');
+  const [description, setDescription] = useState('');
+  const [files, setFiles] = useState<File[]>([]);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const { data: units, isLoading: isUnitsLoading } = useGetAllUnitsQuery();
-  const [getAllObjectsMethod, { data: objects, isLoading: isObjectsLoading }] =
-    useLazyGetAllObjectsQuery();
-  const [createRequestWithMultyPhotoMethod, { isLoading: isRequestWithMultyPhotoLoading }] =
-    useCreateRequestWithMultyPhotoMutation();
-  const [createRequestSinglePhotoMethod, { isLoading: isRequestWithSinglePhotoLoading }] =
-    useCreateRequestSinglePhotoMutation();
-  const [createRequestWithoutPhotoMethod, { isLoading: isRequestWithoutPhotoLoading }] =
-    useCreateRequestWithoutPhotoMutation();
-  const [notificationApi, contextHolder] = notification.useNotification();
+  const { data: units } = useGetAllUnitsQuery();
+  const [getObjects, { data: objects, isFetching: objectsLoading }] = useLazyGetAllObjectsQuery();
+  // Тот же эндпоинт, что у заказчика (/lk/requests): один POST с FormData,
+  // creator берётся из токена. ADMIN заводит заявку на любой объект.
+  const [createRequest, { isLoading: submitting }] = useCreateRequestMutation();
 
-  const isOkButtonLoading =
-    isRequestWithMultyPhotoLoading ||
-    isRequestWithSinglePhotoLoading ||
-    isRequestWithoutPhotoLoading;
-
-  const urgencyTransformedOptions = useMemo(
-    () => transformUrgencyListToOptions(urgencyList),
-    [urgencyList],
-  );
-
+  // Авто-выбор единственного варианта — как в прежней версии модалки.
   useEffect(() => {
-    if (units?.length === 1) {
-      form.setFieldsValue({ unitId: units[0]?.id });
-    }
+    const only = units?.length === 1 ? units[0] : undefined;
+    if (only) setUnitId(only.id);
   }, [units]);
 
   useEffect(() => {
-    if (objects?.length === 1) {
-      form.setFieldsValue({ objectId: objects[0]?.id });
-    }
+    const only = objects?.length === 1 ? objects[0] : undefined;
+    if (only) setObjectId(only.id);
   }, [objects]);
 
+  // Объекты зависят от подразделения: при смене юнита сбрасываем объект и перезапрашиваем.
   useEffect(() => {
-    if (unitId && userId) {
-      form.setFieldsValue({ objectId: undefined });
-      getAllObjectsMethod({ userId, unitId });
-    }
-  }, [userId, unitId]);
+    setObjectId('');
+    if (unitId && userId) getObjects({ userId, unitId });
+  }, [unitId, userId, getObjects]);
 
-  const handleCloseModal = () => {
-    handleClose();
-    context.UpdateTableReguest();
+  // Блокируем скролл страницы, пока модалка открыта.
+  useEffect(() => {
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prevOverflow;
+    };
+  }, []);
+
+  // Esc закрывает модалку (кроме момента сабмита).
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent): void => {
+      if (e.key === 'Escape' && !submitting) handleClose();
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [handleClose, submitting]);
+
+  const unitOptions: LkSelectOption[] = (units ?? []).map((u) => ({ value: u.id, label: u.name }));
+  const objectOptions: LkSelectOption[] = (objects ?? []).map((o) => ({
+    value: o.id,
+    label: o.name,
+  }));
+  const categoryOptions: LkSelectOption[] = (directoryCategories ?? []).map((c) => ({
+    value: c.id,
+    label: c.name,
+  }));
+  const urgencyOptions: LkSelectOption[] = (urgencyList ?? []).map((u) => ({
+    value: u.id,
+    label: u.name,
+  }));
+
+  const validate = (): boolean => {
+    const next: Record<string, string> = {};
+    if (!unitId) next.unitId = 'Выберите подразделение';
+    if (!objectId) next.objectId = 'Выберите объект';
+    if (description.trim().length < MIN_DESCRIPTION_LEN) {
+      next.description = `Опишите проблему (минимум ${MIN_DESCRIPTION_LEN} символов)`;
+    }
+    if (!urgencyId) next.urgencyId = 'Выберите срочность';
+    if (isPhotoRequired && files.length === 0) next.files = 'Добавьте хотя бы одно фото';
+    if (files.length > MAX_FILES) next.files = `Не более ${MAX_FILES} фото`;
+    setErrors(next);
+    return Object.keys(next).length === 0;
   };
 
-  const handleCreateRequest = async () => {
-    const values = await form.validateFields();
-    const urgency = getUrgencyById(values.urgency, urgencyList)?.name;
-    const isHasFiles = fileList.length > 0;
+  const handleSubmit = async (): Promise<void> => {
+    if (submitting) return;
+    if (!validate()) return;
 
-    if (!urgency) return;
+    const fd = new FormData();
+    fd.append('objectId', objectId);
+    fd.append('problemDescription', description.trim());
+    fd.append('urgencyId', urgencyId);
+    if (categoryId) fd.append('directoryCategoryId', categoryId);
+    files.forEach((f) => fd.append('files', f));
 
-    if (isPhotoRequired && !isHasFiles) {
-      notificationApi.error({ message: 'Необходимо прекрепить фото' });
-      return;
+    try {
+      await createRequest(fd).unwrap();
+      showToast('success', 'Заявка создана');
+      handleClose();
+      context.UpdateTableReguest();
+    } catch (err) {
+      showToast('error', getErrorMessage(err));
     }
-
-    if (!isHasFiles) {
-      await createRequestWithoutPhotoMethod({
-        ...values,
-        userId,
-        urgency,
-      });
-      handleCloseModal();
-      return;
-    }
-
-    const formData = new FormData();
-
-    // обычные поля
-    formData.append('objectId', values.objectId);
-    formData.append('problemDescription', values.problemDescription);
-    formData.append('urgency', urgency ?? '');
-
-    if (values.directoryCategoryId) {
-      formData.append('directoryCategoryId', values.directoryCategoryId);
-    }
-
-    // файлы
-    fileList?.forEach((file: any) => {
-      formData.append('file', file.originFileObj);
-    });
-    formData.append('userId', 'e30011a7-fc9d-406d-b9e8-06c9a373f951');
-
-    if (fileList && fileList.length === 1) {
-      await createRequestSinglePhotoMethod(formData);
-      handleCloseModal();
-      return;
-    }
-
-    await createRequestWithMultyPhotoMethod(formData);
-    handleCloseModal();
   };
 
   return (
-    <>
-      {contextHolder}
-      <Modal
-        title="Создание заявки"
-        open
-        onCancel={handleClose}
-        onOk={handleCreateRequest}
-        okText="Создать"
-        okButtonProps={{ loading: isOkButtonLoading }}
+    <div
+      className="lk-modal__overlay"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget && !submitting) handleClose();
+      }}
+    >
+      <div
+        className="lk-modal__sheet"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="add-request-title"
       >
-        <Form form={form}>
-          <Flex vertical gap={5}>
-            <Text>Подразделение</Text>
-            <Form.Item<TCreateRequestForm> name="unitId" rules={FORM_RULES}>
-              <Select
-                placeholder="Выберите подраздение"
-                options={units ?? []}
-                fieldNames={{ label: 'name', value: 'id' }}
-                allowClear
-                showSearch
-              />
-            </Form.Item>
-          </Flex>
-          <Flex vertical gap={5}>
-            <Text>Объект</Text>
-            <Form.Item<TCreateRequestForm> name="objectId" rules={FORM_RULES}>
-              <Select
-                placeholder="Выберите объект"
-                disabled={!unitId}
-                options={objects ?? []}
-                loading={isUnitsLoading || isObjectsLoading}
-                fieldNames={{ label: 'name', value: 'id' }}
-                allowClear
-                showSearch
-              />
-            </Form.Item>
-          </Flex>
-          <Flex vertical gap={5}>
-            <Text>Категория</Text>
-            <Form.Item<TCreateRequestForm> name="directoryCategoryId">
-              <Select
-                options={directoryCategories ?? []}
-                fieldNames={{ label: 'name', value: 'id' }}
-                allowClear
-                showSearch
-                placeholder="Выберите категорию"
-              />
-            </Form.Item>
-          </Flex>
-          <Flex vertical gap={5}>
-            <Text>Описание проблемы</Text>
-            <Form.Item<TCreateRequestForm> name="problemDescription" rules={FORM_RULES}>
-              <Input.TextArea placeholder="Введите описание проблемы" allowClear />
-            </Form.Item>
-          </Flex>
-          <Flex vertical gap={5}>
-            <Text>Срочность</Text>
-            <Form.Item<TCreateRequestForm> name="urgency" rules={FORM_RULES}>
-              <Select
-                placeholder="Выберите срочность"
-                allowClear
-                showSearch
-                options={urgencyTransformedOptions}
-                optionFilterProp="labeText"
-              />
-            </Form.Item>
-          </Flex>
-          <Flex vertical gap={5}>
-            <Text>Фотографии</Text>
+        <h2 className="lk-modal__title" id="add-request-title">
+          Создание заявки
+        </h2>
 
-            <Upload
-              beforeUpload={() => false}
-              fileList={fileList}
-              onChange={({ fileList }) => {
-                const limitedList = fileList.slice(0, 5);
-                setFileList(limitedList);
-              }}
-              maxCount={5}
-              listType="picture"
-            >
-              {fileList.length < 5 && <Button variant="outlined">Загрузить</Button>}
-            </Upload>
-          </Flex>
-        </Form>
-      </Modal>
-    </>
+        <div className="lk-field">
+          <label className="lk-field__label" htmlFor="add-request-unit">
+            Подразделение
+          </label>
+          <LkSelect
+            id="add-request-unit"
+            value={unitId}
+            onChange={setUnitId}
+            options={unitOptions}
+            placeholder="Выберите подразделение"
+          />
+          {errors.unitId ? <div className="lk-field__error">{errors.unitId}</div> : null}
+        </div>
+
+        <div className="lk-field">
+          <label className="lk-field__label" htmlFor="add-request-object">
+            Объект
+          </label>
+          <LkSelect
+            id="add-request-object"
+            value={objectId}
+            onChange={setObjectId}
+            options={objectOptions}
+            placeholder={objectsLoading ? 'Загрузка...' : 'Выберите объект'}
+            disabled={!unitId || objectsLoading}
+          />
+          {errors.objectId ? <div className="lk-field__error">{errors.objectId}</div> : null}
+        </div>
+
+        <div className="lk-field">
+          <label className="lk-field__label" htmlFor="add-request-category">
+            Категория
+          </label>
+          <LkSelect
+            id="add-request-category"
+            value={categoryId}
+            onChange={setCategoryId}
+            options={categoryOptions}
+            placeholder="Выберите категорию"
+          />
+        </div>
+
+        <div className="lk-field">
+          <label className="lk-field__label" htmlFor="add-request-desc">
+            Описание проблемы
+          </label>
+          <textarea
+            id="add-request-desc"
+            className="lk-textarea"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Опишите, что сломалось"
+          />
+          {errors.description ? <div className="lk-field__error">{errors.description}</div> : null}
+        </div>
+
+        <div className="lk-field">
+          <label className="lk-field__label" htmlFor="add-request-urgency">
+            Срочность
+          </label>
+          <LkSelect
+            id="add-request-urgency"
+            value={urgencyId}
+            onChange={setUrgencyId}
+            options={urgencyOptions}
+            placeholder="Выберите срочность"
+          />
+          {errors.urgencyId ? <div className="lk-field__error">{errors.urgencyId}</div> : null}
+        </div>
+
+        <div className="lk-field">
+          <label className="lk-field__label">
+            {isPhotoRequired ? 'Фотографии (1–10)' : 'Фотографии (по желанию, до 10)'}
+          </label>
+          <PhotoUploader
+            files={files}
+            onChange={setFiles}
+            maxFiles={MAX_FILES}
+            hint="Снимите проблему с разных ракурсов. Форматы: JPG/JPEG или PNG, до 10 МБ."
+          />
+          {errors.files ? <div className="lk-field__error">{errors.files}</div> : null}
+        </div>
+
+        <div className="lk-modal__actions">
+          <button
+            type="button"
+            className="lk-button lk-button--ghost lk-button--block"
+            onClick={handleClose}
+            disabled={submitting}
+          >
+            Отмена
+          </button>
+          <button
+            type="button"
+            className="lk-button lk-button--primary lk-button--block"
+            onClick={handleSubmit}
+            disabled={submitting}
+          >
+            {submitting ? 'Создание...' : 'Создать'}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 };
 

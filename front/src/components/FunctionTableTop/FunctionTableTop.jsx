@@ -17,6 +17,7 @@ import { notification, Button, Tooltip } from 'antd'
 import RequestEditModalContainer from '../RequestEditModal/RequestEditModal.container'
 import { useGetRequestCountQuery } from '../../API/rtkQuery/requests.api'
 import AddRequestModal from '../AddRequestModal/AddRequestModal'
+import LkToastArea from '../Lk/LkToastArea'
 import { DeleteOutlined, EditOutlined, ExportOutlined, PlusOutlined } from '@ant-design/icons'
 
 function FunctionTableTop(props) {
@@ -278,6 +279,9 @@ function FunctionTableTop(props) {
         />
       )}
       {isAddRequestModalOpen && <AddRequestModal handleClose={handleCloseAddModal} />}
+      {/* Тост-канал ЛК-механики: живёт вне модалки, чтобы success-тост
+          «Заявка создана» пережил её закрытие. */}
+      <LkToastArea />
     </>
   )
 }

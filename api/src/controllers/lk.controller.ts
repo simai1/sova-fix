@@ -62,9 +62,9 @@ const getOne = catchAsync(async (req, res) => {
 });
 
 const create = catchAsync(async (req, res) => {
-    const { userId } = getCurrent(req);
+    const { userId, roleNumber } = getCurrent(req);
     const files = ((req as any).files as Express.Multer.File[]) || [];
-    const dto = await lkService.createForCustomer(userId, req.body, files);
+    const dto = await lkService.createForCustomer(userId, req.body, files, roleNumber);
     res.status(httpStatus.CREATED).json(dto);
 });
 

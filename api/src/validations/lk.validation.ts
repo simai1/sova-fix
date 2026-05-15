@@ -43,6 +43,8 @@ export const createRequestSchema = Joi.object({
         objectId: Joi.string().uuid().required().messages(ru('objectId')),
         problemDescription: Joi.string().min(1).max(1000).required().messages(ru('problemDescription')),
         urgencyId: Joi.string().uuid().required().messages(ru('urgencyId')),
+        // Категорию проставляет менеджер из веб-ЛК; у CUSTOMER поля нет — оттого optional.
+        directoryCategoryId: Joi.string().uuid().optional().messages(ru('directoryCategoryId')),
     }).unknown(false),
     params: Joi.object().unknown(true),
     query: Joi.object().unknown(true),
