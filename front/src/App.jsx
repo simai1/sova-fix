@@ -11,6 +11,7 @@ import { GetAllCategories, GetAllEquipment, GetAllNomenclatures, GetAllRequests,
 import Activate from "./pages/Login/Activate/Activate.jsx";
 import { useSelector } from "react-redux";
 import { funFixEducator } from "./UI/SamplePoints/Function.js";
+import { getUserData } from "./utils/auth.ts";
 import ReportsContainer from './pages/AdminPages/Reports/Reports.container.tsx'
 import BusinessUnitReference from "./modules/BusinessUnitReference/BusinessUnitReference.jsx";
 import DirectoryLegalEntities from "./modules/DirectoryLegalEntities/DirectoryLegalEntities.jsx";
@@ -380,23 +381,32 @@ const UpdateStatus = () => {
   }
   
   useEffect(() => {
+    // Заявки и исполнители — данные за авторизацией. Пока userData нет
+    // (страница логина/активации), API не дёргаем — иначе на экран входа
+    // уходят заведомо 401-запросы к /requests и /contractors.
+    const userId = getUserData()?.user?.id;
+    if (!userId) return;
     setDataAppointment([])
     GetAllСontractors().then((resp) => {
       if(resp) {
         setDataContractors(resp?.data);
       }
     })
-    const url = JSON.parse(sessionStorage.getItem("userData"))?.user?.id ? `?userId=${JSON.parse(sessionStorage.getItem("userData"))?.user?.id}` : '';
-    GetAllRequests(url).then((resp) => {
+    GetAllRequests(`?userId=${userId}`).then((resp) => {
       setDataAppointment(funFixEducator(resp?.data?.data));
     });
   }, [dataUsers]);
 
   useEffect(() => {
+    if (!getUserData()?.user?.id) return;
     GetAllUrgensies().then(response => {
       if(response?.status === 200) setUrgencyList(response.data)
     })
   }, [dataApointment])
+
+  // js-cache-storage: роль читаем один раз за рендер, а не пятью
+  // JSON.parse(sessionStorage) прямо в разметке роутов ниже.
+  const userRole = getUserData()?.user?.role;
 
   return (
     <DataContext.Provider
@@ -433,7 +443,7 @@ const UpdateStatus = () => {
               <Route path="profile" element={<CustomerProfile />} />
             </Route>
             
-            {JSON.parse(sessionStorage.getItem("userData"))?.user?.role === "CUSTOMER" ? null : (
+            {userRole === "CUSTOMER" ? null : (
               <Route path="/Directory/*" element={<Directory />}>
                <Route path="BusinessUnitReference" element={<BusinessUnitReference />}></Route>
                <Route path="DirectoryLegalEntities" element={<DirectoryLegalEntities />}></Route>
@@ -443,23 +453,23 @@ const UpdateStatus = () => {
                <Route path="Urgency" element={<DirectoryUrgency />}></Route>
                <Route path="Status" element={<DirectoryStatuses />}></Route>
                <Route path="Category" element={<DirectoryCategory />}></Route>
-               {JSON.parse(sessionStorage.getItem("userData"))?.user?.role === "ADMIN" && (
+               {userRole === "ADMIN" && (
                  <Route path="RegistrationRequests" element={<RegistrationRequests />}></Route>
                )}
-               {JSON.parse(sessionStorage.getItem("userData"))?.user?.role === "ADMIN" && (
+               {userRole === "ADMIN" && (
                  <Route path="SystemLogs" element={<SystemLogs />}></Route>
                )}
              </Route>
             )}
 
-            {JSON.parse(sessionStorage.getItem("userData"))?.user?.role === "CUSTOMER" ? null : (
+            {userRole === "CUSTOMER" ? null : (
               <Route path="/CardPage/*" element={<CardPage />}>
                <Route path="Card" element={<PageCardContractors />}></Route>
                <Route path="CardPageModule" element={<CardPageModule />}></Route>
              </Route>
             )}
 
-            {JSON.parse(sessionStorage.getItem("userData"))?.user?.role === "CUSTOMER" ? null : (
+            {userRole === "CUSTOMER" ? null : (
               <Route path="/Equipment/*" element={<Equipment />}>
                 <Route path="GraphicEquipment" element={<GraphicEquipment />}></Route>
                 <Route path="CategoryEquipment" element={<CategoryEquipment />}></Route>

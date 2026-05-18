@@ -5,6 +5,10 @@ import DataContext from "../../../context";
 import { tableHeadAppoint } from "../../../components/Table/Data";
 import { LoginFunc } from "../../../API/API";
 
+// Хоистим из handleLogin: регэксп без флага /g, пересоздавать его
+// на каждую попытку входа незачем.
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
 function Authorization() {
   const { context } = React.useContext(DataContext);
   const [errorAuth, setErrorAuth] = useState("");
@@ -42,8 +46,7 @@ function Authorization() {
   const handleLogin = async () => {
     setErrorAuth("");
     let formIsValid = true;
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!emailRegex.test(formData.login)) {
+    if (!EMAIL_REGEX.test(formData.login)) {
       setErrors((prevErrors) => ({
         ...prevErrors,
         login: "Введите корректный email",
@@ -90,10 +93,18 @@ function Authorization() {
       // (см. Pending.jsx), не через login-ошибку.
       const status = err?.response?.status ?? err?.status;
       const serverMessage = err?.response?.data?.message ?? err?.data?.message;
-      if (status === 429) {
+      if (!err?.response) {
+        // Запрос не дошёл до сервера (нет сети, CORS, сервер недоступен) —
+        // это не повод обвинять логин/пароль пользователя.
+        setErrorAuth("Сервер недоступен. Проверьте подключение к интернету.");
+      } else if (status === 429) {
         setErrorAuth(serverMessage || "Слишком много попыток. Попробуйте позже");
+      } else if (status >= 500) {
+        setErrorAuth("Ошибка на стороне сервера. Попробуйте позже.");
+      } else if (status === 401) {
+        setErrorAuth("Неверный логин или пароль");
       } else {
-        setErrorAuth(serverMessage || "Неверный логин или пароль");
+        setErrorAuth(serverMessage || "Не удалось войти. Попробуйте ещё раз.");
       }
     }
   };
@@ -111,6 +122,11 @@ function Authorization() {
       setApprovedMessage("Регистрация одобрена. Войдите в аккаунт.");
     }
   }, [location.state]);
+
+  // Считаем сообщение баннера один раз вместо четырёх Object.values(errors)
+  // в разметке ниже. Приоритет — ошибка входа, затем первая ошибка поля.
+  const fieldError = Object.values(errors).find((error) => error);
+  const bannerMessage = errorAuth || fieldError;
 
   return (
     <div className={styles.AuthorRegistrar}>
@@ -160,19 +176,11 @@ function Authorization() {
           </div>
         </div>
         <div
-  className={`${styles.ErrorLogin} ${
-    errorAuth || Object.values(errors).some((error) => error)
-      ? styles.visible
-      : ""
-  }`}
-  style={{ opacity: errorAuth || Object.values(errors).some((error) => error) ? 1 : 0 }}
->
-  {errorAuth ? (
-    <p>{errorAuth}</p>
-  ) : Object.values(errors).some((error) => error) ? (
-    <p>{Object.values(errors).find((error) => error)}</p>
-  ) : null}
-</div>
+          className={`${styles.ErrorLogin} ${bannerMessage ? styles.visible : ""}`}
+          style={{ opacity: bannerMessage ? 1 : 0 }}
+        >
+          {bannerMessage ? <p>{bannerMessage}</p> : null}
+        </div>
 
       </div>
     </div>
