@@ -23,6 +23,10 @@ type Position = {
 // к нижней границе input'а и focus-ring триггера сливается с border'ом popover'а.
 const POPOVER_GAP_PX = 4;
 
+// Минимальный отступ popover'а от кромки viewport'а, когда он открывается вверх
+// и даже там не помещается целиком — упирается в этот отступ, а не в край.
+const VIEWPORT_MARGIN_PX = 8;
+
 // См. LkDatePicker.tsx — на мобильной портретной (≤ 767px) переключаемся на
 // bottom-sheet, чтобы календарь не уходил за нижний край viewport'а.
 const MOBILE_SHEET_MQ = '(max-width: 767px)';
@@ -64,18 +68,40 @@ const LkSingleDatePicker = ({
   // Позиционирование popover относительно триггера — только в desktop-режиме.
   // На мобильной bottom-sheet прибит ко дну экрана, координаты не нужны.
   // См. комментарии в LkDatePicker.tsx: capture-listener на scroll нужен для
-  // scrollable-родителей.
+  // scrollable-родителей; popover до расчёта позиции скрыт (visibility:hidden),
+  // чтобы измерить высоту и решить, открывать вниз или вверх.
   useLayoutEffect(() => {
     if (!open || isMobile || !triggerRef.current) return;
     const recompute = (): void => {
       if (!triggerRef.current) return;
       const rect = triggerRef.current.getBoundingClientRect();
-      setPos({ top: rect.bottom + POPOVER_GAP_PX, left: rect.left, width: rect.width });
+      const popoverH = popoverRef.current?.offsetHeight ?? 0;
+      const spaceBelow = window.innerHeight - rect.bottom - POPOVER_GAP_PX;
+      let top = rect.bottom + POPOVER_GAP_PX;
+      // Если под триггером календарь целиком не помещается — открываем вверх,
+      // прижимая к верхней кромке viewport'а, чтобы он был виден полностью
+      // при любом масштабе страницы.
+      if (popoverH > 0 && popoverH > spaceBelow) {
+        top = Math.max(VIEWPORT_MARGIN_PX, rect.top - POPOVER_GAP_PX - popoverH);
+      }
+      // scroll-capture/resize/ResizeObserver зовут recompute часто и обычно с
+      // теми же координатами — возвращаем прежний объект, чтобы React пропустил
+      // лишний re-render всего календаря.
+      setPos((prev) =>
+        prev && prev.top === top && prev.left === rect.left && prev.width === rect.width
+          ? prev
+          : { top, left: rect.left, width: rect.width },
+      );
     };
     recompute();
+    // Высота rdp-сетки зависит от числа недель в месяце (4–6 строк) — следим
+    // за ресайзом popover'а, чтобы пересчитать flip при навигации по месяцам.
+    const ro = new ResizeObserver(recompute);
+    if (popoverRef.current) ro.observe(popoverRef.current);
     window.addEventListener('scroll', recompute, true);
     window.addEventListener('resize', recompute);
     return () => {
+      ro.disconnect();
       window.removeEventListener('scroll', recompute, true);
       window.removeEventListener('resize', recompute);
     };
@@ -168,7 +194,7 @@ const LkSingleDatePicker = ({
         <span className="lk-datepicker__trigger-value">{display || placeholder}</span>
       </button>
 
-      {open && (isMobile || pos)
+      {open
         ? createPortal(
             isMobile ? (
               <div className="lk-datepicker__overlay">
@@ -205,8 +231,11 @@ const LkSingleDatePicker = ({
                 className="lk-datepicker__popover"
                 style={{
                   position: 'fixed',
-                  top: pos!.top,
-                  left: pos!.left,
+                  top: pos ? pos.top : 0,
+                  left: pos ? pos.left : 0,
+                  // До первого расчёта позиции popover скрыт, но уже в DOM —
+                  // иначе нечем измерить высоту для выбора направления flip'а.
+                  visibility: pos ? 'visible' : 'hidden',
                 }}
                 role="dialog"
                 aria-label="Выбор даты"
