@@ -1,5 +1,5 @@
 import { Modal } from 'antd';
-import { useEffect, useMemo, useState } from 'react';
+import { type CSSProperties, useEffect, useMemo, useState } from 'react';
 
 import styles from './UserObjectsAssign.module.scss';
 
@@ -25,16 +25,26 @@ type OptionGroup = {
   options: { label: string; value: string; meta?: string }[];
 };
 
+// Нативный чекбокс визуально скрыт (внешний вид рисуют span'ы), но остаётся в DOM
+// ради доступности. Объект стиля — на уровне модуля: иначе он аллоцируется заново
+// на каждый рендер для каждой строки списка.
+const HIDDEN_CHECKBOX_STYLE: CSSProperties = {
+  position: 'absolute',
+  opacity: 0,
+  pointerEvents: 'none',
+};
+
 const UserObjectsAssign = ({ open, userId, userName, onClose }: Props): JSX.Element => {
   // Контроллер `/objects` требует `?userId=<id>` — без него возвращает []. Берём id
   // текущего админа из sessionStorage: для роли ADMIN контроллер отдаёт все объекты.
-  const adminUserId: string | undefined = (() => {
+  // useMemo с пустыми deps — sessionStorage + JSON.parse не должны гонять на каждый рендер.
+  const adminUserId = useMemo<string | undefined>(() => {
     try {
       return JSON.parse(sessionStorage.getItem('userData') ?? '{}')?.user?.id;
     } catch {
       return undefined;
     }
-  })();
+  }, []);
 
   const { data: allObjects = [], isLoading: objLoading } = useGetAllObjectsQuery(
     adminUserId ?? '',
@@ -184,7 +194,7 @@ const UserObjectsAssign = ({ open, userId, userName, onClose }: Props): JSX.Elem
               placeholder="Поиск по названию или городу"
               aria-label="Поиск объектов"
             />
-            {query && (
+            {query ? (
               <button
                 type="button"
                 className={styles.clearBtn}
@@ -193,7 +203,7 @@ const UserObjectsAssign = ({ open, userId, userName, onClose }: Props): JSX.Elem
               >
                 ×
               </button>
-            )}
+            ) : null}
           </div>
           <button
             type="button"
@@ -209,12 +219,12 @@ const UserObjectsAssign = ({ open, userId, userName, onClose }: Props): JSX.Elem
           <span>
             Выбрано <span className={styles.counterStrong}>{selectedCount}</span> из{' '}
             <span className={styles.counterStrong}>{totalCount}</span>
-            {query && (
+            {query ? (
               <>
                 {' '}
                 · показано <span className={styles.counterStrong}>{visibleCount}</span>
               </>
-            )}
+            ) : null}
           </span>
           <button
             type="button"
@@ -264,11 +274,11 @@ const UserObjectsAssign = ({ open, userId, userName, onClose }: Props): JSX.Elem
                         type="checkbox"
                         checked={checked}
                         onChange={() => toggleOne(opt.value)}
-                        style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}
+                        style={HIDDEN_CHECKBOX_STYLE}
                       />
                       <span className={styles.rowText}>
                         <span className={styles.rowName}>{opt.label}</span>
-                        {opt.meta && <span className={styles.rowMeta}>{opt.meta}</span>}
+                        {opt.meta ? <span className={styles.rowMeta}>{opt.meta}</span> : null}
                       </span>
                     </label>
                   );

@@ -32,13 +32,14 @@ export const userObjectsApi = createApi({
     getUserObjects: build.query<string[], string>({
       query: (userId) => `/users/${userId}/objects`,
       transformResponse: (resp: unknown) => {
-        if (Array.isArray(resp)) {
-          // Принимаем либо массив id, либо массив объектов с id (бэкенд может вернуть оба варианта)
-          return (resp as Array<string | { id: string }>).map((item) =>
-            typeof item === 'string' ? item : item.id,
-          );
-        }
-        return [];
+        // Бэкенд отдаёт { objectIds: [...] } (см. user.controller.ts::getUserObjects);
+        // на всякий случай поддерживаем и голый массив.
+        const raw = Array.isArray(resp) ? resp : (resp as { objectIds?: unknown })?.objectIds;
+        if (!Array.isArray(raw)) return [];
+        // Принимаем либо массив id, либо массив объектов с id.
+        return (raw as Array<string | { id: string }>).map((item) =>
+          typeof item === 'string' ? item : item.id,
+        );
       },
       providesTags: (_r, _e, userId) => [{ type: 'UserObjects' as const, id: userId }],
     }),
