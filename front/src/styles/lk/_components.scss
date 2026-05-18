@@ -1036,6 +1036,15 @@
     @include lk-mq-up(tl) {
       align-items: center;
     }
+
+    // Модалка может рендериться в админ-стеке вне .lk-page, где нет глобального
+    // box-sizing reset. Без него .lk-textarea (width:100% + padding + border)
+    // вылезает за .lk-modal__sheet и даёт горизонтальный скролл.
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
   }
 
   &__sheet {

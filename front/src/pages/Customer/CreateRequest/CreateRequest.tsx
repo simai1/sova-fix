@@ -147,7 +147,7 @@ const CustomerCreateRequest = (): JSX.Element => {
 
       <button
         type="submit"
-        className="lk-button lk-button--primary lk-button--block"
+        className="lk-button lk-button--accent lk-button--block"
         disabled={creating}
       >
         {creating ? 'Создание...' : 'Создать заявку'}

@@ -238,7 +238,7 @@ const AddRequestModal: FC<TAddRequestModalProps> = ({ handleClose }) => {
           </button>
           <button
             type="button"
-            className="lk-button lk-button--primary lk-button--block"
+            className="lk-button lk-button--accent lk-button--block"
             onClick={handleSubmit}
             disabled={submitting}
           >
