@@ -15,6 +15,63 @@ type Props = {
 const MAX_ROWS = 4;
 const LINE_HEIGHT_REM = 1.4;
 
+// Размер вложения «по-человечески»: КБ для файлов меньше мегабайта, иначе МБ —
+// так же, как размер показывается в самом сообщении чата.
+const formatFileSize = (bytes: number): string => {
+  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} КБ`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} МБ`;
+};
+
+// Статичные SVG-иконки вынесены из рендера: эти узлы не зависят от пропсов/стейта,
+// держим один инстанс на модуль, чтобы React не пересоздавал их на каждый ре-рендер.
+const attachIcon = (
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.49" />
+  </svg>
+);
+
+// Заглушка-превью для видео (mp4 не даёт картинку).
+const videoThumbIcon = (
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="m22 8-6 4 6 4V8Z" />
+    <rect x="2" y="6" width="14" height="12" rx="2" />
+  </svg>
+);
+
+const removeIcon = (
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    aria-hidden="true"
+  >
+    <path d="M18 6 6 18M6 6l12 12" />
+  </svg>
+);
+
 const ChatComposer = ({ onSubmit, isSending, autoGrow = true }: Props): JSX.Element => {
   const [text, setText] = useState('');
   const [file, setFile] = useState<File | null>(null);
@@ -82,15 +139,25 @@ const ChatComposer = ({ onSubmit, isSending, autoGrow = true }: Props): JSX.Elem
         <div className="lk-chat__attach-preview">
           {previewUrl ? (
             <img className="lk-chat__attach-thumb" src={previewUrl} alt={`Превью ${file.name}`} />
-          ) : null}
-          <span className="lk-chat__attach-name">{file.name}</span>
+          ) : (
+            <span
+              className="lk-chat__attach-thumb lk-chat__attach-thumb--placeholder"
+              aria-hidden="true"
+            >
+              {videoThumbIcon}
+            </span>
+          )}
+          <span className="lk-chat__attach-meta">
+            <span className="lk-chat__attach-name">{file.name}</span>
+            <span className="lk-chat__attach-size">{formatFileSize(file.size)}</span>
+          </span>
           <button
             type="button"
             className="lk-chat__attach-remove"
             onClick={handleClearFile}
             aria-label="Убрать вложение"
           >
-            ×
+            {removeIcon}
           </button>
         </div>
       ) : null}
@@ -103,19 +170,7 @@ const ChatComposer = ({ onSubmit, isSending, autoGrow = true }: Props): JSX.Elem
           aria-label="Прикрепить фото"
           disabled={isSending}
         >
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.49" />
-          </svg>
+          {attachIcon}
         </button>
         <input
           ref={fileInputRef}
