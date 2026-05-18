@@ -1,6 +1,6 @@
 import styles from "./Header.module.scss";
 import React, { useState, useEffect, useRef, useContext } from 'react';
-import './Menu.css'; // Импортируем стили
+import './Menu.css';
 import { useNavigate } from "react-router-dom";
 import DataContext from "../../context";
 import { GetAllSettings, GetObjectsAll, LogOut } from "../../API/API";
@@ -146,7 +146,6 @@ return (
   </div>
     
       <div className={`menu ${isOpen ? 'open' : ''}`} ref={menuRef}>
-          {/* <h3>{shortName}</h3> */}
           <div className={styles.close}>
             <img onClick={() =>  closeMenu()} src={imgClose}/>
           </div>

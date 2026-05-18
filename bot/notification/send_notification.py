@@ -127,7 +127,6 @@ async def from_websocket_message(bot: Bot, message_string: str) -> None:
 
     text = await get_simple_notification_text(event, msg)
 
-    # Отслеживаем кому уже отправили уведомление для избежания дублирования
     notified_users = set()
 
     if customer_id is not None and event != "REQUEST_CREATE":

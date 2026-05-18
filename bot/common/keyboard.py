@@ -2,7 +2,6 @@ from aiogram.types import InlineKeyboardButton as IKB, InlineKeyboardMarkup as I
 from util import logger
 
 
-# common message buttons:
 def to_start_kb() -> IKM:
     return IKM(inline_keyboard=[
         [to_start_btn()]
@@ -17,7 +16,6 @@ def skip_btn() -> IKB:
     return IKB(text="Пропустить ▶️", callback_data="skip")
 
 
-# menu buttons:
 def check_btn(repair_request: dict) -> IKB:
     return IKB(text='Добавить чек 🧾', callback_data=f"check:{repair_request['id']}")
 
@@ -41,12 +39,10 @@ def set_contractor_btn(repair_request: dict) -> IKB:
     return IKB(text="Назначить исполнителя 👨‍🔧", callback_data=f"set_con:{repair_request['id']}")
 
 
-# common keyboards
 def skip_kb() -> IKM:
     return IKM(inline_keyboard=[[skip_btn()]])
 
 
-# keyboards for repair request message:
 def rr_admin_kb(repair_request: dict) -> IKM:
     arr_kb = []
 
@@ -93,7 +89,6 @@ def rr_customer_kb(repair_request: dict) -> IKM:
 def rr_contractor_kb(repair_request: dict) -> IKM:
     arr_kb = []
     
-    # Преобразуем статус в int для надежного сравнения
     try:
         status = int(repair_request['status'])
     except (ValueError, TypeError):

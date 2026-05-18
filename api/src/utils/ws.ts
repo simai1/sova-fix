@@ -55,10 +55,6 @@ export type Audience =
     | { kind: 'role'; roles: number[] }
     | { kind: 'request'; requestId: string };
 
-// =====================
-// Handshake / authentication
-// =====================
-
 // `Sec-WebSocket-Protocol` приходит строкой через запятую, либо массивом — при
 // подключении через `new WebSocket(url, ['bearer.xxx'])` браузер пошлёт ровно
 // один subprotocol. Берём первый непустой и обрезаем пробелы.
@@ -138,8 +134,6 @@ export const authenticateSubprotocol = async (subprotocol: string | null): Promi
     return null;
 };
 
-// Регистрирует клиента: проставляет _user и пустой Set подписок.
-// Вызывается из app.ws('/', ...) после успешной аутентификации.
 export const registerClient = (ws: AuthedWs, user: WsUser): void => {
     ws._user = user;
     ws._subscriptions = new Set();
@@ -150,10 +144,6 @@ export const unregisterClient = (ws: AuthedWs): void => {
     ws._user = undefined;
     ws._subscriptions = undefined;
 };
-
-// =====================
-// Subscribe / unsubscribe
-// =====================
 
 // Проверка read-доступа для подписки. Переиспользует lk.service.canRead,
 // чтобы единая политика жила в одном месте (см. require-request-access middleware).
@@ -250,10 +240,6 @@ export const handleClientFrame = async (ws: AuthedWs, raw: WebSocket.RawData): P
         /* noop */
     }
 };
-
-// =====================
-// emitTo / sendMsg
-// =====================
 
 // Boт проходит через любую таргетированную аудиторию: его роль не помечена,
 // userId нет, но он явно `isBot` — единственный способ доставить ему все события

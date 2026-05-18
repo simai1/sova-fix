@@ -12,14 +12,13 @@ function ListInputTOForm(props) {
   },[ props.dataList, props.value])
   const [isDropdownVisible, setDropdownVisible] = useState(false);
 
-  // Фильтрация списка по введенному тексту
   const filteredList = props.dataList.filter((item) =>
     item.name.toLowerCase().includes(valueName.toLowerCase())
   );
 
   const handleInputChange = (e) => {
     setValueName(e.target.value);
-    setDropdownVisible(true); // Показывать подсказки при вводе
+    setDropdownVisible(true);
   };
 
   const selectSuggestion = (item) => {
@@ -29,18 +28,17 @@ function ListInputTOForm(props) {
   };
 
   const handleBlur = () => {
-    // Задержка для выбора подсказки перед скрытием
     setTimeout(() => {
       const matchedItem = props.dataList.find(
         (item) => item.name.toLowerCase() === valueName.toLowerCase()
       );
 
       if (!matchedItem) {
-        setValueName(""); // Очистить поле, если введено не из списка
-        props.handleListData(props.name, null); // Передаем null, если выбор не сделан
+        setValueName("");
+        props.handleListData(props.name, null);
       }
 
-      setDropdownVisible(false); // Скрываем подсказки после потери фокуса
+      setDropdownVisible(false);
     }, 100);
   };
 
@@ -54,7 +52,7 @@ function ListInputTOForm(props) {
           type="text"
           value={valueName}
           onChange={handleInputChange}
-          onFocus={() => setDropdownVisible(true)} // Показывать подсказки при фокусе
+          onFocus={() => setDropdownVisible(true)}
           onBlur={handleBlur}
           placeholder={props?.placeholder}
           style={{
@@ -71,7 +69,7 @@ function ListInputTOForm(props) {
                 <p
                   key={item.id}
                   className={styles.NameForList}
-                  onMouseDown={() => selectSuggestion(item)} // Выбор подсказки до blur
+                  onMouseDown={() => selectSuggestion(item)}
                 >
                   {item.name}
                 </p>

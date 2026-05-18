@@ -7,7 +7,7 @@ import DataContext from "../../../../context";
 
 function PopUpEditEquipment() {
   const { context } = useContext(DataContext);
-  const fileInputRef = useRef(null); // Для управления выбором файла
+  const fileInputRef = useRef(null);
 
   const [contractors, setContractors] = useState([]);
   const [objects, setObjects] = useState([]);
@@ -49,7 +49,6 @@ function PopUpEditEquipment() {
     }
   }, [context.selectEquipment, objects, contractors, nomenclatures]);
 
-  // Загрузка данных из API
   useEffect(() => {
     // API-обёртки из API.js на ошибку логируют и возвращают undefined — это контракт.
     // Поэтому разделяем «нет ответа» (ранний выход) и «ответ есть, но не 200».
@@ -68,7 +67,6 @@ function PopUpEditEquipment() {
     .then(([response1, response2]) => {
       if (!response1 || !response2) return;
       if (response1.status === 200 && response2.status === 200) {
-        // Объединяем данные из обоих ответов
         const combinedData = [...response1.data, ...response2.data];
         setContractors(combinedData);
       }
@@ -86,14 +84,12 @@ function PopUpEditEquipment() {
     });
   }, []);
 
-  // Обработка изменений в текстовых полях
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
     setFormData((prevData) => {
       const updatedData = { ...prevData, [name]: value };
 
-      // Автоматическое вычисление даты следующего ТО
       if (name === "lastTO" || name === "supportFrequency") {
         if (updatedData.lastTO && updatedData.supportFrequency) {
           const nextDate = new Date(updatedData.lastTO);
@@ -108,7 +104,6 @@ function PopUpEditEquipment() {
     });
   };
 
-  // Обработка выбора в выпадающих списках
   const handleListData = (name, value) => {
     if (name === "objectId") {
       const selectedObject = objects.find((obj) => obj.id === value);
@@ -134,12 +129,10 @@ function PopUpEditEquipment() {
     }
   };
 
-  // Отправка данных на сервер
 const handleSubmit = () => {
   const requiredFields = [
     "nomenclatureId",
     "objectId",
-    // "contractorId",
     "supportFrequency",
     "lastTO",
   ];
@@ -179,7 +172,6 @@ const handleSubmit = () => {
     <PopUpContainer width={true} title={"Редактирование оборудования"} mT={150}>
       <div className={styles.PopUpEditEquipment}>
         <div className={styles.pupUpFirstContainer}>
-          {/* Номенклатура */}
           <div className={styles.pupUpFirstContainerInfo}>
             <div className={styles.pupContainerInfoTitle}>
               <p>Номенклатура:</p>
@@ -194,7 +186,6 @@ const handleSubmit = () => {
               toggleDropdown={() => toggleDropdown("nomenclatureId")}
             />
           </div>
-           {/* Объект */}
            <div className={styles.pupUpFirstContainerInfo}>
             <div className={styles.pupContainerInfoTitle}>
               <p>Объект:</p>
@@ -209,7 +200,6 @@ const handleSubmit = () => {
               toggleDropdown={() => toggleDropdown("objectId")}
             />
           </div>
-          {/* Комментарий */}
           <div className={styles.commentBlock}>
             <div className={styles.commentBlockTitle}>
               <p>Комментарий:</p>
@@ -223,9 +213,7 @@ const handleSubmit = () => {
             />
           </div>
         </div>
-        {/* Вторая часть */}
         <div className={styles.pupUpSecondContainer}>
-          {/* Подрядчик */}
           <div className={styles.pupUpSecondContainerInfo}>
             <div className={styles.pupContainerInfoTitle}>
               <p>Обслуживающий подрядчик:</p>
@@ -240,7 +228,6 @@ const handleSubmit = () => {
               toggleDropdown={() => toggleDropdown("contractorId")}
             />
           </div>
-          {/* Период обслуживания */}
           <div className={styles.pupUpSecondContainerInfo}>
             <div className={styles.pupContainerInfoTitle}>
               <p>Период обслуживания:</p>
@@ -254,7 +241,6 @@ const handleSubmit = () => {
               style={{ textAlign: "center", paddingLeft: "0px" }}
             />
           </div>
-          {/* Даты ТО */}
           <div className={styles.pupUpSecondContainerInfo}>
             <div className={styles.pupContainerInfoTitle}>
               <p>Дата текущего ТО:</p>
@@ -295,7 +281,6 @@ const handleSubmit = () => {
 
         </div>
       </div>
-      {/* Кнопка */}
       <div className={styles.buttonSubmitBlock}>
         <button className={styles.buttonSubmit} onClick={handleSubmit}>
           Сохранить изменения

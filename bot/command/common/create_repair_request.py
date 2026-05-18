@@ -45,13 +45,11 @@ async def create_repair_request_callback_handler(query: CallbackQuery, state: FS
 async def create_repair_request(user_id: int, message: Message, state: FSMContext) -> None:
     await state.clear()
 
-    # проверка
     try:
         await verify_user(user_id, role=[roles.CUSTOMER, roles.ADMIN], message=message)
     except VerificationError:
         return
 
-    # анкета
     await ask_unit(message, state, user_id)
 
 
@@ -114,7 +112,6 @@ async def ask_category(message: Message, state: FSMContext, user_id: int) -> Non
     categories = await crm.get_customer_directory_category(user_id)
 
     if not categories:
-        # нет категорий → сразу к описанию
         await state.update_data(category_id=None)
         await state.set_state(FSMRepairRequest.problemn_description_input)
         await message.answer("Введите описание проблемы")
@@ -122,13 +119,12 @@ async def ask_category(message: Message, state: FSMContext, user_id: int) -> Non
 
     print("=====", categories)
     if len(categories) == 1:
-        category_id = categories[0]['id']  # вот так
+        category_id = categories[0]['id']
         await state.update_data(category_id=category_id)
         await state.set_state(FSMRepairRequest.problemn_description_input)
         await message.answer("Введите описание проблемы")
         return
 
-    # несколько категорий → выбор
     categories_dict = {cat['name']: cat['id'] for cat in categories}
     names_pages = await pagination.set_pages_data(categories_dict, state)
     kb = pagination.make_kb(0, names_pages, prefix="category")
@@ -141,10 +137,7 @@ async def ask_object(query: CallbackQuery, state: FSMContext) -> None:
     unit_id = await pagination.get_selected_value(query, state)
     await state.update_data(unit=unit_id)
 
-    # Get user's Telegram ID
     user_id = query.from_user.id
-    
-    # Get TgUser ID from the user's Telegram ID
     tg_user_id = await crm.get_tg_user_id(user_id)
     if not tg_user_id:
         await query.message.answer("Не удалось найти вашу учетную запись. Пожалуйста, свяжитесь с поддержкой.", reply_markup=to_start_kb())
@@ -240,7 +233,7 @@ async def check_photo(message: Message, state: FSMContext) -> None:
             await state.update_data({
                 "file_id": file.file_id,
                 "file_content_type": ContentType.VIDEO,
-                "urgency_asked": True  # сразу спрашиваем срочность
+                "urgency_asked": True
             })
             await ask_urgency(message, state)
             return
@@ -262,11 +255,9 @@ async def check_photo(message: Message, state: FSMContext) -> None:
             urgency_asked = data.get('urgency_asked', False)
             media_group_id = message.media_group_id
 
-            # Если уже спрашивали срочность — не продолжаем
             if urgency_asked:
                 return
 
-            # Добавляем фото
             photos.append({"file_id": file.file_id, "content_type": ContentType.PHOTO})
             photos = photos[:5]
             await state.update_data({
@@ -277,7 +268,6 @@ async def check_photo(message: Message, state: FSMContext) -> None:
 
             print(f"Добавлено фото. Текущее количество: {len(photos)}")
 
-            # Если лимит достигнут, спрашиваем срочность (только 1 раз)
             if len(photos) >= 5:
                 if media_group_id and media_group_id not in processed_groups:
                     processed_groups.append(media_group_id)
@@ -295,7 +285,6 @@ async def check_photo(message: Message, state: FSMContext) -> None:
                     await state.set_state(FSMRepairRequest.multiple_photos_input)
                     await message.answer("Фото добавлено. Хотите добавить ещё фото?", reply_markup=skip_kb())
             else:
-                # Одиночное фото
                 await state.set_state(FSMRepairRequest.multiple_photos_input)
                 await message.answer("Фото добавлено. Хотите добавить ещё фото?", reply_markup=skip_kb())
             return
@@ -318,7 +307,6 @@ async def add_more_photos(message: Message, state: FSMContext) -> None:
         await message.answer("Пришлите фото или нажмите 'Пропустить', чтобы продолжить", reply_markup=skip_kb())
         return
 
-    # Получаем наименьшее по размеру фото
     index = -1
     file = message.photo[index]
     while file.file_size > MAX_VIDEO_SIZE_BYTES and -index <= len(message.photo):
@@ -329,13 +317,11 @@ async def add_more_photos(message: Message, state: FSMContext) -> None:
         await message.answer(f"Файл слишком большой (больше {MAX_VIDEO_SIZE_MB}Мб)\nПопробуйте другой", reply_markup=skip_kb())
         return
 
-    # Получаем данные из состояния
     data = await state.get_data()
     photos = data.get('photos', [])
     processed_groups = data.get('processed_media_groups', [])
     media_group_id = message.media_group_id
 
-    # Добавляем фото в список
     updated_photos = photos + [{"file_id": file.file_id, "content_type": ContentType.PHOTO}]
     await state.update_data({
         "photos": updated_photos,
@@ -345,7 +331,6 @@ async def add_more_photos(message: Message, state: FSMContext) -> None:
 
     print(f"Добавлено фото. Текущее количество: {len(updated_photos)}")
 
-    # Если достигли лимита — переходим к следующему шагу, ничего не отвечаем
     if len(updated_photos) >= 5:
         if media_group_id and media_group_id not in processed_groups:
             processed_groups.append(media_group_id)
@@ -360,7 +345,6 @@ async def add_more_photos(message: Message, state: FSMContext) -> None:
             await state.update_data({"processed_media_groups": processed_groups})
             await message.answer("Фото добавлено. Хотите добавить ещё фото?", reply_markup=skip_kb())
     else:
-        # Одиночное фото — всегда отвечаем
         await message.answer("Фото добавлено. Хотите добавить ещё фото?", reply_markup=skip_kb())
 
 async def ask_urgency(message: Message, state: FSMContext) -> None:

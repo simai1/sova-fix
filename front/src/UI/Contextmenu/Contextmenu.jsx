@@ -18,7 +18,7 @@ function Contextmenu(props) {
     useEffect(() => {
         convertCoord(props?.X, props?.Y);
         GetAllСontractors().then((resp) => setDataConractor(resp.data));
-    }, [props.X, props.Y]); // Update coordinates when props change
+    }, [props.X, props.Y]);
 
     const convertCoord = (X, Y) => {
         const menuWidth = 380;
@@ -29,12 +29,10 @@ function Contextmenu(props) {
         let newX = X;
         let newY = Y;
 
-        // Adjust X coordinate if the menu would overflow the right edge
         if (SizeX - X < menuWidth) {
             newX = X - menuWidth;
         }
 
-        // Adjust Y coordinate if the menu would overflow the bottom edge
         if (SizeY - Y < menuHeight) {
             newY = Y - menuHeight;
         }
@@ -88,18 +86,16 @@ function Contextmenu(props) {
     };
 
     const UpdateRequests = (updatedRequests) => {
-        // Обновляем каждую заявку в массиве
         const fixedRequests = funFixEducator(updatedRequests);
         const updatedDataTable = context.dataTableHomePage.map((item) => {
-          const updatedRequest = fixedRequests.find((req) => req.id === item.id); // Ищем заявку по id
-          return updatedRequest ? updatedRequest : item; // Заменяем, если есть обновление
+          const updatedRequest = fixedRequests.find((req) => req.id === item.id);
+          return updatedRequest ? updatedRequest : item;
         });
         const updatedDataTableAppoint = context.dataApointment.map((item) => {
-            const updatedRequest = fixedRequests.find((req) => req.id === item.id); // Ищем заявку по id
-            return updatedRequest ? updatedRequest : item; // Заменяем, если есть обновление
+            const updatedRequest = fixedRequests.find((req) => req.id === item.id);
+            return updatedRequest ? updatedRequest : item;
           });
-      
-        // Обновляем состояние таблицы
+
         context.setDataTableHomePage(updatedDataTable);
         context.setDataAppointment(updatedDataTableAppoint);
       };
@@ -112,16 +108,11 @@ function Contextmenu(props) {
        context.moreSelect.map((el) => data.ids.push(el));
         EditMoreStatusRequest(data).then((resp) => {
             if (resp?.status === 200) {
-                // Запрашиваем обновлённые данные для всех указанных ID
                 Promise.all(data.ids.map((id) => GetOneRequests(id))).then((responses) => {
                   const updatedRequests = responses
-                    .filter((resp) => resp?.status === 200) // Оставляем только успешные ответы
-                    .map((resp) => resp.data); // Получаем данные заявок
-          
-                  // Обновляем записи в массиве локально
+                    .filter((resp) => resp?.status === 200)
+                    .map((resp) => resp.data);
                   UpdateRequests(updatedRequests);
-          
-                  // Закрываем контекстное меню
                   closeContextMenu();
                 });
               }
@@ -137,16 +128,11 @@ function Contextmenu(props) {
       
         EditMoreUrgencyRequest(data).then((resp) => {
           if (resp?.status === 200) {
-            // Запрашиваем обновлённые данные для всех указанных ID
             Promise.all(data.ids.map((id) => GetOneRequests(id))).then((responses) => {
               const updatedRequests = responses
-                .filter((resp) => resp?.status === 200) // Оставляем только успешные ответы
-                .map((resp) => resp.data); // Получаем данные заявок
-      
-              // Обновляем записи в массиве локально
+                .filter((resp) => resp?.status === 200)
+                .map((resp) => resp.data);
               UpdateRequests(updatedRequests);
-      
-              // Закрываем контекстное меню
               closeContextMenu();
             });
           }
@@ -162,16 +148,11 @@ function Contextmenu(props) {
        context.moreSelect.map((el) => data.ids.push(el));
        EditMoreContractorRequest(data).then((resp) => {
         if (resp?.status === 200) {
-            // Запрашиваем обновлённые данные для всех указанных ID
             Promise.all(data.ids.map((id) => GetOneRequests(id))).then((responses) => {
               const updatedRequests = responses
-                .filter((resp) => resp?.status === 200) // Оставляем только успешные ответы
-                .map((resp) => resp.data); // Получаем данные заявок
-      
-              // Обновляем записи в массиве локально
+                .filter((resp) => resp?.status === 200)
+                .map((resp) => resp.data);
               UpdateRequests(updatedRequests);
-      
-              // Закрываем контекстное меню
               closeContextMenu();
             });
           }
@@ -182,23 +163,20 @@ function Contextmenu(props) {
         const data = {
           ids: []
         };
-      
-        // Собираем ids, которые нужно удалить
+
         context.moreSelect.forEach((el) => data.ids.push(el));
-      
-        // Отправляем запрос на удаление
+
         DeleteMoreRequest(data).then((resp) => {
           if (resp?.status === 200) {
-            // Обновляем локальные данные в таблице, удаляя записи с указанными ID
             context.setDataTableHomePage((prevData) => {
               const updatedData = prevData.filter(
-                (item) => !data.ids.includes(item.id) // Убираем все записи, чьи id в массиве ids
+                (item) => !data.ids.includes(item.id)
               );
               return updatedData;
             });
             context.setDataAppointment((prevDataAppointment) => {
                 const updatedDataAppointment = prevDataAppointment.filter(
-                    (item) => !data.ids.includes(item.id) // Убираем все записи, чьи id в массиве ids
+                    (item) => !data.ids.includes(item.id)
                 );
                 return updatedDataAppointment;
             });

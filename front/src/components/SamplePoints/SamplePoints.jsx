@@ -108,7 +108,7 @@ function SamplePoints(props) {
     const fd = Array.from(
       new Set(
         uniquePunkts
-          .map((el) => (typeof el === "object" && el !== null ? el.name : el)) // вытаскиваем name или оставляем строку
+          .map((el) => (typeof el === "object" && el !== null ? el.name : el))
           .filter(
             (name) =>
               typeof name === "string" &&
@@ -119,43 +119,35 @@ function SamplePoints(props) {
       )
     );
   
-    // Function to parse custom date format "dd.MM.yy"
     const parseDate = (dateString) => {
-      // Проверяем, является ли dateString строкой
       if (typeof dateString !== "string") {
-        return null; // Если это не строка, возвращаем null
+        return null;
       }
-    
+
       const parts = dateString.split(".");
-      // Проверяем, что строка имеет формат "dd.MM.yy"
       if (parts.length === 3) {
         const day = parseInt(parts[0], 10);
-        const month = parseInt(parts[1], 10) - 1; // Месяцы 0-индексные
-        const year = parseInt(parts[2], 10) + 2000; // Предполагаем 21 век
+        const month = parseInt(parts[1], 10) - 1;
+        const year = parseInt(parts[2], 10) + 2000;
         return new Date(year, month, day);
       }
-    
-      return null; // Возвращаем null, если формат некорректный
+
+      return null;
     };
-    
-  
-    // Sorting logic
+
     const sortedFd = fd.sort((a, b) => {
       const dateA = parseDate(a);
       const dateB = parseDate(b);
-    
+
       if (dateA && dateB) {
-        // Если оба значения являются валидными датами
-        return dateB - dateA; // Сортировка от новейшего к старейшему
+        return dateB - dateA;
       } else if (dateA) {
-        return -1; // dateA имеет приоритет
+        return -1;
       } else if (dateB) {
-        return 1; // dateB имеет приоритет
+        return 1;
       } else if (typeof a === "number" && typeof b === "number") {
-        // Если оба значения числа
-        return a - b; // Сортировка чисел по возрастанию
+        return a - b;
       } else {
-        // Если оба значения строки
         return a.toString().localeCompare(b.toString());
       }
     });

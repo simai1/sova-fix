@@ -33,7 +33,6 @@ function isDifferenceGreaterThan7Days(date2: Date) {
 }
 
 export default {
-    // setDays: new CronJob('* * * * *', async () => { // every 1 min
     setDays: new CronJob(
         '0 3 * * *',
         async () => {

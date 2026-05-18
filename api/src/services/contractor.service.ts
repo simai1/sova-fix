@@ -189,7 +189,6 @@ const getContractorsItinerary = async (id: string, filter: any): Promise<Request
     return requests.map(request => new RequestDto(request));
 };
 
-// Поиск актуальных заявок по объектам  - 1, 2 и 5 статусы
 export const getContractorsActualRequests = async (contractorId: string, unitId: string, objectId?: string) => {
     const actualStatuses = [1, 2, 5];
 

@@ -25,7 +25,6 @@ function PopUpNewEquipment() {
     nextTO: "",
   });
 
-  // Получение данных при загрузке
   const getData = () => {
     // API-обёртки из API.js на ошибку логируют и возвращают undefined — это контракт.
     // Поэтому разделяем «нет ответа» (ранний выход) и «ответ есть, но не 200».
@@ -44,7 +43,6 @@ function PopUpNewEquipment() {
     .then(([response1, response2]) => {
       if (!response1 || !response2) return;
       if (response1.status === 200 && response2.status === 200) {
-        // Объединяем данные из обоих ответов
         const combinedData = [...response1.data, ...response2.data];
         setContractors(combinedData);
       }
@@ -94,7 +92,6 @@ function PopUpNewEquipment() {
   };
 
   const handleSubmit = () => {
-    // Проверка на заполненность всех обязательных полей
     const requiredFields = [
       "nomenclatureId",
       "objectId",
@@ -133,7 +130,6 @@ function PopUpNewEquipment() {
     setFormData((prevData) => {
       const updatedData = { ...prevData, [name]: value };
 
-      // Автоматически вычисляем дату следующего ТО
       if (name === "lastTO" || name === "supportFrequency") {
         if (updatedData.lastTO && updatedData.supportFrequency) {
           const nextDate = new Date(updatedData.lastTO);
@@ -148,10 +144,9 @@ function PopUpNewEquipment() {
     });
   };
 
-  // Функция для определения правильного падежа
   function getDayWord(number) {
     if (!number || isNaN(number)) return "";
-    const absNumber = Math.abs(number) % 100; // Берем абсолютное значение и обрезаем до 100
+    const absNumber = Math.abs(number) % 100;
     const lastTwoDigits = absNumber % 10;
 
     if (absNumber > 10 && absNumber < 20) {

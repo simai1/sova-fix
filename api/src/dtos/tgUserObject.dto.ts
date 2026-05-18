@@ -23,8 +23,7 @@ export default class TgUserObjectDto {
         this.object_id = model.object_id;
         this.createdAt = model.createdAt;
         this.updatedAt = model.updatedAt;
-        // Добавляем связанные объекты, если они есть
         this.tgUser = model.TgUser ? new TgUserDto(model.TgUser) : null;
         this.object = model.ObjectDir ? new ObjectDto(model.ObjectDir) : null;
     }
-} 
+}

@@ -25,15 +25,12 @@ async def to_start_msg(message: Message) -> None:
 
 async def add_media_to_album(media_filename: str, caption: str, album: MediaGroupBuilder) -> None:
     try:
-        # Очищаем имя файла от кавычек и скобок, которые могут быть в JSON
         clean_filename = media_filename.strip('"[]\'')
-        
+
         logger.debug(f"Обрабатываем файл: исходное имя='{media_filename}', очищенное='{clean_filename}'")
-        
-        # Получаем расширение файла
+
         if '.' in clean_filename:
             file_ext = clean_filename.split('.')[-1].lower().strip()
-            # Убедимся, что расширение не содержит лишних символов
             if not file_ext.isalnum():
                 logger.warn(f"Обнаружено некорректное расширение файла: {file_ext}, очищаем")
                 file_ext = ''.join(c for c in file_ext if c.isalnum())
@@ -78,10 +75,8 @@ async def send_repair_request(message: Message, repair_request: dict, kb: IKM | 
         album = MediaGroupBuilder()
 
         if file_filename is not None:
-            # Проверяем, является ли file_filename строкой в формате JSON-массива
             if file_filename.startswith('[') and file_filename.endswith(']'):
                 try:
-                    # Пробуем распарсить как JSON-массив
                     file_list = json.loads(file_filename)
                     if isinstance(file_list, list):
                         logger.info(f"Обнаружена группа из {len(file_list)} файлов: {file_list}")
@@ -100,14 +95,12 @@ async def send_repair_request(message: Message, repair_request: dict, kb: IKM | 
                         )
                 except json.JSONDecodeError as e:
                     logger.error(f"Ошибка парсинга JSON в fileName: {str(e)}, значение: {file_filename}")
-                    # Если не удалось распарсить как JSON, обрабатываем как обычный файл
                     await add_media_to_album(
                         media_filename=file_filename,
                         caption="Описание проблемы",
                         album=album
                     )
             else:
-                # Обычный одиночный файл
                 await add_media_to_album(
                     media_filename=file_filename,
                     caption="Описание проблемы",
@@ -122,7 +115,6 @@ async def send_repair_request(message: Message, repair_request: dict, kb: IKM | 
             )
 
         if rr_comment_attachment_filename is not None:
-            # Если это JSON-массив файлов
             if rr_comment_attachment_filename.startswith('[') and rr_comment_attachment_filename.endswith(']'):
                 try:
                     files = json.loads(rr_comment_attachment_filename)

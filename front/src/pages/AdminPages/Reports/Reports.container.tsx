@@ -36,8 +36,6 @@ const ReportsContainer: FC = () => {
   const reportType = useAppSelector(reportTypeSelector);
   const tableReportData = useAppSelector(tableReportDataSelector);
 
-  // Если выбран тип отчета график, то даем возможность выбрать только ОДИН параметр и ОДИН показатель,
-  // так как оси на графике две
   const isGraphicType = useAppSelector(isGraphicTypeSelector);
 
   const [parametrsForm] = useForm<ParametrsFormInstance>();
@@ -148,11 +146,9 @@ const ReportsContainer: FC = () => {
     const value = changedValues[key];
 
     if (value === false && filterDataValues && filterDataValues[key]) {
-      // создаём новый объект без этого ключа
       const newFilterData = { ...filterDataValues };
       delete newFilterData[key];
 
-      // если объект пустой после удаления → null
       const result = Object.keys(newFilterData).length > 0 ? newFilterData : null;
 
       if (setFilterDataValues) {
@@ -170,7 +166,6 @@ const ReportsContainer: FC = () => {
 
     if (!isGraphicType) return;
 
-    // Параметры:
     if (PARAMETRS_LIST.some((p) => p.name === key)) {
       const updatedValues: any = {};
 
@@ -194,7 +189,6 @@ const ReportsContainer: FC = () => {
       };
       dispatch(setSelectedIndicator(payload));
     }
-    // Показатели:
     if (INDICATOR_LIST.some((i) => i.name === key)) {
       const updatedValues: any = {};
 

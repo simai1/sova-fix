@@ -13,16 +13,12 @@ function UniversalDashboardStatus(props) {
       colors.push(status?.color)
     })
 
-    // Update data values based on props.dataDashbord
     props?.dataDashbord.forEach((el) => {
       const index = datas.findIndex(item => item.number === el.status);
       if (index !== -1) {
         datas[index].value += 1;
       }
     });
-
-    // Filter out data entries with zero values
-    // const filteredData = datas.filter(item => item.value > 0);
 
     var option = {
       title: {
@@ -55,7 +51,7 @@ function UniversalDashboardStatus(props) {
           }
         }
       ],
-      color: colors  // Custom colors
+      color: colors
     };
    
     option && myChart.setOption(option);
@@ -63,7 +59,7 @@ function UniversalDashboardStatus(props) {
     return () => {
       myChart.dispose();
     };
-  }, [props.dataDashbord]); // Add props.dataDashbord as a dependency
+  }, [props.dataDashbord]);
 
   return (
     <div id="UniversalDashboardStatus" style={{ width: '650px', height: '575px' }}></div>

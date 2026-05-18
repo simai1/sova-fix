@@ -8,24 +8,21 @@ async def send_customer_menu(message: Message) -> None:
     tg_id = message.from_user.id
     login_exists = False
 
-    # Получаем пользователя по tg_id
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(f"{cf.API_URL}/users/{tg_id}") as resp:
                 if resp.status == 200:
                     user_data = await resp.json()
-                    login_exists = bool(user_data.get("login"))  # проверка на наличие login
+                    login_exists = bool(user_data.get("login"))
     except Exception as e:
         print(f"Ошибка при получении пользователя: {e}")
 
-    # Основной текст
     menu_text = """
 <b>меню ЗАКАЗЧИК</b>
 
 Здесь вы можете подать заявку на ремонт вашего оборудования.
 """
 
-    # Кнопки
     kb_buttons = [
         [IKB(text='Подать заявку ➕', callback_data='create_repair_request')],
         [
@@ -35,7 +32,6 @@ async def send_customer_menu(message: Message) -> None:
         [IKB(text='Найти заявку по номеру 🔎', callback_data='request_by_number')],
     ]
 
-    # Добавляем кнопку CRM в зависимости от login
     if login_exists:
         kb_buttons.append([
             IKB(text='Открыть CRM', callback_data='open_crm')
@@ -45,6 +41,5 @@ async def send_customer_menu(message: Message) -> None:
             IKB(text='Получить доступ к CRM', callback_data='get_crm_access')
         ])
 
-    # Отправка фото и клавиатуры
     file = FSInputFile(path=f"./{cf.IMG_PATH}/photo_2024-08-21_17-47-14.jpg", filename="фото.jpg")
     await message.answer_photo(photo=file, caption=menu_text, reply_markup=IKM(inline_keyboard=kb_buttons))

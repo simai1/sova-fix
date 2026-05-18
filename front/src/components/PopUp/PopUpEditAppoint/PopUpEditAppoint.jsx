@@ -1,4 +1,3 @@
-// PopUpNewClient.js
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./PopUpEditAppoint.module.scss";
 import PopUpContainer from "../../../UI/PopUpContainer/PopUpContainer";
@@ -29,14 +28,12 @@ function PopUpEditAppoint(props) {
     builder: "",
     status: "",
     statusId: "",
-    // unit:"",
     objectId: "",
     objectName: "",
     problemDescription: "",
     urgency: "",
     repairPrice: "",
     comment: "",
-    // legalEntity:"",
     urgencyId: "",
     fileName: "",
   });
@@ -55,13 +52,6 @@ function PopUpEditAppoint(props) {
 
   useEffect(() => {
     setSelectId(context.moreSelect[0] || context.selectedTr);
-    // GetOneRequests(context.moreSelect[0] || context.selectedTr).then(
-    //   (response) => {
-    //     if (response?.status === 200) {
-    //       setDataApStart(response.data);
-    //     }
-    //   }
-    // );
     updGetData(context.moreSelect[0] || context.selectedTr);
     GetObjectsAll(`?userId=${JSON.parse(sessionStorage.getItem("userData"))?.user?.id}`).then((response) => {
       setDataObject(response.data);
@@ -99,17 +89,6 @@ function PopUpEditAppoint(props) {
       });
     }
   }, [dataApStart]);
-  //   const {
-  //     objectId,
-  //     problemDescription,
-  //     urgency,
-  //     repairPrice,
-  //     comment,
-  //     itineraryOrder,
-  //     contractorId,
-  //     status,
-  //     builder,
-  // } = req.body;
   const handleInputChange = (name, value) => {
     setdataApointment((prevState) => ({ ...prevState, [name]: value }));
   };
@@ -130,7 +109,6 @@ function PopUpEditAppoint(props) {
     return objectItem ? objectItem.name : id;
   };
 
-   //!При обновлении обновляет только 1 запись 
    const UpdateRequest = (updatedRequest) => {
     const editAppoint = funFixEducator(updatedRequest)
     const updatedDataTable = context.dataTableHomePage.map((item) =>
@@ -174,22 +152,22 @@ function PopUpEditAppoint(props) {
     const file = event.target.files[0];
     if (file) {
         const maxSizeInMB = 50;
-        const fileSizeInMB = file.size / (1024 * 1024); // Конвертация в МБ
+        const fileSizeInMB = file.size / (1024 * 1024);
         if (fileSizeInMB > maxSizeInMB) {
-            event.target.value = null; // Очистка инпута
+            event.target.value = null;
             alert("Ошибка: размер файла превышает 50 МБ.");
             return; // Прерываем выполнение функции
         }
 
         const formData = new FormData();
-        formData.append("requestId", idRequest); // Добавляем requestId
-        formData.append("file", file); // Добавляем файл
+        formData.append("requestId", idRequest);
+        formData.append("file", file);
         setCommentPhotoApi(formData)
             .then((resp) => {
                 if (resp?.status === 200) {
                     updGetData(idRequest);
                     context.UpdateTableReguest(1);
-                    event.target.value = null; // Очистка инпута
+                    event.target.value = null;
                 }
             })
             .catch((error) => {
@@ -353,8 +331,8 @@ function PopUpEditAppoint(props) {
                   type="file"
                   ref={fileInputRef}
                   onChange={handleFileChange}
-                  style={{ display: "none" }} // Hide the input
-                  accept=".jpg, .jpeg, .png, .mp4" // Only allow image files
+                  style={{ display: "none" }}
+                  accept=".jpg, .jpeg, .png, .mp4"
                 />
               </div>
             </div>

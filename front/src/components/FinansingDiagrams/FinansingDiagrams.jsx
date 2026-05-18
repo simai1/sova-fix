@@ -15,7 +15,7 @@ function FinansingDiagrams(props) {
             additionalData.push(contractor);
         }
         dataObject.push(object);
-        countMap[object] = (countMap[object] || 0) + 1; // Count occurrences
+        countMap[object] = (countMap[object] || 0) + 1;
         if (el.checkPhoto !== "___") {
             countMapWithCheck[object] = (countMapWithCheck[object] || 0) + 1;
         } else {
@@ -65,18 +65,18 @@ function FinansingDiagrams(props) {
               },
             series: [
                 {
-                    name: 'Количество заявок без чека', // Updated series name
+                    name: 'Количество заявок без чека',
                     type: 'bar',
                     barWidth: '45%',
                     color: "#ffe78f",
-                    data: countsWithoutCheck, // Using the counts array hereы
+                    data: countsWithoutCheck,
                 },
                 {
-                    name: 'Количество заявок c чеком', // Updated series name
+                    name: 'Количество заявок c чеком',
                     type: 'bar',
                     barWidth: '45%',
                     color: "#C5E384",
-                    data: countsWithCheck // Using the counts array here
+                    data: countsWithCheck
                 },
              
             ]
@@ -87,11 +87,10 @@ function FinansingDiagrams(props) {
         return () => {
             myChart.dispose();
         };
-    }, [dataObject, countsWithCheck]); // Add dependencies for useEffect
+    }, [dataObject, countsWithCheck]);
 
     return (
         <main id="diagrams" style={{ width: '100%', height: '55vh' }}>
-            {/* The chart will be rendered here */}
         </main>
     );
 }

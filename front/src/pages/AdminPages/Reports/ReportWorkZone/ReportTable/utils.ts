@@ -42,7 +42,6 @@ const dynamicsLabels: Record<string, string> = {
   year: 'год',
 };
 
-// Список ключей, которые считаются числовыми (для выравнивания вправо)
 const numericKeys: (keyof ReportTable)[] = [
   'totalCountRequests',
   'closingSpeedOfRequests',
@@ -53,13 +52,10 @@ const numericKeys: (keyof ReportTable)[] = [
 ];
 
 export const isRowEmpty = (row: ReportTable) => {
-  // получаем только те ключи, которые реально есть в строке
   const presentNumericKeys = numericKeys.filter((key) => key in row);
 
-  // если нет числовых ключей — строку считаем НЕ пустой
   if (presentNumericKeys.length === 0) return false;
 
-  // проверяем все существующие числовые поля
   return presentNumericKeys.every((key) => {
     const value = row[key];
     return typeof value === 'number' && value === 0;
@@ -110,7 +106,6 @@ export const getReportTableColumns = (data: ReportTable[]) => {
       }),
     );
 
-    // Динамические поля
     for (const dynKey of Object.keys(dynamicsLabels)) {
       const dynField = dynKey
         ? `${key}${dynKey?.[0]?.toUpperCase() ?? ''}${dynKey?.slice(1) ?? ''}Dynamics`
@@ -146,7 +141,6 @@ export const exportToExcel = (data: ReportTable[], fileName?: string) => {
   const firstRow = data[0];
   if (!firstRow) return;
 
-  // --- Собираем все ключи: основные + динамичные
   const allKeys: { key: string; label: string }[] = [];
 
   for (const key of Object.keys(columnsNames) as (keyof ReportTable)[]) {
@@ -164,7 +158,6 @@ export const exportToExcel = (data: ReportTable[], fileName?: string) => {
     }
   }
 
-  // --- Формируем данные для XLSX
   const formatted = data.map((row) =>
     allKeys.reduce(
       (acc, { key, label }) => {
@@ -178,12 +171,9 @@ export const exportToExcel = (data: ReportTable[], fileName?: string) => {
 
   const headers = allKeys.map(({ label }) => label);
 
-  // --- Создание листа
   const ws = XLSX.utils.json_to_sheet(formatted, { header: headers });
 
-  // --- Автоматическая ширина колонок
   const colWidths = headers.map((header) => {
-    // минимальная ширина — длина заголовка
     let maxLength = header.length;
 
     for (const row of formatted) {
@@ -194,13 +184,11 @@ export const exportToExcel = (data: ReportTable[], fileName?: string) => {
       }
     }
 
-    // небольшое увеличение для читаемости
     return { wch: Math.min(Math.max(maxLength + 2, 10), 50) };
   });
 
   ws['!cols'] = colWidths;
 
-  // --- Книга и сохранение
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Отчёт');
 

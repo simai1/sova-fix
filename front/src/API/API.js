@@ -6,7 +6,6 @@ const http = axios.create({
 
 const server = API_URL;
 const client = WEB_URL;
-// const server = "http://localhost:3000";
 
 const REFRESH_INTERVAL = 500000; // 15 минут 900000
 let refreshTokensTimeout;

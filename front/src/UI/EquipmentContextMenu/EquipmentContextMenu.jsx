@@ -10,7 +10,7 @@ function EquipmentContextMenu(props) {
 
     useEffect(() => {
         convertCoord(props?.X, props?.Y);
-    }, [props.X, props.Y]); // Update coordinates when props change
+    }, [props.X, props.Y]);
 
     const convertCoord = (X, Y) => {
         const menuWidth = 150;
@@ -21,12 +21,10 @@ function EquipmentContextMenu(props) {
         let newX = X;
         let newY = Y;
 
-        // Adjust X coordinate if the menu would overflow the right edge
         if (SizeX - X < menuWidth) {
             newX = X - menuWidth;
         }
 
-        // Adjust Y coordinate if the menu would overflow the bottom edge
         if (SizeY - Y < menuHeight) {
             newY = Y - menuHeight;
         }
@@ -56,9 +54,6 @@ function EquipmentContextMenu(props) {
             style={{ top: cordY, left: cordX }}
         >
             <button onClick={() => handleOpenCopyModal()}>Создать копию</button>
-            {/* {isConfirmMenuOpen ? <div>
-
-            </div> : null} */}
         </div>
     );
 }

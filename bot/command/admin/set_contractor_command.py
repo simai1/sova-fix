@@ -18,7 +18,6 @@ class FSMSetContractor(StatesGroup):
 
 @router.callback_query(F.data.startswith("set_con:"))
 async def set_contractor_handler(query: CallbackQuery, state: FSMContext) -> None:
-    # verification
     try:
         await verify_user(query.from_user.id, role=roles.ADMIN, message=query.message)
     except VerificationError:

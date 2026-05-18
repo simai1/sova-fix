@@ -682,12 +682,10 @@ async def get_all_requests_with_params(params: str = "") -> list | None:
     if req.status_code == 200:
         response = req.json()
         
-        # Проверяем формат ответа
         if isinstance(response, dict) and 'data' in response:
             data = response['data']
             logger.info(f"Получили {len(data)} заявок через API")
-            
-            # Выводим информацию о первой заявке для отладки
+
             if data and len(data) > 0:
                 sample = data[0]
                 logger.info(f"Пример заявки: id={sample.get('id')}, status={sample.get('status')}, managerId={sample.get('managerId')}")
@@ -1078,11 +1076,9 @@ async def get_manager_assigned_requests(tg_user_id: str) -> list | None:
         Список заявок, назначенных менеджеру, или None в случае ошибки
     """
     try:
-        # Убеждаемся что tg_user_id это строка
         tg_user_id_str = str(tg_user_id)
         logger.info(f"Запрос заявок для менеджера с tg_user_id: {tg_user_id_str}")
         
-        # Добавляем фильтр по статусу "В работе" (статус 2)
         url = f'{cf.API_URL}/requests?managerTgId={tg_user_id_str}&status=2'
         logger.info(f"URL запроса: {url}")
         
@@ -1114,7 +1110,6 @@ async def get_manager_assigned_requests(tg_user_id: str) -> list | None:
             return []
         
         user_id = user['id']
-        # Добавляем фильтр по статусу "В работе" (статус 2) и для fallback
         url = f'{cf.API_URL}/requests?managerId={user_id}&status=2'
         logger.info(f"Fallback URL запроса: {url}")
         

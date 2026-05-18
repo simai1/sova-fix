@@ -21,7 +21,6 @@ TIMEZONE = pytz.timezone('Europe/Moscow')
 
 IMG_PATH = '/resources/images'
 
-# Proxy для Telegram API
 PROXY_ENABLED = getenv('PROXY_ENABLED', 'false').lower() in ('true', '1', 'yes')
 PROXY_HOST = getenv('PROXY_HOST', '')
 PROXY_PORT = getenv('PROXY_PORT', '')

@@ -121,7 +121,6 @@ async def finish_registration(query: CallbackQuery, state: FSMContext) -> None:
     data = await state.get_data()
     await state.clear()
 
-    # зарегистрировать пользователя через апи
     user = await crm.register_user(user_id, data['name'], data['role'], username)
 
     if user is None:

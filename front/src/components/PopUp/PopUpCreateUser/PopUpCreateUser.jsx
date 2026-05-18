@@ -1,4 +1,3 @@
-// PopUpNewClient.js
 import React, { useState } from "react";
 import styles from "./PopUpCreateUser.module.scss";
 import PopUpContainer from "../../../UI/PopUpContainer/PopUpContainer";

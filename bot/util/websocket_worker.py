@@ -58,7 +58,6 @@ class WebSocketWorker:
         self.ws.close()
         self.websocket_run_thread.join()
 
-    # events
     def on_open(self, ws) -> None:
         logger.info("websocket: Connection opened")
         self.connection_opened = True

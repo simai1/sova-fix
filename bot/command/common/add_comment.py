@@ -140,14 +140,12 @@ async def write_comment(user_id: int, message: Message, state: FSMContext) -> No
         await message.answer("Невозможно добавить комментарий, т.к. превышен лимит символов")
         return
 
-    # change comment
     success = await crm.set_repair_request_comment(request_id, new_comment)
 
     if not success:
         await message.answer("Что-то пошло не так 😢. Попробуйте снова позже")
         return
 
-    # attach file
     if file_id is None:
         await message.answer("Комментарий успешно добавлен ✅", reply_markup=to_start_kb())
         return

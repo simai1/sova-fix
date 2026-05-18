@@ -40,7 +40,6 @@ export const filterDataValuesSelector = createSelector(
   (filterDataValues) => filterDataValues ?? null,
 );
 
-// для графика возврашаем единственный выбранный параметр
 export const selectedParameterSelector = createSelector(reportReducerBaseSelector, (state) => {
   const params = state.parameters;
   if (!params) return null;
@@ -52,7 +51,6 @@ export const selectedParameterSelector = createSelector(reportReducerBaseSelecto
   return selected ?? null;
 });
 
-// для графика возврашаем единственный выбранный индикатор
 export const selectedIndicatorSelector = createSelector(reportReducerBaseSelector, (state) => {
   const indicators = state.indicators;
   if (!indicators) return null;

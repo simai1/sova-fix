@@ -47,7 +47,6 @@ const persistConfig = {
   key: 'root',
   storage,
   whitelist: ['isCheckedSlice', 'editInputChecked'],
-  // blacklist: ["editColumTableSlice", "isCheckedSlice"],
 };
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 

@@ -25,7 +25,6 @@ async def show_contractor_requests_callback_handler(query: CallbackQuery, state:
     await query.answer()
 
 
-# send repair request function
 async def page0_show_many_rr_for_itinerary(message: Message, state: FSMContext, repair_requests: list[dict], params: str = ""):
     await page0_show_many_requests(message, state, repair_requests, send_many_rr_for_contractor, prefix="it", params=params)
 

@@ -77,7 +77,6 @@ async def ask_unit(message: Message, state: FSMContext, user_id: int) -> None:
         names = await pagination.set_pages_data(buttons, state)
         kb = pagination.make_kb(0, names, prefix='object')
         
-        # Если подразделений больше одного, добавляем кнопку "Назад"
         if len(units_with_objects) > 1:
             back_btn = InlineKeyboardButton(text="⬅️ Назад", callback_data="object:back")
             kb.inline_keyboard.append([back_btn])
@@ -141,7 +140,6 @@ async def ask_object(query: CallbackQuery, state: FSMContext) -> None:
     await query.answer()
 
 
-# обработка выбора объекта (исключаем кнопку "Назад")
 @router.callback_query(
     FSMAdminRequestsFilter.object_input,
     F.data.startswith('object'),
@@ -153,13 +151,11 @@ async def after_object_selected(query: CallbackQuery, state: FSMContext) -> None
     await query.answer()
 
 
-# обработка кнопки "Назад" на экране выбора объекта
 @router.callback_query(FSMAdminRequestsFilter.object_input, F.data == "object:back")
 async def back_to_units(query: CallbackQuery, state: FSMContext) -> None:
     user_id = query.from_user.id
     tg_user_id = await crm.get_tg_user_id(user_id)
 
-    # получаем доступные подразделения
     units_with_objects = await data_loader.get_user_objects_by_units_with_count_request_manager(tg_user_id)
     if not units_with_objects:
         await query.message.answer(
@@ -219,8 +215,6 @@ async def show_all_requests_admin_callback_handler(query: CallbackQuery, state: 
     params = query.data.split(':')[-1]
     params_for_request = params
 
-    # изменение статусов индексов на сами статусы
-    # НУЖНО ПЕРЕДЕЛАТЬ
     for status_k in statuses_keys:
         status_found_index = params_for_request.find(str(status_k))
         if status_found_index != -1:

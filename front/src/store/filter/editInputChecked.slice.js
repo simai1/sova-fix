@@ -7,7 +7,6 @@ const editInputChecked = createSlice({
   },
 
   reducers: {
-    //! добавить в массив фильтрацию по заголовку
     addChecked(state, action) {
       const { tableName, key, label } = action.payload;
       if (!state.editInputCheckeds[tableName]) {
@@ -19,7 +18,6 @@ const editInputChecked = createSlice({
       });
     },
 
-    //! удалить из массива фильтрацию по заголовку
     removeChecked(state, action) {
       const { tableName, key } = action.payload;
       if (!state.editInputCheckeds[tableName]) {
@@ -30,7 +28,6 @@ const editInputChecked = createSlice({
       ].filter((item) => item.key !== key);
     },
 
-    //! добавление массива
     addAllCheckeds(state, action) {
       const { tableName, checked } = action.payload;
       if (!state.editInputCheckeds[tableName]) {
@@ -39,7 +36,6 @@ const editInputChecked = createSlice({
       state.editInputCheckeds[tableName] = [...checked];
     },
 
-    //! удаление по ключу для all
     removeAllCheckeds(state, action) {
       const { tableName, key } = action.payload;
       if (!state.editInputCheckeds[tableName]) {
@@ -48,7 +44,6 @@ const editInputChecked = createSlice({
       state.editInputCheckeds[tableName] = [];
     },
 
-    //! сбросить весь фильтр по таблице
     removeTableCheckeds(state, action) {
       const { tableName } = action.payload;
       if (!state.editInputCheckeds[tableName]) {

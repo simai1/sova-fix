@@ -6,8 +6,8 @@ import DataContext from "../../../../context";
 import ListInputTOForm from "../../../../UI/ListInputTOForm/ListInputTOForm";
 
 function EditNomenclature() {
-  const [categories, setCategories] = useState([]); // Данные для выпадающего списка
-  const { context } = useContext(DataContext); // Контекст для управления попапами и обновления данных
+  const [categories, setCategories] = useState([]);
+  const { context } = useContext(DataContext);
   const [idSelectNomenclature, setIdSelectNomenclature] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
@@ -15,18 +15,16 @@ function EditNomenclature() {
     categoryId: "",
   });
 
-  const [activeDropdown, setActiveDropdown] = useState(null); // Управление выпадающим списком
+  const [activeDropdown, setActiveDropdown] = useState(null);
 
   useEffect(() => {
     setIdSelectNomenclature(context.selectedTr);
-    // Загружаем категории для выпадающего списка
     GetAllCategories().then((res) => {
       if (res?.status === 200) {
         setCategories(res.data);
       }
     });
 
-    // Загружаем данные номенклатуры для редактирования
     GetOneNomenclatures(context.selectedTr).then((res) => {
       if (res?.status === 200) {
         setFormData({
@@ -62,28 +60,24 @@ function EditNomenclature() {
   const handleSubmit = () => {
     const { name, categoryId } = formData;
   
-    // Проверяем, заполнены ли обязательные поля
     if (!name || !categoryId) {
       alert("Заполните обязательные поля!");
       return;
     }
   
-    // Ищем категорию по названию и получаем её ID
     const selectedCategory = categories.find((cat) => cat.name === categoryId || cat.id === categoryId);
     if (!selectedCategory) {
       return;
     }
   
-    // Подготавливаем данные для отправки с использованием ID категории
     const dataToSubmit = {
       ...formData,
-      categoryId: selectedCategory.id, // Используем ID вместо названия
+      categoryId: selectedCategory.id,
     };
-  
-    // Отправляем данные на сервер
+
     UpdateNomenclatures(idSelectNomenclature, dataToSubmit).then((res) => {
       if (res?.status === 200) {
-        context.UpdateDataNomenclature(); // Обновляем данные после успешного редактирования
+        context.UpdateDataNomenclature();
         context.setPopUp("PopUpGoodMessage");
         context.setPopupGoodText("Номенклатура успешно обновлена!");
       } else {
@@ -98,7 +92,6 @@ function EditNomenclature() {
       <PopUpContainer title={"Редактирование номенклатуры"} mT={300}>
         <div className={styles.PopUpNewTOCategory}>
           <div className={styles.pupUpFirstContainer}>
-            {/* Поле для ввода названия */}
             <div className={styles.pupUpFirstContainerInfo}>
               <div className={styles.pupContainerInfoTitle}>
                 <p>Название номенклатуры:</p>
@@ -111,7 +104,6 @@ function EditNomenclature() {
                 onChange={handleInputChange}
               />
             </div>
-            {/* Поле для ввода комментария */}
             <div className={styles.pupUpFirstContainerInfo}>
               <div className={styles.pupContainerInfoTitle}>
                 <p>Комментарий:</p>
@@ -124,7 +116,6 @@ function EditNomenclature() {
                 onChange={handleInputChange}
               />
             </div>
-            {/* Выпадающий список для выбора категории */}
             <div className={styles.pupUpFirstContainerInfo}>
               <div className={styles.pupContainerInfoTitle}>
                 <p>Категория:</p>
@@ -141,7 +132,6 @@ function EditNomenclature() {
               />
             </div>
           </div>
-          {/* Кнопка для сохранения изменений */}
           <div className={styles.buttonSubmitBlock}>
             <button className={styles.buttonSubmit} onClick={handleSubmit}>
               Сохранить изменения

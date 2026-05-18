@@ -63,7 +63,6 @@ export default function () {
     TgUser.hasOne(RepairRequest, { foreignKey: 'createdBy' });
     RepairRequest.belongsTo(TgUser, { foreignKey: 'createdBy' });
 
-    // Add manager relation
     TgUser.hasMany(RepairRequest, { foreignKey: 'managerId' });
     RepairRequest.belongsTo(TgUser, { foreignKey: 'managerId' });
 
@@ -94,11 +93,9 @@ export default function () {
     ExtContractor.hasMany(TechService, { foreignKey: 'extContractorId' });
     TechService.belongsTo(ExtContractor, { foreignKey: 'extContractorId' });
 
-    // Setup TgUser to ObjectDir many-to-many relationship
     TgUser.belongsToMany(ObjectDir, { through: TgUserObject, foreignKey: 'tgUserId', otherKey: 'objectId' });
     ObjectDir.belongsToMany(TgUser, { through: TgUserObject, foreignKey: 'objectId', otherKey: 'tgUserId' });
 
-    // Важные ассоциации для правильной работы с объектами
     TgUserObject.belongsTo(TgUser, { foreignKey: 'tgUserId', as: 'User' });
     TgUserObject.belongsTo(ObjectDir, { foreignKey: 'objectId', as: 'Object' });
 

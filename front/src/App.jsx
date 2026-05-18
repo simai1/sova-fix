@@ -48,10 +48,10 @@ import CustomerCreateRequest from "./pages/Customer/CreateRequest/CreateRequest.
 function App() {
   const [selectContructor, setSelectContractor] = useState("")
   const [popupErrorText, setPopupErrorText] = useState("")
-  const [tableData, setTableData] = useState([]); // данные таблицы
-  const [selectedTr, setSelectedTr] = useState(null); // выбранная строка
-  const [selectedTable, setSelectedTable] = useState("Заявки"); // выбранная таблица
-  const [searchDataForTable, setsearchDataForTable] = useState(" "); // поиск по таблице
+  const [tableData, setTableData] = useState([]);
+  const [selectedTr, setSelectedTr] = useState(null);
+  const [selectedTable, setSelectedTable] = useState("Заявки");
+  const [searchDataForTable, setsearchDataForTable] = useState(" ");
   const [tableHeader, settableHeader] = useState(tableHeadAppoint);
   const [dataApointment, setDataAppointment] = useState([]);
   const [dataUsers, setDataUsers] = useState(null);
@@ -66,9 +66,9 @@ function App() {
   const [nameClient, setnameClient] = useState("");
   const [activateId, setActivateId]= useState("");
   const [dataFilter, SetDataFilter] = useState([]);
-  const [isSamplePointsData, setSamplePointsData] = useState([]); // данные фильтрации по th
-  const [isChecked, setIsChecked] = useState([]); // состояние инпутов в SamplePoints //! сбросить
-  const [isAllChecked, setAllChecked] = useState([]); // инпут все в SamplePoints //! сбросить
+  const [isSamplePointsData, setSamplePointsData] = useState([]);
+  const [isChecked, setIsChecked] = useState([]);
+  const [isAllChecked, setAllChecked] = useState([]);
   const [filteredTableData, setFilteredTableData] = useState([]);
   const [dataTableFix, setDataTableFix] = useState([]);
   const [editListOpen, setEditListOpen] = useState(false);
@@ -142,7 +142,7 @@ const UpdateForse = () =>{
     if (resp) {
       setTotalCount(resp?.data?.maxCount);
       setDataTableHomePage(funFixEducator(resp?.data?.data));
-      setLoader(true); // Разрешаем загрузку следующих данных
+      setLoader(true);
     }
   });
 }
@@ -271,12 +271,12 @@ const UpdateStatus = () => {
   const getUniqueItems = (array) => {
     const seen = new Set();
     return array.filter((item) => {
-      const serialized = JSON.stringify(item); // Преобразуем объект в строку для проверки уникальности
+      const serialized = JSON.stringify(item);
       if (seen.has(serialized)) {
-        return false; // Пропускаем дубликаты
+        return false;
       }
       seen.add(serialized);
-      return true; // Оставляем уникальные
+      return true;
     });
   };
   
@@ -301,31 +301,28 @@ const UpdateStatus = () => {
 
   function SortDataTable(data) {
     if (!context.sortStateParam) {
-      // Если параметр сортировки отсутствует, сортируем по `number` по убыванию
       return [...data].sort((a, b) => b.number - a.number);
     }
   
     const [colPart, typePart] = context.sortStateParam.split("&");
-    const col = colPart.split("=")[1]; // Извлекаем имя столбца
-    const type = typePart.split("=")[1]; // Извлекаем тип сортировки (asc/desc)
-  
+    const col = colPart.split("=")[1];
+    const type = typePart.split("=")[1];
+
     return [...data].sort((a, b) => {
-      if (a[col] === null || a[col] === undefined) return 1; // Сортируем null/undefined в конец
+      if (a[col] === null || a[col] === undefined) return 1;
       if (b[col] === null || b[col] === undefined) return -1;
-  
+
       if (typeof a[col] === "string") {
-        // Сортируем строки
         return type === "asc"
           ? a[col].localeCompare(b[col])
           : b[col].localeCompare(a[col]);
       }
-  
+
       if (typeof a[col] === "number" || a[col] instanceof Date) {
-        // Сортируем числа и даты
         return type === "asc" ? a[col] - b[col] : b[col] - a[col];
       }
-  
-      return 0; // Для остальных типов данных
+
+      return 0;
     });
   }
 
@@ -368,19 +365,16 @@ const UpdateStatus = () => {
       if (resp) {
         setTotalCount(resp?.data?.maxCount);
         
-        // Обрабатываем и объединяем новые данные
         const newData = funFixEducator(resp?.data?.data);
-        
+
         setDataTableHomePage((prev) => {
           const combinedData = [...prev, ...newData];
-          const uniqueDataSet = new Map(combinedData.map((item) => [item.id, item])); // Удаляем дубликаты по id
+          const uniqueDataSet = new Map(combinedData.map((item) => [item.id, item]));
           const uniqueDataArray = Array.from(uniqueDataSet.values());
-          
-          // Сортируем объединенные данные перед возвратом
           return SortDataTable(uniqueDataArray);
         });
-  
-        setLoader(true); // Разрешаем загрузку следующих данных
+
+        setLoader(true);
       }
     });
   }

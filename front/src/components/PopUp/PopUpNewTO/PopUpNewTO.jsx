@@ -16,12 +16,10 @@ function PopUpNewTO() {
     contractorName: "",
   });
 
-    // Загрузка данных из API
     useEffect(() => {
       Promise.all([GetAllСontractors(), GetextContractorsAll()])
       .then(([response1, response2]) => {
         if (response1.status === 200 && response2.status === 200) {
-          // Объединяем данные из обоих ответов
           const combinedData = [...response1.data, ...response2.data];
           setContractors(combinedData);
         }
@@ -32,7 +30,6 @@ function PopUpNewTO() {
     }, []);
 
 
-  // Обработчик изменения инпутов
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -41,7 +38,6 @@ function PopUpNewTO() {
     }));
   };
 
-  // Обработчик отправки данных
   const handleSubmit = () => {
     const data = {
         equipmentld: context?.selectEquipment?.id || context?.selectedTr,
@@ -127,7 +123,6 @@ function PopUpNewTO() {
               onChange={handleChange}
             />
           </div>
-        {/* Подрядчик */}
         <div className={styles.pupUpSecondContainerInfo}>
             <div className={styles.pupContainerInfoTitle}>
               <p>Обслуживающий подрядчик:</p>

@@ -17,7 +17,6 @@ function EquipmentInfo() {
     const { context } = useContext(DataContext);
     const location = useLocation();
 
-     // Получаем query-параметры из строки запроса
     const [idEquipment, setIdEquipment] = useState(null);
     const getData = () =>{
         const queryParams = new URLSearchParams(location.search);
@@ -35,22 +34,18 @@ function EquipmentInfo() {
     const getBgColorlastTOHuman = (lastTOHuman) => {   
         
         if(lastTOHuman){
-            // Преобразуем дату из формата DD.MM.YY в объект Date
-            const [day, month, year] = lastTOHuman?.split('.').map(Number); // Разбиваем строку на части
-            const formattedDate = new Date(`20${year}`, month - 1, day); // Создаем объект Date (добавляем "20" для года)
+            const [day, month, year] = lastTOHuman?.split('.').map(Number);
+            const formattedDate = new Date(`20${year}`, month - 1, day);
 
-            // Проверяем, что дата корректна
             if (isNaN(formattedDate.getTime())) {
             return "Некорректная дата";
             }
 
-            const currentDate = new Date(); // текущая дата
+            const currentDate = new Date();
 
-            // Вычисляем разницу в днях
             const diffInMs = formattedDate - currentDate;
-            const diffInDays = Math.ceil(diffInMs / (1000 * 60 * 60 * 24)); // округляем до ближайшего большего числа
+            const diffInDays = Math.ceil(diffInMs / (1000 * 60 * 60 * 24));
 
-            // Определяем статус в зависимости от разницы
             if (diffInDays === 0) {
             return "Провести ТО"; 
             } else if (diffInDays > 7) {
@@ -63,22 +58,21 @@ function EquipmentInfo() {
         }
        
       };
-        const fileInputRef = useRef(null); // Для управления выбором файла
-       // Обработка загрузки файла
-       
+        const fileInputRef = useRef(null);
+
         const handleFileUpload = () => {
             if (fileInputRef.current) {
-            fileInputRef.current.click(); // Открытие окна выбора файла
+            fileInputRef.current.click();
             }
         };
 
         const handleFileChange = (e) => {
             const file = e.target.files[0];
             if (file) {
-            setSelectedFile(file); // Сохраняем выбранный файл
+            setSelectedFile(file);
             }
         };
-        const [selectedFile, setSelectedFile] = useState(null); // Хранение выбранного файла
+        const [selectedFile, setSelectedFile] = useState(null);
         const [popUpPhoto, setPopUpPhoto] = useState(false)
         const submitPhoto = () =>{
             const formData = new FormData();
@@ -98,7 +92,6 @@ function EquipmentInfo() {
               const imageUrl = `${API_URL}/uploads/${response.data}`;
               const fileName = `QRCode_${context.dataEquipment?.name}.svg`;
         
-              // Скачиваем файл
               fetch(imageUrl)
                 .then((res) => res.blob())
                 .then((blob) => {

@@ -29,7 +29,6 @@ function FunctionTableTop(props) {
   const [isAddRequestModalOpen, setIsAddRequestModalOpen] = useState()
 
   const [apiNotification, contextHolder] = notification.useNotification()
-  //!удаление заявки
   const deleteRequestFunc = () => {
     if (context.moreSelect.length === 1) {
       context.setPopUp('СonfirmDelete')
@@ -71,7 +70,6 @@ function FunctionTableTop(props) {
     context.setSelectedTable('Card')
   }
 
-  //! функция фильтрации
   function filterBasickData(data, chekeds) {
     let tb = [...data]
     let mass = []
@@ -94,15 +92,6 @@ function FunctionTableTop(props) {
     dispatch(dropFilters({ tableName: 'table9' }))
   }
 
-  // //!При обновлении обновляет только 1 запись
-  // const UpdateRequest = (updatedRequest) => {
-  //   const updatedDataTable = context.dataTableHomePage.map((item) =>
-  //     item.id === updatedRequest.id ? updatedRequest : item
-  //   );
-  //   context.setDataTableHomePage(funFixEducator(updatedDataTable));
-  // };
-
-  // Фильтр по кнопкам с количеством заявок по статусу
   const filterTableApplication = async (status) => {
     const filterStatuses = applicationStatuses.filter((st) => st !== status)
 

@@ -18,7 +18,6 @@ async def send_admin_menu(message: Message) -> None:
 '''
 
     kb = IKM(inline_keyboard=[
-        #[IKB(text="Список заявок 📋", switch_inline_query_current_chat="rr ")],
         [IKB(text="Подать заявку ➕", callback_data="create_repair_request")],
         [
             IKB(text="Актуальные заявки *️⃣", callback_data="requests_admin:status=S^a,S^b,S^e"),

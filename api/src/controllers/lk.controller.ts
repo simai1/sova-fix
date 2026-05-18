@@ -119,10 +119,6 @@ const updateExitDate = catchAsync(async (req, res) => {
     res.json(dto);
 });
 
-// =====================
-// Self-binding TG_ID (см. design-doc §D)
-// =====================
-
 const tgBindingInit = catchAsync(async (req, res) => {
     const { userId, roleNumber } = getCurrent(req);
     // ADMIN не привязывает себе TG через ЛК — у него есть админ-flow `tgUsers/syncManager`.
@@ -148,10 +144,6 @@ const tgBindingUnbind = catchAsync(async (req, res) => {
     await userTgBindingService.unbind(userId);
     res.status(httpStatus.NO_CONTENT).send();
 });
-
-// =====================
-// Web Push (см. design-doc 2026-05-07-web-push-design.md §3-§4)
-// =====================
 
 const pushVapidKey = catchAsync(async (_req, res) => {
     const publicKey = pushNotificationService.getVapidPublicKey();

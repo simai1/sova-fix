@@ -159,10 +159,6 @@ router.patch(
     lkController.updateExitDate
 );
 
-// =====================
-// Self-binding TG_ID (см. design-doc §D)
-// =====================
-
 // TG-binding предусмотрен только для CONTRACTOR (correctness-audit H5):
 // бот шлёт уведомления только контракторам через Contractor.tgUserId, у CUSTOMER
 // связи на уровне User-модели нет, и status() для CUSTOMER всегда вернул бы
@@ -175,10 +171,6 @@ router.get('/me/tg-binding/status', verifyAnyRole(['CONTRACTOR']), lkController.
 
 router.delete('/me/tg-binding', verifyAnyRole(['CONTRACTOR']), lkController.tgBindingUnbind);
 
-// =====================
-// Web Push (см. design-doc 2026-05-07-web-push-design.md §3)
-// =====================
-//
 // Push-эндпоинты доступны всем ролям ЛК (CONTRACTOR/CUSTOMER/ADMIN/OBSERVER) —
 // верхний router.use(...) уже пропускает все четыре. Дополнительный verifyAnyRole
 // здесь не нужен; rate-limit и Joi-валидатор стоят там, где это критично.

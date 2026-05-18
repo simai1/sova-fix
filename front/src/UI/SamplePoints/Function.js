@@ -1,4 +1,3 @@
-//! функция фильтрующая данные
 export function FilteredSample(data, isChecked, sesionName = "") {
   if (isChecked?.length === 0) {
     return [...data];
@@ -9,22 +8,7 @@ export function FilteredSample(data, isChecked, sesionName = "") {
   }
 }
 
-// export const getStatusByName = (statusNumber) => {
-//   const statusFromDirectory = context?.setStatusList.find(status => status.number === statusNumber)
-//   if (!statusFromDirectory) return "___"
-//   return statusFromDirectory?.name
-// }
-//! функция замены преподавательского массива на его имя
 export function funFixEducator(data) {
-  // const status = {
-  //   1: "Новая заявка",
-  //   2: "В работе",
-  //   3: "Выполнена",
-  //   4: "Неактуальна",
-  //   5: "Выезд без выполнения",
-  // };
-
-
   if(Array.isArray(data)){
     return data?.map((item) => {
 

@@ -333,10 +333,6 @@ const getOneForRole = async (userId: string, requestId: string, role: Role) => {
     return new LkRequestDto(request, { currentUserId: userId });
 };
 
-// =====================
-// Чат-сообщения (§A design-doc'а)
-// =====================
-
 // Cursor — строка вида "<ISO-timestamp>:<UUID>". Парсинг строгий: при невалидной
 // строке вернём 400, чтобы фронт не получил «пустой результат» из-за тихой ошибки.
 const parseCommentCursor = (cursor: string): { createdAt: Date; id: string } => {
@@ -498,10 +494,6 @@ const createComment = async (
     if (!fresh) throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Сообщение не сохранено');
     return new RequestCommentDto(fresh);
 };
-
-// =====================
-// Конец чат-сообщений
-// =====================
 
 // Дописывает фотографии к заявке. Поле `fileName` исторически хранит либо
 // одну строку, либо JSON-массив строк — поэтому здесь нормализуем оба варианта.

@@ -6,8 +6,8 @@ import DataContext from "../../../../context";
 import ListInputTOForm from "../../../../UI/ListInputTOForm/ListInputTOForm";
 
 function CreateNomenclature() {
-  const [categories, setCategories] = useState([]); // Данные для выпадающего списка
-  const { context } = useContext(DataContext); // Контекст для управления попапами и обновления данных
+  const [categories, setCategories] = useState([]);
+  const { context } = useContext(DataContext);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -16,7 +16,6 @@ function CreateNomenclature() {
   });
 
   useEffect(() => {
-    // Получаем категории при загрузке
     GetAllCategories().then((res) => {
       if (res?.status === 200) {
         setCategories(res.data);
@@ -33,7 +32,6 @@ function CreateNomenclature() {
   };
 
   const handleListData = (name, value) => {
-    // Сохраняем ID выбранной категории
     if (name === "categoryId") {
       setFormData((prevData) => ({
         ...prevData,
@@ -53,7 +51,7 @@ function CreateNomenclature() {
     const dataToSubmit = { name, comment, categoryId };
     CreateNomenclatures(dataToSubmit).then((res) => {
       if (res?.status === 200) {
-        context.UpdateDataNomenclature(); // Обновляем данные после успешного добавления
+        context.UpdateDataNomenclature();
         context.setPopUp("PopUpGoodMessage");
         context.setPopupGoodText("Номенклатура успешно добавлена!");
       } else {
@@ -72,7 +70,6 @@ function CreateNomenclature() {
       <PopUpContainer title={"Новая номенклатура"} mT={300}>
         <div className={styles.PopUpNewTOCategory}>
           <div className={styles.pupUpFirstContainer}>
-            {/* Поле для ввода названия */}
             <div className={styles.pupUpFirstContainerInfo}>
               <div className={styles.pupContainerInfoTitle}>
                 <p>Название номенклатуры:</p>
@@ -85,7 +82,6 @@ function CreateNomenclature() {
                 onChange={handleInputChange}
               />
             </div>
-            {/* Выпадающий список для выбора категории */}
             <div className={styles.pupUpFirstContainerInfo}>
               <div className={styles.pupContainerInfoTitle}>
                 <p>Категория:</p>
@@ -101,7 +97,6 @@ function CreateNomenclature() {
                 width="270px"
               />
             </div>
-             {/* Поле для ввода комментария */}
              <div className={styles.pupUpFirstContainerInfo}>
               <div className={styles.pupContainerInfoTitle}>
                 <p>Комментарий:</p>
@@ -115,7 +110,6 @@ function CreateNomenclature() {
               />
             </div>
           </div>
-          {/* Кнопка для отправки данных */}
           <div className={styles.buttonSubmitBlock}>
             <button className={styles.buttonSubmit} onClick={handleSubmit}>
               Добавить номенклатуру

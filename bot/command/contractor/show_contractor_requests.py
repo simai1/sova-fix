@@ -86,7 +86,6 @@ async def ask_unit(message: Message, state: FSMContext, user_id: int) -> None:
         names = await pagination.set_pages_data(buttons, state)
         kb = pagination.make_kb(0, names, prefix='object')
 
-        # Если подразделений больше одного, добавляем кнопку "Назад"
         if len(units_with_objects) > 1:
             back_btn = InlineKeyboardButton(text="⬅️ Назад", callback_data="object:back")
             kb.inline_keyboard.append([back_btn])
@@ -176,7 +175,7 @@ async def ask_object(query: CallbackQuery, state: FSMContext):
 @router.callback_query(
     FSMContractorRequestsFilter.object_input,
     F.data.startswith('object'),
-    ~F.data.endswith('back')   # исключаем "Назад"
+    ~F.data.endswith('back')
 )
 async def after_object_selected(query: CallbackQuery, state: FSMContext) -> None:
     object_id = await pagination.get_selected_value(query, state)

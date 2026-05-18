@@ -59,7 +59,6 @@ app.use(
         sameSite: 'lax',
     })
 );
-// uploader section
 // Принудительный attachment-режим для /uploads: загруженный SVG/HTML/JS не
 // исполнится в браузере как контент API-домена. Картинки/видео фронт
 // рендерит через <img>/<video> — браузеры применяют Content-Disposition
@@ -79,12 +78,9 @@ if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir);
 }
 
-// cron section
 cronService.setDays.start();
 cronService.autoRequests.start();
-// cronService.removeUselessFiles.start();
 
-// routes section
 app.use('/auth', authRoute);
 app.use('/users', userRoute);
 app.use('/requests', requestRoute);
@@ -109,8 +105,6 @@ app.use('/reports', reportRoute);
 app.use('/lk', lkRoute);
 app.use('/admin', adminRoute);
 
-// websocket section
-//
 // Handshake-аутентификация (см. .memory-base/specs/2026-05-07-contractor-lk-followups-design.md §E):
 //   клиент посылает Sec-WebSocket-Protocol: "bearer.<jwt>" | "bot.<MASTER_API_KEY>".
 //   На успех — registerClient + подтверждаем тот же subprotocol через
@@ -164,7 +158,6 @@ app.ws('/', async (rawWs, req) => {
     });
 });
 
-// logger section
 if (process.env.NODE_ENV !== 'production') {
     logger.add(
         new winston.transports.Console({
@@ -172,14 +165,6 @@ if (process.env.NODE_ENV !== 'production') {
         })
     );
 }
-
-// export const broadcastConnection = (ws: any, msg: any) => {
-//     aWss.clients.forEach(client => {
-//         if (client.readyState === WebSocket.OPEN) {
-//             client.send(msg);
-//         }
-//     });
-// };
 
 // Глобальный errorHandler — должен быть последним middleware.
 app.use(errorHandler);

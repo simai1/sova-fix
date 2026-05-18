@@ -22,7 +22,6 @@ function List({ dataList, Textlabel, defaultValue, funSetData, itemKey, placehol
     context.setnameClient(defaultValue);
   }, []);
 
-  //!   Закрытие списка при клике за его пределами
   const listRef = useRef(null);
   const handleClickOutside = (event) => {
     if (listRef.current && !listRef.current.contains(event.target)) {

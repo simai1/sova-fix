@@ -11,23 +11,21 @@ import { API_URL } from "../../constants/env.constant";
 Modal.setAppElement("#root");
 
 function PhoneDataVizulizer(props) {
-  const [dataBody, setDataBody] = useState([]); // Данные
-  const [dataHeader, setDataHeader] = useState([]); // Заголовки
-  const [loading, setLoading] = useState(false); // Индикатор загрузки
-  const [error, setError] = useState(null); // Ошибка
-  const [hasMore, setHasMore] = useState(true); // Есть ли еще данные для загрузки
-  const [offset, setOffset] = useState(0); // Текущий офсет
-  const [modalContent, setModalContent] = useState(null); // Контент для модального окна
-  const [isModalOpen, setIsModalOpen] = useState(false); // Управление модальным окном
+  const [dataBody, setDataBody] = useState([]);
+  const [dataHeader, setDataHeader] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [hasMore, setHasMore] = useState(true);
+  const [offset, setOffset] = useState(0);
+  const [modalContent, setModalContent] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { context } = useContext(DataContext);
-  const observerRef = useRef(null); // Ссылка на наблюдатель для скролла
-  const [showScrollToTop, setShowScrollToTop] = useState(false); // Состояние для отображения кнопки
-  const PAGE_SIZE = 10; // Количество строк на одной подгрузке
+  const observerRef = useRef(null);
+  const [showScrollToTop, setShowScrollToTop] = useState(false);
+  const PAGE_SIZE = 10;
 
-  // Ссылка на элемент с прокруткой
   const containerRef = useRef(null);
-  
-  // Функция прокрутки вверх
+
   const scrollToTop = () => {
     if (containerRef.current) {
       containerRef.current.scrollTo({
@@ -37,13 +35,12 @@ function PhoneDataVizulizer(props) {
     }
   };
   
-  // Слежение за прокруткой в контейнере
   useEffect(() => {
     const container = containerRef.current;
-  
+
     const handleScroll = () => {
       if (container) {
-        setShowScrollToTop(container.scrollTop > 300); // Показываем кнопку при скролле вниз
+        setShowScrollToTop(container.scrollTop > 300);
       }
     };
   
@@ -52,52 +49,45 @@ function PhoneDataVizulizer(props) {
   }, []);
   
   
-  // Обновляем данные при изменении поиска или popUp
   useEffect(() => {
     if (context.textSearchTableDataPhone) {
-      setOffset(0); // Сбрасываем offset
-      setDataBody([]); // Очищаем текущие данные
-      fetchData(0, context.textSearchTableDataPhone); // Заново выполняем поиск
+      setOffset(0);
+      setDataBody([]);
+      fetchData(0, context.textSearchTableDataPhone);
     }
   }, [context.textSearchTableDataPhone]);
-  
+
   useEffect(() => {
     if (context.reloadTable) {
-      setOffset(0); // Сбрасываем offset
-      setDataBody([]); // Очищаем текущие данные
-      fetchData(0); // Перезагружаем данные
-      context.setReloadTable(false); // Сбрасываем флаг после обновления
+      setOffset(0);
+      setDataBody([]);
+      fetchData(0);
+      context.setReloadTable(false);
     }
   }, [context.reloadTable]);
-  
-  // Функция загрузки данных
+
   const fetchData = async (currentOffset, text) => {
-    if (loading) return; // Блокируем повторные запросы
+    if (loading) return;
     setLoading(true);
     setError(null);
-  
+
     try {
       let url;
       if (text) {
-        // Если есть текст поиска, игнорируем offset
         url = `?search=${encodeURIComponent(text)}`;
       } else {
-        // Если поиска нет, используем пагинацию
         url = `?offset=${currentOffset}&limit=${PAGE_SIZE}`;
       }
-  
+
       const response = await GetAllRequests(url);
       const newData = response?.data?.requestsDtos || [];
-  
+
       if (text) {
-        // Если это поиск, полностью перезаписываем данные
         setDataBody(funFixEducator(newData));
       } else {
-        // Если это подгрузка, добавляем данные
         setDataBody((prev) => [...prev, ...funFixEducator(newData)]);
       }
-  
-      // Проверяем, есть ли ещё данные для подгрузки
+
       setHasMore(newData.length === PAGE_SIZE);
     } catch (err) {
       setError("Ошибка загрузки данных.");
@@ -105,17 +95,15 @@ function PhoneDataVizulizer(props) {
       setLoading(false);
     }
   };
-  
-  // Callback для Intersection Observer
+
   const handleObserver = (entries) => {
     const target = entries[0];
     if (target.isIntersecting && hasMore && !loading) {
-      fetchData(offset); // Загружаем данные с текущим offset
-      setOffset((prevOffset) => prevOffset + PAGE_SIZE); // Увеличиваем offset после загрузки
+      fetchData(offset);
+      setOffset((prevOffset) => prevOffset + PAGE_SIZE);
     }
   };
-  
-  // Устанавливаем Intersection Observer
+
   useEffect(() => {
     const observer = new IntersectionObserver(handleObserver, {
       root: null,
@@ -132,22 +120,19 @@ function PhoneDataVizulizer(props) {
     };
   }, [observerRef.current, hasMore, loading, offset]);
   
-    // Функция открытия модального окна
     const openModal = (content) => {
       setModalContent(content);
       setIsModalOpen(true);
     };
-  
-    // Функция закрытия модального окна
+
     const closeModal = () => {
       setModalContent(null);
       setIsModalOpen(false);
       fetchData(context.textSearchTableDataPhone);
     };
-  
-    // Проверка на видео
+
     const isVideo = (fileName) => {
-      if (typeof fileName !== "string") return false; // Проверяем, что fileName — строка
+      if (typeof fileName !== "string") return false;
       const videoExtensions = [".mp4", ".avi", ".mov", ".wmv", ".mkv"];
       return videoExtensions.some((ext) => fileName.toLowerCase().endsWith(ext));
     };
@@ -197,7 +182,6 @@ function PhoneDataVizulizer(props) {
 
   return (
     <div className={styles.PhoneDataVizulizer} ref={containerRef}>
-      {/* Отображаем данные */}
       {dataBody.map((item, index) => (
         <div key={item.id + index} className={styles.dataBlock}>
           <div className={styles.dataBlockInner}>
@@ -214,7 +198,6 @@ function PhoneDataVizulizer(props) {
                   if (header.isActive && header.key !== "Qr") {
                     const value = item[header.key];
 
-                    // Если значение — фото или видео
                     if (header.key === "fileName") {
                       return (
                         <div key={header.key + index} className={styles.photoBlock}>
@@ -296,7 +279,6 @@ function PhoneDataVizulizer(props) {
                         </div>
                       );
                     } else if (header.key === "builder") {
-                      // подрядчик
                       return (
                         <p style={{ margin: "3px 0px" }}>
                           Подрядчик:{" "}
@@ -304,7 +286,6 @@ function PhoneDataVizulizer(props) {
                         </p>
                       );
                     } else if (header.key === "contractor") {
-                      // исполнитель
                       return (
                         <p style={{ margin: "3px 0px" }}>
                           Исполнитель: {getContractorItem(item)}
@@ -312,7 +293,6 @@ function PhoneDataVizulizer(props) {
                       );
                     }
 
-                    // Другое отображение значений
                     const displayValue =
                       typeof value === "object" && value !== null
                         ? JSON.stringify(value)
@@ -337,7 +317,6 @@ function PhoneDataVizulizer(props) {
           </div>
         </div>
       ))}
-      {/* Модальное окно */}
       <Modal
         isOpen={isModalOpen}
         onRequestClose={closeModal}
@@ -349,17 +328,13 @@ function PhoneDataVizulizer(props) {
         </button>
         <div className={styles.modalContentWrapper}>{modalContent}</div>
       </Modal>
-      {/* Индикатор загрузки */}
       {loading && <div className={styles.loading}>Загрузка...</div>}
-
-      {/* Ошибка */}
       {error && <div className={styles.error}>{error}</div>}
       {showScrollToTop &&
             <button className={styles.scrollToTop} onClick={() => scrollToTop()}>
             ↑
             </button>
         }
-      {/* Наблюдатель для Intersection Observer */}
       <div ref={observerRef} className={styles.observer}></div>
     </div>
   );

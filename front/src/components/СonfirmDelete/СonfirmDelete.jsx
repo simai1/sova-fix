@@ -5,22 +5,17 @@ import styles from './СonfirmDelete.module.scss';
 import React from 'react';
 function СonfirmDelete() {
     const { context } = React.useContext(DataContext);
-    const idToDelete = context.moreSelect[0]; // Получаем id записи для удаления
+    const idToDelete = context.moreSelect[0];
 
     const DeletedRequest = () => {
       DeleteRequest(idToDelete).then((resp) => {
         if (resp) {
-          // Удаляем запись из таблицы локально
           context.setDataTableHomePage((prevData) => {
-            // Фильтруем записи, чтобы удалить по id
             return prevData.filter((item) => item.id !== idToDelete);
-          }); 
-        context.setDataAppointment((prevDataAppointment) => {
+          });
+          context.setDataAppointment((prevDataAppointment) => {
             return prevDataAppointment.filter((item) => item.id !== idToDelete);
           })
-          
-            //   context.UpdateForse()
-          // Очищаем выбранные записи и показываем сообщение
           context.UpdateTableReguest()
           context.setSelectedTr(null);
           context.setMoreSelect([]);
@@ -29,7 +24,6 @@ function СonfirmDelete() {
         }
       }).catch(error => {
         console.error("Ошибка при удалении заявки:", error);
-        // Вы можете добавить обработку ошибок
       });
     };
       

@@ -169,24 +169,18 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
                 whereParams[fieldName] = { [Op.is]: value.includes('true') };
             } else if (fieldName === 'managerTgId') {
                 logger.info(`Filtering by managerTgId: ${filter.managerTgId}`);
-                // Ensure managerTgId is treated as string
                 whereParams[fieldName] = String(filter.managerTgId);
             } else if (fieldName === 'managerId') {
                 logger.info(`Filtering by managerId: ${filter.managerId}`);
-                // Handle both UUID string and numeric managerId for backward compatibility
                 const managerIdValue = filter.managerId;
                 if (typeof managerIdValue === 'string' && managerIdValue.includes('-')) {
-                    // UUID format
                     whereParams[fieldName] = managerIdValue;
                 } else {
-                    // For legacy numeric IDs, we need to search both as string and number
-                    // since some old records might have numeric managerId
                     const managerConditions = [
                         { [fieldName]: String(managerIdValue) },
                         { [fieldName]: Number(managerIdValue) },
                     ];
 
-                    // If there's already an Op.or condition, merge with it
                     if (whereParams[Op.or]) {
                         whereParams[Op.and] = [{ [Op.or]: whereParams[Op.or] }, { [Op.or]: managerConditions }];
                         delete whereParams[Op.or];
@@ -207,10 +201,7 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
 
                     if (isExternalManager) {
                         andConditions.push(
-                            // Убираем, если ExtContractor.name = null
                             { '$ExtContractor.name$': { [Op.is]: null } },
-
-                            // Убираем заявки, где и Contractor.name, и ExtContractor.name пустые
                             {
                                 [Op.or]: [
                                     {
@@ -230,14 +221,13 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
                                     {
                                         builder: {
                                             [Op.or]: [
-                                                { [Op.notILike]: 'Укажите подрядчика' }, // для случаев без 'Менеджер:'
+                                                { [Op.notILike]: 'Укажите подрядчика' },
                                                 { [Op.notILike]: 'Менеджер: Внешний подрядчик' },
                                             ],
                                         },
                                     },
                                 ],
                             },
-                            // Убираем builder, кроме "Менеджер: Внешний подрядчик"
                             {
                                 builder: {
                                     [Op.notIn]: value.filter((v: string) => v !== 'Менеджер: Внешний подрядчик'),
@@ -281,7 +271,6 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
                     const orConditions: any[] = [];
 
                     if (isExternalManager) {
-                        // Включаем: есть внешний подрядчик ИЛИ builder совпадает
                         orConditions.push(
                             { '$ExtContractor.name$': { [Op.not]: null } },
                             { builder: { [Op.in]: value } }
@@ -291,7 +280,6 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
                     }
 
                     if (hasUnknownBuilder) {
-                        // Включаем, но исключаем случаи без contractor
                         whereParams[Op.and] = [
                             ...(whereParams[Op.and] || []),
                             { [Op.or]: orConditions },
@@ -311,7 +299,6 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
                             },
                         ];
                     } else {
-                        // Простое включение
                         whereParams[Op.or] = orConditions;
                     }
                 }
@@ -446,7 +433,6 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
             });
         }
 
-        // sort copied
         const sortedRequests: RepairRequest[] = [];
         const copiedRequests: RepairRequest[] = [];
         requests.forEach(request => {
@@ -634,13 +620,11 @@ const setContractor = async (requestId: string, contractorId: string, managerId?
         if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
         const oldStatus = request.status;
 
-        // Обработка случая с менеджером как исполнителем
         if (managerId) {
             logger.info(`Setting manager/admin with ID: ${managerId} for request: ${requestId}`);
 
             let manager = null;
 
-            // First, try to find a TgUser (manager) with this ID
             try {
                 manager = await TgUser.findByPk(managerId);
                 if (manager) {
@@ -686,7 +670,6 @@ const setContractor = async (requestId: string, contractorId: string, managerId?
             }
         }
 
-        // Обработка "Внешний подрядчик"
         if (
             contractorId &&
             typeof contractorId === 'string' &&
@@ -722,7 +705,6 @@ const setContractor = async (requestId: string, contractorId: string, managerId?
             return;
         }
 
-        // Проверяем существование подрядчика с переданным ID
         if (contractorId) {
             try {
                 const contractor = await Contractor.findByPk(contractorId, {
@@ -788,7 +770,6 @@ const setContractor = async (requestId: string, contractorId: string, managerId?
                 throw error;
             }
         } else {
-            // Если contractorId не передан, но и managerId тоже нет
             logger.error('Neither contractor ID nor manager ID was provided');
             throw new ApiError(httpStatus.BAD_REQUEST, 'Either contractor ID or manager ID must be provided');
         }
@@ -802,14 +783,12 @@ const setExtContractor = async (requestId: string, extContractorId: string): Pro
     try {
         logger.info(`Setting external contractor ${extContractorId} for request ${requestId}`);
 
-        // Находим заявку
         const request = await RepairRequest.findByPk(requestId);
         if (!request) {
             logger.error(`Request with id ${requestId} not found`);
             throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
         }
 
-        // Находим внешнего подрядчика
         const extContractor = await ExtContractor.findByPk(extContractorId);
         if (!extContractor) {
             logger.error(`External contractor with id ${extContractorId} not found`);
@@ -818,7 +797,6 @@ const setExtContractor = async (requestId: string, extContractorId: string): Pro
 
         const oldStatus = request.status;
 
-        // Обновляем заявку
         logger.info(`Updating request ${requestId} with external contractor ${extContractor.name}`);
         await request.update({
             extContractorId: extContractorId,
@@ -831,10 +809,8 @@ const setExtContractor = async (requestId: string, extContractorId: string): Pro
             isExternal: true,
         });
 
-        // Находим заказчика для отправки уведомления
         const customer = await TgUser.findByPk(request.createdBy);
 
-        // Отправляем уведомление подписанным на заявку и боту.
         emitTo({ kind: 'request', requestId: requestId }, 'STATUS_UPDATE', {
             newStatus: 2,
             oldStatus: oldStatus,
@@ -1034,7 +1010,6 @@ const update = async (
 
     await request.update(updateData);
 
-    // Если статус обновлен на "выполнено", устанавливаем дату завершения
     if (status === 3) {
         const dateNow = new Date();
         await request.update({
@@ -1043,7 +1018,6 @@ const update = async (
         });
     }
 
-    // ws section
     if (typeof status !== 'undefined' && status !== oldStatus) {
         const customer = await TgUser.findByPk(request.createdBy);
         const contractor = await Contractor.findByPk(request.contractorId, {
@@ -1090,7 +1064,6 @@ const update = async (
         await notificationService.notifyCommentChanged(request, 'ADMIN', null);
     }
 
-    // Получаем objectDir только если objectId передан
     let unitId, legalEntityId;
     if (objectId) {
         const objectDir = await objectService.getObjectById(objectId);
@@ -1265,7 +1238,6 @@ const bulkSetStatus = async (ids: object, status: number): Promise<void> => {
             completeDate: status === 3 ? dateNow : null,
         });
 
-        // Отправляем уведомление о смене статуса
         const customer = await TgUser.findByPk(request.createdBy);
         const contractor = await Contractor.findByPk(request.contractorId, {
             include: [{ model: User }, { model: TgUser }],
@@ -1288,7 +1260,6 @@ const bulkSetUrgency = async (ids: object, urgency: string): Promise<void> => {
         const oldUrgency = request.urgency;
         await request.update({ urgency });
 
-        // Отправляем уведомление о смене срочности
         const customer = await TgUser.findByPk(request.createdBy);
         const contractor = await Contractor.findByPk(request.contractorId, {
             include: [{ model: User }, { model: TgUser }],
@@ -1374,14 +1345,12 @@ const getRequestsByObjects = async (tgUserId: string, filter: any): Promise<Requ
     return getCustomersRequests(tgUserId, filter);
 };
 
-// New function to set a manager as the executor
 const setManager = async (requestId: string, managerId: string): Promise<void> => {
     const request = await RepairRequest.findByPk(requestId);
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
 
     const oldStatus = request.status;
 
-    // Find the manager
     const manager = await TgUser.findByPk(managerId);
     if (!manager) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found manager with id ' + managerId);
 
@@ -1389,10 +1358,9 @@ const setManager = async (requestId: string, managerId: string): Promise<void> =
         `Назначение менеджера ${manager.name} (ID: ${managerId}, tgId: ${manager.tgId}) исполнителем для заявки: ${requestId}`
     );
 
-    // Update the request with both managerId and managerTgId
     await request.update({
         managerId,
-        managerTgId: manager.tgId, // Store tgId for direct reference in bot
+        managerTgId: manager.tgId,
         status: 2,
         daysAtWork: 1,
         contractorId: null,
@@ -1405,7 +1373,6 @@ const setManager = async (requestId: string, managerId: string): Promise<void> =
         `Заявка ${requestId} успешно обновлена, установлены поля: managerId=${managerId}, managerTgId=${manager.tgId}`
     );
 
-    // Send notification
     const customer = await TgUser.findByPk(request.createdBy);
 
     emitTo({ kind: 'request', requestId: requestId }, 'STATUS_UPDATE', {
@@ -1424,14 +1391,13 @@ const changeUrgency = async (prevName: string, urgencyId: string) => {
     const urgency = await Urgency.findByPk(urgencyId);
     if (!urgency) throw new Error(`Urgency with id ${urgencyId} not found`);
 
-    // Обновить все заявки, где старое имя совпадает
     await RepairRequest.update(
         {
-            urgency: urgency.name, // обновляем текстовое имя
-            urgencyId: urgency.id, // присваиваем новый ID срочности
+            urgency: urgency.name,
+            urgencyId: urgency.id,
         },
         {
-            where: { urgency: prevName }, // по совпадению старого текста
+            where: { urgency: prevName },
         }
     );
 };
@@ -1440,14 +1406,13 @@ const changeStatus = async (prevNumber: number, statusId: string) => {
     const status = await Status.findByPk(statusId);
     if (!status) throw new Error(`Status with id ${statusId} not found`);
 
-    // Обновить все заявки, где старый номер совпадает
     await RepairRequest.update(
         {
-            status: status.number, // обновляем номер статуса
-            statusId: status.id, // присваиваем новый ID срочности
+            status: status.number,
+            statusId: status.id,
         },
         {
-            where: { status: prevNumber }, // по совпадению старого номера
+            where: { status: prevNumber },
         }
     );
 };
@@ -1459,7 +1424,6 @@ const countOfRepairRequest = async (repairId: string) => {
     return currentFiles.length;
 };
 
-// Поиск актуальных заявок по объектам  - 1, 2 и 5 статусы
 export const getActualRequestsByObjectId = async (tgUserId: string, unitId: string, objectId?: string) => {
     const actualStatuses = [1, 2, 5];
 

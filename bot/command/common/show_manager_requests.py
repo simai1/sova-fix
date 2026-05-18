@@ -27,7 +27,6 @@ async def send_rr_for_manager(message: Message, repair_request: dict) -> None:
         else:
             kb = rr_admin_kb(repair_request)
             
-        # Используем стандартную функцию отправки заявки с медиа
         await send_repair_request(message, repair_request, kb)
         
     except Exception as e:

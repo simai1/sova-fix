@@ -28,7 +28,6 @@ async def show_customer_requests_callback_handler(query: CallbackQuery, state: F
     await query.answer()
 
 
-# send repair request functions
 async def send_rr_for_customer(message: Message, repair_request: dict) -> None:
     await send_repair_request(message, repair_request, rr_customer_kb(repair_request))
 

@@ -8,7 +8,6 @@ from aiogram.enums import ParseMode
 
 import config as cf
 from util.websocket_worker import WebSocketWorker
-# routers
 from command.common.add_comment import router as add_comment_router
 from command.common.request_done import router as request_done_router
 from command.common.request_exit_not_done import router as request_exit_not_done

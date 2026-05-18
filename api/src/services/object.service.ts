@@ -38,7 +38,6 @@ const getUserObjects = async (tgUserId: string, unitId?: string): Promise<Object
             message: `Getting objects for user ${tgUserId} from object service`,
         });
 
-        // Получаем связи пользователя с объектами из таблицы tgUserObjects
         const userObjectRelations = await (models.TgUserObject as any).findAll({
             where: { tgUserId },
             include: [
@@ -56,7 +55,6 @@ const getUserObjects = async (tgUserId: string, unitId?: string): Promise<Object
             message: `Found ${userObjectRelations.length} relations with objects for user ${tgUserId}`,
         });
 
-        // Извлекаем только объекты из связей
         const objects = userObjectRelations
             .map((relation: any) => relation.Object)
             .filter((object: any) => object !== null && object !== undefined);
@@ -66,7 +64,6 @@ const getUserObjects = async (tgUserId: string, unitId?: string): Promise<Object
             message: `Final objects list for user ${tgUserId}: ${objects.length} items`,
         });
 
-        // Преобразуем объекты в DTO и возвращаем
         return objects.map((obj: any) => new ObjectDto(obj));
     } catch (error) {
         logger.log({

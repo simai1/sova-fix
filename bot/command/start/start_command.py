@@ -103,7 +103,6 @@ async def handle_tg_bind(message: Message, state: FSMContext, token: str) -> Non
 async def start_handler(user_id: int, message: Message, state: FSMContext) -> None:
     await state.clear()
 
-    # проверить зарегистрирован ли юзер и на основе этого отправлять разные сообщения
     user = await crm.get_user(user_id)
 
     if user is None:

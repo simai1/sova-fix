@@ -6,15 +6,12 @@ function UneversalList(props) {
   const { context } = React.useContext(DataContext);
   const [isActive, setIsActive] = useState(false);
   const addItem = (el) => {
-    // handleListData(props?.name, el.id);
     props.setValueName(el.name);
     setIsActive(!isActive);
   };
 
-  const dropdownRef = useRef(null); // Create a ref for the dropdown
+  const dropdownRef = useRef(null);
 
-
-  // Close dropdown when clicking outside of it
   useEffect(() => {
     const handleClickOutside = (event) => {
         if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -38,7 +35,7 @@ function UneversalList(props) {
         <div className={styles.ListCont} >
           <input
             readOnly
-            onClick={() => setIsActive(!isActive)} // Toggle dropdown on click
+            onClick={() => setIsActive(!isActive)}
             value={props?.valueName}
             placeholder={props?.placeholder}
             style={{borderBottom: !isActive ? "1px solid #ADADAD" : "none", borderRadius: isActive ? "8px 8px 0 0" : "8px"}}

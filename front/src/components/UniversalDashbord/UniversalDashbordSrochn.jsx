@@ -22,9 +22,6 @@ function UniversalDashbordSrochn(props) {
       }
     });
 
-    // // Filter out data entries with zero values
-    // const filteredData = datas.filter(item => item.value > 0);
-
     var option = {
       title: {
         text: 'Срочность',
@@ -57,7 +54,6 @@ function UniversalDashbordSrochn(props) {
           }
         }
       ],
-      // color: ['#d69a81', '#ffe78f', '#C5E384', '#B7AB9E'] // Custom colors
       color: colors
     };
    
@@ -66,7 +62,7 @@ function UniversalDashbordSrochn(props) {
     return () => {
       myChart.dispose();
     };
-  }, [props.dataDashbord]); // Add props.dataDashbord as a dependency
+  }, [props.dataDashbord]);
 
   return (
     <div id="UniversalDashbordSrochn" style={{ width: '650px', height: '575px' }}></div>

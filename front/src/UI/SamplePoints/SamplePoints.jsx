@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./SamplePoints.module.scss";
-// import DataContext from "../../context";
 import { FilteredSample } from "./Function";
 import { useDispatch } from "react-redux";
 import {
@@ -12,16 +11,13 @@ import {
 
 export function SamplePoints(props) {
   const dispatch = useDispatch();
-  // const { basicTabData } = React.useContext(DataContext);
 
-  //! поиск
   const [searchText, setSearchText] = useState("");
   const handleInputChange = (event) => {
     setSearchText(event.target.value);
   };
   const [filteredData, setFilteredData] = useState([]);
 
-  //! чтобы SamplePoints не выходил за пределы таблицы
   const spRef = useRef(null);
   useEffect(() => {
     if (spRef.current) {
@@ -32,7 +28,6 @@ export function SamplePoints(props) {
     }
   }, [spRef]);
 
-  //! закрытие модального окна при нажати вне него
   useEffect(() => {
     const handler = (event) => {
       if (spRef.current && !spRef.current.contains(event.target)) {
@@ -46,8 +41,6 @@ export function SamplePoints(props) {
   }, []);
 
   useEffect(() => {
-    //! isSamplePointsData это массив в котором текстовые елементы, взятые из столбца
-    //! в fd храним все строки из столбца, и добавляем к ним те которые отфильтрованны (строки из redux)
     const mass = [
       ...props.isSamplePointsData,
       ...props.isChecked
@@ -56,22 +49,17 @@ export function SamplePoints(props) {
     ];
     const fd = [
       ...mass.filter((el) => {
-        // Преобразовываем el в строку, если он является числом
         const elString = typeof el === "number" ? el.toString() : el;
         return elString?.toLowerCase().includes(searchText?.toLowerCase());
       }),
     ].sort((a, b) => {
-      // Сортируем отфильтрованные данные по возрастанию
       if (a < b) return -1;
       if (a > b) return 1;
       return 0;
     });
-    //! записываем только уникальные значения
-   
     setFilteredData([...new Set(fd)]);
   }, [props.isSamplePointsData, searchText]);
 
-  //! при нажатии на Input All
   const onAllChecked = () => {
     let checked = [...props.isChecked];
     if (
@@ -85,7 +73,6 @@ export function SamplePoints(props) {
         })
       );
     } else {
-      //! записываем уникальные
       const uniqueItems = new Set();
       [...props.isSamplePointsData].forEach((item) => {
         const itemKey = {
@@ -107,7 +94,6 @@ export function SamplePoints(props) {
       ...new Set(checked.map((item) => JSON.stringify(item))),
     ].map((item) => JSON.parse(item));
     props.setIsChecked(uniqueArray);
-    // Фильтруем данные
     const fdfix = FilteredSample(
       props.workloadData,
       uniqueArray,
@@ -115,10 +101,9 @@ export function SamplePoints(props) {
     );
     props.setWorkloadDataFix(fdfix);
   };
-  //! при нажатии на Input
+
   const onChecked = (el) => {
-   
-    let checked = [...props.isChecked]; // основной массив
+    let checked = [...props.isChecked];
     if (
       checked.some(
         (item) => item.value === el && props.itemKey === item.itemKey
@@ -143,7 +128,6 @@ export function SamplePoints(props) {
       ...new Set(checked.map((item) => JSON.stringify(item))),
     ].map((item) => JSON.parse(item));
     props.setIsChecked(uniqueArray);
-    // Фильтруем данные
     const fdfix = FilteredSample(
       props.workloadData,
       uniqueArray,

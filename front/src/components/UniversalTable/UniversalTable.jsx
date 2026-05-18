@@ -52,7 +52,6 @@ function UniversalTable(props) {
     }
   };
 
-  //! открываем или закрываем модальное окно samplePoints
   const funClickTh = (event, index, key) => {
     const nonSelectableKeys = new Set([
       "number", "tgId", "info", "login", 
@@ -66,7 +65,6 @@ function UniversalTable(props) {
     }
   };
 
-  //! функция фильтрации
   function filterBasickData(data, chekeds) {
     if(data){
       let tb = [...data];
@@ -154,28 +152,18 @@ function UniversalTable(props) {
   }, [])
 
   const getItemBuilder = (row, isBuilderColumn) => {
-    // Если есть подрядчик с именем
     if (row?.contractor && typeof row.contractor === 'object' && row.contractor.name) {
       return row.contractor.name;
-    } 
-    // Если это менеджер-исполнитель
-    else if (row?.managerId) {
-      // Ищем менеджера среди списка всех менеджеров
+    } else if (row?.managerId) {
       const manager = managers.find(m => m.id === row.managerId);
       return manager ? manager.name : "Менеджер";
-    } 
-    else if (row?.isExternal && isBuilderColumn) {
+    } else if (row?.isExternal && isBuilderColumn) {
       return row?.extContractor?.name
-    }
-    // Если это внешний подрядчик
-    else if ((row?.isExternal || row?.builder === 'Внешний подрядчик') && !isBuilderColumn) {
+    } else if ((row?.isExternal || row?.builder === 'Внешний подрядчик') && !isBuilderColumn) {
       return "Внешний подрядчик";
-    } 
-    else if ((!row?.isExternal && row?.builder === 'Внешний подрядчик') && isBuilderColumn) {
+    } else if ((!row?.isExternal && row?.builder === 'Внешний подрядчик') && isBuilderColumn) {
       return 'Не назначен'
-    }
-    // В остальных случаях
-    else {
+    } else {
       return "Укажите подрядчика";
     }
   };
@@ -284,7 +272,6 @@ function UniversalTable(props) {
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (!event.target.closest("tr") && !event.target.closest("button")) {
-        // context.setSelectRowDirectory(null);
         context.setSelectedTr(null);
       }
     };
@@ -386,8 +373,7 @@ function UniversalTable(props) {
       classNames.push(styles['top-aligned'] || 'top-aligned');
     }
     
-    // Проверяем, находится ли элемент близко к правому краю экрана
-    const shouldAlignRight = index % 4 === 3; // каждый 4-й элемент
+    const shouldAlignRight = index % 4 === 3;
     
     if (shouldAlignRight) {
       classNames.push(styles['right-aligned'] || 'right-aligned');
@@ -423,9 +409,9 @@ function UniversalTable(props) {
 }
 
   const contextmenuClick = (event) => {
-    event.preventDefault(); // Prevent the default context menu from appearing
-    const x = event.clientX; // Get the X coordinate
-    const y = event.clientY; // Get the Y coordinate
+    event.preventDefault();
+    const x = event.clientX;
+    const y = event.clientY;
     setCoordinatesX(x);
     setCoordinatesY(y);
   };
@@ -507,11 +493,10 @@ function UniversalTable(props) {
                   }}
                 >
                   <SamplePoints
-                    basickData={basickData} // нефильтрованные данные
-                    tableBodyData={tableBodyData} // фильтрованные данные
+                    basickData={basickData}
+                    tableBodyData={tableBodyData}
                     punkts={[
                       ...basickData.map((it) =>{
-                        // все что касается фильтра по исполнителю на фронте написано коряво. ПЕРЕДЕЛАТЬ при возможности.
                         if (el.key === "contractor" && it[el.key] === "___" && it["contractorManager"] === null && it['extContractor'] === null) {
                           return "Укажите подрядчика"
                         }
@@ -533,20 +518,11 @@ function UniversalTable(props) {
                             ? it.itemKey === "contractorManager"
                             : it.itemKey === el.key
                           )
-                        .map((it) => String(it.value)), // Ensure it's a string
+                        .map((it) => String(it.value)),
                     ].sort((a, b) => {
-                      // Handle cases where a or b might not be a string
-                      // if (typeof a === "string" && typeof b === "string") {
-                      //   return a.localeCompare(b);
-                      // } else if (a == null) {
-                      //   return 1; // Place nulls at the end
-                      // } else if (b == null) {
-                      //   return -1; // Place nulls at the end
-                      // } else {
-                        return String(a).localeCompare(String(b)); // Convert to string for comparison
-                      // }
+                        return String(a).localeCompare(String(b));
                     })}
-                    itemKey={el.key} // ключь пунта
+                    itemKey={el.key}
                     tableName={props?.tableName}
                   />
                 </div>
@@ -628,7 +604,6 @@ function UniversalTable(props) {
                     <div
                       onClick={() => JSON.parse(sessionStorage.getItem("userData"))?.user?.role !== "OBSERVER" && setItineraryOrderPop(row.id)}
                       className={ document.location.pathname === "/CardPage/CardPageModule" ? styles.statusClick : styles.statusNotClick }
-                      // ref={ItineraryOrderPopRef}
                     >
                       {row[header.key] !== null ? row[header.key] : "___"}
                       {itineraryOrderPop === row.id && (

@@ -9,30 +9,29 @@ import logger from '../utils/logger';
  */
 const getTgUserObjects = catchAsync(async (req, res) => {
     const { tgUserId } = req.params;
-    
+
     if (!tgUserId) {
         throw new ApiError(httpStatus.BAD_REQUEST, 'Missing tgUserId');
     }
-    
+
     try {
         logger.log({
             level: 'info',
             message: `RAW API: Getting TgUserObjects relations for user ${tgUserId}`,
         });
-        
-        // Получаем все связи из таблицы TgUserObject для конкретного пользователя
+
         const relations = await (models.TgUserObject as any).findAll({
             where: { tgUserId },
             attributes: ['id', 'tgUserId', 'objectId'],
-            raw: true, // Возвращаем "сырые" данные без метаданных Sequelize
+            raw: true,
         });
-        
+
         logger.log({
             level: 'info',
             message: `RAW API: Found ${relations.length} relations for user ${tgUserId}`,
             data: relations,
         });
-        
+
         return res.json(relations);
     } catch (error) {
         logger.log({
@@ -40,14 +39,11 @@ const getTgUserObjects = catchAsync(async (req, res) => {
             message: `RAW API: Error getting TgUserObjects for user ${tgUserId}`,
             error,
         });
-        
-        throw new ApiError(
-            httpStatus.INTERNAL_SERVER_ERROR,
-            `Failed to get relations for user ${tgUserId}`
-        );
+
+        throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Failed to get relations for user ${tgUserId}`);
     }
 });
 
 export default {
     getTgUserObjects,
-}; 
+};

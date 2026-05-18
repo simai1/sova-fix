@@ -79,7 +79,6 @@ const getTableReportData = async (
     }
 };
 
-// === Подсчёт количества заявок по id ===
 const getTotalCountRepairRequest = async (filters: Record<string, any>) => {
     try {
         const count = await RepairRequest.count({ where: filters });
@@ -160,7 +159,6 @@ const getAllContractorsFromRequests = async () => {
     return Array.from(result.values());
 };
 
-// === 1. Загружаем связи (legalEntity / unit / object) ===
 export const loadRelatedData = async (
     params: Record<string, boolean>,
     data: Record<string, RelatedDataI[]>
@@ -217,7 +215,6 @@ export const loadRelatedData = async (
     return relatedData;
 };
 
-// === 2. Загружаем остальные параметры ===
 export const buildParamData = async (parametrs: Record<string, boolean>, data: Record<string, any[]>) => {
     for (const [key, enabled] of Object.entries(parametrs)) {
         if (!enabled || ['legalEntity', 'unit', 'object'].includes(key)) continue;
@@ -243,7 +240,6 @@ export const buildParamData = async (parametrs: Record<string, boolean>, data: R
     }
 };
 
-// === 3.1 Ограничение builder ↔ contractor ===
 export const filterRealBuilderContractorPairs = async (parametrs: Record<string, boolean>, combined: any[]) => {
     if (!(parametrs.builder && parametrs.contractor)) return combined;
 
@@ -287,7 +283,6 @@ export const filterRealBuilderContractorPairs = async (parametrs: Record<string,
     });
 };
 
-// === 4. Фильтрация по связям ===
 export const filterByRelations = (parametrs: Record<string, boolean>, combined: any[], relatedData: RelatedDataI[]) => {
     const hasRelated = ['legalEntity', 'unit', 'object'].some(k => parametrs[k]);
     if (!hasRelated || relatedData.length === 0) return combined;
@@ -302,7 +297,6 @@ export const filterByRelations = (parametrs: Record<string, boolean>, combined: 
     );
 };
 
-// === 5. Индикаторы ===
 export const calculateIndicators = async (
     filtered: any[],
     parametrs: Record<string, boolean>,
@@ -326,7 +320,6 @@ export const calculateIndicators = async (
     return result;
 };
 
-// === 5.1 Хелпер: фильтры для RepairRequest ===
 const buildFilterIds = async (row: any, parametrs: Record<string, boolean>, additional: AdditionalParametrsI) => {
     const filterIds: Record<string, any> = {};
 
@@ -358,7 +351,6 @@ const buildFilterIds = async (row: any, parametrs: Record<string, boolean>, addi
     return filterIds;
 };
 
-// === 5.2 Подсчёт всех индикаторов для строки ===
 const buildIndicators = async (
     row: any,
     filterIds: Record<string, any>,

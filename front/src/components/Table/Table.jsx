@@ -140,7 +140,6 @@ function Table() {
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (!event.target.closest('tr') && !event.target.closest('button')) {
-        // context.setSelectedTr(null);
       }
     }
     WhatNanItem()
@@ -264,7 +263,6 @@ function Table() {
     context.setDataAppointment(updateDataAppoint)
   }
 
-  //!Запрос на смену срочности
   const SetUrgency = (name, idAppoint, idUrgency) => {
     const data = { urgency: name, urgencyId: idUrgency }
     ReseachDataRequest(idAppoint, data).then((resp) => {
@@ -401,7 +399,6 @@ function Table() {
       const currentScrollLeft = el.scrollLeft
 
       if (currentScrollLeft !== lastScrollLeft) {
-        // горизонтальный скролл
         setshovStatusPop('')
         setshovBulderPop('')
         setshovUrgencyPop('')
@@ -502,26 +499,18 @@ function Table() {
   const storeTableHeader = useSelector((state) => state.editColumTableSlice.ActiveColumTable)
 
   const getItemBuilder = (row, isBuilderColumn) => {
-    // Если есть поßдрядчик с именем
     if (row?.contractor && typeof row.contractor === 'object' && row.contractor.name) {
       return row.contractor.name
-    }
-    // Если это менеджер-исполнитель
-    else if (row?.managerId) {
-      // Ищем менеджера среди списка всех менеджеров
+    } else if (row?.managerId) {
       const manager = managers.find((m) => m.id === row.managerId)
       return manager ? manager.name : 'Менеджер'
     } else if (row?.isExternal && isBuilderColumn) {
       return row?.extContractor?.name
-    }
-    // Если это внешний подрядчик
-    else if ((row?.isExternal || row?.builder === 'Внешний подрядчик') && !isBuilderColumn) {
+    } else if ((row?.isExternal || row?.builder === 'Внешний подрядчик') && !isBuilderColumn) {
       return 'Внешний подрядчик'
     } else if (!row?.isExternal && row?.builder === 'Внешний подрядчик' && isBuilderColumn) {
       return 'Не назначен'
-    }
-    // В остальных случаях
-    else {
+    } else {
       return 'Укажите подрядчика'
     }
   }
@@ -579,7 +568,6 @@ function Table() {
     }
   }
 
-  //! Функция разрешения сортировки
   const filterAndNote = (key) => {
     const arrayNotFilter = ['number', 'fileName', 'checkPhoto', 'chat']
     if (arrayNotFilter.includes(key)) {
@@ -589,28 +577,11 @@ function Table() {
     }
   }
 
-  //! Функция Получения цвета Urgensy
   const getColorUrgensy = (value) => {
     const urgency = context?.urgencyList.find((urgency) => urgency.name === value)
     if (urgency) return urgency.color
 
     return ''
-    // context?.urgencyList[indexUrgency]
-    // console.log(context?.urgencyList[indexUrgency])
-    // switch (value) {
-    //   case "В течение часа":
-    //     return "#d69a81" //красный
-    //   case "В течение текущего дня":
-    //     return "#f9ab23" // ?оранжевый
-    //   case "В течение 3-х дней":
-    //     return "#ffe78f" // желтый
-    //   case "В течение недели":
-    //     return "#eaf45b" // ?светло желтый
-    //   case "Выполнено":
-    //     return "#C5E384" // зеленый
-    //   default:
-    //     return ""
-    // }
   }
 
   const getUrgencyById = (id, value) => {
@@ -990,13 +961,13 @@ function Table() {
           context.totalCount > context.dataTableHomePage.length
         ) {
           context.setLoader(false)
-          context.setOfset((prev) => prev + 10) // подгружаем следующую порцию
+          context.setOfset((prev) => prev + 10)
         }
       },
       {
-        root: null, // null = viewport
-        rootMargin: '50px', // можно подгружать чуть раньше
-        threshold: 0.1, // срабатывает, когда хотя бы 10% элемента видны
+        root: null,
+        rootMargin: '50px',
+        threshold: 0.1,
       },
     )
 
@@ -1147,7 +1118,6 @@ function Table() {
                             punkts={[
                               ...context.dataApointment
                                 .flatMap((it) => {
-                                  // все что касается фильтра по исполнителю на фронте написано коряво. ПЕРЕДЕЛАТЬ при возможности.
                                   if (
                                     item.key === 'contractor' &&
                                     it[item.key] === '___' &&
@@ -1308,19 +1278,3 @@ function Table() {
 }
 
 export default Table
-
-{
-  /* {!context.loader ? (
-    <tr>
-      <td colSpan="21" className={styles.tableNotDataSpinner}>
-        <div className={styles.tableNotDataSpinnerInner}>
-            <div className={styles.spinnerContainer}>
-              <div className={styles.spinner}></div>
-            </div>
-            <div className={styles.notDataSpinner}>Загрузка данных</div>
-        </div>
-      </td>
-    </tr>
-  ):( 
-    <>*/
-}
