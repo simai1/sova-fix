@@ -105,8 +105,16 @@ app.ws('/', async (rawWs, req) => {
     const ws = rawWs as AuthedWs;
     const subprotocol = pickSubprotocol(req.headers['sec-websocket-protocol']);
 
+    const pending: Buffer[] = [];
+    let authed = false;
+    const bufferHandler = (data: Buffer): void => {
+        if (!authed) pending.push(data);
+    };
+    ws.on('message', bufferHandler);
+
     const user = await authenticateSubprotocol(subprotocol);
     if (!user) {
+        ws.off('message', bufferHandler);
         try {
             ws.close(1008, 'unauthorized');
         } catch {
@@ -116,19 +124,24 @@ app.ws('/', async (rawWs, req) => {
     }
 
     registerClient(ws, user);
+    authed = true;
+    ws.off('message', bufferHandler);
 
-    ws.on('message', data => {
+    const onMessage = (data: Buffer): void => {
         void handleClientFrame(ws, data).catch(err => {
             logger.log({
                 level: 'error',
                 message: `[ws] handleClientFrame failed: ${(err as Error).message}`,
             });
         });
-    });
+    };
+    ws.on('message', onMessage);
 
     ws.on('close', () => {
         unregisterClient(ws);
     });
+
+    for (const data of pending) onMessage(data);
 });
 
 if (process.env.NODE_ENV !== 'production') {
