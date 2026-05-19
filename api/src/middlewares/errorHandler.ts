@@ -6,17 +6,6 @@ import ApiError from '../utils/ApiError';
 import logger from '../utils/logger';
 import cleanupUploadedFiles from './cleanup-uploads';
 
-// Глобальный errorHandler — последний middleware и единая точка логирования
-// ошибок. До его подключения проект полагался на то, что catchAsync прокидывал
-// ошибки в next(...) без обработчика; это приводило к default-handler Express
-// и текстовым 500-ответам. Здесь конвертируем в JSON с понятными русскими
-// сообщениями и пишем в SystemLog с meta-аннотациями для менеджеров:
-// userId/login/role/method/path/statusCode/friendly.
-
-// Friendly — короткое русскоязычное объяснение «что значит эта ошибка для
-// менеджера». Не для разработчика — без стектрейса и SQL'я. Используется
-// в админке /Directory/SystemLogs как «человеческая» подсказка рядом с
-// техническим message.
 const friendlyByStatus = (statusCode: number, message: string): string => {
     if (statusCode === httpStatus.UNAUTHORIZED) {
         return 'Пользователь не авторизован: нет валидного refresh-токена в cookie или он просрочен.';
@@ -39,9 +28,6 @@ const friendlyByStatus = (statusCode: number, message: string): string => {
     return message;
 };
 
-// Маленький helper: tip-style подсказка для частых 5xx, чтобы менеджер сразу
-// понимал, куда смотреть. Возвращает null, если конкретной подсказки нет —
-// тогда показываем generic friendlyByStatus(500).
 const friendlyForServerError = (err: any): string | null => {
     const msg = String(err?.message || '');
     if (/invalid input syntax for type uuid: "undefined"/i.test(msg)) {
@@ -59,10 +45,46 @@ const friendlyForServerError = (err: any): string | null => {
     return null;
 };
 
+type SequelizeMapped = { statusCode: number; clientMessage: string };
+
+const mapSequelizeError = (err: any): SequelizeMapped | null => {
+    const name: string = err?.name || '';
+    if (!name.startsWith('Sequelize')) return null;
+
+    const pgCode: string | undefined = err?.original?.code ?? err?.parent?.code;
+
+    if (pgCode === '22001') {
+        return {
+            statusCode: httpStatus.BAD_REQUEST,
+            clientMessage: 'Одно из полей слишком длинное. Сократите текст и попробуйте снова.',
+        };
+    }
+
+    if (name === 'SequelizeValidationError') {
+        return {
+            statusCode: httpStatus.BAD_REQUEST,
+            clientMessage: err?.errors?.[0]?.message || 'Данные не прошли проверку.',
+        };
+    }
+
+    if (name === 'SequelizeUniqueConstraintError') {
+        return {
+            statusCode: httpStatus.CONFLICT,
+            clientMessage: 'Запись с такими данными уже существует.',
+        };
+    }
+
+    if (name === 'SequelizeForeignKeyConstraintError') {
+        return {
+            statusCode: httpStatus.BAD_REQUEST,
+            clientMessage: 'Операция нарушает связь с другой записью.',
+        };
+    }
+
+    return null;
+};
+
 const buildMeta = (req: Request, err: any, statusCode: number, friendly: string) => {
-    // req.user выставляется verifyToken.auth: { id, login, name, role, ... }.
-    // Может отсутствовать, если ошибка случилась до auth-middleware (например,
-    // 401 «User unauthorized» ровно потому, что токена не было) — пишем null.
     const u: any = (req as any).user;
     return {
         userId: u?.id ?? null,
@@ -76,8 +98,6 @@ const buildMeta = (req: Request, err: any, statusCode: number, friendly: string)
 };
 
 const errorHandler = (err: any, req: Request, res: Response, _next: NextFunction) => {
-    // Multer уже записал файлы на диск ДО валидации/auth/role-чеков. Если запрос
-    // ошибочный — подчищаем, чтобы в ./uploads не копился мусор от 4xx-запросов.
     cleanupUploadedFiles(req);
 
     if (res.headersSent) {
@@ -108,15 +128,18 @@ const errorHandler = (err: any, req: Request, res: Response, _next: NextFunction
         clientMessage = err.details?.[0]?.message || 'Ошибка валидации';
         logMessage = `[joi] ${clientMessage}`;
     } else if (err && typeof err.message === 'string' && /Допустимы только/.test(err.message)) {
-        // Сообщения от multer fileFilter — обычные Error с понятным сообщением.
         statusCode = httpStatus.BAD_REQUEST;
         clientMessage = err.message;
         logMessage = err.message;
+    } else {
+        const sequelizeMapped = mapSequelizeError(err);
+        if (sequelizeMapped) {
+            statusCode = sequelizeMapped.statusCode;
+            clientMessage = sequelizeMapped.clientMessage;
+            logMessage = `[sequelize:${err?.name}] ${err?.parent?.message || err?.message}`;
+        }
     }
 
-    // Уровень: 5xx → error, 4xx → warn (предупреждения, не дефекты сервера).
-    // Это даёт менеджерам в `/Directory/SystemLogs` фильтровать настоящие
-    // дефекты от шумных «нет токена» / «доступ запрещён».
     const level = statusCode >= 500 ? 'error' : 'warn';
     const friendlyServer = level === 'error' ? friendlyForServerError(err) : null;
     const friendly = friendlyServer ?? friendlyByStatus(statusCode, clientMessage);
@@ -125,8 +148,6 @@ const errorHandler = (err: any, req: Request, res: Response, _next: NextFunction
     logger.log({ level, message: logMessage, ...meta });
 
     const body: { message: string; error?: string } = { message: clientMessage };
-    // Stack включаем только в явно development-окружении: иначе при отсутствующем
-    // NODE_ENV (например, кривой деплой) рискуем утечь стек клиенту.
     if (statusCode >= 500 && process.env.NODE_ENV === 'development' && err?.stack) {
         body.error = err.stack;
     }

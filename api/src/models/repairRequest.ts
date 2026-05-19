@@ -80,7 +80,10 @@ export default class RepairRequest extends Model {
                     defaultValue: 'Укажите подрядчика',
                 },
                 problemDescription: {
-                    type: DataTypes.STRING,
+                    // TEXT, а не STRING: описание проблемы в заявке вводит
+                    // пользователь произвольной длины — VARCHAR(255) ронял INSERT
+                    // («value too long») и отдавал 500 при описании > 255 символов.
+                    type: DataTypes.TEXT,
                     allowNull: true,
                 },
                 urgency: {
