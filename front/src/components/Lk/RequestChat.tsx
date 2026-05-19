@@ -19,9 +19,6 @@ import { getErrorMessage } from '@/utils/getErrorMessage';
 
 type Props = {
   mode: 'contractor' | 'customer' | 'admin';
-  // admin-режим — компонент рендерится внутри модалки HomePageAdmin,
-  // requestId приходит пропсом, навигации «← К заявке» нет. В contractor/customer
-  // компонент сидит на отдельной странице и берёт id из URL.
   requestId?: string;
 };
 
@@ -34,15 +31,8 @@ const RequestChat = ({ mode, requestId: requestIdProp }: Props): JSX.Element => 
   const { data: me } = useGetMeQuery();
   const { data: request } = useGetMyRequestQuery(requestId, { skip: !requestId });
 
-  // Подписываемся на ws-события заявки — без этого сервер не пришлёт
-  // COMMENT_CREATE/STATUS_UPDATE на этот сокет (см. utils/ws.ts).
   useRequestSubscription(requestId);
 
-  // Cursor-state живёт в компоненте: при достижении верха ленты выставляем
-  // cursor предыдущего batch'а и подгружаем след. страницу. Аккумулируем
-  // все batch'и в `accumulated`, аналогично пагинации списка заявок.
-  // Сервер отдаёт ASC-страницы; новые сообщения приходят либо через ws-инвалидацию,
-  // либо через addComment-инвалидацию — RTKQ перезагружает первую страницу.
   const [cursor, setCursor] = useState<string | undefined>(undefined);
   const [accumulated, setAccumulated] = useState<ChatMessage[]>([]);
   const [hasMore, setHasMore] = useState<boolean>(false);
@@ -54,18 +44,13 @@ const RequestChat = ({ mode, requestId: requestIdProp }: Props): JSX.Element => 
     isError,
   } = useGetRequestCommentsQuery({ requestId, cursor, limit: 30 }, { skip: !requestId });
 
-  // Склейка страниц: первая страница (cursor=undefined) перетирает массив,
-  // последующие — добавляются в начало (т.к. cursor подгружает «более старые»).
   useEffect(() => {
     if (!page) return;
     setHasMore(page.hasMore);
     setAccumulated((prev) => {
       if (!cursor) {
-        // initial / refetch первой страницы: берём как есть.
         return page.items;
       }
-      // Подгрузили предыдущий batch — он старее, кладём ВПЕРЁД.
-      // Дедуп по id на случай гонок инвалидации.
       const map = new Map<string, ChatMessage>();
       [...page.items, ...prev].forEach((m) => map.set(m.id, m));
       return Array.from(map.values()).sort(
@@ -85,10 +70,7 @@ const RequestChat = ({ mode, requestId: requestIdProp }: Props): JSX.Element => 
     if (!requestId) return;
     try {
       await addComment({ id: requestId, text, file }).unwrap();
-      // После отправки: сбрасываем курсор (= refetch первой страницы),
-      // чтобы новое сообщение попало в ленту даже без ws-инвалидации.
       setCursor(undefined);
-      // accumulated будет перезаписан в useEffect выше из page.items.
     } catch (err) {
       showToast('error', getErrorMessage(err));
     }

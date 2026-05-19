@@ -5,10 +5,6 @@ import dbUtils from './utils/db';
 
 const PORT = process.env.PORT || 3000;
 
-// Fail-fast: в проде запрещаем стартовать с дефолтными/пустыми secret'ами.
-// Дефолт `secret` исторически жил в `.env.example` и риск перехода в прод
-// высок. Обнаруживаем его до initDb, чтобы не дать поднять API-сервер,
-// который штампует JWT с предсказуемым ключом.
 const assertProdSecrets = () => {
     if (process.env.NODE_ENV !== 'production') return;
     const required: Record<string, string | undefined> = {

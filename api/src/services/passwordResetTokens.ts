@@ -19,7 +19,7 @@ const sendRequestToResetPassword = async (email: string) => {
         id: tokenId,
         userId: user.id,
         token: hashedToken,
-        expiresAt: new Date(Date.now() + 30 * 60 * 1000), // 30 минут
+        expiresAt: new Date(Date.now() + 30 * 60 * 1000),
         used: false,
     });
 

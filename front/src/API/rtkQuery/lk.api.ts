@@ -79,8 +79,6 @@ export type RequestDto = {
   comments?: LkComment[];
   createdAt: string;
   completeDate: string | null;
-  // Поля, добавленные при выравнивании ЛК с админ-таблицей.
-  // Все опционально-nullable — старые заявки могут быть без значения.
   daysAtWork?: number;
   planCompleteDate?: string | null;
   exitDate?: string | null;
@@ -93,8 +91,6 @@ export type RequestDto = {
   Urgency?: LkUrgency | null;
   Contractor?: LkContractorRef | null;
   Category?: { id: string; name: string } | null;
-  // true — заявка назначена текущему пользователю-исполнителю.
-  // null — поле не было вычислено (legacy/админ-вызовы).
   isAssigned?: boolean | null;
 };
 
@@ -121,9 +117,6 @@ export type ListResponse = {
   limit: number;
 };
 
-// Сообщение в чате заявки. Расширение LkComment под полноценный чат:
-// автор + роль (для роль-чипов), createdAt, опциональный attachment.
-// Поле fileName сохраняем для совместимости с возможным legacy-форматом.
 export type ChatMessageRole = 'MANAGER' | 'CONTRACTOR' | 'CUSTOMER' | 'ADMIN' | 'OTHER';
 
 export type ChatMessage = {
@@ -159,8 +152,6 @@ export type TgBindingInitResponse = {
   token?: string;
 };
 
-// Серверный сеттинг (table Settings). Используем только для чтения публичных
-// флагов из ЛК (например, «обязательно ли фото при создании заявки»).
 export type LkSetting = {
   id: string;
   name: string;
@@ -183,7 +174,6 @@ const lkBaseQuery = fetchBaseQuery({
 export const lkApi = createApi({
   reducerPath: 'lkApi',
   baseQuery: withReauth(lkBaseQuery),
-  // LkRequestComments — отдельный тег для пагинации чата по requestId.
   tagTypes: ['LkRequest', 'LkMe', 'LkObject', 'LkRequestComments'],
   endpoints: (build) => ({
     getMe: build.query<MeDto, void>({
@@ -240,15 +230,12 @@ export const lkApi = createApi({
           body: fd,
         };
       },
-      // Инвалидируем и саму заявку (для preview last comment), и страницы чата.
       invalidatesTags: (_r, _e, { id }) => [
         { type: 'LkRequest', id },
         { type: 'LkRequestComments', id },
       ],
     }),
 
-    // Cursor-пагинация чата. Каждый ответ — отдельная страница; фронт
-    // склеивает их в стейте компонента (как RequestsList с offset-пагинацией).
     getRequestComments: build.query<CommentsResponse, CommentsParams>({
       query: ({ requestId, cursor, limit }) => {
         const search = new URLSearchParams();
@@ -257,9 +244,6 @@ export const lkApi = createApi({
         const qs = search.toString();
         return `/lk/requests/${requestId}/comments${qs ? `?${qs}` : ''}`;
       },
-      // Тег по requestId — на addComment / ws COMMENT_CREATE инвалидируется
-      // вся история чата этой заявки. Не идеально (перезагружает все
-      // подгруженные страницы), но MVP-достаточно.
       providesTags: (_r, _e, { requestId }) => [
         { type: 'LkRequestComments' as const, id: requestId },
       ],
@@ -303,8 +287,6 @@ export const lkApi = createApi({
       invalidatesTags: (_r, _e, { id }) => [{ type: 'LkRequest', id }],
     }),
 
-    // Фиксация даты выезда исполнителем. exitDate — ISO либо null (сброс).
-    // Бэкенд: PATCH /lk/requests/:id/exit-date (только assigned-исполнитель/admin).
     updateExitDate: build.mutation<void, { id: string; exitDate: string | null }>({
       query: ({ id, exitDate }) => ({
         url: `/lk/requests/${id}/exit-date`,
@@ -325,8 +307,6 @@ export const lkApi = createApi({
       query: () => '/urgency',
     }),
 
-    // Привязка Telegram через deep-link бота. Сервер возвращает одноразовый
-    // короткоживущий токен в виде ссылки t.me/<bot>?start=link_<token>.
     initTgBinding: build.mutation<TgBindingInitResponse, void>({
       query: () => ({
         url: '/lk/me/tg-binding/init',
@@ -343,10 +323,6 @@ export const lkApi = createApi({
       invalidatesTags: ['LkMe'],
     }),
 
-    // Точечное чтение серверного сеттинга по его строковому ключу.
-    // Используется в форме создания заявки заказчика, чтобы понять, обязательно
-    // ли прикреплять фото (ключ `is_repair_request_without_photo`, name
-    // «Обязательно с фото»; value=true — фото обязательно).
     getSettingByName: build.query<LkSetting, string>({
       query: (name) => `/settings/${name}`,
     }),

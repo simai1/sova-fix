@@ -30,8 +30,6 @@ export const listQuerySchema = Joi.object({
         urgencyId: Joi.string().uuid().optional().messages(ru('urgencyId')),
         dateFrom: Joi.date().optional().messages(ru('dateFrom')),
         dateTo: Joi.date().optional().messages(ru('dateTo')),
-        // Алиасы 'urgency'/'date'/'status' — sort-ключи для фронта. 'urgencyId' убран
-        // (audit M1): сортировать по UUID бессмысленно, фронт использует 'urgency'.
         sort: Joi.string().valid('createdAt', 'status', 'urgency', 'date').optional().messages(ru('sort')),
         order: Joi.string().valid('asc', 'desc', 'ASC', 'DESC').optional().messages(ru('order')),
         mine: Joi.boolean().optional().messages(ru('mine')),
@@ -43,7 +41,6 @@ export const createRequestSchema = Joi.object({
         objectId: Joi.string().uuid().required().messages(ru('objectId')),
         problemDescription: Joi.string().min(1).max(1000).required().messages(ru('problemDescription')),
         urgencyId: Joi.string().uuid().required().messages(ru('urgencyId')),
-        // Категорию проставляет менеджер из веб-ЛК; у CUSTOMER поля нет — оттого optional.
         directoryCategoryId: Joi.string().uuid().optional().messages(ru('directoryCategoryId')),
     }).unknown(false),
     params: Joi.object().unknown(true),
@@ -60,9 +57,6 @@ export const statusSchema = Joi.object({
     query: Joi.object().unknown(true),
 });
 
-// PATCH /lk/requests/:id/exit-date — фиксация даты выезда исполнителем.
-// exitDate: ISO-строка либо null (для сброса). Joi.date().iso() принимает оба
-// формата 'YYYY-MM-DDTHH:mm:ss.sssZ' и 'YYYY-MM-DD'.
 export const exitDateSchema = Joi.object({
     body: Joi.object({
         exitDate: Joi.date().iso().allow(null).required().messages(ru('exitDate')),
@@ -73,9 +67,6 @@ export const exitDateSchema = Joi.object({
     query: Joi.object().unknown(true),
 });
 
-// Текст чат-сообщения: лимит 4000 — UI допускает многострочный ввод.
-// Старый лимит 2000 был связан с overwrite-only legacy `RepairRequest.comment`;
-// новая семантика append'а (RequestComment) позволяет более ёмкие сообщения.
 export const addCommentSchema = Joi.object({
     body: Joi.object({
         text: Joi.string().min(1).max(4000).required().messages(ru('text')),
@@ -86,9 +77,6 @@ export const addCommentSchema = Joi.object({
     query: Joi.object().unknown(true),
 });
 
-// Cursor-пагинация для GET /lk/requests/:id/comments.
-// Cursor — строка вида "<ISO-timestamp>:<UUID>" (без base64; для отладки удобнее
-// человекочитаемая форма; XSS неактуален — мы её только парсим).
 export const commentListQuerySchema = Joi.object({
     body: Joi.object().unknown(true),
     params: Joi.object({
@@ -109,9 +97,6 @@ export const requestIdParamSchema = Joi.object({
     query: Joi.object().unknown(true),
 });
 
-// Web Push: subscribe-эндпоинт. endpoint обязан быть https и из allowlist'а
-// push-сервисов вендоров (доп. защита от SSRF — основная в сервисе через
-// `isAllowedPushHost`, здесь — поверхностная проверка длины/формата).
 export const pushSubscribeSchema = Joi.object({
     body: Joi.object({
         endpoint: Joi.string()
@@ -126,8 +111,6 @@ export const pushSubscribeSchema = Joi.object({
         })
             .required()
             .messages(ru('keys')),
-        // expirationTime приходит из браузера как number|null (Unix-ms) — Joi
-        // должен принять оба варианта.
         expirationTime: Joi.number().allow(null).optional().messages(ru('expirationTime')),
         userAgent: Joi.string().max(256).allow('').optional().messages(ru('userAgent')),
     }).unknown(false),
@@ -135,8 +118,6 @@ export const pushSubscribeSchema = Joi.object({
     query: Joi.object().unknown(true),
 });
 
-// Unsubscribe принимает endpoint в body, не в query — иначе endpoint
-// (включая токены push-сервиса) попадал бы в access-логи nginx/express.
 export const pushUnsubscribeSchema = Joi.object({
     body: Joi.object({
         endpoint: Joi.string()

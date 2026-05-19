@@ -61,7 +61,6 @@ export const sequelize = new Sequelize(`${DB_NAME}`, `${DB_USER}`, `${DB_PWD}`, 
     port: parseInt(`${DB_PORT}`),
     dialect: 'postgres',
     dialectOptions: {
-        // multipleStatements: true,
         typeCast: true,
     },
     define: {

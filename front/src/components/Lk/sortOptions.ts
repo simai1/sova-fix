@@ -1,7 +1,3 @@
-// Общий список вариантов сортировки для списка заявок (Contractor + Customer).
-// 6 опций по UI design-doc'у §D: дата ↓/↑, срочность ↓/↑, статус ↓/↑.
-// Бэкенд по design'у поддерживает sort=createdAt|urgency|status (через
-// Urgency.number / Status.number, не по UUID).
 export type SortOption = {
   label: string;
   sort: string;

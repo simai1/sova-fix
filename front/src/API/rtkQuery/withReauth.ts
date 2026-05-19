@@ -2,7 +2,6 @@ import { BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/qu
 
 import { getRefreshPromise, clearAuthSession } from '../API';
 
-// Страницы, на которых редирект «обратно на логин» бесполезен (мы уже там).
 const AUTH_PATHS = ['/Authorization', '/reset-password', '/reset-password-request', '/Activate'];
 
 const redirectToLogin = (): void => {
@@ -10,13 +9,6 @@ const redirectToLogin = (): void => {
   window.location.href = '/Authorization';
 };
 
-// Оборачивает любой fetchBaseQuery в reauth-логику:
-//  1) при 401 пытается silent refresh через общий getRefreshPromise (общий с axios
-//     interceptor’ом из API.js — иначе одновременные 401 на разные endpoint’ы
-//     запустят два параллельных /auth/refresh, второй получит «not found token»);
-//  2) при успехе повторяет исходный запрос;
-//  3) при неудаче — чистит sessionStorage и редиректит на /Authorization
-//     (исключая сами auth-страницы — там цикла быть не должно).
 const withReauth =
   (
     baseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError>,

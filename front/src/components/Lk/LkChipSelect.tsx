@@ -15,16 +15,6 @@ type Props = {
   className?: string;
 };
 
-// Single-select группа чипов с семантикой radiogroup. От LkSelect отличается
-// тем, что нет «пустой» опции в списке — пустое значение моделируется
-// снятием выбора (клик по активному чипу). Это удобнее для коротких списков
-// (статус, срочность), где dropdown избыточен.
-//
-// A11y-инвариант: используем radiogroup + radio (а не toolbar + button).
-// Это даёт screen-reader'ам корректное чтение «выбран X из N» и стандартную
-// навигацию стрелками. Активный chip всё равно кликабельно «снимается» —
-// это расширение поверх радио-семантики, оно не ломает ARIA (aria-checked
-// просто переключается в false).
 const LkChipSelect = ({
   options,
   value,
@@ -40,17 +30,10 @@ const LkChipSelect = ({
   const itemRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const [focusIdx, setFocusIdx] = useState<number>(-1);
 
-  // Roving tabindex: только активный (или первый) чип получает tabIndex=0,
-  // остальные -1. Внутри группы навигация через стрелки. Это стандарт для
-  // radiogroup и предотвращает «прохождение через все 5 чипов» Tab'ом.
   const selectedIdx = value === undefined ? -1 : options.findIndex((o) => o.value === value);
   const tabIdx = selectedIdx >= 0 ? selectedIdx : 0;
 
   useEffect(() => {
-    // Если value пришёл извне (например, sync из FilterModal draft) и мы
-    // только что move'ались стрелкой — focusIdx не сбрасываем; иначе фокус
-    // «прыгал» бы между внешними обновлениями. Сбрасываем только когда
-    // value обнулилось (Reset).
     if (value === undefined) setFocusIdx(-1);
   }, [value]);
 
@@ -59,9 +42,6 @@ const LkChipSelect = ({
     if (!target) return;
     setFocusIdx(nextIdx);
     target.focus();
-    // По radiogroup-паттерну стрелки сразу применяют выбор (как нативный
-    // <input type=radio>). Это согласовано с user-expectation для chip-
-    // селекта статуса: ←/→ меняет фильтр на лету.
     const opt = options[nextIdx];
     if (opt) onChange(opt.value);
   };
@@ -81,8 +61,6 @@ const LkChipSelect = ({
       e.preventDefault();
       moveFocus(options.length - 1);
     } else if (e.key === ' ' || e.key === 'Enter') {
-      // Space/Enter — toggle: позволяем снять выбор активного чипа через
-      // клавиатуру (зеркало клика).
       e.preventDefault();
       const opt = options[idx];
       if (!opt) return;

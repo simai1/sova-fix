@@ -4,12 +4,6 @@ import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
 import roles from '../config/roles';
 
-// Cookie с refreshToken — главный auth-носитель: HttpOnly запрещает JS-доступ
-// (XSS-mitigation), Secure включён только в проде (в dev по http браузер не пошлёт),
-// SameSite=Lax защищает от базового CSRF, оставляя топ-навигацию рабочей.
-// rememberMe определяет persistence: при true — cookie живёт 30 дней (как
-// refresh-токен), при false — session-cookie (исчезает при закрытии браузера),
-// чтобы поведение совпадало с ожиданием юзера от чекбокса «Запомнить меня».
 const buildRefreshCookieOptions = (rememberMe: boolean) => ({
     ...(rememberMe ? { maxAge: 30 * 24 * 60 * 60 * 1000 } : {}),
     httpOnly: true,
@@ -48,8 +42,6 @@ const activate = catchAsync(async (req, res) => {
 const logout = catchAsync(async (req, res) => {
     const { refreshToken } = req.cookies;
     await authService.logout(refreshToken);
-    // clearCookie должен совпадать по флагам с set-cookie, иначе браузер
-    // не считает его той же cookie и Secure-cookie остаётся живой.
     res.clearCookie('refreshToken', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
@@ -75,10 +67,6 @@ const registerCustomerCrm = catchAsync(async (req, res) => {
 const registerPublic = catchAsync(async (req, res) => {
     const { login, password, name, role } = req.body;
     const result = await authService.registerPublic(login, password, name, role);
-    // pendingVerifyToken — единственный канал, по которому plain-токен уходит
-    // наружу. Клиент кладёт его в sessionStorage и использует для ws-handshake
-    // pending.<token> на странице ожидания approve. На бэкенде в БД хранится
-    // только sha256-хеш.
     res.status(201).json({
         userId: result.user.id,
         login: result.user.login,

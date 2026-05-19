@@ -234,7 +234,6 @@ const copyEquipments = async (equipmentId: string, quantity: number): Promise<vo
     if (!equipment) throw new ApiError(httpStatus.BAD_REQUEST, 'No equipment with id ' + equipmentId);
 
     for (let i = 0; i < quantity; i++) {
-        // <-- делаем N копий
         await Equipment.create({
             supportFrequency: equipment.supportFrequency,
             lastTO: equipment.lastTO,

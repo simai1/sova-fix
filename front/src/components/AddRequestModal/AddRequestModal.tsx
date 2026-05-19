@@ -10,9 +10,6 @@ import LkSelect, { LkSelectOption } from '../Lk/LkSelect';
 import PhotoUploader from '../Lk/PhotoUploader';
 import { showToast } from '../Lk/toastBus';
 
-// В админ-стеке нет LkLayout, который подгружает LK-стили — без этого импорта
-// .lk-modal/.lk-field/.lk-select не попадут в bundle при заходе сразу на
-// админ-главную. Тот же приём, что в AdminChatModal.
 import '../../styles/lk/index.scss';
 
 const MIN_DESCRIPTION_LEN = 10;
@@ -25,8 +22,6 @@ const AddRequestModal: FC<TAddRequestModalProps> = ({ handleClose }) => {
   const userDataRaw = sessionStorage.getItem('userData');
   const userId: string | null = userDataRaw ? (JSON.parse(userDataRaw)?.user?.id ?? null) : null;
 
-  // Сеттинг не загрузился (эндпоинт упал / не сидирован) — считаем фото
-  // обязательным: безопасный дефолт, совпадающий с ЛК заказчика и seedSettings.
   const isPhotoRequired = settingsList?.find((s) => s.setting === IS_PHOTO_REQUIRED)?.value ?? true;
 
   const [unitId, setUnitId] = useState('');
@@ -39,11 +34,8 @@ const AddRequestModal: FC<TAddRequestModalProps> = ({ handleClose }) => {
 
   const { data: units } = useGetAllUnitsQuery();
   const [getObjects, { data: objects, isFetching: objectsLoading }] = useLazyGetAllObjectsQuery();
-  // Тот же эндпоинт, что у заказчика (/lk/requests): один POST с FormData,
-  // creator берётся из токена. ADMIN заводит заявку на любой объект.
   const [createRequest, { isLoading: submitting }] = useCreateRequestMutation();
 
-  // Авто-выбор единственного варианта — как в прежней версии модалки.
   useEffect(() => {
     const only = units?.length === 1 ? units[0] : undefined;
     if (only) setUnitId(only.id);
@@ -54,13 +46,11 @@ const AddRequestModal: FC<TAddRequestModalProps> = ({ handleClose }) => {
     if (only) setObjectId(only.id);
   }, [objects]);
 
-  // Объекты зависят от подразделения: при смене юнита сбрасываем объект и перезапрашиваем.
   useEffect(() => {
     setObjectId('');
     if (unitId && userId) getObjects({ userId, unitId });
   }, [unitId, userId, getObjects]);
 
-  // Блокируем скролл страницы, пока модалка открыта.
   useEffect(() => {
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -69,7 +59,6 @@ const AddRequestModal: FC<TAddRequestModalProps> = ({ handleClose }) => {
     };
   }, []);
 
-  // Esc закрывает модалку (кроме момента сабмита).
   useEffect(() => {
     const onKey = (e: KeyboardEvent): void => {
       if (e.key === 'Escape' && !submitting) handleClose();

@@ -22,15 +22,9 @@ function Pending() {
       return
     }
     if (!WS_URL) {
-      // Нет WS_URL → ws-канал просто не запускаем; страница будет ждать
-      // ручного refresh после approve. Это режим деградации, а не ошибка.
       return
     }
 
-    // pendingVerifyToken выдаётся /auth/register-public и кладётся в
-    // sessionStorage в Register.jsx. Если юзер вернулся на эту страницу через
-    // bookmark в новой вкладке — токена нет; ws-канал тоже не открываем,
-    // юзер будет ждать ручного refresh / повторного входа после approve.
     const verifyToken = sessionStorage.getItem('pendingVerifyToken')
     if (!verifyToken) {
       return
@@ -44,11 +38,6 @@ function Pending() {
     const connect = () => {
       if (cancelled) return
       try {
-        // subprotocol pending.<verifyToken> — handshake-аутентификация для
-        // pending-юзера (см. api/src/utils/ws.ts::authenticateSubprotocol
-        // и .memory-base/specs/2026-05-08-mini-sprint-review.md P1-1).
-        // Сервер по этому каналу пускает строго на USER_CONFIRM для своего
-        // userId, любые subscribe-фреймы отвергает с {error,'forbidden'}.
         ws = new WebSocket(WS_URL, [`pending.${verifyToken}`])
       } catch {
         scheduleReconnect()
@@ -56,7 +45,6 @@ function Pending() {
       }
 
       ws.onopen = () => {
-        // успешное подключение — сбрасываем backoff
         delay = INITIAL_RECONNECT_DELAY
       }
 
@@ -67,28 +55,18 @@ function Pending() {
             cancelled = true
             try {
               ws?.close()
-            } catch {
-              // ignore
-            }
+            } catch {}
             localStorage.removeItem('pendingRegistration')
             sessionStorage.removeItem('pendingVerifyToken')
             navigate('/Authorization', { state: { approvedLogin: pending.login } })
           }
-        } catch {
-          // игнорируем не-JSON
-        }
+        } catch {}
       }
 
-      ws.onerror = () => {
-        // ошибка приведёт к onclose, перезапуск там
-      }
+      ws.onerror = () => {}
 
       ws.onclose = (ev) => {
         if (cancelled) return
-        // 1008 — токен битый/истёк/approve уже был. Не реконнектим:
-        // в случае «approve уже был» это нормальное завершение (но юзер
-        // не дождался ws-сообщения — тогда нужно будет refresh). В случае
-        // битого/истёкшего токена реконнект тоже бесполезен.
         if (ev?.code === 1008) {
           cancelled = true
           return
@@ -100,7 +78,6 @@ function Pending() {
     const scheduleReconnect = () => {
       if (cancelled) return
       reconnectTimer = setTimeout(() => {
-        // exponential backoff: 5s -> 10s -> 30s -> 60s (cap)
         if (delay < 10000) {
           delay = 10000
         } else if (delay < 30000) {
@@ -121,9 +98,7 @@ function Pending() {
       }
       try {
         ws?.close()
-      } catch {
-        // ignore
-      }
+      } catch {}
     }
   }, [pending, navigate])
 

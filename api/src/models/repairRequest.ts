@@ -30,18 +30,18 @@ export default class RepairRequest extends Model {
     checkPhoto?: string;
     createdAt!: Date;
     createdBy!: string;
-    Unit?: Unit; // unit rel
+    Unit?: Unit;
     unitId?: string;
-    Object?: ObjectDir; // object rel
+    Object?: ObjectDir;
     objectId?: string;
-    LegalEntity?: LegalEntity; // legal entity rel
+    LegalEntity?: LegalEntity;
     legalEntityId?: string;
-    Contractor?: Contractor; // contractor rel
+    Contractor?: Contractor;
     contractorId?: string;
-    TgUser?: TgUser; // manager rel
+    TgUser?: TgUser;
     managerId?: string;
-    managerTgId?: string; // telegram ID of manager for direct reference in bot
-    ExtContractor?: ExtContractor; // external contractor rel
+    managerTgId?: string;
+    ExtContractor?: ExtContractor;
     extContractorId?: string;
     isExternal!: boolean;
     isAutoCreated!: boolean;
@@ -80,9 +80,6 @@ export default class RepairRequest extends Model {
                     defaultValue: 'Укажите подрядчика',
                 },
                 problemDescription: {
-                    // TEXT, а не STRING: описание проблемы в заявке вводит
-                    // пользователь произвольной длины — VARCHAR(255) ронял INSERT
-                    // («value too long») и отдавал 500 при описании > 255 символов.
                     type: DataTypes.TEXT,
                     allowNull: true,
                 },
@@ -115,9 +112,6 @@ export default class RepairRequest extends Model {
                     allowNull: true,
                 },
                 comment: {
-                    // TEXT, а не STRING: сюда write-through пишется последнее
-                    // сообщение чата заявки (lk.service createComment) —
-                    // произвольной длины, VARCHAR(255) его обрезал бы / ронял INSERT.
                     type: DataTypes.TEXT,
                     allowNull: true,
                 },
@@ -131,9 +125,6 @@ export default class RepairRequest extends Model {
                     defaultValue: 0,
                 },
                 fileName: {
-                    // TEXT, а не STRING: при нескольких фото сюда пишется
-                    // JSON.stringify([...имён файлов]) — до 10 имён по ~41 символу,
-                    // что переполняет VARCHAR(255).
                     type: DataTypes.TEXT,
                     allowNull: true,
                 },

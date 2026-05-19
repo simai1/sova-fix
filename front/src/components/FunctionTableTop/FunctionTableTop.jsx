@@ -268,8 +268,6 @@ function FunctionTableTop(props) {
         />
       )}
       {isAddRequestModalOpen && <AddRequestModal handleClose={handleCloseAddModal} />}
-      {/* Тост-канал ЛК-механики: живёт вне модалки, чтобы success-тост
-          «Заявка создана» пережил её закрытие. */}
       <LkToastArea />
     </>
   )

@@ -32,11 +32,8 @@ export const userObjectsApi = createApi({
     getUserObjects: build.query<string[], string>({
       query: (userId) => `/users/${userId}/objects`,
       transformResponse: (resp: unknown) => {
-        // Бэкенд отдаёт { objectIds: [...] } (см. user.controller.ts::getUserObjects);
-        // на всякий случай поддерживаем и голый массив.
         const raw = Array.isArray(resp) ? resp : (resp as { objectIds?: unknown })?.objectIds;
         if (!Array.isArray(raw)) return [];
-        // Принимаем либо массив id, либо массив объектов с id.
         return (raw as Array<string | { id: string }>).map((item) =>
           typeof item === 'string' ? item : item.id,
         );
@@ -53,10 +50,6 @@ export const userObjectsApi = createApi({
       invalidatesTags: (_r, _e, { userId }) => [{ type: 'UserObjects', id: userId }],
     }),
 
-    // Контроллер /objects без query-параметров отдаёт `[]` (object.controller.ts:36).
-    // Чтобы получить все объекты, нужен `?userId=<id>` юзера-админа: ветка `user.role === 2`
-    // в контроллере вызывает `objectService.getAllObjects(unitId)` без дополнительной фильтрации.
-    // Параметр обязательный — это снимает риск молчаливого пустого ответа.
     getAllObjects: build.query<UserObjectsObject[], string>({
       query: (adminUserId) => `/objects?userId=${adminUserId}`,
       providesTags: ['AllObjects'],

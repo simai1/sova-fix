@@ -5,19 +5,14 @@ import verifyApiKey from '../middlewares/verify-ApiKey';
 
 const router = Router();
 
-// 1. Специфичные маршруты
 router.route('/managers').get(tgUserController.getAllManagers);
 router.route('/syncManager').post(tgUserController.syncManager);
 router.route('/get/:tgUserId').get(tgUserController.getOne);
 
-// Self-binding TG_ID — вызывается ботом по deep-link юзера. См. design-doc §D.
-// Должен идти ДО общего маршрута `/`/`/:tgId`, иначе попадёт под другой обработчик.
 router.route('/bind').post(verifyApiKey.verifyMaster, tgUserController.bind);
 
-// 2. Публичные маршруты для бота Telegram (без авторизации)
 router.route('/:tgUserId/objects/public').get(tgUserController.getUserObjects);
 
-// 3. Маршруты для работы с объектами пользователя (требуют авторизацию)
 router
     .route('/:tgUserId/objects')
     .get(verifyToken.auth, tgUserController.getUserObjects)
@@ -25,13 +20,10 @@ router
 
 router.route('/:tgUserId/objects/:objectId').delete(verifyToken.auth, tgUserController.removeObjectFromUser);
 
-// 4. Общие маршруты
 router.route('/').post(tgUserController.create).get(tgUserController.getAll);
 router.route('/:tgId').get(tgUserController.findOneByTgId);
 
-// Получение объектов пользователя (менеджера) с количеством заявок
 router.route('/:tgUserId/manager/count').get(tgUserController.getManagersObjectsWithCountRequests);
-// Получение объектов пользователя (исполнителя) с количеством заявок
 router.route('/:tgUserId/contractor/count').get(tgUserController.getContractorsObjectsWithCountRequests);
 
 export default router;

@@ -16,7 +16,7 @@ export const transformStatusListToOptions = (statusList: TStatus[]): DefaultOpti
       </Tag>
     ),
 
-    labelText: status.name, // для поиска
+    labelText: status.name,
   }));
 };
 
@@ -30,7 +30,7 @@ export const transformUrgencyListToOptions = (urgencyList: TUrgency[]): DefaultO
       </Tag>
     ),
 
-    labelText: urgency.name, // для поиска
+    labelText: urgency.name,
   }));
 };
 
@@ -58,9 +58,7 @@ export const normalizeFileNames = (input: string): string[] => {
   try {
     const parsed = JSON.parse(input);
     if (Array.isArray(parsed)) return parsed;
-  } catch {
-    // если это не JSON — значит просто строка
-  }
+  } catch {}
 
   return [input];
 };

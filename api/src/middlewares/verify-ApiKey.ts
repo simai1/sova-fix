@@ -6,10 +6,6 @@ import httpStatus from 'http-status';
 import ApiKey from '../models/apiKey';
 
 const verifyMasterApiKey = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    // Сравниваем за константное время (sec-audit M-5): обычный `!==`
-    // short-circuit'ит на первом несовпадающем байте, и злоумышленник
-    // через timing-side-channel может байт-за-байтом восстановить master-key.
-    // 401 (а не 400) — чтобы соответствовать смыслу «неавторизован».
     const provided = String(req.headers['master-api-key'] ?? '');
     const expected = String(process.env.MASTER_API_KEY ?? '');
     const a = Buffer.from(provided);

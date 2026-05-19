@@ -17,7 +17,7 @@ class PageCallback:
     page: int
     prefix: str
 
-    def __init__(self, page: int, action: str, prefix: str):  # action = 'prev' or 'next'
+    def __init__(self, page: int, action: str, prefix: str):
         self.action = action
         self.page = page
         self.prefix = prefix

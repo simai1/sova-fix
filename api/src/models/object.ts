@@ -7,11 +7,11 @@ export default class ObjectDir extends Model {
     name!: string;
     number!: number;
     city!: string;
-    Unit?: Unit; // unit rel
+    Unit?: Unit;
     unitId?: string;
-    LegalEntity?: LegalEntity; // legal entity rel
+    LegalEntity?: LegalEntity;
     legalEntityId?: string;
-    budgetPlan?: number
+    budgetPlan?: number;
 
     static initialize(sequelize: Sequelize) {
         ObjectDir.init(
@@ -38,7 +38,7 @@ export default class ObjectDir extends Model {
                 budgetPlan: {
                     type: DataTypes.INTEGER,
                     allowNull: true,
-                }
+                },
             },
             {
                 sequelize,

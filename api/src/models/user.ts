@@ -8,20 +8,9 @@ export default class User extends Model {
     login!: string;
     password!: string;
     name!: string;
-    // Единый флаг «активирован»: пользователь прошёл финальную проверку и может
-    // логиниться. Раньше существовали два отдельных флага — `isActivated`
-    // (admin-flow: email-код) и `pendingApproval` (web-self-reg: одобрение
-    // менеджера); теперь оба пути ведут к одному значению `isActivated=true`.
-    // Различение flow на стороне login/ws — по наличию `pendingVerifyToken`:
-    // null → admin-flow ждёт email-кода, non-null → web-self-reg ждёт менеджера.
     isActivated!: boolean;
     role!: number;
     tgManagerId?: string;
-    // Хеш одноразового pending-токена (sha256 hex). Plain plain-токен не хранится:
-    // он отдаётся в ответе register-public ровно один раз и живёт у клиента
-    // в sessionStorage. Используется для ws-handshake subprotocol pending.<token>
-    // на странице ожидания approve — pending-юзер ещё не имеет access-токена
-    // (login для него отдаёт 401), но должен слышать USER_CONFIRM live.
     pendingVerifyToken?: string | null;
     pendingVerifyTokenExpiresAt?: Date | null;
     TgUser?: TgUser;
@@ -61,12 +50,6 @@ export default class User extends Model {
                     allowNull: true,
                     defaultValue: false,
                 },
-                // STRING(64) — sha256 hex от plain-токена. Без unique-constraint:
-                // sync({ alter: true }) при каждом старте плодит дубль-индексы
-                // на unique-полях (известный backlog), здесь сознательно не
-                // создаём такую проблему. Уникальность не требуется логически:
-                // токен резолвится через findOne, коллизия sha256(32bytes)
-                // практически невозможна.
                 pendingVerifyToken: {
                     type: DataTypes.STRING(64),
                     allowNull: true,
@@ -84,10 +67,6 @@ export default class User extends Model {
                 modelName: 'User',
                 tableName: 'users',
                 paranoid: true,
-                // Partial-index `users_pending_created_idx` живёт в миграции
-                // 2026-05-13-merge-pending-approval-into-is-activated.ts —
-                // Sequelize sync({alter}) криво сериализует partial-index с
-                // `IS NOT NULL`, поэтому не описываем его на уровне модели.
             }
         );
 

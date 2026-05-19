@@ -15,7 +15,6 @@ const LkPageHeader = ({ title, showBack }: Props): JSX.Element => {
   const logout = useLogout();
 
   const segments = location.pathname.split('/').filter(Boolean);
-  // Корнем считаем /<role>/<section> — кнопку «назад» прячем, если не глубже
   const isRoot = segments.length <= 2;
 
   const inferredTitle = (() => {

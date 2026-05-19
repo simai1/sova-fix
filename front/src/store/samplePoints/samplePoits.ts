@@ -11,7 +11,7 @@ export interface TableState {
 }
 
 export interface SamplePointsState {
-  [tableName: string]: TableState | undefined; // Может быть undefined по индексу
+  [tableName: string]: TableState | undefined;
 }
 
 export const createEmptyTableState = (): TableState => ({

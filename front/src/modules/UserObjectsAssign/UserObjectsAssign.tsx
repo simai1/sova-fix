@@ -25,9 +25,6 @@ type OptionGroup = {
   options: { label: string; value: string; meta?: string }[];
 };
 
-// Нативный чекбокс визуально скрыт (внешний вид рисуют span'ы), но остаётся в DOM
-// ради доступности. Объект стиля — на уровне модуля: иначе он аллоцируется заново
-// на каждый рендер для каждой строки списка.
 const HIDDEN_CHECKBOX_STYLE: CSSProperties = {
   position: 'absolute',
   opacity: 0,
@@ -35,9 +32,6 @@ const HIDDEN_CHECKBOX_STYLE: CSSProperties = {
 };
 
 const UserObjectsAssign = ({ open, userId, userName, onClose }: Props): JSX.Element => {
-  // Контроллер `/objects` требует `?userId=<id>` — без него возвращает []. Берём id
-  // текущего админа из sessionStorage: для роли ADMIN контроллер отдаёт все объекты.
-  // useMemo с пустыми deps — sessionStorage + JSON.parse не должны гонять на каждый рендер.
   const adminUserId = useMemo<string | undefined>(() => {
     try {
       return JSON.parse(sessionStorage.getItem('userData') ?? '{}')?.user?.id;
@@ -82,7 +76,6 @@ const UserObjectsAssign = ({ open, userId, userName, onClose }: Props): JSX.Elem
         meta: o.city ?? undefined,
       });
     });
-    // Сортировка: «Без бизнес-юнита» — в самый низ, остальное — по алфавиту.
     return Array.from(map.values()).sort((a, b) => {
       if (a.key === '__nounit') return 1;
       if (b.key === '__nounit') return -1;

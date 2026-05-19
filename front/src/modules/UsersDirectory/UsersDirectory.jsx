@@ -35,10 +35,6 @@ function UsersDirectory() {
             tgUserId: item?.tgUserId || "___",
             name: item?.name || "___",
             role: funFixRole(item?.role),
-            // Единая кнопка «Доступы» — открывает UserObjectsAssign (User.id ↔ Object).
-            // Старый канал через TgUserObject ушёл миграцией 2026-05-11; ролей-владельцев
-            // объектов всего две (Заказчик / Исполнитель), админу/наблюдателю/пользователю
-            // не положено.
             accessButton: (isCurrentUserManager && (item?.role === 3 || item?.role === 4)) ? "button" : null,
           };
         });

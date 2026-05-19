@@ -38,12 +38,6 @@ const FilterModal = ({ open, onClose, value, onApply, options }: Props): JSX.Ele
     if (open) setDraft(value);
   }, [open, value]);
 
-  // ВАЖНО: все хуки (useMemo ниже) должны вызываться безусловно и в одном
-  // порядке на каждый рендер. Раньше `if (!open) return null` стоял до useMemo'ов,
-  // и при первом open=true React видел «3 хука вместо 2» → Rules-of-Hooks fail
-  // («Rendered more hooks than during the previous render»). Поэтому все
-  // useMemo'ы выше early-return'а; null-return выводится только после расчёта
-  // мемо-значений (они дешёвые, без побочных эффектов).
   const unitOptions: LkSelectOption[] = useMemo(
     () => [
       { value: '', label: 'Все подразделения' },
@@ -52,7 +46,6 @@ const FilterModal = ({ open, onClose, value, onApply, options }: Props): JSX.Ele
     [options.units],
   );
 
-  // При выбранном unitId сужаем список объектов до объектов этого подразделения.
   const filteredObjects = useMemo(() => {
     if (!draft.unitId) return options.objects;
     return options.objects.filter((o) => o.unit?.id === draft.unitId);
@@ -65,8 +58,6 @@ const FilterModal = ({ open, onClose, value, onApply, options }: Props): JSX.Ele
     ],
     [filteredObjects],
   );
-  // Для chip-select'ов «пустой» опции нет — пустое значение моделируется
-  // снятием выбора (повторный клик по активному чипу). См. LkChipSelect.
   const statusOptions: LkChipOption[] = useMemo(
     () => options.statuses.map((s) => ({ value: s.id, label: s.name })),
     [options.statuses],
@@ -81,9 +72,6 @@ const FilterModal = ({ open, onClose, value, onApply, options }: Props): JSX.Ele
   const update = <K extends keyof LkFilterValue>(key: K, val: LkFilterValue[K]): void => {
     setDraft((prev) => {
       const next = { ...prev, [key]: val };
-      // Каскад Unit → Object: если меняется Unit и текущий objectId
-      // принадлежит другому Unit — сбрасываем objectId. Это предотвращает
-      // невалидное состояние «Unit X + Object Y из Unit Z».
       if (key === 'unitId' && val && prev.objectId) {
         const obj = options.objects.find((o) => o.id === prev.objectId);
         if (obj?.unit?.id !== val) next.objectId = undefined;

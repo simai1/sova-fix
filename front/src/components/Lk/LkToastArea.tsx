@@ -10,7 +10,6 @@ const LkToastArea = (): JSX.Element => {
   useEffect(() => {
     const unsub = subscribeToasts((t) => {
       setToasts((prev) => [...prev, t]);
-      // Авто-скрытие — каждый toast живёт TOAST_TTL_MS
       window.setTimeout(() => {
         setToasts((prev) => prev.filter((x) => x.id !== t.id));
       }, TOAST_TTL_MS);

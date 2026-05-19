@@ -63,8 +63,6 @@ const lkInclude = [
     { model: DirectoryCategory },
 ];
 
-// Собирает контекст для текущего user'а в LK: его контрактора (если есть)
-// и список объектов, к которым он привязан через UserObject.
 const loadUserContext = async (userId: string) => {
     const [contractor, userObjects] = await Promise.all([
         Contractor.findOne({ where: { userId } }),
@@ -74,9 +72,6 @@ const loadUserContext = async (userId: string) => {
     return { contractor, objectIds };
 };
 
-// Возвращает полные карточки объектов, к которым привязан пользователь через UserObject.
-// Используется фронтом ЛК (CreateRequest) — старый GET /objects живёт в TG-flow и для
-// веб-CUSTOMER возвращает пусто. Новый код не должен зависеть от TgUserObject.
 const getMyObjectsFull = async (userId: string): Promise<ObjectDto[]> => {
     const userObjects = await UserObject.findAll({ where: { userId }, attributes: ['objectId'] });
     const objectIds = userObjects.map(uo => uo.objectId);
@@ -108,12 +103,6 @@ const parsePagination = (query: ListQuery) => {
     return { page, limit, offset: (page - 1) * limit };
 };
 
-// Сортировка с поддержкой relation-полей (только Urgency.number).
-// Для status используем НЕ relation, а собственный SMALLINT-поле RepairRequest.status:
-// исторически большая часть заявок (включая всё, что обновляется через
-// setStatusForContractor) пишет только status, а statusId-UUID остаётся null.
-// LEFT JOIN на Status даст NULL.number для таких заявок — и sort=status «складывает»
-// их в кучу NULL'ов, ломая UI-ожидание (correctness-audit B1, см. design-doc §B.2).
 const ORDER_BY_RELATION: Record<string, [any, string]> = {
     urgency: [{ model: Urgency, as: 'Urgency' }, 'number'],
 };
@@ -122,7 +111,6 @@ const parseOrder = (query: ListQuery): Order => {
     const order = String(query.order || '').toLowerCase() === 'asc' ? 'ASC' : 'DESC';
     const raw = query.sort ? String(query.sort) : 'createdAt';
 
-    // Алиас 'date' → createdAt для удобства фронта (ТЗ говорит «по дате»).
     const dateAlias = raw === 'date' ? 'createdAt' : raw;
 
     if (ORDER_BY_RELATION[dateAlias]) {
@@ -130,8 +118,6 @@ const parseOrder = (query: ListQuery): Order => {
         return [[rel, field, order]] as Order;
     }
 
-    // status сортируем по RepairRequest.status (SMALLINT 1..5) — это единственное
-    // поле, которое реально заполнено для всех заявок (см. комментарий выше).
     if (dateAlias === 'status') {
         return [['status', order]];
     }
@@ -164,8 +150,6 @@ const buildBaseFilter = (query: ListQuery, ownership: WhereOptions): WhereOption
 
     if (query.search) {
         const search = String(query.search).trim();
-        // Экранируем wildcard'ы Postgres LIKE/ILIKE: иначе пользователь может
-        // сделать full-table-scan через "%%%" или whoami через "_" и т.п.
         const escaped = search.replace(/[\\%_]/g, c => `\\${c}`);
         const orConds: any[] = [{ problemDescription: { [Op.iLike]: `%${escaped}%` } }];
         const num = Number(search);
@@ -204,9 +188,6 @@ const listForContractor = async (userId: string, query: ListQuery) => {
     const { page, limit, offset } = parsePagination(query);
     const order = parseOrder(query);
 
-    // Joi.boolean() конвертирует 'true' → true, но контроллер дёргает
-    // listForContractor и из тестов / прямого вызова без Joi — отсюда
-    // поддержка обоих вариантов.
     const mineOnly = query.mine === true || query.mine === 'true';
 
     if (mineOnly) {
@@ -244,9 +225,6 @@ const listForCustomer = async (userId: string, query: ListQuery) => {
     return fetchAndCount(where, order, page, limit, offset, userId);
 };
 
-// Pure-предикаты доступа без throw — используются middleware'ом requireRequestAccess,
-// чтобы вернуть 403 ДО multer'а (иначе валидация тела отбивает раньше прав).
-// Сервисные ensureAccess/ensureWriteAccess реиспользуют их же и оставляют defense-in-depth.
 const canRead = (
     request: RepairRequest,
     role: Role,
@@ -275,8 +253,6 @@ const canWrite = (
     return request.createdByUserId === ctx.userId;
 };
 
-// READ-проверка: контрактор видит свои + по объектам, customer — свои + по объектам.
-// ADMIN — без ограничений (для отладки/поддержки через LK).
 const ensureAccess = async (userId: string, request: RepairRequest, role: Role) => {
     const { contractor, objectIds } = await loadUserContext(userId);
     if (role === 'ADMIN') {
@@ -290,7 +266,6 @@ const ensureAccess = async (userId: string, request: RepairRequest, role: Role) 
         }
         return { contractor, objectIds };
     }
-    // CUSTOMER
     const own = request.createdByUserId === userId;
     const byObject = !!request.objectId && objectIds.includes(request.objectId);
     if (!own && !byObject) {
@@ -299,10 +274,6 @@ const ensureAccess = async (userId: string, request: RepairRequest, role: Role) 
     return { contractor, objectIds };
 };
 
-// WRITE-проверка строже READ: только назначенный исполнитель / создатель заявки
-// может менять её (комменты, фото). Любого, у кого «доступ через объект»,
-// пускать на запись нельзя — иначе посторонний пользователь объекта затрёт чужие данные.
-// ADMIN — разрешаем всё (поддержка через LK).
 const ensureWriteAccess = async (userId: string, request: RepairRequest, role: Role) => {
     const { contractor, objectIds } = await loadUserContext(userId);
     if (role === 'ADMIN') {
@@ -314,7 +285,6 @@ const ensureWriteAccess = async (userId: string, request: RepairRequest, role: R
         }
         return { contractor, objectIds };
     }
-    // CUSTOMER
     if (request.createdByUserId !== userId) {
         throw new ApiError(httpStatus.FORBIDDEN, 'Изменять заявку может только её автор');
     }
@@ -333,8 +303,6 @@ const getOneForRole = async (userId: string, requestId: string, role: Role) => {
     return new LkRequestDto(request, { currentUserId: userId });
 };
 
-// Cursor — строка вида "<ISO-timestamp>:<UUID>". Парсинг строгий: при невалидной
-// строке вернём 400, чтобы фронт не получил «пустой результат» из-за тихой ошибки.
 const parseCommentCursor = (cursor: string): { createdAt: Date; id: string } => {
     const idx = cursor.lastIndexOf(':');
     if (idx <= 0 || idx === cursor.length - 1) {
@@ -346,7 +314,6 @@ const parseCommentCursor = (cursor: string): { createdAt: Date; id: string } => 
     if (isNaN(date.getTime())) {
         throw new ApiError(httpStatus.BAD_REQUEST, 'Некорректный курсор');
     }
-    // Лёгкая валидация UUID — defense-in-depth, чтобы не проносить кривые id в SQL.
     const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     if (!uuidRe.test(id)) {
         throw new ApiError(httpStatus.BAD_REQUEST, 'Некорректный курсор');
@@ -369,7 +336,6 @@ const listComments = async (requestId: string, query: CommentListQuery, userId: 
     const where: any = { requestId: request.id };
     if (query.cursor) {
         const cur = parseCommentCursor(query.cursor);
-        // Стабильный keyset ASC: (createdAt, id) > cursor.
         where[Op.or] = [
             { createdAt: { [Op.gt]: cur.createdAt } },
             {
@@ -379,7 +345,6 @@ const listComments = async (requestId: string, query: CommentListQuery, userId: 
         ];
     }
 
-    // limit + 1 — стандартный приём для определения hasMore без лишнего COUNT.
     const rows = await RequestComment.findAll({
         where,
         order: [
@@ -401,11 +366,6 @@ const listComments = async (requestId: string, query: CommentListQuery, userId: 
     };
 };
 
-// Создаёт RequestComment + write-through legacy `RepairRequest.comment` (для бота
-// и старых отчётов, которые читают «последний коммент» из этого поля).
-// Шлём оба ws-события: новое COMMENT_CREATE и legacy COMMENT_UPDATE (литерал, до удаления бота).
-// Payload — только идентификаторы (без PII), потому что ws сейчас broadcast'ит
-// всем без auth (см. F-C3 followup и §A.5 design-doc'а).
 const createComment = async (
     userId: string,
     requestId: string,
@@ -421,14 +381,6 @@ const createComment = async (
 
     const attachment = file?.filename ?? null;
 
-    // Транзакция + write-through legacy-cache (correctness-audit B3).
-    // Без транзакции два параллельных createComment'а могли затереть RepairRequest.comment
-    // не последним по createdAt сообщением, а последним commit'нувшимся — нарушался
-    // инвариант «legacy-поле = последний коммент» из design-doc §A.4.
-    // Решение: внутри tx создаём коммент → перечитываем последний по
-    // (createdAt DESC, id DESC) под FOR UPDATE-блокировкой строки заявки →
-    // пишем его текст в legacy-поля. Параллельный insert'ы упорядочиваются по
-    // блокировке RepairRequest, и в legacy-поле всегда оседает реально последний.
     const comment = await sequelize.transaction(async t => {
         const created = await RequestComment.create(
             {
@@ -441,7 +393,6 @@ const createComment = async (
             { transaction: t }
         );
 
-        // Блокируем строку заявки, чтобы конкурирующий createComment ждал нас.
         await RepairRequest.findOne({
             where: { id: request.id },
             transaction: t,
@@ -467,27 +418,16 @@ const createComment = async (
         return created;
     });
 
-    // Аудитория `request` — все, кто подписан на эту заявку (контрактор/заказчик/админ
-    // через subscribe-фрейм + бот, см. utils/ws.ts::matchAudience). Без подписки
-    // клиент не получит даже зная requestId.
     emitTo({ kind: 'request', requestId: request.id }, wsEvents.COMMENT_CREATE, {
         requestId: request.id,
         commentId: comment.id,
         authorUserId: userId,
     });
 
-    // Legacy-событие для бота. Литерал, не вынесен в wsEvents — уйдёт вместе
-    // с ботом одним коммитом (см. CLAUDE.md «Уход от Telegram»). Бот получит
-    // через isBot-fanout в emitTo, но web-клиенты — только если подписаны.
     emitTo({ kind: 'request', requestId: request.id }, 'COMMENT_UPDATE', { requestId: request.id, comment: text });
 
-    // Push другой стороне диалога — текст и формат через notification.service
-    // (UI-словарь, единый источник для push и TG, см. config/notificationLabels.ts).
-    // Текст комментария в payload не уходит (PII), юзер прочитает в чате.
     await notificationService.notifyCommentChanged(request, role, userId);
 
-    // Подгружаем Author для DTO. Можно было руками подложить user, но повторный
-    // findByPk проще читать и согласован с DTO-форматом.
     const fresh = await RequestComment.findByPk(comment.id, {
         include: [{ model: User, as: 'Author' }],
     });
@@ -495,8 +435,6 @@ const createComment = async (
     return new RequestCommentDto(fresh);
 };
 
-// Дописывает фотографии к заявке. Поле `fileName` исторически хранит либо
-// одну строку, либо JSON-массив строк — поэтому здесь нормализуем оба варианта.
 const addPhotos = async (userId: string, requestId: string, role: Role, files: Express.Multer.File[]) => {
     if (!files || files.length === 0) {
         throw new ApiError(httpStatus.BAD_REQUEST, 'Не передано ни одного файла');
@@ -515,9 +453,6 @@ const addPhotos = async (userId: string, requestId: string, role: Role, files: E
     return new LkRequestDto(request, { currentUserId: userId });
 };
 
-// State-machine для подрядчика: разрешены только NEW_REQUEST→AT_WORK и AT_WORK→DONE.
-// IRRELEVANT/FALSE исторически выставляет менеджер через админ-интерфейс — подрядчику
-// эти переходы недоступны, чтобы он не мог «закрыть» свои заявки как «неактуальные».
 const CONTRACTOR_TRANSITIONS: Record<number, number[]> = {
     [statuses.NEW_REQUEST]: [statuses.AT_WORK],
     [statuses.AT_WORK]: [statuses.DONE],
@@ -527,8 +462,6 @@ const setStatusForContractor = async (userId: string, requestId: string, statusN
     const request = await loadRequest(requestId);
     const { contractor } = await ensureAccess(userId, request, role);
 
-    // Эту операцию выполняет только назначенный исполнитель — даже ADMIN не может,
-    // потому что у него для этого есть админ-интерфейс заявок.
     if (role !== 'CONTRACTOR' || !contractor || request.contractorId !== contractor.id) {
         throw new ApiError(httpStatus.FORBIDDEN, 'Эту операцию может выполнять только назначенный исполнитель');
     }
@@ -556,8 +489,6 @@ const setStatusForContractor = async (userId: string, requestId: string, statusN
         oldStatus,
     });
 
-    // Push другой стороне (создателю заявки) с тем же текстом, что у TG-нотификации.
-    // Источник — сам подрядчик, исключаем его, чтобы не пушить self.
     await notificationService.notifyStatusChanged(request, statusNumber, { excludeUserId: userId });
 
     return new LkRequestDto(request, { currentUserId: userId });
@@ -574,10 +505,6 @@ const uploadCheckPhoto = async (userId: string, requestId: string, file: Express
     return new LkRequestDto(request, { currentUserId: userId });
 };
 
-// PATCH /lk/requests/:id/exit-date — исполнитель сам фиксирует дату выезда.
-// Менеджер также может менять exitDate из админки (старый flow), эта ручка
-// нужна именно для self-service из ЛК. Для CUSTOMER эта операция запрещена —
-// дата выезда — это операционный факт исполнителя, заказчик его не должен править.
 const updateExitDate = async (userId: string, requestId: string, exitDate: string | null, role: Role) => {
     const request = await loadRequest(requestId);
     const { contractor } = await ensureAccess(userId, request, role);
@@ -594,8 +521,6 @@ const updateExitDate = async (userId: string, requestId: string, exitDate: strin
     }
     await request.update({ exitDate: value });
 
-    // WS-событие для подписчиков заявки — карточка у других участников
-    // (заказчик, менеджер) обновится без F5.
     emitTo({ kind: 'request', requestId: request.id }, wsEvents.REQUEST_UPDATE, {
         requestId: request.id,
         field: 'exitDate',
@@ -618,8 +543,6 @@ const createForCustomer = async (
     actorRoleNumber?: number
 ) => {
     const { objectIds } = await loadUserContext(userId);
-    // ADMIN заводит заявки на любой объект системы — он не привязан к objectIds
-    // через UserObject, в отличие от CUSTOMER, которому доступны только свои.
     const isAdmin = actorRoleNumber === roles.ADMIN;
     if (!isAdmin && !objectIds.includes(body.objectId)) {
         throw new ApiError(httpStatus.BAD_REQUEST, 'Объект не входит в список ваших доступных объектов');
@@ -659,25 +582,17 @@ const createForCustomer = async (
         number: 0,
     });
 
-    // Уведомление менеджеров (роль ADMIN) о новой заявке. CUSTOMER-создатель
-    // уже знает о её появлении из ответа REST — пушить ему ws не требуется.
     emitTo({ kind: 'role', roles: [roles.ADMIN] }, 'REQUEST_CREATE', {
         requestId: created.id,
         objectId: created.objectId,
     });
 
-    // Зеркало TG-нотификации «новая заявка» для менеджеров — тот же текст
-    // юзер видит и в боте, и в push.
     await notificationService.notifyRequestCreated(created);
 
     const fresh = await loadRequest(created.id);
     return new LkRequestDto(fresh, { currentUserId: userId });
 };
 
-// Хелпер для контроллера: разрешить query.role только если он совпадает с ролью
-// текущего юзера — иначе 403. ADMIN может использовать любой режим (отладка).
-// requestedRole здесь — только 'CONTRACTOR' | 'CUSTOMER' (это режим отображения списка),
-// 'ADMIN' как режим списка не поддерживается.
 const resolveListRole = (userRole: number, requestedRole: 'CONTRACTOR' | 'CUSTOMER'): 'CONTRACTOR' | 'CUSTOMER' => {
     if (userRole === roles.ADMIN) return requestedRole;
     if (requestedRole === 'CONTRACTOR' && userRole === roles.CONTRACTOR) return 'CONTRACTOR';

@@ -5,24 +5,15 @@ import RequestChat from './RequestChat';
 
 import { useGetMyRequestQuery } from '@/API/rtkQuery/lk.api';
 
-// LK-стили подгружаются в основном через LkLayout (ЛК Исполнителя/Заказчика).
-// В админ-стеке этого Layout нет, поэтому подгружаем LK-токены и lk-chat/lk-modal
-// здесь — иначе .lk-table-chat-btn, .lk-chat-modal__*, .lk-chat--embedded
-// не попадут в bundle при заходе сразу на админ-главную.
 import '@/styles/lk/index.scss';
 
-// Модалка чата заявки для веб-ЛК Менеджера. Слушает adminChatBus,
-// рендерится в HomePageAdmin (см. там). По Esc и клику на overlay — закрытие.
 const AdminChatModal = (): JSX.Element | null => {
   const [requestId, setRequestId] = useState<string | null>(null);
 
   useEffect(() => subscribeAdminChat(setRequestId), []);
 
-  // Шапка модалки — № заявки и объект. Грузим то же, что показывает чат, чтобы
-  // не зависеть от того, что лежит в legacy-row админ-таблицы.
   const { data: request } = useGetMyRequestQuery(requestId ?? '', { skip: !requestId });
 
-  // Esc и блокировка скролла страницы пока модалка открыта.
   useEffect(() => {
     if (!requestId) return;
     const onKey = (e: KeyboardEvent): void => {
@@ -46,7 +37,6 @@ const AdminChatModal = (): JSX.Element | null => {
       aria-modal="true"
       aria-label={request ? `Чат по заявке № ${request.number}` : 'Чат по заявке'}
       onMouseDown={(e) => {
-        // Закрываем только если клик начался на самом overlay'е (не внутри окна).
         if (e.target === e.currentTarget) closeAdminChat();
       }}
     >
@@ -70,8 +60,6 @@ const AdminChatModal = (): JSX.Element | null => {
           </button>
         </header>
         <div className="lk-chat-modal__body">
-          {/* key={requestId} — перемонтируем чат при смене заявки, чтобы сбросить
-              внутренний cursor/accumulated state RequestChat. */}
           <RequestChat key={requestId} mode="admin" requestId={requestId} />
         </div>
       </div>

@@ -112,7 +112,7 @@ function SamplePoints(props) {
           .filter(
             (name) =>
               typeof name === "string" &&
-              name !== "___" && // исключаем "___"
+              name !== "___" &&
               name !== 'null' &&
               name.toLowerCase().includes(search?.toLowerCase())
           )

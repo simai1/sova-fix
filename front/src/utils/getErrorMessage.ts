@@ -1,7 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// RTK Query при 413 от nginx (HTML-боди) ставит status='PARSING_ERROR' и
-// прокладывает реальный код в originalStatus. Для FETCH_ERROR то же —
-// originalStatus там нет, но status='FETCH_ERROR'. Считываем оба.
 const httpCode = (err: any): number | null => {
   if (typeof err?.status === 'number') return err.status;
   if (typeof err?.originalStatus === 'number') return err.originalStatus;

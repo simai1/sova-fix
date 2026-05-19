@@ -10,7 +10,6 @@ type Props = {
   onClose: () => void;
 };
 
-// Форматируем оставшееся время как M:SS — в дизайне «Время ожидания: 4:32».
 const formatRemaining = (msLeft: number): string => {
   const total = Math.max(0, Math.floor(msLeft / 1000));
   const m = Math.floor(total / 60);
@@ -27,9 +26,6 @@ const LinkTelegramModal = ({ open, onClose }: Props): JSX.Element | null => {
   const [error, setError] = useState<string | null>(null);
   const initOnceRef = useRef<boolean>(false);
 
-  // При открытии модалки запрашиваем токен один раз. Повторный init
-  // на бэкенде инвалидирует прошлый токен — это ок, но дёргать его без
-  // нужды не хотим. initOnceRef сбрасывается при закрытии.
   useEffect(() => {
     if (!open) {
       initOnceRef.current = false;
@@ -54,7 +50,6 @@ const LinkTelegramModal = ({ open, onClose }: Props): JSX.Element | null => {
     })();
   }, [open, initTg]);
 
-  // Тикаем countdown раз в секунду, пока модалка открыта.
   useEffect(() => {
     if (!open || !expiresAt) return;
     const timer = window.setInterval(() => setNow(Date.now()), 1000);

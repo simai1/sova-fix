@@ -8,10 +8,6 @@ import User from '../models/user';
 
 type JwtPayload = {
     id: string;
-    // rememberMe — переносится из login в refresh-токен, чтобы /auth/refresh
-    // продлевал cookie тем же сроком (persistent vs session), что и выбрал
-    // пользователь чекбоксом «Запомнить меня». Без этого refresh-цикл
-    // незаметно превращал session-cookie в persistent.
     rememberMe?: boolean;
 };
 
@@ -70,9 +66,6 @@ const refresh = async (refreshToken: string) => {
         throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
     }
     const userDto = new UserDto(user as User);
-    // Сохраняем тот же rememberMe из исходного refresh-токена — иначе после
-    // первого refresh-цикла все cookie стали бы persistent независимо от
-    // изначального выбора пользователя.
     const tokens = generate({ ...userDto }, Boolean(userData.rememberMe));
 
     await saveToken(userDto.id, tokens.refreshToken);

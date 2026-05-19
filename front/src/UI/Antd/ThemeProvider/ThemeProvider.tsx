@@ -9,11 +9,11 @@ export const ThemeProvider: FC<PropsWithChildren> = ({ children }) => {
       theme={{
         algorithm: theme.defaultAlgorithm,
         token: {
-          colorPrimary: '#ffe20d', // ActiveText-color
-          colorSuccess: '#c5e384', // Main-green-color
-          colorError: '#d69a81', // Red-color
-          colorTextBase: '#1d1d1b', // black-color
-          colorBgContainer: '#ffffff', // white-color
+          colorPrimary: '#ffe20d',
+          colorSuccess: '#c5e384',
+          colorError: '#d69a81',
+          colorTextBase: '#1d1d1b',
+          colorBgContainer: '#ffffff',
 
           borderRadius: 8,
 

@@ -29,9 +29,6 @@ function Header() {
     const settingsRef = useRef(null)
     const [objectsLength, setObjectsLength] = useState(0)
 
-    // Список значений настроек, при большом количестве настроек в будуще, необходимо будет вынести данный
-    // компонент настроек в отдельный отдельный компонент. Обсуждали сделать отдельную страницу, поняли, что пока избыточно,
-    // так как на момент добавления настроек, есть только одна - заявки без фото/с фото
     const [isRepairWithPhotoSetting, setIsRepairWithPhotoSettings] = useState()
 
     useEffect(()=>{

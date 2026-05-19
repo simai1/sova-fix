@@ -3,14 +3,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { LkFilterValue } from '@/components/Lk/FilterModal';
 import { getUserData } from '@/utils/auth';
 
-// Один namespace на экран (не на user.id) — сохранённые фильтры одного юзера
-// не должны утекать другому при login/logout на shared машине. Защита от
-// утечки строится двумя способами:
-//   1) ключ всё равно общий, но в payload пишем userId и при чтении проверяем
-//      его совпадение с текущим — иначе возвращаем null;
-//   2) на logout (см. useLogout) удаляем все ключи `lk:filters:*`.
-// Этот «пояс и подтяжки» нужен на случай, если один из путей не сработает
-// (например, юзер закрыл вкладку без logout).
 export type SavedFiltersScope = 'contractor-requests' | 'customer-requests';
 
 export type SavedSort = {
@@ -32,14 +24,8 @@ const KEY_PREFIX = 'lk:filters:';
 
 const buildKey = (scope: SavedFiltersScope): string => `${KEY_PREFIX}${scope}`;
 
-// Префикс публичный, чтобы useLogout мог пройтись по всем ключам без
-// импорта enum-а scopes (и не плодить циклы зависимостей при появлении
-// новых ЛК).
 export const SAVED_FILTERS_KEY_PREFIX = KEY_PREFIX;
 
-// Узкая валидация structural-shape (без zod/io-ts ради одного места).
-// Любая невязка → null + cleanup ключа: лучше потерять старые фильтры,
-// чем сохранить кривое состояние и упасть на render'е.
 const isValidPayload = (raw: unknown, currentUserId: string): raw is StoredPayload => {
   if (!raw || typeof raw !== 'object') return false;
   const p = raw as Record<string, unknown>;
@@ -50,9 +36,6 @@ const isValidPayload = (raw: unknown, currentUserId: string): raw is StoredPaylo
   const s = p.sort as Record<string, unknown>;
   if (typeof s.sort !== 'string') return false;
   if (s.order !== 'asc' && s.order !== 'desc') return false;
-  // filters — все поля опциональные строки. Не валидируем глубоко: бэкенд
-  // всё равно валидирует statusId/urgencyId/objectId как UUID и игнорирует
-  // мусор. Лишь убеждаемся, что все значения — string|undefined.
   const f = p.filters as Record<string, unknown>;
   return Object.values(f).every((v) => v === undefined || typeof v === 'string');
 };
@@ -73,8 +56,6 @@ export type UseSavedFiltersResult = {
 export const useSavedFilters = (scope: SavedFiltersScope): UseSavedFiltersResult => {
   const key = useMemo(() => buildKey(scope), [scope]);
 
-  // Читаем синхронно один раз — RequestsList использует stored как initial
-  // state, отдельный mount-эффект тут только опоздал бы.
   const [stored] = useState<SavedFiltersState | null>(() => {
     if (typeof window === 'undefined') return null;
     try {
@@ -83,8 +64,6 @@ export const useSavedFilters = (scope: SavedFiltersScope): UseSavedFiltersResult
       const parsed = JSON.parse(raw) as unknown;
       const userId = readCurrentUserId();
       if (!userId) {
-        // userId неизвестен (выход из ЛК?) — не отдаём ничего, и заодно
-        // подчищаем чужой остаток.
         window.localStorage.removeItem(key);
         return null;
       }
@@ -94,19 +73,13 @@ export const useSavedFilters = (scope: SavedFiltersScope): UseSavedFiltersResult
       }
       return { filters: parsed.filters, sort: parsed.sort };
     } catch {
-      // Приватный режим / порченный JSON / квота — просто игнорируем.
       try {
         window.localStorage.removeItem(key);
-      } catch {
-        // ignore
-      }
+      } catch {}
       return null;
     }
   });
 
-  // Свежий userId на каждый save: в ходе сессии userData может (теоретически)
-  // обновиться — например, при перерегистрации без перезагрузки. Берём
-  // через ref, чтобы не пересоздавать save между рендерами.
   const userIdRef = useRef<string | null>(readCurrentUserId());
   useEffect(() => {
     userIdRef.current = readCurrentUserId();
@@ -124,9 +97,7 @@ export const useSavedFilters = (scope: SavedFiltersScope): UseSavedFiltersResult
       };
       try {
         window.localStorage.setItem(key, JSON.stringify(payload));
-      } catch {
-        // localStorage недоступен / переполнен — фильтры просто не сохранятся.
-      }
+      } catch {}
     },
     [key],
   );
@@ -134,9 +105,7 @@ export const useSavedFilters = (scope: SavedFiltersScope): UseSavedFiltersResult
   const clear = useCallback((): void => {
     try {
       window.localStorage.removeItem(key);
-    } catch {
-      // ignore
-    }
+    } catch {}
   }, [key]);
 
   return { stored, save, clear };

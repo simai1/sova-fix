@@ -32,9 +32,6 @@ export type UsePushSubscriptionResult = {
   error: string | null;
 };
 
-// 503 от backend = VAPID не сконфигурирован → показываем 'unavailable',
-// чтобы UI отдельно от 'denied' разводил «нет инфраструктуры» и
-// «юзер запретил».
 const isUnavailableError = (err: unknown): boolean => {
   if (!err || typeof err !== 'object') return false;
   const status = (err as { status?: unknown }).status;
@@ -44,7 +41,6 @@ const isUnavailableError = (err: unknown): boolean => {
 export const usePushSubscription = (): UsePushSubscriptionResult => {
   const [state, setState] = useState<PushState>('loading');
   const [error, setError] = useState<string | null>(null);
-  // Защита от setState после unmount — флоу async, юзер может уйти со страницы.
   const mountedRef = useRef(true);
 
   const [triggerVapid] = useLazyGetVapidPublicKeyQuery();
@@ -58,10 +54,6 @@ export const usePushSubscription = (): UsePushSubscriptionResult => {
     setError(err);
   }, []);
 
-  // Чисто-локальное определение состояния на mount: смотрим permission +
-  // существующую подписку. Без побочной регистрации SW — её делаем только
-  // при enable(). Это важно: иначе SW бы регистрировался у всех юзеров,
-  // даже у тех, кто никогда не нажмёт «Включить».
   useEffect(() => {
     mountedRef.current = true;
     let cancelled = false;
@@ -84,9 +76,6 @@ export const usePushSubscription = (): UsePushSubscriptionResult => {
         } else if (permission === 'granted') {
           safeSet('granted-not-subscribed');
         } else {
-          // permission === 'default' — юзер ещё не отвечал; считаем
-          // как «не подписан, нужно нажать включить». Сам запрос
-          // permission делаем уже в enable().
           safeSet('granted-not-subscribed');
         }
       } catch (err) {
@@ -115,8 +104,6 @@ export const usePushSubscription = (): UsePushSubscriptionResult => {
         return;
       }
       if (permission !== 'granted') {
-        // 'default' — юзер закрыл нативный prompt без выбора;
-        // не считаем это ошибкой, просто возвращаем в исходное.
         safeSet('granted-not-subscribed');
         return;
       }
@@ -158,9 +145,6 @@ export const usePushSubscription = (): UsePushSubscriptionResult => {
     try {
       const { endpoint } = await unsubscribePush();
       if (endpoint) {
-        // Идемпотентно: если бэкенд уже не знает endpoint — он вернёт
-        // 404/204 (см. design-doc §8.1.6). Ошибки backend здесь
-        // не блокируют успешную browser-side отписку.
         await unsubscribeMutation({ endpoint })
           .unwrap()
           .catch(() => undefined);

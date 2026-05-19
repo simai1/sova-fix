@@ -29,7 +29,7 @@ function Activate() {
     }));
     setErrors((prevErrors) => ({
       ...prevErrors,
-      [name]: "", // Reset the error message when the user starts typing
+      [name]: "",
     }));
   };
 
@@ -101,7 +101,6 @@ function Activate() {
               onChange={handleInputChange}
               style={{ borderColor: errors.FIO ? "red" : "" }}
             />
-          {/* {errors.FIO && <div style={{ color: "red" }}>{errors.FIO}</div>} */}
           <label>Пароль </label>
           <input
             type="password"
@@ -111,7 +110,6 @@ function Activate() {
             onChange={handleInputChange}
             style={{ borderColor: errors.password ? "red" : "" }}
           />
-          {/* {errors.password && <div style={{ color: "red" }}>{errors.password}</div>} */}
           <label>Повторите пароль </label>
           <input
             type="password"
@@ -121,7 +119,6 @@ function Activate() {
             onChange={handleInputChange}
             style={{ borderColor: errors.resetpassword ? "red" : "" }}
           />
-          {/* {errors.resetpassword && <div style={{ color: "red" }}>{errors.resetpassword}</div>} */}
           <button className={styles.button} onClick={handleLogin}>
             Войти
           </button>

@@ -10,9 +10,6 @@ const router = Router();
 
 router.route('/setRole').post(verifyToken.auth, verifyRole(roles.ADMIN), userController.setRole);
 router.route('/').get(verifyToken.auth, userController.getAll);
-// КРИТИЧНО: статические сегменты (`/pending-registrations`, `/confirm/:userId`)
-// и `/:userId/objects` объявлены ДО `/:tgId` и `/:userId`, иначе Express
-// матчит, например, `/users/<id>/objects` как `/:tgId='<id>/objects'` и т.п.
 router
     .route('/pending-registrations')
     .get(verifyToken.auth, verifyRole(roles.ADMIN), userController.getPendingRegistrations);

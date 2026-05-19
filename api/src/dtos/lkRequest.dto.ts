@@ -7,13 +7,6 @@ import Contractor from '../models/contractor';
 import DirectoryCategory from '../models/directoryCategory';
 import { getContractorNameOrThrow } from '../utils/contractorName';
 
-// DTO для веб-ЛК (Исполнитель/Заказчик).
-// Отличается от админского RequestDto тем, что отдаёт:
-//   - вложенные объекты (Object/Unit/Status/Urgency/Contractor) под именами моделей,
-//   - даты в ISO (createdAt/completeDate), а не в '%d.%m.%y',
-//   - явный contractorId и createdByUserId — фронту нужно для проверки «моя ли заявка».
-// Админский DTO не трогаем, чтобы не сломать существующий UI.
-
 type ObjectSlim = { id: string; name: string; number?: number; city?: string };
 type UnitSlim = { id: string; name: string };
 type StatusSlim = { id: string; name: string; number: number; color?: string };
@@ -32,9 +25,6 @@ const slimContractor = (c?: Contractor | null): ContractorSlim | null =>
     c ? { id: c.id, name: getContractorNameOrThrow(c) } : null;
 const slimCategory = (c?: DirectoryCategory | null): CategorySlim | null => (c ? { id: c.id, name: c.name } : null);
 
-// Опциональный контекст: позволяет вычислить производные поля,
-// зависящие от текущего пользователя, прямо в DTO. Пока единственное
-// такое поле — isAssigned (заявка назначена этому исполнителю).
 type DtoContext = {
     currentUserId?: string | null;
 };
@@ -56,8 +46,6 @@ export default class LkRequestDto {
     commentAttachment: string | null;
     createdAt: string | null;
     completeDate: string | null;
-    // Новые поля, которые ранее были только в админ-таблице.
-    // Все nullable — старые заявки могут быть без значения.
     daysAtWork: number;
     planCompleteDate: string | null;
     exitDate: string | null;
@@ -67,9 +55,6 @@ export default class LkRequestDto {
     Urgency: UrgencySlim | null;
     Contractor: ContractorSlim | null;
     Category: CategorySlim | null;
-    // Заявка закреплена за текущим пользователем-исполнителем.
-    // Заполняется только если в конструктор передан currentUserId; иначе null
-    // (фронт-админка/legacy-вызовы не должны полагаться на это поле).
     isAssigned: boolean | null;
 
     constructor(model: RepairRequest, ctx?: DtoContext) {
@@ -104,11 +89,6 @@ export default class LkRequestDto {
         this.Urgency = slimUrgency((model as any).Urgency);
         this.Contractor = slimContractor(model.Contractor);
         this.Category = slimCategory(m.DirectoryCategory ?? null);
-        // isAssigned: только если контекст задан. Совпадение определяем через
-        // Contractor.userId (контрактор привязан к web-юзеру) — admin-flow
-        // также корректно отрабатывает, потому что у admin'а свой userId
-        // обычно не совпадает с Contractor.userId, и он увидит false. Это
-        // фронт-индикатор для исполнителя, а не security-gate.
         if (ctx?.currentUserId) {
             const contractorUserId = (model.Contractor as (Contractor & { userId?: string | null }) | undefined)
                 ?.userId;

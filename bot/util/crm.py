@@ -74,7 +74,6 @@ async def bind_tg(token: str, tg_id: int, username: str | None) -> dict:
         logger.info(f'API: tg bind ok, tg_id={tg_id}, userId={data.get("userId")}')
         return {'ok': True, 'userId': data.get('userId'), 'tgUserId': data.get('tgUserId')}
 
-    # 400 → невалидный/истёкший токен; 409 → tgId занят; 5xx → проблема сервера.
     try:
         message = response.json().get('message', 'Не удалось привязать Telegram')
     except Exception:
@@ -1101,7 +1100,6 @@ async def get_manager_assigned_requests(tg_user_id: str) -> list | None:
             logger.error(f"Ошибка при запросе заявок по managerTgId: код {request.status_code}")
             logger.error(f"Ответ сервера: {request.text}")
         
-        # Fallback: пытаемся найти через managerId
         logger.info("Пытаемся найти заявки через managerId")
         user = await get_user_by_tg_id(int(tg_user_id))
         

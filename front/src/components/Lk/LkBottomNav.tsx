@@ -34,8 +34,6 @@ const ICON_PROPS = {
   className: 'lk-bottom-nav__icon',
 };
 
-// Иконки статичны (ни один проп на них не влияет) — создаём SVG-деревья
-// один раз на уровне модуля, чтобы не пересоздавать их на каждой навигации.
 const ICONS: Record<IconKind, JSX.Element> = {
   list: (
     <svg {...ICON_PROPS}>
@@ -66,7 +64,6 @@ type Props = {
   role: Role;
 };
 
-// Путь to является сегментным префиксом pathname (или равен ему).
 const isUnder = (pathname: string, to: string): boolean =>
   pathname === to || pathname.startsWith(`${to}/`);
 
@@ -74,9 +71,6 @@ const LkBottomNav = ({ role }: Props): JSX.Element => {
   const items = role === 'CONTRACTOR' ? ITEMS_CONTRACTOR : ITEMS_CUSTOMER;
   const { pathname } = useLocation();
 
-  // Подсвечиваем пункт с самым длинным совпавшим префиксом: иначе «Заявки»
-  // (/customer/requests) горит вместе с «Создать» (/customer/requests/new),
-  // потому что первый путь — префикс второго.
   const matched = items.map((item) => item.to).filter((to) => isUnder(pathname, to));
   const activeTo = matched.length
     ? matched.reduce((best, to) => (to.length > best.length ? to : best))

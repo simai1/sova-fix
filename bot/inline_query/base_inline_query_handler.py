@@ -38,7 +38,6 @@ async def base_inline_query_handler(inline_query: InlineQuery) -> None:
     if len(query) < 1:
         return
 
-    # pattern: "%command %[params]"
     command = query[0]
     params = query[1:]
 

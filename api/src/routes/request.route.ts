@@ -106,7 +106,6 @@ router.route('/contractor/bulk').patch(requestController.bulkContractor);
 
 router.route('/customer/:tgUserId').get(requestController.getCustomersRequests);
 
-// Маршрут для получения заявок по объектам, к которым у пользователя есть доступ
 router.route('/objects/:tgUserId').get(requestController.getRequestsByObjects);
 
 router.route('/add/check/:requestId').patch(uploadImage.single('file'), requestController.addCheck);
@@ -123,7 +122,6 @@ router.route('/directoryCategory/:requestId').post(requestController.setNewDirec
 
 router.route('/actual/:tgUserId/:unitId/:objectId?').get(requestController.getActualRequestsByObjectId);
 
-// Migration endpoints (should be protected in production)
 router.route('/migrate/manager-ids').post(requestController.migrateManagerData);
 router.route('/validate/manager-ids').post(requestController.validateManagerData);
 

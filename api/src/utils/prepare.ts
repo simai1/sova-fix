@@ -2,7 +2,6 @@ const prepare = (obj: any) => {
     Object.keys(obj).forEach(k => {
         let val = obj[k];
 
-        // если строка и содержит запятую → превращаем в массив
         if (typeof val === 'string' && val.includes(',')) {
             val = val.split(',').map(item => normalizeValue(item));
         } else {
@@ -22,11 +21,11 @@ function normalizeValue(value: any) {
     const trimmed = value.trim();
 
     if (trimmed === 'null') return null;
-    if (/^-?\d+$/.test(trimmed)) return Number(trimmed); // строго целое
+    if (/^-?\d+$/.test(trimmed)) return Number(trimmed);
     if (trimmed.toLowerCase() === 'true') return true;
     if (trimmed.toLowerCase() === 'false') return false;
 
-    return trimmed; // оставляем строкой
+    return trimmed;
 }
 
 export default prepare;

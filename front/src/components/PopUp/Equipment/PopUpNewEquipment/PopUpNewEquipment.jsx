@@ -26,8 +26,6 @@ function PopUpNewEquipment() {
   });
 
   const getData = () => {
-    // API-обёртки из API.js на ошибку логируют и возвращают undefined — это контракт.
-    // Поэтому разделяем «нет ответа» (ранний выход) и «ответ есть, но не 200».
     const userData = JSON.parse(sessionStorage.getItem("userData"));
     const userId = userData && userData.user ? userData.user.id : null;
     if (userId) {

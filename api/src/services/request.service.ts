@@ -53,7 +53,6 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
                 const userObjects = await TgUserObject.findAll({ where: { tg_user_id: user?.tgManagerId } });
                 objectIdsForUser = userObjects.map(obj => obj.objectId);
 
-                // Если пользователь с ролью 3 и нет привязанных объектов — фильтруем по пустому массиву (не вернёт ничего)
                 if (objectIdsForUser.length === 0) {
                     whereParams['$Object.id$'] = { [Op.in]: [] };
                 } else {
@@ -188,10 +187,6 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
                         whereParams[Op.or] = managerConditions;
                     }
                 }
-                // Фильтрация по этой проверке написана не очень хорошо. Возникло из-за того, что в фильтре
-                // по исполнителю необходимо было фильтровать сразу несколько полей
-                // Желательно провести миграцию БД, чтобы все заявки имели общие паттерны поля contractorManager, builder,
-                // так как сейчас написано на костылях
             } else if (fieldName === 'builder') {
                 const isExternalManager = value.includes('Менеджер: Внешний подрядчик');
                 const hasUnknownBuilder = value.includes('Укажите подрядчика');
@@ -515,8 +510,6 @@ const createRequest = async (
 
     if (directoryCategoryId) await updateDirectoryCategoryBuilder(request.id, directoryCategoryId);
 
-    // REQUEST_CREATE — для менеджеров и бота. Заказчик-TG (createdBy=TgUser)
-    // получает уведомление через бот, web-канала у него нет.
     emitTo({ kind: 'role', roles: [roles.ADMIN] }, 'REQUEST_CREATE', {
         requestId: request.id,
         customer: request.createdBy,
@@ -652,9 +645,6 @@ const setContractor = async (requestId: string, contractorId: string, managerId?
 
                 const customer = await TgUser.findByPk(request.createdBy);
 
-                // STATUS_UPDATE — подписанным на заявку (контрактор/заказчик/админ
-                // через subscribe + бот через isBot-fanout). Поля customer/tgUser
-                // нужны боту для маршрутизации в TG.
                 emitTo({ kind: 'request', requestId: requestId }, 'STATUS_UPDATE', {
                     newStatus: 2,
                     oldStatus: oldStatus,
@@ -743,9 +733,6 @@ const setContractor = async (requestId: string, contractorId: string, managerId?
                     customer: customer ? customer.tgId : null,
                 });
 
-                // REQUEST_ASSIGNED — самому исполнителю (если у него есть User
-                // в web-LK) и менеджерам. Без PII в payload, клиент тянет детали
-                // через REST. Бот получит через isBot-fanout.
                 const assignee = tgContractor?.userId ?? null;
                 const assignedUserIds = assignee ? [assignee] : [];
                 if (assignedUserIds.length > 0) {
@@ -761,8 +748,6 @@ const setContractor = async (requestId: string, contractorId: string, managerId?
                     objectId: request.objectId,
                 });
 
-                // Зеркальный push: заказчику — про смену статуса (как в TG),
-                // исполнителю — про назначение заявки.
                 await notificationService.notifyStatusChanged(request, 2);
                 await notificationService.notifyRequestAssigned(request);
             } catch (error) {
@@ -844,10 +829,6 @@ const setComment = async (requestId: string, comment: string): Promise<void> => 
     });
     await request.update({ comment });
 
-    // Зеркало TG: коммент через admin-flow считаем «от менеджера», поэтому
-    // получатель — сторона заказчика. Для назначенного inhouse-исполнителя
-    // notifyCommentChanged также найдёт contractor.userId (если есть).
-    // authorUserId=null → admin-flow, никого не исключаем по author.
     await notificationService.notifyCommentChanged(request, 'ADMIN', null);
 };
 
@@ -1000,10 +981,6 @@ const update = async (
     if (planCompleteDate !== undefined) updateData.planCompleteDate = planCompleteDate;
     if (managerTgId !== undefined) updateData.managerTgId = managerTgId;
 
-    // Снимаем snapshot ДО request.update() — иначе после мутации Sequelize-instance
-    // request.status/urgency/comment уже равны новым значениям, и проверки
-    // status !== request.status ниже всегда давали бы false (pre-existing bug:
-    // в этом случае ни sendMsg, ни push не отправлялись).
     const oldStatus = request.status;
     const oldUrgency = request.urgency;
     const oldComment = request.comment;
@@ -1060,7 +1037,6 @@ const update = async (
             contractor: contractor ? (contractor.TgUser ? contractor.TgUser.tgId : null) : null,
             customer: customer ? customer.tgId : null,
         });
-        // Источник — admin-flow update, см. setComment.
         await notificationService.notifyCommentChanged(request, 'ADMIN', null);
     }
 
@@ -1308,9 +1284,6 @@ const bulkSetContractor = async (ids: object, contractorId: string): Promise<voi
             customer: customer ? customer.tgId : null,
         });
         await notificationService.notifyStatusChanged(request, 2);
-        // bulkSetContractor только для inhouse → дополнительно push исполнителю.
-        // notifyRequestAssigned сам no-op'нет, если у contractor нет userId
-        // (TG-only flow без web-LK-привязки).
         if (request.contractorId) {
             await notificationService.notifyRequestAssigned(request);
         }

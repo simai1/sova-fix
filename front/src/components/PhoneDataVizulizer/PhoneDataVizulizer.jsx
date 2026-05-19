@@ -140,32 +140,32 @@ function PhoneDataVizulizer(props) {
     const getColorStatus = (statusId) => {
       switch (statusId) {
         case "Новая заявка":
-          return "#d69a81"; // красный
+          return "#d69a81";
         case "В работе":
-          return "#ffe78f"; // жёлтый
+          return "#ffe78f";
         case "Выполнена":
-          return "#C5E384"; // зелёный
+          return "#C5E384";
         case "Выезд без выполнения":
-          return "#f9ab23"; // оранжевый
+          return "#f9ab23";
         default:
-          return "#ccc"; // цвет по умолчанию
+          return "#ccc";
       }
     };
-  
+
     const getColorUrgensy = (name) => {
       switch (name) {
         case "В течение часа":
-          return "#d69a81"; // красный
+          return "#d69a81";
         case "В течение текущего дня":
-          return "#f9ab23"; // оранжевый
+          return "#f9ab23";
         case "В течение 3-х дней":
-          return "#ffe78f"; // жёлтый
+          return "#ffe78f";
         case "В течение недели":
-          return "#eaf45b"; // светло жёлтый
+          return "#eaf45b";
         case "Выполнено":
-          return "#C5E384"; // зеленый
+          return "#C5E384";
         default:
-          return "#ccc"; // цвет по умолчанию
+          return "#ccc";
       }
     };
     const getContractorItem = (row) => {

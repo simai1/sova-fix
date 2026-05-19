@@ -156,7 +156,7 @@ function PopUpEditAppoint(props) {
         if (fileSizeInMB > maxSizeInMB) {
             event.target.value = null;
             alert("Ошибка: размер файла превышает 50 МБ.");
-            return; // Прерываем выполнение функции
+            return;
         }
 
         const formData = new FormData();
@@ -274,7 +274,7 @@ function PopUpEditAppoint(props) {
       <div className={styles.soursBg}>
         <video
           onClick={(e) => {
-            e.preventDefault(); // Prevent the modal from closing
+            e.preventDefault();
             e.stopPropagation();
             if (parsedFiles?.length === 1 ) {
               return openModal(`${API_URL}/uploads/${parsedFiles[parsedFiles?.length - 1]}`);

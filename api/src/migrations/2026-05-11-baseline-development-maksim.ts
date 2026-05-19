@@ -1,19 +1,6 @@
 import { DataTypes } from 'sequelize';
 import type { Migration } from '../utils/migrator';
 
-// Baseline-миграция для тенантов, поднявших development-maksim. Покрывает
-// изменения схемы, которые sync({alter:true}) на demo не применил
-// (инцидент 2026-05-11).
-//
-// Идемпотентность через describeTable: queryInterface.addColumn падает, если
-// колонка уже есть, поэтому каждое изменение оборачиваем в проверку.
-// Это «один-в-один» поведение `ADD COLUMN IF NOT EXISTS`, но не через raw SQL.
-//
-// Для новых тенантов (чистая БД): sync({alter:true}) в db.ts создаст все
-// таблицы из моделей до того, как доберёмся сюда; миграция увидит уже
-// существующие колонки и пропустит их. Запись в SequelizeMeta появится в любом
-// случае — следующий старт не будет ничего делать.
-
 const hasColumn = async (
     queryInterface: import('sequelize').QueryInterface,
     table: string,
@@ -23,7 +10,6 @@ const hasColumn = async (
         const desc = await queryInterface.describeTable(table);
         return column in desc;
     } catch {
-        // describeTable бросает, если таблицы нет — значит и колонки нет
         return false;
     }
 };
@@ -34,9 +20,6 @@ const hasTable = async (queryInterface: import('sequelize').QueryInterface, tabl
 };
 
 export const up: Migration = async ({ context: queryInterface }) => {
-    // SystemLog — таблица для админских логов (см. models/systemLog.ts).
-    // Создаём напрямую, потому что её модель появилась в этой ветке и на
-    // существующих тенантах таблицы ещё нет.
     if (!(await hasTable(queryInterface, 'system_logs'))) {
         await queryInterface.createTable('system_logs', {
             id: {
@@ -61,7 +44,6 @@ export const up: Migration = async ({ context: queryInterface }) => {
         });
     }
 
-    // Contractor.userId — миграция от TgUser к User (web-flow ЛК, 2026-05-10).
     if (!(await hasColumn(queryInterface, 'contractors', 'user_id'))) {
         await queryInterface.addColumn('contractors', 'user_id', {
             type: DataTypes.UUID,
@@ -74,7 +56,6 @@ export const up: Migration = async ({ context: queryInterface }) => {
         });
     }
 
-    // RepairRequest.createdByUserId — автор заявки (User вместо TgUser).
     if (!(await hasColumn(queryInterface, 'repair-requests', 'created_by_user_id'))) {
         await queryInterface.addColumn('repair-requests', 'created_by_user_id', {
             type: DataTypes.UUID,
@@ -83,7 +64,6 @@ export const up: Migration = async ({ context: queryInterface }) => {
         });
     }
 
-    // User.pendingApproval — web-самореги flow: блокирует логин до approve менеджером.
     if (!(await hasColumn(queryInterface, 'users', 'pending_approval'))) {
         await queryInterface.addColumn('users', 'pending_approval', {
             type: DataTypes.BOOLEAN,
@@ -91,7 +71,6 @@ export const up: Migration = async ({ context: queryInterface }) => {
             defaultValue: false,
         });
     }
-    // User.pendingVerifyToken — sha256 одноразового токена для ws-канала pending.<token>.
     if (!(await hasColumn(queryInterface, 'users', 'pending_verify_token'))) {
         await queryInterface.addColumn('users', 'pending_verify_token', {
             type: DataTypes.STRING(64),
@@ -104,7 +83,6 @@ export const up: Migration = async ({ context: queryInterface }) => {
             allowNull: true,
         });
     }
-    // Partial-index по pending-юзерам — основной запрос менеджерской очереди регистраций.
     const userIndexes = (await queryInterface.showIndex('users')) as Array<{ name: string }>;
     if (!userIndexes.some(i => i.name === 'users_pending_created_idx')) {
         await queryInterface.addIndex('users', {
@@ -116,8 +94,6 @@ export const up: Migration = async ({ context: queryInterface }) => {
 };
 
 export const down: Migration = async ({ context: queryInterface }) => {
-    // Down — best-effort; в проде rollback миграций не запускаем, но
-    // оставляем, чтобы тесты могли откатить baseline до чистой схемы.
     await queryInterface.removeIndex('users', 'users_pending_created_idx').catch(() => undefined);
     await queryInterface.removeColumn('users', 'pending_verify_token_expires_at').catch(() => undefined);
     await queryInterface.removeColumn('users', 'pending_verify_token').catch(() => undefined);

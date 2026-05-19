@@ -1,8 +1,6 @@
 import { format } from 'date-fns';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { DayPicker, type DateRange } from 'react-day-picker';
-// rdp@10 реэкспортирует локали из date-fns/locale через свой подпуть,
-// поэтому импортируем именно отсюда — единый источник для типов и данных.
 import { ru } from 'react-day-picker/locale';
 import { createPortal } from 'react-dom';
 
@@ -19,17 +17,10 @@ type Position = {
   width: number;
 };
 
-// Визуальный gap между триггером и popover'ом — иначе край календаря «прилипает»
-// к нижней границе input'а и focus-ring триггера сливается с border'ом popover'а.
 const POPOVER_GAP_PX = 4;
 
-// Минимальный отступ popover'а от кромки viewport'а, когда он открывается вверх
-// и даже там не помещается целиком — упирается в этот отступ, а не в край.
 const VIEWPORT_MARGIN_PX = 8;
 
-// Mobile Portrait по шкале _tokens.scss: max-width 767px. На этой ширине
-// anchored-popover уходит за нижний край viewport'а и rdp-grid растягивается —
-// переключаемся на bottom-sheet (см. _datepicker.scss § __overlay/__popover--sheet).
 const MOBILE_SHEET_MQ = '(max-width: 767px)';
 
 const getMatchesMobile = (): boolean =>
@@ -60,14 +51,10 @@ const LkDatePicker = ({
   const [draft, setDraft] = useState<DateRange | undefined>(value ?? undefined);
   const [isMobile, setIsMobile] = useState<boolean>(getMatchesMobile);
 
-  // Синхронизируем черновик с внешним value, пока popover закрыт:
-  // если родитель сбросил фильтр снаружи — внутреннее состояние догоняет.
   useEffect(() => {
     if (!open) setDraft(value ?? undefined);
   }, [value, open]);
 
-  // Слушаем смену брейкпоинта (поворот девайса / DevTools-resize), чтобы
-  // переключаться между anchored-popover и bottom-sheet без перезагрузки.
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const mq = window.matchMedia(MOBILE_SHEET_MQ);
@@ -76,15 +63,6 @@ const LkDatePicker = ({
     return () => mq.removeEventListener('change', handler);
   }, []);
 
-  // Позиционирование popover относительно триггера — только в desktop-режиме.
-  // На мобильной bottom-sheet прибит ко дну экрана, координаты не нужны.
-  // useLayoutEffect — чтобы координаты применились до первой отрисовки и не
-  // было «прыжка» из 0,0. Popover до расчёта позиции уже смонтирован, но скрыт
-  // (visibility:hidden) — это нужно, чтобы измерить его высоту и решить,
-  // открывать вниз или вверх. Recompute при scroll/resize: useCapture=true в
-  // scroll-listener'е нужен, чтобы ловить scroll внутри scrollable parent'ов
-  // (FilterModal внутри .lk-modal__sheet имеет overflow:auto — bubbling-scroll
-  // туда не доходит).
   useLayoutEffect(() => {
     if (!open || isMobile || !triggerRef.current) return;
     const recompute = (): void => {
@@ -93,15 +71,9 @@ const LkDatePicker = ({
       const popoverH = popoverRef.current?.offsetHeight ?? 0;
       const spaceBelow = window.innerHeight - rect.bottom - POPOVER_GAP_PX;
       let top = rect.bottom + POPOVER_GAP_PX;
-      // Если под триггером календарь целиком не помещается — открываем вверх,
-      // прижимая к верхней кромке viewport'а, чтобы он был виден полностью
-      // при любом масштабе страницы.
       if (popoverH > 0 && popoverH > spaceBelow) {
         top = Math.max(VIEWPORT_MARGIN_PX, rect.top - POPOVER_GAP_PX - popoverH);
       }
-      // scroll-capture/resize/ResizeObserver зовут recompute часто и обычно с
-      // теми же координатами — возвращаем прежний объект, чтобы React пропустил
-      // лишний re-render всего календаря.
       setPos((prev) =>
         prev && prev.top === top && prev.left === rect.left && prev.width === rect.width
           ? prev
@@ -109,8 +81,6 @@ const LkDatePicker = ({
       );
     };
     recompute();
-    // Высота rdp-сетки зависит от числа недель в месяце (4–6 строк) — следим
-    // за ресайзом popover'а, чтобы пересчитать flip при навигации по месяцам.
     const ro = new ResizeObserver(recompute);
     if (popoverRef.current) ro.observe(popoverRef.current);
     window.addEventListener('scroll', recompute, true);
@@ -122,17 +92,12 @@ const LkDatePicker = ({
     };
   }, [open, isMobile]);
 
-  // Автофокус popover'а при открытии — закрывает наследие WAI-ARIA dialog
-  // pattern: role="dialog" подразумевает, что фокус переходит внутрь при
-  // открытии. Сам контейнер фокусируем (tabIndex=-1), дальнейшую навигацию
-  // по дням обрабатывает RDP внутри (стрелки, Enter).
   useEffect(() => {
     if (open && popoverRef.current) {
       popoverRef.current.focus();
     }
   }, [open]);
 
-  // Клик-вне (по mousedown, чтобы успеть до click) и Esc для закрытия.
   useEffect(() => {
     if (!open) return;
     const onDocMouseDown = (e: MouseEvent): void => {
@@ -180,8 +145,6 @@ const LkDatePicker = ({
     setDraft({ from: today, to: today });
   };
 
-  // rdp@10: OnSelectHandler<DateRange | undefined> принимает (range, triggerDate, modifiers, e).
-  // Нас интересует только сам range — оборачиваем, чтобы setDraft получил совместимую сигнатуру.
   const handleSelect = (range: DateRange | undefined): void => {
     setDraft(range);
   };
@@ -263,8 +226,6 @@ const LkDatePicker = ({
                   position: 'fixed',
                   top: pos ? pos.top : 0,
                   left: pos ? pos.left : 0,
-                  // До первого расчёта позиции popover скрыт, но уже в DOM —
-                  // иначе нечем измерить высоту для выбора направления flip'а.
                   visibility: pos ? 'visible' : 'hidden',
                 }}
                 role="dialog"

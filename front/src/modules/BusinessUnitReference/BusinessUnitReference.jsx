@@ -7,7 +7,7 @@ import {
   CreateUnit,
   GetUnitsOne,
   EditUnit,
-} from "../../API/API"; // Ensure CreateUnit is imported
+} from "../../API/API";
 import { tableUnitHeader } from "./DirectoryUnitData";
 import DataContext from "../../context";
 import UneversalDelete from "../../components/UneversalDelete/UneversalDelete";

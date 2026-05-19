@@ -3,8 +3,6 @@ import { useEffect, useRef, useState } from 'react';
 import { showToast } from '@/components/Lk/toastBus';
 import { MAX_UPLOAD_BYTES, formatBytesMB } from '@/utils/uploadLimits';
 
-// Зеркалит whitelist multer'а в `api/src/routes/lk.route.ts::imageOnlyFilter`.
-// Если backend начнёт принимать что-то ещё (webp/heic) — расширить здесь.
 const ALLOWED_MIMES = new Set(['image/jpeg', 'image/png']);
 
 type Props = {
@@ -27,7 +25,6 @@ const PhotoUploader = ({
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [previews, setPreviews] = useState<string[]>([]);
 
-  // Создаём object-URL'ы для превью; чистим при размонтировании / смене files
   useEffect(() => {
     const urls = files.map((f) => URL.createObjectURL(f));
     setPreviews(urls);
@@ -54,9 +51,6 @@ const PhotoUploader = ({
       }
       accepted.push(f);
     }
-    // accept-атрибут на input не гарантирует фильтр (через «Все файлы»
-    // и DnD пользователь может прислать webp/heic/avif), поэтому отбрасываем
-    // на JS — иначе backend вернёт 400, а юзер увидит generic-тост.
     if (rejectedFormat.length === 1) {
       showToast(
         'error',
@@ -68,8 +62,6 @@ const PhotoUploader = ({
         `Пропущено ${rejectedFormat.length} файлов с неподдерживаемым форматом. Используйте JPG/JPEG или PNG.`,
       );
     }
-    // Size-check ловим ДО отправки: иначе nginx тенанта вернёт 413, а multer —
-    // LIMIT_FILE_SIZE без понятного текста, и фронт покажет generic-ошибку.
     if (rejectedSize.length === 1) {
       showToast(
         'error',
@@ -84,7 +76,6 @@ const PhotoUploader = ({
     const merged = multiple ? [...files, ...accepted] : accepted;
     const limited = merged.slice(0, maxFiles);
     onChange(limited);
-    // Сброс input — иначе повторный выбор того же файла не вызовет change
     if (inputRef.current) inputRef.current.value = '';
   };
 

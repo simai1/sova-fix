@@ -46,9 +46,6 @@ def skip_kb() -> IKM:
 def rr_admin_kb(repair_request: dict) -> IKM:
     arr_kb = []
 
-    # Добавляем кнопку "Назначить исполнителя" только если
-    # 1. У заявки нет исполнителя (contractor is None)
-    # 2. У заявки нет назначенного менеджера-исполнителя (managerTgId is None)
     if repair_request['contractor'] is None and not repair_request.get('managerTgId'):
         logger.info(f"Добавляем кнопку 'Назначить исполнителя' для заявки {repair_request.get('id')}")
         row = [set_contractor_btn(repair_request)]
@@ -95,11 +92,11 @@ def rr_contractor_kb(repair_request: dict) -> IKM:
         status = repair_request.get('status')
         logger.info(f"Не удалось преобразовать статус {repair_request.get('status')} в int для contractor kb")
 
-    if status != 5: # Не "Выезд без выполнения"
+    if status != 5:
         row = [exit_not_done_btn(repair_request)]
         arr_kb.append(row)
 
-    if status != 3:  # Не "выполнена"
+    if status != 3:
         row = [done_btn(repair_request)]
         arr_kb.append(row)
 

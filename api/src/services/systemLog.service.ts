@@ -44,9 +44,6 @@ const list = async (params: ListParams) => {
     const createdAtClauses: any[] = [];
     if (from) createdAtClauses.push({ [Op.gte]: from });
     if (to) createdAtClauses.push({ [Op.lte]: to });
-    // Cursor — последний createdAt из предыдущей страницы; идём строго раньше,
-    // чтобы не задублировать запись на стыке страниц при равных таймстампах
-    // у пограничных строк (id-tiebreaker не используем — лишняя сложность).
     if (cursor) createdAtClauses.push({ [Op.lt]: cursor });
     if (createdAtClauses.length > 0) {
         (where as any).createdAt = createdAtClauses.length === 1 ? createdAtClauses[0] : { [Op.and]: createdAtClauses };
@@ -54,12 +51,9 @@ const list = async (params: ListParams) => {
 
     if (params.q && params.q.trim().length > 0) {
         const pattern = `%${escapeLike(params.q.trim())}%`;
-        // ILIKE — case-insensitive, доступен только в Postgres; проект целиком
-        // на Postgres, mysql-fallback не нужен.
         (where as any).message = { [Op.iLike]: pattern };
     }
 
-    // limit + 1, чтобы понять есть ли следующая страница без COUNT(*).
     const rows = await SystemLog.findAll({
         where,
         order: [['createdAt', 'DESC']],

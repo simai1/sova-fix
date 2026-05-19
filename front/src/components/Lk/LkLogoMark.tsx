@@ -1,5 +1,5 @@
 type Props = {
-  size?: number; // в rem; по умолчанию 1.5
+  size?: number;
   withWordmark?: boolean;
 };
 

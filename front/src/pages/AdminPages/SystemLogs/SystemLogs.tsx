@@ -10,29 +10,21 @@ import {
 
 type LevelOption = SystemLogLevel | 'all';
 
-// Преобразуем строку из <input type="date"> (YYYY-MM-DD) в ISO с границами дня
-// в МСК. Это админка — пользователь думает в локальной таймзоне, но БД хранит
-// UTC; чтобы фильтр «from=2026-05-08» включал записи с 00:00 МСК того же дня,
-// прибавляем смещение Europe/Moscow вручную (UTC+3, без переходов на летнее).
 const MOSCOW_OFFSET_HOURS = 3;
 
 const dayBoundaryToISO = (value: string, end: boolean): string | undefined => {
   if (!value) return undefined;
   const [y, m, d] = value.split('-').map(Number);
   if (!y || !m || !d) return undefined;
-  // 00:00 МСК (или 23:59:59.999 МСК) -> UTC = МСК - 3ч
   const hours = end ? 23 - MOSCOW_OFFSET_HOURS : 0 - MOSCOW_OFFSET_HOURS;
   const minutes = end ? 59 : 0;
   const seconds = end ? 59 : 0;
   const ms = end ? 999 : 0;
-  // Date.UTC с допустимыми отрицательными часами автоматически нормализуется
-  // (Date.UTC(2026, 4, 8, -3) = 2026-05-07T21:00:00Z).
   const ts = Date.UTC(y, m - 1, d, hours, minutes, seconds, ms);
   return new Date(ts).toISOString();
 };
 
 const formatMoscow = (iso: string) => {
-  // Europe/Moscow без переходов на летнее. Intl справится корректно.
   const d = new Date(iso);
   const date = d.toLocaleDateString('ru-RU', {
     timeZone: 'Europe/Moscow',
@@ -62,9 +54,6 @@ const levelLabel = (level: SystemLogLevel) => {
   return 'Инфо';
 };
 
-// Backend пишет в meta поля контекста запроса. Тип не строгий — admin.api.ts
-// объявил meta как Record<string, unknown> | null, чтобы не ломаться при
-// расширениях. Приводим только то, что используем в UI.
 type LogMeta = {
   userId?: string | null;
   login?: string | null;
@@ -75,8 +64,6 @@ type LogMeta = {
   friendly?: string | null;
 };
 
-// Соответствие числовых ролей строковым меткам — дублирует api/src/config/roles.ts.
-// Менеджеру так проще читать: «Менеджер» вместо «2».
 const roleLabels: Record<number, string> = {
   1: 'Пользователь',
   2: 'Менеджер',
@@ -111,7 +98,6 @@ function SystemLogs() {
 
   const [trigger, { isFetching, isError }] = useLazyGetSystemLogsQuery();
 
-  // Debounce для search-input — 300 мс, как в ТЗ.
   const searchTimer = useRef<number | null>(null);
   useEffect(() => {
     if (searchTimer.current) window.clearTimeout(searchTimer.current);
@@ -121,7 +107,6 @@ function SystemLogs() {
     };
   }, [search]);
 
-  // Загрузка первой страницы при изменении фильтров.
   useEffect(() => {
     if (role !== 'ADMIN') return;
     let cancelled = false;
@@ -258,9 +243,6 @@ function SystemLogs() {
           )}
           {items.map((it) => {
             const m = (it.meta || {}) as LogMeta;
-            // Friendly-объяснение приоритетнее «сырого» message — это и есть
-            // цель аннотаций (что значит ошибка для менеджера). Сырое
-            // message со стектрейсами и SQL'ом остаётся в детальной модалке.
             const headline = m.friendly || it.message;
             const userLabel = m.login || (m.userId ? m.userId.slice(0, 8) + '…' : '—');
             const requestLabel =

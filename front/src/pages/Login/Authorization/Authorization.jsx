@@ -5,8 +5,6 @@ import DataContext from "../../../context";
 import { tableHeadAppoint } from "../../../components/Table/Data";
 import { LoginFunc } from "../../../API/API";
 
-// Хоистим из handleLogin: регэксп без флага /g, пересоздавать его
-// на каждую попытку входа незачем.
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 function Authorization() {
@@ -24,9 +22,6 @@ function Authorization() {
     login: "",
     password: "",
   });
-  // rememberMe — UX-маркер «помнить выбор» восстанавливается из localStorage,
-  // чтобы при возврате на форму чекбокс был выставлен. Никаких токенов
-  // в localStorage не лежит — только этот булев флажок (см. API.js).
   const [rememberMe, setRememberMe] = useState(
     () => localStorage.getItem("rememberMe") === "true"
   );
@@ -75,7 +70,6 @@ function Authorization() {
         return;
       }
       context.setDataUsers(resp);
-      // userData пишется в sessionStorage внутри LoginFunc — здесь не дублируем.
       const role = resp?.data?.user?.role;
       context?.setDataTableHomePage([]);
       if (role === "CONTRACTOR") {
@@ -86,16 +80,9 @@ function Authorization() {
         navigate("/");
       }
     } catch (err) {
-      // F-H2: backend для login возвращает единый 401 «Неверный логин или пароль»
-      // даже для web-self-reg pending-юзера (!isActivated && pendingVerifyToken) —
-      // иначе разные статусы позволяют валидировать существование email.
-      // Pending-flow ведётся в отдельной странице после /auth/register-public
-      // (см. Pending.jsx), не через login-ошибку.
       const status = err?.response?.status ?? err?.status;
       const serverMessage = err?.response?.data?.message ?? err?.data?.message;
       if (!err?.response) {
-        // Запрос не дошёл до сервера (нет сети, CORS, сервер недоступен) —
-        // это не повод обвинять логин/пароль пользователя.
         setErrorAuth("Сервер недоступен. Проверьте подключение к интернету.");
       } else if (status === 429) {
         setErrorAuth(serverMessage || "Слишком много попыток. Попробуйте позже");
@@ -123,8 +110,6 @@ function Authorization() {
     }
   }, [location.state]);
 
-  // Считаем сообщение баннера один раз вместо четырёх Object.values(errors)
-  // в разметке ниже. Приоритет — ошибка входа, затем первая ошибка поля.
   const fieldError = Object.values(errors).find((error) => error);
   const bannerMessage = errorAuth || fieldError;
 

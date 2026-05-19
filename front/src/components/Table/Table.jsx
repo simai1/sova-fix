@@ -810,10 +810,6 @@ function Table() {
           '___'
         )
       case 'chat': {
-        // Кнопка-иконка открытия чата по заявке. Превью последнего сообщения
-        // не показываем — колонка узкая, текст всё равно режется до 1–2 букв.
-        // Жёлтая подложка `--has-msg` сигнализирует, что в заявке уже идёт диалог
-        // (определяется по row.comment — legacy-поле с последним message.text).
         const rawComment = typeof row.comment === 'string' ? row.comment.trim() : ''
         const hasMessage = !!(rawComment && rawComment !== '___')
         return (

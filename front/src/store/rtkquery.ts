@@ -42,9 +42,6 @@ const fetchMainBaseQuery =
     let result = await baseQuery(updatedArgs, api, extraOptions);
 
     if (result.error && result.error.status === 401) {
-      // Делим один и тот же refresh-promise с axios-интерсептором, чтобы
-      // одновременные 401 не делали два параллельных /auth/refresh (второй
-      // получит «not found token» — saveToken переписывает запись по userId).
       const newToken = await getRefreshPromise();
       if (newToken) {
         result = await baseQuery(updatedArgs, api, extraOptions);

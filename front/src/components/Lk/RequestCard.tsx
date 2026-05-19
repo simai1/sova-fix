@@ -35,7 +35,6 @@ const STATUS_DONE = 3;
 
 const buildFileUrl = (fileName: string | null | undefined): string | null => {
   if (!fileName) return null;
-  // Бэкенд отдаёт статикой /uploads/<fileName>; имена приходят либо «как есть», либо с префиксом
   if (fileName.startsWith('http://') || fileName.startsWith('https://')) return fileName;
   if (fileName.startsWith('/uploads/')) return `${API_URL}${fileName}`;
   return `${API_URL}/uploads/${fileName}`;
@@ -44,7 +43,6 @@ const buildFileUrl = (fileName: string | null | undefined): string | null => {
 const splitFileNames = (req: RequestDto): string[] => {
   if (Array.isArray(req.fileNames) && req.fileNames.length > 0) return req.fileNames;
   if (!req.fileName) return [];
-  // Бэк хранит либо одну строку, либо JSON.stringify(array). Симметрично api/src/utils/normalizeData.ts.
   const raw = req.fileName.trim();
   if (raw.startsWith('[')) {
     try {
@@ -52,9 +50,7 @@ const splitFileNames = (req: RequestDto): string[] => {
       if (Array.isArray(parsed)) {
         return parsed.map((s: unknown) => String(s).trim()).filter(Boolean);
       }
-    } catch {
-      // fallthrough — отдадим как одиночное имя
-    }
+    } catch {}
   }
   return [raw];
 };
@@ -76,9 +72,6 @@ const formatDate = (iso: string | null): string => {
   }
 };
 
-// Только дата без времени — для planCompleteDate/exitDate/completeDate.
-// Время в этих полях обычно либо 00:00 (в админке выставляют дату), либо точное —
-// но в карточке исполнителя время не показываем для краткости.
 const formatDateOnly = (iso: string | null | undefined): string => {
   if (!iso) return '—';
   try {
@@ -93,9 +86,6 @@ const formatDateOnly = (iso: string | null | undefined): string => {
   }
 };
 
-// ISO → Date для LkSingleDatePicker (rdp хранит выбранный день как Date в
-// локальной TZ браузера). Берём момент 00:00 в МСК — иначе исполнитель в МСК,
-// у которого `exitDate` ровно «10.05», в UTC мог бы попасть в 09.05.
 const toDateValue = (iso: string | null | undefined): Date | null => {
   if (!iso) return null;
   try {
@@ -113,7 +103,6 @@ const toDateValue = (iso: string | null | undefined): Date | null => {
   }
 };
 
-// Date (00:00 локального дня) → 'YYYY-MM-DD' для последующей сборки ISO в МСК.
 const toYmd = (d: Date): string => {
   const yyyy = d.getFullYear();
   const mm = String(d.getMonth() + 1).padStart(2, '0');
@@ -148,19 +137,11 @@ const RequestCard = ({ request, mode, me }: Props): JSX.Element => {
   const [uploadCheckPhoto, uploadCheckPhotoState] = useUploadCheckPhotoMutation();
   const [updateExitDate, updateExitDateState] = useUpdateExitDateMutation();
 
-  // Индекс фото в lightbox: null = закрыт, число = открыт на этом фото в общем массиве [...photos, checkPhoto].
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
-  // Inline-редактирование даты выезда. Открыто — показываем календарь LK +
-  // Сохранить/Отмена. Черновик хранит Date (00:00 локального дня) либо null —
-  // null = «сбросить exitDate» (бэкенд принимает явный null).
   const [exitDateEditing, setExitDateEditing] = useState(false);
   const [exitDateDraft, setExitDateDraft] = useState<Date | null>(null);
 
-  // Тянем последнюю страницу комментариев для preview. limit=1 + cursor=null
-  // → бэкенд возвращает hasMore + total в смежных полях; нам достаточно
-  // первого элемента и nextCursor для счётчика. Если бэкенд ещё не отдаёт
-  // /comments — fallback на legacy request.comment ниже.
   const { data: commentsData } = useGetRequestCommentsQuery(
     { requestId: request.id, limit: 1 },
     { skip: !request.id },
@@ -170,12 +151,9 @@ const RequestCard = ({ request, mode, me }: Props): JSX.Element => {
   const photos = splitFileNames(request);
   const photoUrls = photos.map(buildFileUrl).filter((u): u is string => Boolean(u));
   const checkPhotoUrl = buildFileUrl(request.checkPhoto);
-  // Объединённый массив для lightbox: поломка → подтверждение. Один источник навигации ←/→.
   const lightboxPhotos = checkPhotoUrl ? [...photoUrls, checkPhotoUrl] : photoUrls;
 
   const isMyAssignedContractor = !!me?.contractor?.id && request.contractorId === me.contractor.id;
-  // Customer-режим: показываем доп. фото только автору заявки. Это исключает
-  // возможность для customer'а с доступом к объекту дозагружать чужие фото к чужой заявке.
   const isMyCustomerRequest =
     mode === 'customer' && !!me?.user?.id && request.createdByUserId === me.user.id;
   const canAddPhotos = (mode === 'contractor' && isMyAssignedContractor) || isMyCustomerRequest;
@@ -192,8 +170,6 @@ const RequestCard = ({ request, mode, me }: Props): JSX.Element => {
     if (!list || list.length === 0) return;
     const files = Array.from(list);
     e.target.value = '';
-    // Size-check ловим ДО отправки: иначе nginx тенанта вернёт 413, multer —
-    // LIMIT_FILE_SIZE без понятного текста, а юзер увидит generic-ошибку.
     const oversized = files.filter((f) => f.size > MAX_UPLOAD_BYTES);
     const [firstOversized] = oversized;
     if (firstOversized) {
@@ -255,13 +231,7 @@ const RequestCard = ({ request, mode, me }: Props): JSX.Element => {
 
   const closeDisabled = !checkPhotoUrl || statusNumber === STATUS_DONE;
 
-  // «Закреплена за мной» — для контрактора используем server-side флаг
-  // isAssigned (он точнее, чем сравнение contractorId === me.contractor.id,
-  // на случай нескольких UserObject и т.п.). Customer-режим этого чипа не
-  // показывает — для заказчика не имеет смысла «моя закреплённая заявка».
   const showAssignedChip = mode === 'contractor' && request.isAssigned === true;
-  // Редактирование exitDate — только assigned-исполнитель и не-DONE заявки.
-  // На DONE/IRRELEVANT/FALSE менять дату выезда задним числом не нужно.
   const canEditExitDate =
     mode === 'contractor' && isMyAssignedContractor && statusNumber !== STATUS_DONE;
 
@@ -276,8 +246,6 @@ const RequestCard = ({ request, mode, me }: Props): JSX.Element => {
   };
 
   const handleExitDateSave = async (): Promise<void> => {
-    // null → сброс exitDate; Date → ISO с 00:00 МСК (совпадёт с тем, что
-    // увидит админ в своей TZ-нейтральной таблице — все exitDate привязаны к МСК).
     let iso: string | null = null;
     if (exitDateDraft) {
       const local = new Date(`${toYmd(exitDateDraft)}T00:00:00+03:00`);
@@ -331,10 +299,6 @@ const RequestCard = ({ request, mode, me }: Props): JSX.Element => {
         </div>
       ) : null}
 
-      {/* Блок «Параметры» — показываем поля, которые ранее были только в админ-таблице:
-          Категория, Плановая дата, Дата выезда (редактируемая для assigned), Дней в работе,
-          Дата выполнения (для DONE). Скрываем целиком, если все поля пустые — лишний
-          заголовок без данных шумит. */}
       {request.Category?.name ||
       request.planCompleteDate ||
       request.exitDate ||

@@ -19,13 +19,9 @@ type Props = {
 };
 
 const LkLayout = ({ role }: Props): JSX.Element => {
-  // Первичная проверка по sessionStorage — мгновенный редирект без сетевого запроса,
-  // если в sessionStorage вообще нет userData или роль явно чужая.
   const sessionRole = getUserRole();
   const sessionRoleMismatch = sessionRole !== null && sessionRole !== role;
 
-  // Авторитативная проверка: роль из /lk/me. Не доверяем sessionStorage,
-  // потому что пользователь может подменить его в DevTools.
   const {
     data: me,
     isLoading,
@@ -44,7 +40,6 @@ const LkLayout = ({ role }: Props): JSX.Element => {
     return <LkSpinner />;
   }
 
-  // 401/403 от /lk/me — токен невалиден или роль не подходит, выкидываем на логин.
   if (isError) {
     const status =
       error && typeof error === 'object' && 'status' in error
@@ -53,7 +48,6 @@ const LkLayout = ({ role }: Props): JSX.Element => {
     if (status === 401 || status === 403) {
       return <Navigate to="/Authorization" replace />;
     }
-    // Прочие ошибки (сеть/5xx) — тоже редиректим, чтобы не показывать LK не той роли.
     return <Navigate to="/Authorization" replace />;
   }
 

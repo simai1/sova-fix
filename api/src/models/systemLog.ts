@@ -1,15 +1,5 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
 
-// Таблица системных логов для админского UI (см. ТЗ §6.2 — фильтрация по
-// уровню/дате). Логи immutable: timestamps=false + только createdAt
-// через defaultValue=NOW. updatedAt не нужен — запись не редактируется,
-// rollback не предусмотрен.
-//
-// Индексы:
-//   created_at_idx — основной фильтр по дате (cursor-paging desc).
-//   level_created_at_idx — частая комбинация «error за неделю».
-// Размер таблицы — открытый вопрос: TTL/cleanup делаем отдельной задачей
-// (см. backlog), здесь только сама запись.
 export type SystemLogLevel = 'info' | 'warn' | 'error';
 
 export default class SystemLog extends Model {
@@ -61,10 +51,6 @@ export default class SystemLog extends Model {
                 schema: 'public',
                 modelName: 'SystemLog',
                 tableName: 'system_logs',
-                // updatedAt не нужен (логи immutable), createdAt назначаем
-                // вручную через defaultValue, а не через Sequelize-timestamps —
-                // иначе sync создаст пару (createdAt, updatedAt) и придётся
-                // тащить хвост.
                 timestamps: false,
                 indexes: [
                     {

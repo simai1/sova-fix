@@ -85,7 +85,6 @@ export function normalizeFileNames(input) {
       const parsed = JSON.parse(input);
       if (Array.isArray(parsed)) return parsed;
   } catch {
-      // если это не JSON — значит просто строка
   }
 
   return [input];

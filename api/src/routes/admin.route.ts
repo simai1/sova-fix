@@ -8,8 +8,6 @@ import adminController from '../controllers/admin.controller';
 
 const router = Router();
 
-// Все админ-роуты дополнительно крыты verifyRole(ADMIN) — auth по access-токену
-// + role-чек по refresh-cookie. Тот же паттерн, что у /users/pending-registrations.
 router
     .route('/logs')
     .get(verifyToken.auth, verifyRole(roles.ADMIN), validator(listLogsQuerySchema), adminController.getSystemLogs);

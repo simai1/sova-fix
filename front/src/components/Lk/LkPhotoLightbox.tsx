@@ -22,7 +22,6 @@ const LkPhotoLightbox = ({ photos, index, onClose, onNavigate }: Props): JSX.Ele
     onNavigate((safeIndex + 1) % total);
   }, [onNavigate, safeIndex, total]);
 
-  // Esc/←/→ — глобальные клавиши, пока модалка открыта.
   useEffect(() => {
     const onKey = (e: KeyboardEvent): void => {
       if (e.key === 'Escape') onClose();
@@ -33,7 +32,6 @@ const LkPhotoLightbox = ({ photos, index, onClose, onNavigate }: Props): JSX.Ele
     return () => document.removeEventListener('keydown', onKey);
   }, [onClose, goPrev, goNext]);
 
-  // Блокируем скролл фона на время предпросмотра.
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';

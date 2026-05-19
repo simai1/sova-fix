@@ -52,7 +52,7 @@ function ReferenceObjects() {
 
   function formatData(data) {
     return data?.map((item) => ({
-      id: item?.id, // Include the id if needed for further operations
+      id: item?.id,
       number: item?.number,
       name: item?.name,
       legalForm: `${item?.legalEntity?.legalForm} ${item?.legalEntity?.name}`,

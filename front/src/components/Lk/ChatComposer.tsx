@@ -7,23 +7,17 @@ import { MAX_UPLOAD_BYTES, formatBytesMB } from '@/utils/uploadLimits';
 type Props = {
   onSubmit: (payload: { text: string; file?: File }) => Promise<void>;
   isSending: boolean;
-  // По умолчанию textarea растёт вверх под длинный текст (контрактор/заказчик).
-  // В админ-модалке высоту фиксируем размером кнопок — auto-grow не нужен.
   autoGrow?: boolean;
 };
 
 const MAX_ROWS = 4;
 const LINE_HEIGHT_REM = 1.4;
 
-// Размер вложения «по-человечески»: КБ для файлов меньше мегабайта, иначе МБ —
-// так же, как размер показывается в самом сообщении чата.
 const formatFileSize = (bytes: number): string => {
   if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} КБ`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} МБ`;
 };
 
-// Статичные SVG-иконки вынесены из рендера: эти узлы не зависят от пропсов/стейта,
-// держим один инстанс на модуль, чтобы React не пересоздавал их на каждый ре-рендер.
 const attachIcon = (
   <svg
     width="20"
@@ -40,7 +34,6 @@ const attachIcon = (
   </svg>
 );
 
-// Заглушка-превью для видео (mp4 не даёт картинку).
 const videoThumbIcon = (
   <svg
     width="20"
@@ -78,15 +71,13 @@ const ChatComposer = ({ onSubmit, isSending, autoGrow = true }: Props): JSX.Elem
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Auto-grow textarea — высота = scrollHeight, но не больше MAX_ROWS строк.
-  // Расчёт по line-height в rem гарантирует масштабирование вместе с шрифтом.
   useEffect(() => {
     if (!autoGrow) return;
     const el = textareaRef.current;
     if (!el) return;
     el.style.height = 'auto';
     const rootFs = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
-    const maxHeightPx = LINE_HEIGHT_REM * MAX_ROWS * rootFs + 24; /* + paddings */
+    const maxHeightPx = LINE_HEIGHT_REM * MAX_ROWS * rootFs + 24;
     el.style.height = `${Math.min(el.scrollHeight, maxHeightPx)}px`;
   }, [text, autoGrow]);
 
@@ -104,8 +95,6 @@ const ChatComposer = ({ onSubmit, isSending, autoGrow = true }: Props): JSX.Elem
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const f = e.target.files?.[0] ?? null;
-    // Size-check ДО отправки: иначе nginx тенанта вернёт 413, multer —
-    // LIMIT_FILE_SIZE без понятного текста, а юзер увидит generic-ошибку.
     if (f && f.size > MAX_UPLOAD_BYTES) {
       showToast(
         'error',
@@ -122,8 +111,6 @@ const ChatComposer = ({ onSubmit, isSending, autoGrow = true }: Props): JSX.Elem
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  // ObjectURL для миниатюры выбранной картинки. Освобождаем при смене файла,
-  // чтобы не утечка blob: ссылок при многократной отправке.
   const previewUrl = useMemo<string | null>(() => {
     if (!file || !file.type.startsWith('image/')) return null;
     return URL.createObjectURL(file);

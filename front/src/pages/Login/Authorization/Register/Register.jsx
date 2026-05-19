@@ -57,12 +57,6 @@ function Register() {
           role: resp.role,
         }),
       )
-      // pendingVerifyToken — одноразовый токен для ws-handshake pending.<token>.
-      // Кладём в sessionStorage (вкладка-scoped: при закрытии вкладки токен
-      // теряется, юзер вернётся через bookmark и будет ждать manual refresh —
-      // это OK, токен не secret-уровня и через 24h всё равно протухнет).
-      // Старые backend'ы pendingVerifyToken не возвращают — флоу деградирует
-      // до текущего поведения (manual refresh).
       if (resp.pendingVerifyToken) {
         sessionStorage.setItem('pendingVerifyToken', resp.pendingVerifyToken)
       } else {

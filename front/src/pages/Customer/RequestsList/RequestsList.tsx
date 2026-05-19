@@ -23,8 +23,6 @@ import { deriveUnitsFromObjects } from '@/utils/lkUnits';
 
 const PAGE_LIMIT = 20;
 
-// См. ContractorRequestsList — поведение симметричное, дублируем по месту,
-// чтобы не плодить ad-hoc контейнер на двух потребителей.
 const findSortIdx = (sort: string, order: 'asc' | 'desc'): number => {
   const idx = SORT_OPTIONS.findIndex((o) => o.sort === sort && o.order === order);
   return idx >= 0 ? idx : 0;

@@ -122,7 +122,7 @@ function Contextmenu(props) {
       
       const setUrgensy = (value) => {
         const data = {
-          ids: [...context.moreSelect], // Передаём массив ID
+          ids: [...context.moreSelect],
           urgency: value.name,
         };
       

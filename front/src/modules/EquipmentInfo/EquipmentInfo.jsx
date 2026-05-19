@@ -103,7 +103,7 @@ function EquipmentInfo() {
     }
 
     function getDayWord(number) {
-        const absNumber = Math.abs(number) % 100; // Берем абсолютное значение и обрезаем до 100
+        const absNumber = Math.abs(number) % 100;
         const lastTwoDigits = absNumber % 10;
       
         if (absNumber > 10 && absNumber < 20) {
@@ -142,7 +142,6 @@ function EquipmentInfo() {
                             </div>
                             {popUpPhoto &&
                                 <div className={styles.pupUpFirstContainerInfo}>
-                                 {/* Загрузка файла */}
                                 <div className={styles.pupUpFirstContainerInfoFile}>
                                         <div className={styles.pupContainerInfoTitleFile}>
                                         <p>Загрузить фото: {selectedFile?.name  || "Файл не выбран" }</p>
@@ -225,25 +224,7 @@ function EquipmentInfo() {
                                     tableBody={context?.dataEquipment?.history}
                                 />
                             </div>
-                            {/* <div>
-                                <UniversalTable  
-                                    tableName="table10"
-                                    tableHeader={tableHeaderEquipmentInfo}
-                                    tableBody={context?.dataEquipment?.history}
-                                    selectFlag={false}
-                                    FilterFlag={false}
-                                    heightTable={365}
-                                />
-                            </div> */}
                     </div>
-                    {/* <div className={styles.CommentTo}>
-                        <div className={styles.TitleSecondBlock}>
-                            <p>Комментарии</p>
-                        </div>
-                        <div className={styles.CommentToBlock}>
-
-                        </div>
-                    </div> */}
                 </section>
             </div> 
         </main>  

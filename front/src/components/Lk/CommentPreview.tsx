@@ -2,8 +2,6 @@ import { ChatMessage } from '@/API/rtkQuery/lk.api';
 
 type Props = {
   messages: ChatMessage[];
-  // Legacy single-comment поле RepairRequest.comment до миграции бэка на comments[].
-  // Если массив пуст, но строка есть — рендерим как «Сообщение администратора».
   legacyComment?: string | null;
   onOpenChat: () => void;
 };
@@ -39,15 +37,10 @@ const roleLabel = (role: ChatMessage['author']['roleName']): string => {
 };
 
 const CommentPreview = ({ messages, legacyComment, onOpenChat }: Props): JSX.Element => {
-  // Бэкенд GET /lk/requests/:id/comments отдаёт ASC-страницы. limit=1 без cursor
-  // даёт первый элемент истории (старейший). Для preview нам нужен ПОСЛЕДНИЙ —
-  // но мы здесь просто отдаём то, что пришло, чтобы не дублировать вызовы.
-  // На практике первая страница уже укажет hasMore — счётчик собираем ниже.
   const last = messages.length > 0 ? messages[messages.length - 1] : null;
   const totalShown = messages.length;
 
   if (!last && legacyComment) {
-    // Fallback на legacy одиночное поле — без автора/времени.
     return (
       <div className="lk-comment-preview">
         <div className="lk-comment-preview__head">

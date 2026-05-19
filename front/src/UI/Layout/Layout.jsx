@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import styles from './Layout.module.scss'; // Импортируем стили
+import styles from './Layout.module.scss';
 import { useLocation } from 'react-router-dom';
 
 const Layout = ({ children }) => {

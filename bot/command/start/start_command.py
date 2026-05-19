@@ -13,9 +13,6 @@ from command.admin.admin_menu import send_admin_menu
 
 router = Router(name=__name__)
 
-# Префикс payload-а deep-link для привязки TG → web-User.
-# Сервер генерирует ссылку вида `t.me/<bot>?start=link_<token>` в
-# api/src/services/userTgBinding.service.ts:57. Токен — 32-символьный hex.
 TG_BIND_PAYLOAD_PREFIX = 'link_'
 
 
@@ -41,8 +38,6 @@ async def start_deep_link_handler(message: Message, command: CommandObject, stat
         await handle_tg_bind(message, state, token)
         return
 
-    # Незнакомый payload — фолбэк к обычному /start, чтобы не ломать UX,
-    # если в будущем заведутся другие deep-link-флоу.
     logger.warn(f'unknown /start payload: {payload!r} from tg_id={message.from_user.id}')
     await start_handler(message.from_user.id, message, state)
 
@@ -78,8 +73,6 @@ async def handle_tg_bind(message: Message, state: FSMContext, token: str) -> Non
             '✅ Telegram успешно привязан к вашему аккаунту в веб-ЛК.\n'
             'Теперь уведомления по заявкам будут приходить сюда.'
         )
-        # После привязки серверная сторона сделала TgUser.isConfirmed=true,
-        # `get_user(tg_id)` его найдёт и start_handler покажет роль-меню.
         await start_handler(message.from_user.id, message, state)
         return
 

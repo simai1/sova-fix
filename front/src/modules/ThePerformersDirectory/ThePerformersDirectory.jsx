@@ -10,7 +10,7 @@ import {
   DeleteextContractors,
   GetextContractorsOne,
   EditExitContractors,
-} from "../../API/API"; // Ensure CreateUnit is imported
+} from "../../API/API";
 import DataContext from "../../context";
 import UneversalDelete from "../../components/UneversalDelete/UneversalDelete";
 import { PopUpError } from "../../UI/PopUpError/PopUpError";
@@ -225,11 +225,6 @@ function ThePerformersDirectory() {
                     value={performedspec}
                     onChange={(e) => setPerformedspec(e.target.value)}
                   />
-                  {/* <input 
-                                        placeholder="Правовая форма..." 
-                                        value={performedLegalForm} 
-                                        onChange={(e) => setPerformedLegalForm(e.target.value)} 
-                                    /> */}
                   <div className={styles.ListCreateDataCont} ref={containerRef}>
                     <input
                       placeholder="Подразделение"

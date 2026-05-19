@@ -22,10 +22,6 @@ import { deriveUnitsFromObjects } from '@/utils/lkUnits';
 
 const PAGE_LIMIT = 20;
 
-// Восстанавливаем индекс сортировки по совпадению (sort,order). Если
-// в сохранёнке оказалась пара, которой больше нет в SORT_OPTIONS (например,
-// после правки списка) — возвращаем 0 («Сначала новые»), чтобы не сломать
-// индекс-доступ.
 const findSortIdx = (sort: string, order: 'asc' | 'desc'): number => {
   const idx = SORT_OPTIONS.findIndex((o) => o.sort === sort && o.order === order);
   return idx >= 0 ? idx : 0;
@@ -41,7 +37,6 @@ const ContractorRequestsList = (): JSX.Element => {
     stored ? findSortIdx(stored.sort.sort, stored.sort.order) : 0,
   );
   const [filterOpen, setFilterOpen] = useState(false);
-  // Не сохраняем в useSavedFilters: это контекстный режим, не «настройка».
   const [mineOnly, setMineOnly] = useState<boolean>(false);
   const [items, setItems] = useState<RequestDto[]>([]);
 
@@ -69,7 +64,6 @@ const ContractorRequestsList = (): JSX.Element => {
 
   const units = useMemo(() => deriveUnitsFromObjects(objects), [objects]);
 
-  // Аккумулируем страницы; при смене search/filters/sort — сброс
   useEffect(() => {
     setPage(1);
     setItems([]);
@@ -79,7 +73,6 @@ const ContractorRequestsList = (): JSX.Element => {
     if (!data) return;
     setItems((prev) => {
       if (data.page === 1) return data.items;
-      // Дедуп по id — на случай гонок инвалидации/реконнекта WS
       const map = new Map<string, RequestDto>();
       [...prev, ...data.items].forEach((r) => map.set(r.id, r));
       return Array.from(map.values());
@@ -104,14 +97,9 @@ const ContractorRequestsList = (): JSX.Element => {
   const activeCount = countActiveFilters(filters);
   const noResults = !isFetching && items.length === 0;
 
-  // Пишем в localStorage только из user-events (apply/reset/смена сортировки),
-  // не из useEffect на каждом render'е. Иначе initial-восстановленный state
-  // тут же пересохраняется и savedAt дрейфует на каждый mount без действий
-  // юзера — лишний шум в storage и непрозрачное поведение.
   const handleApplyFilters = (next: LkFilterValue): void => {
     setFilters(next);
     if (countActiveFilters(next) === 0) {
-      // Полный сброс — снимаем всё. sort возвращаем к дефолту.
       setSortIdx(0);
       clear();
     } else {
@@ -124,9 +112,6 @@ const ContractorRequestsList = (): JSX.Element => {
     setSortIdx(idx);
     const nextSort = SORT_OPTIONS[idx];
     if (!nextSort) return;
-    // Сохраняем сортировку, только если есть активные фильтры или сортировка
-    // отличается от дефолтной — иначе сохранять нечего, мусорить storage не
-    // нужно.
     if (countActiveFilters(filters) > 0 || idx !== 0) {
       save({ filters, sort: { sort: nextSort.sort, order: nextSort.order } });
     } else {

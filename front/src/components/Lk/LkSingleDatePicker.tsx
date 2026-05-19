@@ -1,8 +1,6 @@
 import { format } from 'date-fns';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { DayPicker } from 'react-day-picker';
-// rdp@10 реэкспортирует локали из date-fns/locale через свой подпуть,
-// поэтому импортируем именно отсюда — единый источник для типов и данных.
 import { ru } from 'react-day-picker/locale';
 import { createPortal } from 'react-dom';
 
@@ -19,16 +17,10 @@ type Position = {
   width: number;
 };
 
-// Визуальный gap между триггером и popover'ом — иначе край календаря «прилипает»
-// к нижней границе input'а и focus-ring триггера сливается с border'ом popover'а.
 const POPOVER_GAP_PX = 4;
 
-// Минимальный отступ popover'а от кромки viewport'а, когда он открывается вверх
-// и даже там не помещается целиком — упирается в этот отступ, а не в край.
 const VIEWPORT_MARGIN_PX = 8;
 
-// См. LkDatePicker.tsx — на мобильной портретной (≤ 767px) переключаемся на
-// bottom-sheet, чтобы календарь не уходил за нижний край viewport'а.
 const MOBILE_SHEET_MQ = '(max-width: 767px)';
 
 const getMatchesMobile = (): boolean =>
@@ -39,12 +31,6 @@ const formatDate = (date: Date | null): string => {
   return format(date, 'dd.MM.yyyy');
 };
 
-// Single-date вариант LkDatePicker. Делим стили (`.lk-datepicker*`,
-// rdp-overrides из _datepicker.scss) с range-пикером — там
-// `.rdp-selected:not(.rdp-range_*)` уже корректно рисует «жёлтый круг» для
-// одиночного выбора. Логика обёртки совпадает (портал, position:fixed,
-// click-outside, Esc), отличается только тип value/draft и набор кнопок
-// футера (без «Применить» — single-mode коммитим сразу при выборе дня).
 const LkSingleDatePicker = ({
   value,
   onChange,
@@ -65,11 +51,6 @@ const LkSingleDatePicker = ({
     return () => mq.removeEventListener('change', handler);
   }, []);
 
-  // Позиционирование popover относительно триггера — только в desktop-режиме.
-  // На мобильной bottom-sheet прибит ко дну экрана, координаты не нужны.
-  // См. комментарии в LkDatePicker.tsx: capture-listener на scroll нужен для
-  // scrollable-родителей; popover до расчёта позиции скрыт (visibility:hidden),
-  // чтобы измерить высоту и решить, открывать вниз или вверх.
   useLayoutEffect(() => {
     if (!open || isMobile || !triggerRef.current) return;
     const recompute = (): void => {
@@ -78,15 +59,9 @@ const LkSingleDatePicker = ({
       const popoverH = popoverRef.current?.offsetHeight ?? 0;
       const spaceBelow = window.innerHeight - rect.bottom - POPOVER_GAP_PX;
       let top = rect.bottom + POPOVER_GAP_PX;
-      // Если под триггером календарь целиком не помещается — открываем вверх,
-      // прижимая к верхней кромке viewport'а, чтобы он был виден полностью
-      // при любом масштабе страницы.
       if (popoverH > 0 && popoverH > spaceBelow) {
         top = Math.max(VIEWPORT_MARGIN_PX, rect.top - POPOVER_GAP_PX - popoverH);
       }
-      // scroll-capture/resize/ResizeObserver зовут recompute часто и обычно с
-      // теми же координатами — возвращаем прежний объект, чтобы React пропустил
-      // лишний re-render всего календаря.
       setPos((prev) =>
         prev && prev.top === top && prev.left === rect.left && prev.width === rect.width
           ? prev
@@ -94,8 +69,6 @@ const LkSingleDatePicker = ({
       );
     };
     recompute();
-    // Высота rdp-сетки зависит от числа недель в месяце (4–6 строк) — следим
-    // за ресайзом popover'а, чтобы пересчитать flip при навигации по месяцам.
     const ro = new ResizeObserver(recompute);
     if (popoverRef.current) ro.observe(popoverRef.current);
     window.addEventListener('scroll', recompute, true);
@@ -155,9 +128,6 @@ const LkSingleDatePicker = ({
     setOpen(false);
   };
 
-  // rdp@10: OnSelectHandler<Date | undefined> в single-mode даёт сам выбранный
-  // день. Сразу коммитим в onChange и закрываем popover — без отдельной
-  // кнопки «Применить», как в Notion/Linear single-date пикерах.
   const handleSelect = (date: Date | undefined): void => {
     onChange(date ?? null);
     setOpen(false);
@@ -233,8 +203,6 @@ const LkSingleDatePicker = ({
                   position: 'fixed',
                   top: pos ? pos.top : 0,
                   left: pos ? pos.left : 0,
-                  // До первого расчёта позиции popover скрыт, но уже в DOM —
-                  // иначе нечем измерить высоту для выбора направления flip'а.
                   visibility: pos ? 'visible' : 'hidden',
                 }}
                 role="dialog"

@@ -30,17 +30,12 @@ import {
 
 const router = Router();
 
-// Расширения и MIME-типы держим синхронно: и то и другое проверяем в fileFilter,
-// но имя файла строим из MIME (не доверяем расширению из originalname — клиент
-// может прислать .jpg с реальным контентом video/mp4).
 const ALLOWED_IMAGE_EXTS = new Set(['.jpg', '.jpeg', '.png']);
 const ALLOWED_VIDEO_EXTS = new Set(['.mp4']);
 const ALLOWED_IMAGE_MIMES = new Set(['image/jpeg', 'image/png']);
 const ALLOWED_VIDEO_MIMES = new Set(['video/mp4']);
 
 const safeFilename = (file: Express.Multer.File): string => {
-    // Берём расширение из MIME, не из originalname — иначе .jpg-обёртка может
-    // обмануть последующие потребители (например, image-обработчики).
     const ext = mimeTypes.extension(file.mimetype) || 'bin';
     return `${v4()}.${ext}`;
 };
@@ -54,7 +49,6 @@ const fileSize = 10 * 1024 * 1024;
 const fieldSize = 64 * 1024;
 const limits = { fileSize, fieldSize };
 
-// Multer fileFilter с русскоязычными сообщениями.
 const imageOrVideoFilter: multer.Options['fileFilter'] = (_req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
     const okExt = ALLOWED_IMAGE_EXTS.has(ext) || ALLOWED_VIDEO_EXTS.has(ext);
@@ -78,9 +72,6 @@ const imageOnlyFilter: multer.Options['fileFilter'] = (_req, file, cb) => {
 const imageOrVideo = multer({ storage, limits, fileFilter: imageOrVideoFilter });
 const imageOnly = multer({ storage, limits, fileFilter: imageOnlyFilter });
 
-// OBSERVER добавлен в общий guard ради push-эндпоинтов /me/push/* (см. §3 web-push-design),
-// которые доступны всем ролям ЛК. Эндпоинты, которые остались CONTRACTOR-only (tg-binding),
-// явно ставят свой verifyAnyRole(['CONTRACTOR']) ниже и фильтруют OBSERVER на уровне роута.
 router.use(verifyToken.auth, verifyAnyRole(['CONTRACTOR', 'CUSTOMER', 'ADMIN', 'OBSERVER']));
 
 router.get('/me', lkController.getMe);
@@ -100,7 +91,6 @@ router.post(
     lkController.create
 );
 
-// GET чата заявки. read-доступ — тот же, что для GET /lk/requests/:id.
 router.get(
     '/requests/:id/comments',
     validateUuidParam('id'),
@@ -109,9 +99,6 @@ router.get(
     lkController.listComments
 );
 
-// POST нового сообщения в чат. Семантика — append (а не overwrite legacy-поля).
-// Гард прав ставим ДО multer, иначе multer/Joi ловят 400 «нет файла»
-// раньше, чем доходит до сервисной проверки доступа, и тест получает 400 вместо 403.
 router.post(
     '/requests/:id/comments',
     validateUuidParam('id'),
@@ -159,21 +146,12 @@ router.patch(
     lkController.updateExitDate
 );
 
-// TG-binding предусмотрен только для CONTRACTOR (correctness-audit H5):
-// бот шлёт уведомления только контракторам через Contractor.tgUserId, у CUSTOMER
-// связи на уровне User-модели нет, и status() для CUSTOMER всегда вернул бы
-// linked:false — UX «привязал, но ничего не изменилось». Закрываем endpoints
-// CUSTOMER явным 403; если потребуется TG-привязка для CUSTOMER, вводим
-// отдельную таблицу UserTgLink — отдельный feature-PR.
 router.post('/me/tg-binding/init', verifyAnyRole(['CONTRACTOR']), lkTgBindingRateLimiter, lkController.tgBindingInit);
 
 router.get('/me/tg-binding/status', verifyAnyRole(['CONTRACTOR']), lkController.tgBindingStatus);
 
 router.delete('/me/tg-binding', verifyAnyRole(['CONTRACTOR']), lkController.tgBindingUnbind);
 
-// Push-эндпоинты доступны всем ролям ЛК (CONTRACTOR/CUSTOMER/ADMIN/OBSERVER) —
-// верхний router.use(...) уже пропускает все четыре. Дополнительный verifyAnyRole
-// здесь не нужен; rate-limit и Joi-валидатор стоят там, где это критично.
 router.get('/me/push/vapid-public-key', lkController.pushVapidKey);
 
 router.post(

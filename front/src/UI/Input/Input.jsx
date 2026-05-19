@@ -15,7 +15,7 @@ function Input({
   const [textInput, settextInput] = useState("");
   const [errors, setErrors] = useState({});
   const [isValid, setIsValid] = useState(true);
-  const [isFirstRender, setIsFirstRender] = useState(true); // new state variable to track first render
+  const [isFirstRender, setIsFirstRender] = useState(true);
   const context = React.useContext(DataContext);
   const InputText = (e) => {
     settextInput(e.target.value);
@@ -24,10 +24,10 @@ function Input({
   };
 
   useEffect(() => {
-    if (!isFirstRender) { // skip validation on first render
+    if (!isFirstRender) {
       validateField();
     } else {
-      setIsFirstRender(false); // set isFirstRender to false after first render
+      setIsFirstRender(false);
     }
   }, [textInput]);
 

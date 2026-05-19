@@ -1,5 +1,5 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import { DeletelegalEntities, GetlegalEntitiesAll, CreateLegalEntities, GetlegalEntitiesOne, EditLegalEntities } from "../../API/API"; // Ensure CreateLegalEntity is imported
+import { DeletelegalEntities, GetlegalEntitiesAll, CreateLegalEntities, GetlegalEntitiesOne, EditLegalEntities } from "../../API/API";
 import { tableLagealEntries } from "./DirectoryLegalEntitiesData";
 import UniversalTable from "../../components/UniversalTable/UniversalTable";
 import styles from "./DirectoryLegalEntities.module.scss";
@@ -118,7 +118,7 @@ function DirectoryLegalEntities() {
             GetlegalEntitiesOne(context.selectRowDirectory).then((response) => {
                 setUnitName(response.data.name);
                 setLegalForm(response.data.legalForm);
-                setstartCoop(response.data.startCoop.split('T')[0]); // Format the date to 'YYYY-MM-DD'
+                setstartCoop(response.data.startCoop.split('T')[0]);
             });
         } else {
             context.setPopupErrorText("Сначала выберите Юр. лицо!");

@@ -8,8 +8,6 @@ import roles, { mapRoles } from '../config/roles';
 
 type LkRole = 'CONTRACTOR' | 'CUSTOMER' | 'ADMIN';
 
-// req.user формируется в auth-middleware из access-токена. Хранит id и role
-// (числовой) — берём оба, чтобы не дёргать БД ради роли.
 const getCurrent = (req: any): { userId: string; roleNumber: number; roleName: string } => {
     const u = req.user || {};
     if (!u.id) throw new ApiError(httpStatus.UNAUTHORIZED, 'Пользователь не авторизован');
@@ -18,9 +16,6 @@ const getCurrent = (req: any): { userId: string; roleNumber: number; roleName: s
     return { userId: u.id, roleNumber, roleName };
 };
 
-// Централизованно мапим числовую роль в строковую для сервиса. Раньше тут была
-// бинарная развилка `CONTRACTOR : CUSTOMER`, из-за которой ADMIN(=2) попадал в
-// CUSTOMER и ломал доступ. Сейчас ADMIN — отдельная ветка.
 const resolveRole = (req: any): LkRole => {
     const { roleNumber } = getCurrent(req);
     if (roleNumber === roles.ADMIN) return 'ADMIN';
@@ -68,7 +63,6 @@ const create = catchAsync(async (req, res) => {
     res.status(httpStatus.CREATED).json(dto);
 });
 
-// GET /lk/requests/:id/comments — cursor-пагинация чата.
 const listComments = catchAsync(async (req, res) => {
     const { userId } = getCurrent(req);
     const role = resolveRole(req);
@@ -76,9 +70,6 @@ const listComments = catchAsync(async (req, res) => {
     res.json(data);
 });
 
-// POST /lk/requests/:id/comments — append + write-through legacy `RepairRequest.comment`.
-// См. design-doc §A.4 «Решение по совместимости»: семантика overwrite заменена на append,
-// старое поле остаётся как кеш «последнего сообщения» для бота/отчётов.
 const createComment = catchAsync(async (req, res) => {
     const { userId } = getCurrent(req);
     const role = resolveRole(req);
@@ -113,7 +104,6 @@ const uploadCheckPhoto = catchAsync(async (req, res) => {
 const updateExitDate = catchAsync(async (req, res) => {
     const { userId } = getCurrent(req);
     const role = resolveRole(req);
-    // exitDate = ISO-строка либо null/undefined для сброса.
     const exitDate = req.body?.exitDate ?? null;
     const dto = await lkService.updateExitDate(userId, req.params.id, exitDate, role);
     res.json(dto);
@@ -121,12 +111,10 @@ const updateExitDate = catchAsync(async (req, res) => {
 
 const tgBindingInit = catchAsync(async (req, res) => {
     const { userId, roleNumber } = getCurrent(req);
-    // ADMIN не привязывает себе TG через ЛК — у него есть админ-flow `tgUsers/syncManager`.
     if (roleNumber === roles.ADMIN) {
         throw new ApiError(httpStatus.FORBIDDEN, 'Привязка Telegram через ЛК недоступна для администратора');
     }
     const data = await userTgBindingService.init(userId);
-    // Plaintext отдаётся ОДИН РАЗ — фронт показывает кнопку «Открыть Telegram» с deepLink.
     res.json({
         deepLink: data.deepLink,
         expiresAt: data.expiresAt.toISOString(),

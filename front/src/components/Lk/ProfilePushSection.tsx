@@ -6,8 +6,6 @@ import { usePushSubscription } from '@/hooks/usePushSubscription';
 
 const ProfilePushSection = (): JSX.Element => {
   const { state, enable, disable, sendTest, error } = usePushSubscription();
-  // Чтобы не дублировать toast на каждый ререндер с одной и той же ошибкой —
-  // показываем только новые сообщения.
   const lastErrorRef = useRef<string | null>(null);
 
   useEffect(() => {

@@ -277,7 +277,6 @@ async def check_photo(message: Message, state: FSMContext) -> None:
                 await ask_urgency(message, state)
                 return
 
-            # Если фото из группы — отправляем сообщение один раз на всю группу
             if media_group_id:
                 if media_group_id not in processed_groups:
                     processed_groups.append(media_group_id)
@@ -338,7 +337,6 @@ async def add_more_photos(message: Message, state: FSMContext) -> None:
         await ask_urgency(message, state)
         return
 
-    # Обработка группы: отвечаем только 1 раз на группу
     if media_group_id:
         if media_group_id not in processed_groups:
             processed_groups.append(media_group_id)
@@ -349,8 +347,7 @@ async def add_more_photos(message: Message, state: FSMContext) -> None:
 
 async def ask_urgency(message: Message, state: FSMContext) -> None:
     urgencies = await crm.get_all_urgencies()
-    
-    # Исключаем срочности с name == "Маршрут" или "Выполнено"
+
     excluded_names = {"Маршрут", "Выполнено"}
     filtered_urgencies = [u for u in urgencies if u.get('name') not in excluded_names]
     

@@ -18,7 +18,6 @@ type Props = {
   onLoadMore: () => void;
 };
 
-// Группировка сообщений по дням в TZ Europe/Moscow.
 const dayKey = (iso: string): string => {
   try {
     const d = new Date(iso);
@@ -79,9 +78,6 @@ const ChatStream = ({
   const lastIdRef = useRef<string | null>(null);
   const lastCountRef = useRef<number>(0);
 
-  // Все фото-вложения в ленте — для общего lightbox с навигацией ←/→.
-  // Пересобираем при изменении messages: пагинация подгружает старые сверху,
-  // и индексы сдвигаются — поэтому ищем по url, а не по индексу.
   const photoUrls = useMemo<string[]>(() => {
     const urls: string[] = [];
     for (const m of messages) {
@@ -98,17 +94,12 @@ const ChatStream = ({
     if (idx >= 0) setLightboxIndex(idx);
   };
 
-  // Авто-скролл вниз при первом маунте и при появлении нового сообщения.
-  // Но не при подгрузке СТАРЫХ сообщений сверху (там lastIdRef не меняется).
   useEffect(() => {
     if (messages.length === 0) return;
     const lastId = messages[messages.length - 1]?.id ?? null;
     const grew = messages.length > lastCountRef.current;
     const newLastMsg = lastId !== lastIdRef.current;
-    // Скроллим только если конец ленты «обновился»: либо появился новый
-    // последний id, либо в первый раз (lastIdRef === null).
     if (newLastMsg && grew) {
-      // Используем requestAnimationFrame, чтобы ждать рендер.
       requestAnimationFrame(() => {
         bottomRef.current?.scrollIntoView({ block: 'end', behavior: 'smooth' });
       });
@@ -117,7 +108,6 @@ const ChatStream = ({
     lastCountRef.current = messages.length;
   }, [messages]);
 
-  // Подгрузка предыдущих сообщений при достижении верха ленты.
   useEffect(() => {
     const el = topSentinelRef.current;
     if (!el || !hasMore) return;
@@ -155,7 +145,6 @@ const ChatStream = ({
     );
   }
 
-  // Формируем рендер с разделителями дат. Группа добавляется при смене dayKey.
   const rendered: JSX.Element[] = [];
   let lastDay: string | null = null;
   messages.forEach((msg) => {

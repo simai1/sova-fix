@@ -1,10 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
 import User from './user';
 
-// Подписка на Web Push (RFC 8030 + VAPID, RFC 8292) для одного устройства/браузера юзера.
-// Один user может иметь несколько подписок (десктоп + мобильный, разные браузеры).
-// p256dh/auth — публичные элементы криптографии подписчика, не секреты, храним plaintext.
-// Подробности — .memory-base/specs/2026-05-07-web-push-design.md §2.
 export default class PushSubscription extends Model {
     id!: string;
     userId!: string;
@@ -37,9 +33,6 @@ export default class PushSubscription extends Model {
                 endpoint: {
                     type: DataTypes.STRING,
                     allowNull: false,
-                    // У каждого браузера/устройства один push-эндпоинт; повторный
-                    // subscribe с тем же endpoint — это переоформление ключей,
-                    // а не новая запись (см. §2 design-doc).
                     unique: 'push_subscriptions_endpoint',
                 },
                 p256dhKey: {

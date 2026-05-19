@@ -7,7 +7,6 @@ import User from '../models/user';
 const getAll = catchAsync(async (req, res) => {
     const { tgUserId, userId, unitId } = req.query;
 
-    // Если передан tgUserId, получаем только объекты этого пользователя
     if (tgUserId) {
         const tgUser = await User.findOne({ where: { tgManagerId: tgUserId } });
         if (!tgUser) throw new ApiError(httpStatus.NOT_FOUND, 'TgUser not found');

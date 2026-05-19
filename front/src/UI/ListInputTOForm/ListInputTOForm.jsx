@@ -24,7 +24,7 @@ function ListInputTOForm(props) {
   const selectSuggestion = (item) => {
     props.handleListData(props.name, item.id);
     setValueName(item.name);
-    setDropdownVisible(false); // Скрыть подсказки после выбора
+    setDropdownVisible(false);
   };
 
   const handleBlur = () => {

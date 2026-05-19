@@ -4,8 +4,6 @@ import { API_URL } from '@/constants/env.constant';
 type Props = {
   message: ChatMessageType;
   isMine: boolean;
-  // Если задано, клик по фото-вложению вызывает onOpenPhoto(url). Контейнер (ChatStream)
-  // прокидывает обработчик и сам управляет lightbox'ом для всей ленты.
   onOpenPhoto?: (url: string) => void;
 };
 

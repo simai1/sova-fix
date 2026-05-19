@@ -13,9 +13,6 @@ export type PushStatusResponse = {
   count: number;
 };
 
-// Тело /lk/me/push/subscribe. PushSubscriptionJSON стандартный браузерный тип
-// (содержит endpoint + keys + expirationTime). Дополнительно фронт может
-// прислать userAgent — сервер хранит его для UI «отписать это устройство».
 export type SubscribePushBody = PushSubscriptionJSON & {
   userAgent?: string;
 };

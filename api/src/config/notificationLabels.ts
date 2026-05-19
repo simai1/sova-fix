@@ -1,14 +1,6 @@
-// Единый источник правды для текстов уведомлений (push + TG).
-// Принципиально: лексика и формат — те же, что в UI ЛК
-// (front/src/components/Lk/StatusChip.tsx, RequestCard.tsx, LkListItem.tsx).
-// На бэкенде есть параллельный statusesRuLocale (нижний регистр, «новая заявка»)
-// — он остаётся для логов/поиска/legacy, для пользовательских текстов используем
-// этот словарь, чтобы юзер видел одни и те же слова и в карточке, и в нотификации.
-
 import statuses from './statuses';
 import roles from './roles';
 
-// Title-Case ровно как в front/src/components/Lk/StatusChip.tsx::STATUS_LABELS.
 export const requestStatusUiLabel: Record<number, string> = {
     [statuses.NEW_REQUEST]: 'Новая',
     [statuses.AT_WORK]: 'В работе',
@@ -17,7 +9,6 @@ export const requestStatusUiLabel: Record<number, string> = {
     [statuses.FALSE]: 'Выезд без выполнения',
 };
 
-// Названия ролей — без бэкенд-литералов CONTRACTOR/CUSTOMER, как видит их юзер.
 export const roleUiLabel: Record<number, string> = {
     [roles.ADMIN]: 'Менеджер',
     [roles.CUSTOMER]: 'Заказчик',
@@ -25,8 +16,6 @@ export const roleUiLabel: Record<number, string> = {
     [roles.OBSERVER]: 'Наблюдатель',
 };
 
-// Формат ссылки на заявку — как в RequestCard.tsx::186 «Заявка № {request.number}».
-// Пробел после № обязателен (ГОСТ, и совпадает с UI). Не используем `#`.
 export const formatRequestRef = (number: number | null | undefined): string => {
     if (number === null || number === undefined || Number.isNaN(Number(number))) {
         return 'Заявка';
@@ -39,10 +28,6 @@ export const getStatusUiLabel = (statusNumber: number): string =>
 
 export const getRoleUiLabel = (roleNumber: number): string => roleUiLabel[roleNumber] ?? 'Пользователь';
 
-// Push-payload ограничен (см. pushNotification.service.ts §11): title ≤ 50, body ≤ 200.
-// Эти же тексты идут и в TG, поэтому дополнительно следим, чтобы они были полные
-// предложения и не теряли смысл при обрезке. Лимит для body чата (комментария) —
-// 197 + многоточие, лимит для остального — обычно вписываемся.
 export const PUSH_TITLE_LIMIT = 50;
 export const PUSH_BODY_LIMIT = 200;
 
@@ -53,10 +38,6 @@ const trimToLimit = (text: string, limit: number): string => {
 
 type NotificationContent = { title: string; body: string };
 
-// Каждый builder возвращает {title, body}, выровненные по UI-словарю.
-// Не кладём PII (имена/email/телефоны/адреса) — push-сервис вендора видит
-// зашифрованный пакет, но устройство юзера расшифровывает, и для регистрации
-// детали юзер увидит только в ЛК, открыв карточку.
 export const notificationContent = {
     statusChanged: (requestNumber: number | null | undefined, statusNumber: number): NotificationContent => ({
         title: trimToLimit(formatRequestRef(requestNumber), PUSH_TITLE_LIMIT),
@@ -66,12 +47,6 @@ export const notificationContent = {
         title: trimToLimit(formatRequestRef(requestNumber), PUSH_TITLE_LIMIT),
         body: trimToLimit(`Срочность: «${urgencyName}»`, PUSH_BODY_LIMIT),
     }),
-    // Намеренно не кладём текст комментария в body: пользовательский ввод
-    // в заявках регулярно содержит ФИО, телефоны, адреса объектов. Push-payload
-    // оседает в системном трее/lock-screen'е и в push history устройства,
-    // и видно его любому приложению с Notification Listener Service permission.
-    // (см. spec §7 P-3 «PII в payload»). Текст юзер увидит, нажав на нотификацию
-    // и открыв чат.
     commentChanged: (requestNumber: number | null | undefined): NotificationContent => ({
         title: trimToLimit(formatRequestRef(requestNumber), PUSH_TITLE_LIMIT),
         body: 'Новое сообщение в чате заявки',

@@ -9,10 +9,6 @@ import { RequestDto } from '@/API/rtkQuery/lk.api';
 type Props = {
   request: RequestDto;
   to: string;
-  // Индекс в первой странице — для stagger-fade-in анимации (см. _components.scss
-  // § lk-list-item: `animation-delay: calc(var(--lk-i, 0) * 30ms)`). При догрузке
-  // следующих страниц index не передаётся — fallback 0, анимация без задержки
-  // или вовсе не воспроизводится повторно (browser-rendered animation один раз).
   index?: number;
 };
 
@@ -65,8 +61,6 @@ const LkListItem = ({ request, to, index }: Props): JSX.Element => {
       <div className="lk-list-item__top">
         <span className="lk-list-item__number">№ {request.number}</span>
         <StatusChip statusNumber={statusNumber} />
-        {/* Чип «Закреплена за мной» — даёт исполнителю быстро отделить
-            свои назначенные заявки от тех, что видны через UserObject. */}
         {request.isAssigned ? (
           <span className="lk-chip lk-chip--accent" aria-label="Заявка закреплена за вами">
             Моя

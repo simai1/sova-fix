@@ -6,9 +6,6 @@ import httpStatus from 'http-status';
 import roles from '../config/roles';
 import UserDto from '../dtos/user.dto';
 import TgUser from '../models/tgUser';
-// sendMsg/WsMsgData нужны только для legacy bot-flow в confirmTgUser ниже.
-// approveUser больше не делает broadcast — pending-клиент подключён через
-// subprotocol pending.<token> и получает USER_CONFIRM через emitTo({kind:'user'}).
 import { emitTo, sendMsg, WsMsgData } from '../utils/ws';
 import Contractor from '../models/contractor';
 import wsEvents from '../config/wsEvents';
@@ -55,10 +52,6 @@ const getAllUsers = async (): Promise<UserDto[]> => {
 };
 
 const getPendingRegistrations = async (): Promise<UserDto[]> => {
-    // Только web-self-reg юзеры: `isActivated=false` + `pendingVerifyToken`
-    // выдан (см. registerPublic). Admin-flow юзеры, тоже `isActivated=false`,
-    // но ждущие email-код активации (не менеджерское одобрение), сюда не
-    // попадают — у них pendingVerifyToken=null.
     const where: WhereOptions = {
         isActivated: false,
         pendingVerifyToken: { [Op.ne]: null },
@@ -73,17 +66,9 @@ const getPendingRegistrations = async (): Promise<UserDto[]> => {
 const approveUser = async (userId: string): Promise<UserDto> => {
     const user = await User.findByPk(userId);
     if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'Пользователь не найден');
-    // Считаем web-self-reg pending по тем же признакам, что и
-    // getPendingRegistrations: `!isActivated` + есть pendingVerifyToken.
-    // Иначе approveUser сработал бы и на admin-flow юзеров (ждущих email-кода)
-    // — это другой workflow, активируется через /auth/activate/:userId.
     const isWebSelfRegPending = !user.isActivated && !!user.pendingVerifyToken;
     if (!isWebSelfRegPending) throw new ApiError(httpStatus.BAD_REQUEST, 'Пользователь уже подтверждён');
 
-    // Активируем + одновременно обнуляем pending verify-token: после approve
-    // subprotocol pending.<token> больше не должен пускать в ws-сессию
-    // (юзер уже активен). Security-инвариант: повторный коннект с тем же
-    // токеном после approve должен закрываться 1008.
     await user.update({
         isActivated: true,
         pendingVerifyToken: null,
@@ -92,17 +77,8 @@ const approveUser = async (userId: string): Promise<UserDto> => {
     if (user.role === roles.CONTRACTOR) {
         await Contractor.create({ userId: user.id });
     }
-    // Targeted emit: pending-клиент подключён через subprotocol pending.<token>
-    // и зарегистрирован с userId=user.id (см. ws.authenticateSubprotocol
-    // ветку pending.). Bearer-сессии того же юзера (если он успел залогиниться
-    // в другой вкладке после approve) тоже получат это сообщение —
-    // matchAudience сравнивает по userId. Broadcast-fallback убран (P1-2):
-    // он шёл всем подключённым клиентам и нарушал PII-инвариант, при этом
-    // Pending.jsx до P1-1 его всё равно не получал (handshake падал).
     emitTo({ kind: 'user', userId: user.id }, wsEvents.USER_CONFIRM, { userId: user.id });
 
-    // Зеркало: одобрённый юзер получает push о подтверждении регистрации
-    // (TG-flow аналог — TGUSER_CONFIRM из бот-flow). Текст без слов про «бота».
     await notificationService.notifyRegistrationApproved(user.id);
 
     return new UserDto(user);
@@ -162,8 +138,6 @@ const confirmTgUser = async (userId: string): Promise<void> => {
     const user = await TgUser.findByPk(userId);
     if (!user) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found user with id ' + userId);
     await user.update({ isConfirmed: true });
-    // Legacy-событие для бота (literal, не вынесен в wsEvents). Бот получит
-    // через broadcast, после удаления бота это место уйдёт целиком.
     sendMsg({
         msg: {
             tgUser: userId,
@@ -180,18 +154,11 @@ const getUserByTgId = async (tgId: string) => {
     return new UserDto(user);
 };
 
-// Полностью перезаписывает список объектов, привязанных к пользователю.
-// Делается под транзакцией: сначала удаляем старые связи, потом создаём новые.
-// Использует force destroy, потому что таблица paranoid и нам не нужны
-// «фантомные» soft-deleted строки, которые блокировали бы unique-индекс.
 const setUserObjects = async (userId: string, objectIds: string[]): Promise<string[]> => {
     const user = await User.findByPk(userId);
     if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'Пользователь не найден');
 
     const unique = Array.from(new Set(objectIds));
-    // Проверяем, что все переданные объекты реально существуют. Если хотя бы
-    // один отсутствует — отдаём 400 (а не молча сохраняем «висячие» связи,
-    // которые потом сломают list-эндпоинты при включённом валидаторе FK).
     if (unique.length) {
         const found = await ObjectDir.count({ where: { id: { [Op.in]: unique } } });
         if (found !== unique.length) {

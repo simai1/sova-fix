@@ -37,35 +37,26 @@ const getTableReportData = async (
         const relatedKeys = ['legalEntity', 'unit', 'object'];
         const hasRelated = relatedKeys.some(key => parametrs[key]);
 
-        // 1. Загружаем связи
         const relatedData = hasRelated ? await loadRelatedData(parametrs, data) : [];
 
-        // 2. Остальные параметры
         await buildParamData(parametrs, data);
 
-        // 3. Комбинируем
         let combined = cartesianProduct(data);
 
-        // 3.1 Фильтруем по парам builder ↔ contractor/manager/extContractor
         combined = await filterRealBuilderContractorPairs(parametrs, combined);
 
-        // 4. Фильтруем по связям (legalEntity/unit/object)
         let filtered = filterByRelations(parametrs, combined, relatedData);
 
-        // 4.1 Фильтруем по выбранным пользователем значениям
         if (filterData) {
             filtered = applyFilterData(filtered, filterData);
         }
 
-        // 5. Добавляем индикаторы
         let resultRows = await calculateIndicators(filtered, parametrs, indicators, additionalParametrs);
 
-        // 6. Добавляем строку "Итого"
         if (additionalParametrs.isResult) {
             resultRows = await addTotalRow(resultRows, parametrs, indicators, additionalParametrs);
         }
 
-        // 7. Добавляем "Динамику"
         if (additionalParametrs?.dynamicsTypes && additionalParametrs?.dynamicsTypes?.length > 0) {
             resultRows = await addDynamics(resultRows, parametrs, indicators, additionalParametrs, filterData);
         }
@@ -399,7 +390,6 @@ const buildIndicators = async (
         if (requests.length > 0) {
             const totalDays = requests.reduce((sum, r) => {
                 const days = r.daysAtWork ?? 0;
-                // если заявка закрыта в тот же день или меньше 1 дня — считаем 1
                 const corrected = days <= 0 ? 1 : days;
                 return sum + corrected;
             }, 0);
@@ -435,7 +425,6 @@ export const addTotalRow = async (
     const getValue = (r: any, key: string) =>
         r[key] && typeof r[key] === 'object' ? (r[key].value ?? 0) : (r[key] ?? 0);
 
-    // Суммируем обычные показатели
     const addField = (key: string, isPercent = false) => {
         const totalValue = rows.reduce((sum, r) => sum + getValue(r, key), 0);
 
@@ -469,11 +458,8 @@ export const addTotalRow = async (
     if (indicators.budgetPlan) addField('budgetPlan');
     if (indicators.budget) addField('budget');
 
-    // --- Рассчитываем percentOfBudgetPlan отдельно через базу ---
     if (indicators.percentOfBudgetPlan) {
-        // Суммарный budgetPlan всех объектов
         const totalBudgetPlan = await ObjectDir.sum('budgetPlan');
-        // Суммарный budget всех RepairRequest
         const totalBudget = await RepairRequest.sum('repairPrice', {
             where:
                 additional.dateStart || additional.dateEnd
@@ -504,7 +490,6 @@ export const addDynamics = async (
     const { dynamicsTypes = [], dateStart, dateEnd } = additional;
     if (!dynamicsTypes.length) return rows;
 
-    // Используем даты из фронта или текущие
     const baseDateStart = dateStart ? dayjs(dateStart) : dayjs();
     const baseDateEnd = dateEnd ? dayjs(dateEnd) : dayjs();
 
@@ -514,7 +499,6 @@ export const addDynamics = async (
 
     if (!enabledIndicators.length) return rows;
 
-    // --- Загружаем данные предыдущих периодов
     const prevPeriods = Object.fromEntries(
         await Promise.all(
             dynamicsTypes.map(async type => {
@@ -558,7 +542,6 @@ export const addDynamics = async (
 
     const newRows = structuredClone(rows);
 
-    // --- Вычисляем динамику для обычных строк
     for (const row of newRows) {
         for (const type of dynamicsTypes) {
             const prevRows = prevPeriods[type];
@@ -582,7 +565,6 @@ export const addDynamics = async (
         }
     }
 
-    // --- Вычисляем динамику для итоговой строки
     const totalRow = newRows[newRows.length - 1];
     if (totalRow && totalRow[Object.keys(parametrs)[0]] === 'Итого') {
         for (const type of dynamicsTypes) {

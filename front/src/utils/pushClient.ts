@@ -1,7 +1,3 @@
-// Низкоуровневая обёртка над Web Push API. Все взаимодействия с
-// navigator.serviceWorker / pushManager идут через эти функции —
-// это упрощает мок в тестах и держит логику hook'а чистой.
-
 const SW_URL = '/sw.js';
 const SW_SCOPE = '/';
 
@@ -19,12 +15,8 @@ export const ensureServiceWorkerRegistered = async (): Promise<ServiceWorkerRegi
   if (!('serviceWorker' in navigator)) {
     throw new Error('Service Worker не поддерживается');
   }
-  // Если SW уже зарегистрирован под нашим scope — переиспользуем его.
-  // navigator.serviceWorker.getRegistration возвращает существующую запись,
-  // если она активна; иначе регистрируем новую.
   const existing = await navigator.serviceWorker.getRegistration(SW_SCOPE);
   if (existing) {
-    // ready гарантирует, что SW активирован (а не только установлен).
     await navigator.serviceWorker.ready;
     return existing;
   }
@@ -33,8 +25,6 @@ export const ensureServiceWorkerRegistered = async (): Promise<ServiceWorkerRegi
   return registration;
 };
 
-// Преобразование base64url-строки VAPID-ключа в Uint8Array, как требует
-// pushManager.subscribe. См. https://developer.mozilla.org/docs/Web/API/PushManager/subscribe
 export const urlBase64ToUint8Array = (base64: string): Uint8Array => {
   const padding = '='.repeat((4 - (base64.length % 4)) % 4);
   const normalized = (base64 + padding).replace(/-/g, '+').replace(/_/g, '/');
@@ -50,14 +40,8 @@ export const subscribePush = async (vapidPublicKey: string): Promise<PushSubscri
   const registration = await ensureServiceWorkerRegistered();
   const existing = await registration.pushManager.getSubscription();
   if (existing) {
-    // Уже есть подписка — возвращаем её JSON, не делаем повторный subscribe
-    // (push-сервис вернёт ту же подписку, но лишний раунд-трип ни к чему).
     return existing.toJSON();
   }
-  // applicationServerKey ожидает BufferSource. В современных TS-lib.dom типы
-  // Uint8Array<ArrayBufferLike> не присваиваются BufferSource напрямую (узкий
-  // ArrayBuffer-вариант не совпадает с union'ом ArrayBufferLike) —
-  // передаём именно .buffer, что соответствует контракту PushManager.
   const keyBuffer = urlBase64ToUint8Array(vapidPublicKey).buffer as ArrayBuffer;
   const subscription = await registration.pushManager.subscribe({
     userVisibleOnly: true,
@@ -79,9 +63,6 @@ export const unsubscribePush = async (): Promise<{ endpoint: string | null }> =>
   const endpoint = subscription.endpoint;
   try {
     await subscription.unsubscribe();
-  } catch {
-    // unsubscribe может упасть, если push-сервис уже забыл подписку —
-    // не блокируем удаление на бэкенде.
-  }
+  } catch {}
   return { endpoint };
 };

@@ -39,15 +39,15 @@ export const getBuilderFun = (
   selectedRow: GetDirectoryCategoryResponse,
 ): BuilderInterface | ManagerI | null => {
   if (selectedRow.builder && selectedRow.builder.name !== '') {
-    return selectedRow.builder; // BuilderInterface
+    return selectedRow.builder;
   }
 
   if (selectedRow.manager && selectedRow.manager.name !== '') {
-    return selectedRow.manager; // ManagerI
+    return selectedRow.manager;
   }
 
   if (selectedRow.builderExternal && selectedRow.builderExternal.name !== '') {
-    return selectedRow.builderExternal; // BuilderInterface
+    return selectedRow.builderExternal;
   }
 
   return null;

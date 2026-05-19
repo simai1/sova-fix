@@ -11,7 +11,7 @@ interface CustomInputProps {
   type?: 'text' | 'textarea' | 'password' | 'email';
   maxLength?: number;
   regex?: RegExp;
-  required?: boolean | string; // ← можно передать true или сообщение об ошибке
+  required?: boolean | string;
 }
 
 const CustomInput: FC<CustomInputProps> = ({

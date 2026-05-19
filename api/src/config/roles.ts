@@ -11,9 +11,6 @@ export default roles;
 
 export const mapRoles = mapObjectKeys(roles);
 
-// Русские названия ролей для текстов, которые показываются пользователю
-// (ошибки доступа, тосты, badge в UI). Технические имена ADMIN/CUSTOMER/CONTRACTOR/OBSERVER
-// для пользователя ничего не значат — он не знает, что такое CUSTOMER.
 export const roleNamesRu: Record<number, string> = {
     [roles.ADMIN]: 'Менеджер',
     [roles.CUSTOMER]: 'Заказчик',

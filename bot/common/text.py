@@ -31,7 +31,7 @@ async def repair_request_text(repair_request: dict) -> str:
             status = int(status)
         except (ValueError, TypeError):
             logger.error(f"Не удалось преобразовать статус {status} в число")
-            status = 2  # По умолчанию "В работе"
+            status = 2
     
     return f"""
 <b>Заявка №{repair_request.get('number')}{lots_of_spaces}&#x200D;</b>

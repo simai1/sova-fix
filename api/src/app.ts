@@ -40,30 +40,17 @@ const { app, getWss } = expressWs(express());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(corsMiddleware);
-// helmet выставляет базовый набор security-headers (X-Content-Type-Options,
-// X-Frame-Options, Strict-Transport-Security и т.д.). CSP отключаем — на
-// API он бессмыслен (нет HTML-ответов), а в проде может ломать /uploads
-// для inline-просмотра картинок. crossOriginResourcePolicy=cross-origin
-// нужен, потому что фронт живёт на отдельном origin (3002 → 3000).
 app.use(helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cookieParser());
 app.use(
     cookieSession({
         maxAge: 30 * 24 * 60 * 60 * 1000,
         keys: [process.env.COOKIE_KEY as string],
-        // Симметрично refreshCookieOptions в auth.controller.ts: в проде
-        // запрещаем отправку по http (Secure) и блокируем JS-доступ (httpOnly);
-        // sameSite=Lax совместим с топ-навигацией и режет базовый CSRF.
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
     })
 );
-// Принудительный attachment-режим для /uploads: загруженный SVG/HTML/JS не
-// исполнится в браузере как контент API-домена. Картинки/видео фронт
-// рендерит через <img>/<video> — браузеры применяют Content-Disposition
-// только к top-level навигациям, sub-resource'ы (img/video) рендерятся
-// нормально. Прямой клик ссылки скачивает, не открывает.
 app.use(
     '/uploads',
     express.static('./uploads', {
@@ -105,16 +92,6 @@ app.use('/reports', reportRoute);
 app.use('/lk', lkRoute);
 app.use('/admin', adminRoute);
 
-// Handshake-аутентификация (см. .memory-base/specs/2026-05-07-contractor-lk-followups-design.md §E):
-//   клиент посылает Sec-WebSocket-Protocol: "bearer.<jwt>" | "bot.<MASTER_API_KEY>".
-//   На успех — registerClient + подтверждаем тот же subprotocol через
-//   ws.protocol (express-ws сам пропускает первый subprotocol из upgrade-запроса
-//   как accepted; этого достаточно для большинства клиентов).
-//   На неуспех — close(1008, 'unauthorized'). Клиент увидит CloseEvent с этим
-//   кодом и не будет ретраить токен с битой подписью бесконечно.
-//
-// Принимаем фреймы { type: 'subscribe' | 'unsubscribe', requestId } — см.
-// utils/ws.ts::handleClientFrame.
 import {
     authenticateSubprotocol,
     handleClientFrame,
@@ -133,7 +110,7 @@ app.ws('/', async (rawWs, req) => {
         try {
             ws.close(1008, 'unauthorized');
         } catch {
-            /* noop */
+            return;
         }
         return;
     }
@@ -141,10 +118,6 @@ app.ws('/', async (rawWs, req) => {
     registerClient(ws, user);
 
     ws.on('message', data => {
-        // Не блокируем event loop ошибками внутри handler — он сам ловит и
-        // отвечает фреймом-ошибкой. Однако catch здесь оставляем для defense:
-        // если внутри обработки упало (например, БД unreachable во время
-        // ensureSubscribeAccess), мы хотя бы не уроним сокет.
         void handleClientFrame(ws, data).catch(err => {
             logger.log({
                 level: 'error',
@@ -166,7 +139,6 @@ if (process.env.NODE_ENV !== 'production') {
     );
 }
 
-// Глобальный errorHandler — должен быть последним middleware.
 app.use(errorHandler);
 
 export const aWss = getWss();

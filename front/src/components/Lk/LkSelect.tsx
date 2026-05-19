@@ -72,8 +72,6 @@ const LkSelect = ({
     const rect = trigger.getBoundingClientRect();
     const spaceBelow = window.innerHeight - rect.bottom;
     const spaceAbove = rect.top;
-    // Открываемся вверх, только если снизу не хватает И сверху больше места:
-    // важно для нижних селектов на мобиле (поверх клавиатуры/тулбара).
     const openUp = spaceBelow < MENU_MAX_HEIGHT + MENU_GAP && spaceAbove > spaceBelow;
     setCoords({
       top: openUp ? rect.top : rect.bottom,
@@ -92,8 +90,6 @@ const LkSelect = ({
     if (!open) return;
     const handler = (): void => computeCoords();
     window.addEventListener('resize', handler);
-    // capture: ловим скролл любого предка (например, .lk-modal__sheet),
-    // он сам не пузырится до window.
     document.addEventListener('scroll', handler, true);
     return () => {
       window.removeEventListener('resize', handler);

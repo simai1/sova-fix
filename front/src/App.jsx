@@ -133,9 +133,6 @@ const GetDataEquipment = (id) =>{
 }
 
 const UpdateForse = () =>{
-  // userId добавляем только если он реально есть в sessionStorage:
-  // template-literal превращал undefined в строку "undefined", и backend падал
-  // на `WHERE id = 'undefined'` (UUID-колонка) → 500 в логах.
   const userId = JSON.parse(sessionStorage.getItem("userData"))?.user?.id;
   let url = `?offset=${ofset}&limit=${limit}${userId ? `&userId=${userId}` : ''}`;
 
@@ -329,7 +326,6 @@ const UpdateStatus = () => {
 
   
   function UpdateTableReguest() {
-    // см. комментарий в UpdateForse — userId опционален.
     const userId = JSON.parse(sessionStorage.getItem("userData"))?.user?.id;
     let url = `?offset=${ofset}&limit=${limit}&isAutoCreated=${Boolean(enabledTo)}${userId ? `&userId=${userId}` : ''}`;
     
@@ -381,9 +377,6 @@ const UpdateStatus = () => {
   }
   
   useEffect(() => {
-    // Заявки и исполнители — данные за авторизацией. Пока userData нет
-    // (страница логина/активации), API не дёргаем — иначе на экран входа
-    // уходят заведомо 401-запросы к /requests и /contractors.
     const userId = getUserData()?.user?.id;
     if (!userId) return;
     setDataAppointment([])
@@ -404,8 +397,6 @@ const UpdateStatus = () => {
     })
   }, [dataApointment])
 
-  // js-cache-storage: роль читаем один раз за рендер, а не пятью
-  // JSON.parse(sessionStorage) прямо в разметке роутов ниже.
   const userRole = getUserData()?.user?.role;
 
   return (

@@ -9,10 +9,6 @@ import roles, { mapRoles } from '../config/roles';
 type Mode = 'read' | 'write';
 type LkRole = 'CONTRACTOR' | 'CUSTOMER' | 'ADMIN';
 
-// Проверяет, что у текущего пользователя есть доступ к заявке. Стоит ДО multer/validator,
-// чтобы вернуть 403 раньше валидации тела/файлов — иначе посторонний пользователь
-// получает 400 «нет файла» вместо 403 и понимает, что заявка существует.
-// Сервис всё равно повторно проверяет доступ внутри (defense-in-depth).
 const resolveLkRole = (req: Request): LkRole => {
     const u = (req as any).user || {};
     const roleNumber: number = typeof u.role === 'number' ? u.role : (roles as Record<string, number>)[u.role] || 0;
@@ -48,7 +44,6 @@ export const requireRequestAccess = (paramName: string, mode: Mode) =>
             }
         } else {
             if (!lkService.canWrite(repairRequest, role, accessCtx)) {
-                // Сообщение совпадает с сервисным ensureWriteAccess — тесты матчат /назначенный исполнитель/i.
                 const msg =
                     role === 'CUSTOMER'
                         ? 'Изменять заявку может только её автор'
@@ -57,10 +52,8 @@ export const requireRequestAccess = (paramName: string, mode: Mode) =>
             }
         }
 
-        // Прокидываем загруженный объект, чтобы сервис мог переиспользовать без второго SELECT (опционально).
         (req as any).repairRequest = repairRequest;
         (req as any).lkRole = role;
-        // mapRoles используется только если в логах нужно строковое имя; здесь не трогаем.
         void mapRoles;
         return next();
     });

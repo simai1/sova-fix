@@ -2,12 +2,10 @@ import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
 import { API_URL } from "../constants/env.constant";
 
-//! Функция генерации файла для скачивания
 export const generateAndDownloadExcel = (data, nameTable, expenseSum) => {
   let transformedData = {};
   const server = API_URL;
 
-  // Используем switch case для определения структуры данных
   switch (nameTable) {
     case "Финансы":
       transformedData = data.map(({ ...item }) => ({
@@ -65,7 +63,6 @@ export const generateAndDownloadExcel = (data, nameTable, expenseSum) => {
 
   const worksheet = XLSX.utils.json_to_sheet(transformedData);
 
-  // Установка ширины столбцов
   const columnWidths = transformedData.reduce((widths, row) => {
     Object.keys(row).forEach((key, index) => {
       const value = row[key] ? row[key].toString() : "";
@@ -74,15 +71,13 @@ export const generateAndDownloadExcel = (data, nameTable, expenseSum) => {
     return widths;
   }, []);
 
-  worksheet["!cols"] = columnWidths.map((width) => ({ wch: width + 10 })); // Добавляем немного запаса
+  worksheet["!cols"] = columnWidths.map((width) => ({ wch: width + 10 }));
 
-  // Добавление строки с суммой расходов
   if (expenseSum) {
     const summaryRow = [
       { Бюджет_ремонта: expenseSum }
     ];
 
-    // Вставляем строку с суммой расходов
     XLSX.utils.sheet_add_json(worksheet, summaryRow, { skipHeader: true, origin: { r: transformedData.length + 1, c: 4 } });
   }
 

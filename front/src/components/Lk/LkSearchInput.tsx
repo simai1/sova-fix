@@ -18,7 +18,6 @@ const LkSearchInput = ({
   const [local, setLocal] = useState(value);
   const debounced = useDebouncedValue(local, delay);
 
-  // Внешнее значение пробрасываем внутрь, если изменилось извне (сброс фильтров и т.п.)
   useEffect(() => {
     setLocal(value);
   }, [value]);
@@ -27,14 +26,10 @@ const LkSearchInput = ({
     if (debounced !== value) {
       onChange(debounced);
     }
-    // onChange/value намеренно вне deps — отдаём только debounced наружу
   }, [debounced]);
 
   const handleClear = (): void => {
     setLocal('');
-    // Сбрасываем наружу немедленно, не дожидаясь debounce — UX clear-кнопки
-    // ожидает мгновенного отклика; иначе при повторном клике/наборе значение
-    // успеет затереться debounced-эффектом.
     onChange('');
   };
 

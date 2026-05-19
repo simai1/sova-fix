@@ -1,9 +1,6 @@
 import RequestComment from '../models/requestComment';
 import { mapRoles } from '../config/roles';
 
-// DTO чат-сообщения. Имя автора резолвится через include `Author`,
-// чтобы фронту не делать N+1-запросов. PII (email) не отдаём — это PII
-// между несколькими акторами в чате.
 export default class RequestCommentDto {
     id: string;
     requestId: string;

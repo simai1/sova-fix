@@ -7,12 +7,6 @@ from data import const
 from util import logger, crm
 
 
-# Локальный словарь UI-наименований статусов — Title-Case ровно как в
-# front/src/components/Lk/StatusChip.tsx::STATUS_LABELS и в backend
-# api/src/config/notificationLabels.ts. Зеркалирование TG ↔ push: юзер
-# должен видеть одни и те же слова. crm.get_status_name() ходит на API
-# и тянет name из таблицы Status (там хранится lowercase для legacy-логики),
-# поэтому в push-уведомлении используем именно этот словарь.
 STATUS_UI_LABELS: dict[int, str] = {
     1: "Новая",
     2: "В работе",

@@ -5,9 +5,6 @@ import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
 import roles, { roleNamesRu } from '../config/roles';
 
-// Проверяет, что у пользователя из refresh-cookie есть одна из перечисленных ролей.
-// Принимает массив имён ролей (например, ['CONTRACTOR', 'CUSTOMER']) — на стороне
-// JWT/маршрутов исторически фигурируют именно имена, поэтому держим тот же контракт.
 const verifyAnyRole = (roleNames: string[]) =>
     catchAsync(async (req: Request, res: Response, next: NextFunction) => {
         const { refreshToken } = req.cookies;
@@ -18,10 +15,6 @@ const verifyAnyRole = (roleNames: string[]) =>
         try {
             user = await userService.getUserByRefreshToken(refreshToken);
         } catch {
-            // getUserByRefreshToken бросает 400 «Not found token», если cookie не нашлась
-            // в БД (после ротации/чистки refresh-таблицы). Для клиента это «не авторизован» —
-            // нормализуем в 401, иначе withReauth на фронте не запустит silent refresh
-            // и юзер навсегда залипает на 400 до перезагрузки.
             return next(new ApiError(httpStatus.UNAUTHORIZED, 'Пользователь не авторизован'));
         }
         if (!user) {

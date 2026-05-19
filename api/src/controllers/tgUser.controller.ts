@@ -236,8 +236,6 @@ const getContractorsObjectsWithCountRequests = catchAsync(async (req, res) => {
     res.json(objects);
 });
 
-// POST /tgUsers/bind — вызывается ботом по deep-link юзера. Защищён master-key.
-// Body: { token, tgId, username? }. См. design-doc §D «Endpoints».
 const bind = catchAsync(async (req, res) => {
     const { token, tgId, username } = req.body || {};
     if (!token) throw new ApiError(httpStatus.BAD_REQUEST, 'Поле token обязательно');

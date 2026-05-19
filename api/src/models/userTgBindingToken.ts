@@ -1,9 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
 import User from './user';
 
-// Короткоживущие одноразовые токены для self-binding TG_ID через бот-deep-link.
-// В БД храним SHA-256 от plaintext-токена; plaintext отдаётся фронту один раз.
-// Подробности: .memory-base/specs/2026-05-07-contractor-lk-followups-design.md §D.
 export default class UserTgBindingToken extends Model {
     id!: string;
     userId!: string;
@@ -32,9 +29,6 @@ export default class UserTgBindingToken extends Model {
                 tokenHash: {
                     type: DataTypes.STRING,
                     allowNull: false,
-                    // Уникальность по hash: коллизии SHA-256 не ожидаются;
-                    // дополнительно гарантирует, что один и тот же plaintext
-                    // не запишется дважды (при редком race-condition'е).
                     unique: 'user_tg_binding_token_hash',
                     field: 'token_hash',
                 },

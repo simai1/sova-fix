@@ -390,10 +390,10 @@ function UniversalTable(props) {
     const formattedDate = new Date(`20${year}`, month - 1, day);
     const diffInDays = Math.ceil((formattedDate - currentDate) / (1000 * 60 * 60 * 24));
 
-    if (diffInDays === 0) return "#ffa500"; // оранжевый
-    if (diffInDays >= 7) return "#C5E384"; // зелёный
-    if (diffInDays > 0) return "#ffe78f"; // жёлтый
-    return "#d69a81"; // красный
+    if (diffInDays === 0) return "#ffa500";
+    if (diffInDays >= 7) return "#C5E384";
+    if (diffInDays > 0) return "#ffe78f";
+    return "#d69a81";
   };
 
   const chectHeights = () => {

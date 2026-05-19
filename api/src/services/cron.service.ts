@@ -161,9 +161,6 @@ export default {
                             level: 'info',
                             message: `[${format(new Date(), 'dd.MM.yyyy HH:mm')}] [CRON autoRequests]: ${request.number}, ${request.createdBy}] `,
                         });
-                    // Авто-генерация ТО: уведомляем менеджеров (роль ADMIN)
-                    // и бота (через isBot-fanout). Заказчиков не пушим:
-                    // создатель — TgUser в TG-flow, веб-канала у него нет.
                     emitTo({ kind: 'role', roles: [roles.ADMIN] }, 'REQUEST_CREATE', {
                         requestId: request.id,
                         customer: request.createdBy,

@@ -5,10 +5,6 @@ export type LkUnitOption = {
   name: string;
 };
 
-// Derive подразделений из списка объектов юзера. Бэкенд не отдаёт
-// отдельным эндпоинтом /lk/units/my — для типичного юзера ≤ 50 объектов
-// и ≤ 10 подразделений, дополнительный запрос — overhead. Сортируем по
-// русской локали через Intl Collator.
 export const deriveUnitsFromObjects = (objects: LkObject[]): LkUnitOption[] => {
   const map = new Map<string, string>();
   objects.forEach((o) => {

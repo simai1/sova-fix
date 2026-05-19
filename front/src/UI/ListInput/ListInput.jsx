@@ -15,12 +15,12 @@ function ListInput(props) {
     }else if (props?.name === 'urgency') {
       props.handleListData(props.name, el.name);
       setValueName(el.name);
-      props.toggleDropdown(); // Close the dropdown after selection
+      props.toggleDropdown();
     }else{
       console.log(el)
       props.handleListData(props.name, el.id);
       setValueName(el.name);
-      props.toggleDropdown(); // Close the dropdown after selection
+      props.toggleDropdown();
     }
   };
 
@@ -75,7 +75,7 @@ function ListInput(props) {
         <div className={styles.ListCont}>
           <input
             readOnly
-            onClick={props.toggleDropdown} // Toggle dropdown on click
+            onClick={props.toggleDropdown}
             value={props.dataList.find((el) => el.id === props.value)?.name || props.value}
             placeholder={props?.placeholder}
             style={props.isActive ? {borderRadius: "5px 5px 0 0"} : null}

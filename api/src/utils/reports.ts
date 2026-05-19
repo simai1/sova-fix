@@ -9,9 +9,6 @@ import RepairRequest from '../models/repairRequest';
 export const TABLE_FOR_REPORT: Record<string, any> = {
     unit: { model: Unit, as: 'Unit', field: 'name', name: 'unit' },
     object: { model: ObjectDir, as: 'Object', field: 'name', name: 'object' },
-    // contractor: специальная ветка в reports.service.ts (getAllContractorsFromRequests)
-    // не использует field — имя контрактора берётся из COALESCE(User.name, TgUser.name).
-    // field оставлен только для совместимости с типом Record, не читается для key='contractor'.
     contractor: { model: Contractor, as: 'Contractor', field: 'id', name: 'contractor' },
     status: { model: Status, as: 'Status', field: 'name', name: 'status' },
     urgency: { model: Urgency, as: 'Urgency', field: 'name', name: 'urgency' },
@@ -26,7 +23,6 @@ export function cartesianProduct(arrays: Record<string, any[]>): Record<string, 
     const keys = Object.keys(arrays);
     if (keys.length === 0) return [];
 
-    // Начинаем с первого массива
     let result = arrays[keys[0]].map(item => ({ ...item }));
 
     for (let i = 1; i < keys.length; i++) {

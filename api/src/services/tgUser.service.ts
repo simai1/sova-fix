@@ -30,9 +30,6 @@ const create = async (name: string, role: number, tgId: string, linkId: string |
         user.Contractor = await Contractor.create({ tgUserId: user.id });
     }
     await user.save();
-    // Legacy-событие для бота (literal, не вынесен в wsEvents): саморегистрация
-    // через TG, бот ждёт TGUSER_CREATE и подтверждает менеджером. Уходит вместе
-    // с ботом одним коммитом — оставляем broadcast.
     sendMsg({
         msg: {
             userId: user.id,
@@ -61,10 +58,6 @@ const syncManagerToTgUser = async (
 };
 
 const findUserByTgId = async (tgId: string): Promise<TgUserDto | null> => {
-    // Contractor нужен с nested User/TgUser, иначе ContractorDto в TgUserDto
-    // упадёт «no derivable name». Воспроизводилось после web-flow tg-binding,
-    // когда у contractor есть только userId (без TgUser до bind), а после bind
-    // запрос приходит на старый эндпоинт `/tgUsers/:tgId` (used by bot's start_handler).
     const user = await TgUser.findOne({ where: { tgId }, include: [contractorInclude, { model: User }] });
     return user ? new TgUserDto(user) : null;
 };
@@ -413,10 +406,8 @@ const getManagersObjectsWithCountRequests = async (tgUserId: string) => {
     if (objectIds.length === 0) {
         return [];
     }
-    // запрос для подсчёта заявок
     const actualStatuses = [1, 2, 5];
 
-    // считаем заявки только с нужными статусами
     const requestsCount = await RepairRequest.findAll({
         attributes: ['objectId', [Sequelize.fn('COUNT', Sequelize.col('id')), 'count']],
         where: {
@@ -473,7 +464,6 @@ const getContractorsObjectsWithCountRequests = async (tgUserId: string) => {
     if (objectIds.length === 0) {
         return [];
     }
-    // запрос для подсчёта заявок
     const actualStatuses = [1, 2, 5];
 
     const contractor = await Contractor.findOne({ where: { tgUserId: user.id } });
@@ -482,7 +472,6 @@ const getContractorsObjectsWithCountRequests = async (tgUserId: string) => {
         throw new ApiError(httpStatus.BAD_REQUEST, 'contractor is not found');
     }
 
-    // считаем заявки только с нужными статусами
     const requestsCount = await RepairRequest.findAll({
         attributes: ['objectId', [Sequelize.fn('COUNT', Sequelize.col('id')), 'count']],
         where: {

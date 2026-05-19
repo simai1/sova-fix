@@ -95,8 +95,6 @@ const createObject = async (
     const objectDir = await ObjectDir.create({ name, unitId, city, number: 1, legalEntityId, budgetPlan });
     await legalEntityService.setCountLegalEntity(legalEntityId);
     await unitService.setCountUnit(unitId);
-    // OBJECT_CREATE — событие для админ-интерфейсов (UsersDirectory обновляет
-    // список объектов). Шлём только менеджерам.
     emitTo({ kind: 'role', roles: [roles.ADMIN] }, 'OBJECT_CREATE', { objectName: name });
     objectDir.LegalEntity = legalEntity;
     objectDir.Unit = unit;

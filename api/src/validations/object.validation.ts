@@ -7,11 +7,6 @@ const ru = (label: string) => ({
     'any.only': `Поле ${label} имеет недопустимое значение`,
 });
 
-// GET /objects — фильтры опциональные, но если переданы, валидируем форму:
-// userId/unitId — UUID (модели User.id и ObjectUnit.id — UUID).
-// tgUserId — Telegram-id (любая строка, бот шлёт строковое число).
-// Запрет на литералку "undefined": фронт раньше слал `?userId=undefined`,
-// контроллер уходил в ветку `if (userId)` и падал на `findOne` с невалидным UUID.
 export const getObjectsQuerySchema = Joi.object({
     body: Joi.object().unknown(true),
     params: Joi.object().unknown(true),
