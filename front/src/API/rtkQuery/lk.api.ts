@@ -219,7 +219,7 @@ export const lkApi = createApi({
       invalidatesTags: [{ type: 'LkRequest', id: 'LIST' }],
     }),
 
-    addComment: build.mutation<ChatMessage | void, { id: string; text: string; file?: File }>({
+    addComment: build.mutation<ChatMessage, { id: string; text: string; file?: File }>({
       query: ({ id, text, file }) => {
         const fd = new FormData();
         fd.append('text', text);
@@ -230,10 +230,7 @@ export const lkApi = createApi({
           body: fd,
         };
       },
-      invalidatesTags: (_r, _e, { id }) => [
-        { type: 'LkRequest', id },
-        { type: 'LkRequestComments', id },
-      ],
+      invalidatesTags: (_r, _e, { id }) => [{ type: 'LkRequest', id }],
     }),
 
     getRequestComments: build.query<CommentsResponse, CommentsParams>({

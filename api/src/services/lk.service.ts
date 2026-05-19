@@ -418,21 +418,24 @@ const createComment = async (
         return created;
     });
 
+    const fresh = await RequestComment.findByPk(comment.id, {
+        include: [{ model: User, as: 'Author' }],
+    });
+    if (!fresh) throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Сообщение не сохранено');
+    const dto = new RequestCommentDto(fresh);
+
     emitTo({ kind: 'request', requestId: request.id }, wsEvents.COMMENT_CREATE, {
         requestId: request.id,
         commentId: comment.id,
         authorUserId: userId,
+        message: dto,
     });
 
     emitTo({ kind: 'request', requestId: request.id }, 'COMMENT_UPDATE', { requestId: request.id, comment: text });
 
     await notificationService.notifyCommentChanged(request, role, userId);
 
-    const fresh = await RequestComment.findByPk(comment.id, {
-        include: [{ model: User, as: 'Author' }],
-    });
-    if (!fresh) throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Сообщение не сохранено');
-    return new RequestCommentDto(fresh);
+    return dto;
 };
 
 const addPhotos = async (userId: string, requestId: string, role: Role, files: Express.Multer.File[]) => {

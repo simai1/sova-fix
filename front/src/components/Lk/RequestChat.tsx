@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import ChatComposer from './ChatComposer';
@@ -15,7 +15,15 @@ import {
   useGetRequestCommentsQuery,
 } from '@/API/rtkQuery/lk.api';
 import { useRequestSubscription } from '@/hooks/useRequestSubscription';
+import { emitChatMessage, subscribeChatMessages } from '@/utils/chatBus';
 import { getErrorMessage } from '@/utils/getErrorMessage';
+
+const mergeMessage = (prev: ChatMessage[], next: ChatMessage): ChatMessage[] => {
+  if (prev.some((m) => m.id === next.id)) return prev;
+  return [...prev, next].sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+  );
+};
 
 type Props = {
   mode: 'contractor' | 'customer' | 'admin';
@@ -37,6 +45,12 @@ const RequestChat = ({ mode, requestId: requestIdProp }: Props): JSX.Element => 
   const [accumulated, setAccumulated] = useState<ChatMessage[]>([]);
   const [hasMore, setHasMore] = useState<boolean>(false);
 
+  useEffect(() => {
+    setCursor(undefined);
+    setAccumulated([]);
+    setHasMore(false);
+  }, [requestId]);
+
   const {
     data: page,
     isLoading,
@@ -48,29 +62,33 @@ const RequestChat = ({ mode, requestId: requestIdProp }: Props): JSX.Element => 
     if (!page) return;
     setHasMore(page.hasMore);
     setAccumulated((prev) => {
-      if (!cursor) {
-        return page.items;
-      }
       const map = new Map<string, ChatMessage>();
       [...page.items, ...prev].forEach((m) => map.set(m.id, m));
       return Array.from(map.values()).sort(
         (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
       );
     });
-  }, [page, cursor]);
+  }, [page]);
 
-  const handleLoadMore = (): void => {
+  useEffect(() => {
+    if (!requestId) return;
+    return subscribeChatMessages(requestId, (msg) => {
+      setAccumulated((prev) => mergeMessage(prev, msg));
+    });
+  }, [requestId]);
+
+  const handleLoadMore = useCallback((): void => {
     if (!page?.nextCursor || isFetching) return;
     setCursor(page.nextCursor);
-  };
+  }, [page?.nextCursor, isFetching]);
 
   const [addComment, addCommentState] = useAddCommentMutation();
 
   const handleSend = async ({ text, file }: { text: string; file?: File }): Promise<void> => {
     if (!requestId) return;
     try {
-      await addComment({ id: requestId, text, file }).unwrap();
-      setCursor(undefined);
+      const created = await addComment({ id: requestId, text, file }).unwrap();
+      emitChatMessage(requestId, created);
     } catch (err) {
       showToast('error', getErrorMessage(err));
     }

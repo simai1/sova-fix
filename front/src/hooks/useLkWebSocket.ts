@@ -1,9 +1,10 @@
 import { useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 
-import { lkApi, MeDto } from '@/API/rtkQuery/lk.api';
+import { ChatMessage, lkApi, MeDto } from '@/API/rtkQuery/lk.api';
 import { showToast } from '@/components/Lk/toastBus';
 import { WS_URL } from '@/constants/env.constant';
+import { emitChatMessage } from '@/utils/chatBus';
 import { lkSocket } from '@/utils/lkSocket';
 
 const RECONNECT_INITIAL = 1000;
@@ -18,6 +19,7 @@ type WsMessage = {
   authorUserId?: string;
   commentId?: string;
   userId?: string;
+  message?: ChatMessage;
   [k: string]: unknown;
 };
 
@@ -70,8 +72,12 @@ export function useLkWebSocket(me: MeDto | undefined): void {
       lkSocket.attach(ws);
 
       ws.onopen = () => {
+        const wasReconnect = reconnectDelayRef.current > RECONNECT_INITIAL;
         reconnectDelayRef.current = RECONNECT_INITIAL;
         lkSocket.resubscribeAll();
+        if (wasReconnect) {
+          dispatch(lkApi.util.invalidateTags([{ type: 'LkRequestComments' }]));
+        }
       };
 
       ws.onmessage = (ev) => {
@@ -98,10 +104,12 @@ export function useLkWebSocket(me: MeDto | undefined): void {
         const payload: WsMessage = { ...payloadRaw, ...(nested ?? {}) };
 
         if (evType === 'COMMENT_CREATE') {
+          if (payload.requestId && payload.message) {
+            emitChatMessage(payload.requestId, payload.message);
+          }
           if (payload.requestId) {
             dispatch(
               lkApi.util.invalidateTags([
-                { type: 'LkRequestComments', id: payload.requestId },
                 { type: 'LkRequest', id: payload.requestId },
                 { type: 'LkRequest', id: 'LIST' },
               ]),
