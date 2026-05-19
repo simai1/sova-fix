@@ -9,43 +9,43 @@
 // в середине градиента: у крупного skeleton'а он чуть выше (0.6), чем у
 // тонких текстовых линий (0.4) — иначе на 0.875rem-полоске блик читается
 // как «вспышка», а не плавный sweep.
-@mixin lk-skeleton-shine($alpha: 0.6) {
+@mixin skeleton-shine($alpha: 0.6) {
   background-image: linear-gradient(
     90deg,
-    var(--lk-surface-2) 0%,
+    var(--color-fill-alt) 0%,
     rgba(245, 245, 244, $alpha) 50%,
-    var(--lk-surface-2) 100%
+    var(--color-fill-alt) 100%
   );
   background-size: 200% 100%;
-  animation: lk-skeleton-shimmer 1.4s ease-in-out infinite;
+  animation: ui-skeleton-shimmer 1.4s ease-in-out infinite;
 }
 
-.lk-skeleton {
-  @include lk-skeleton-shine;
-  border-radius: var(--lk-r-md);
+.ui-skeleton {
+  @include skeleton-shine;
+  border-radius: var(--radius-md);
   display: block;
 }
 
-.lk-skeleton-list {
+.ui-skeleton-list {
   display: flex;
   flex-direction: column;
-  gap: var(--lk-sp-3);
+  gap: var(--space-sm);
 }
 
-.lk-skeleton-list-item {
+.ui-skeleton-list-item {
   height: 6rem;
-  border: 1px solid var(--lk-border);
-  border-radius: var(--lk-r-md);
-  padding: var(--lk-sp-4);
-  background: var(--lk-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  background: var(--color-bg-container);
   display: flex;
   flex-direction: column;
-  gap: var(--lk-sp-2);
+  gap: var(--space-xs);
 
   &__line {
     height: 0.875rem;
-    border-radius: var(--lk-r-sm);
-    @include lk-skeleton-shine(0.4);
+    border-radius: var(--radius-sm);
+    @include skeleton-shine(0.4);
 
     // Утилитарные ширины — лезть в _utilities.scss ради трёх правил
     // не имеет смысла, оставляем рядом с самим компонентом.
@@ -57,7 +57,7 @@
   }
 }
 
-@keyframes lk-skeleton-shimmer {
+@keyframes ui-skeleton-shimmer {
   0%   { background-position: -100% 0; }
   100% { background-position: 100% 0; }
 }

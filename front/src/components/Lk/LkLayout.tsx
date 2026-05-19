@@ -1,6 +1,6 @@
 import { Navigate, Outlet } from 'react-router-dom';
 
-import '../../styles/lk/index.scss';
+import '../../styles/ui/index.scss';
 
 import LkBottomNav from './LkBottomNav';
 import LkPageHeader from './LkPageHeader';
@@ -56,10 +56,10 @@ const LkLayout = ({ role }: Props): JSX.Element => {
   }
 
   return (
-    <div className="lk-page">
+    <div className="ui-page">
       <LkPageHeader />
       <LkSidebar role={role} />
-      <div className="lk-page__content">
+      <div className="ui-page__content">
         <Outlet />
       </div>
       <LkBottomNav role={role} />

@@ -1,6 +1,6 @@
 .ContractorCard{
     margin:  15px 25px;
-    // box-shadow: 0 0 10px var(--light-gray-color);
+    // box-shadow: 0 0 10px var(--color-warm-border);
     transition: transform 0.25s ease, box-shadow 0.3s ease;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     background-color: #fff;
@@ -29,7 +29,7 @@
             position: absolute;
             bottom: 10px;
             width: 80%;
-            @include button(var(--turquoise-color));
+            @include button(var(--color-primary));
             display: flex;
             justify-content: center;
             &:hover{

@@ -4,8 +4,8 @@
   width: 100%;
   .buttonSave {
     margin-top: 20px;
-    background-color: var(--turquoise-color) !important;
-    @include buttonSave(var(--turquoise-color));
+    background-color: var(--color-primary) !important;
+    @include buttonSave(var(--color-primary));
     @media (max-width: 580px) {
       width: 100%!important;
       display: flex;
@@ -74,8 +74,8 @@
     height: 36px;
     padding: 5px 15px !important;
     font-size: 18px !important;
-    background-color: var(--turquoise-color) !important;
-    @include buttonSave(var(--turquoise-color));
+    background-color: var(--color-primary) !important;
+    @include buttonSave(var(--color-primary));
   }
   input {
     height: 25px;
@@ -144,8 +144,8 @@
     height: 36px;
     padding: 5px 15px !important;
     font-size: 18px !important;
-    background-color: var(--turquoise-color) !important;
-    @include buttonSave(var(--turquoise-color));
+    background-color: var(--color-primary) !important;
+    @include buttonSave(var(--color-primary));
     width: 332px;
     display: flex;
     justify-content: center;

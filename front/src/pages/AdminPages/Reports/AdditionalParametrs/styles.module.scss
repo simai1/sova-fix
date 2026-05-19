@@ -21,25 +21,25 @@
         }
     }
     .form :global(.ant-picker-focused) {
-        border: 2px solid var(--turquoise-lighter) !important;
+        border: 2px solid var(--color-primary-bg) !important;
         box-shadow: none !important;
     }
 
     .form :global(.ant-picker):hover {
-        border: 2px solid var(--turquoise-lighter) !important;
+        border: 2px solid var(--color-primary-bg) !important;
     }
 
     .form :global(.ant-picker-focused .ant-picker-active-bar) {
-        background: var(--turquoise-color) !important;
+        background: var(--color-primary) !important;
     }
 
     .form :global(.ant-select-focused .ant-select-selector) {
-        border: 2px solid var(--turquoise-lighter) !important;
+        border: 2px solid var(--color-primary-bg) !important;
         box-shadow: none !important;
     }
 
     .form :global(.ant-select .ant-select-selector):hover {
-        border: 2px solid var(--turquoise-lighter) !important;
+        border: 2px solid var(--color-primary-bg) !important;
     }
 
     /* Убрано окрашивание иконки стрелки */
@@ -52,7 +52,7 @@
         ) {
         background-color: color-mix(
             in srgb,
-            var(--turquoise-color) 10%,
+            var(--color-primary) 10%,
             white
         ) !important;
     }
@@ -63,7 +63,7 @@
         ) {
         background-color: color-mix(
             in srgb,
-            var(--turquoise-color) 5%,
+            var(--color-primary) 5%,
             white
         ) !important;
     }

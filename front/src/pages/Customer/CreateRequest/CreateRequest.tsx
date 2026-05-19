@@ -43,14 +43,18 @@ const CustomerCreateRequest = (): JSX.Element => {
   }
 
   const objectOptions: LkSelectOption[] = myObjects.map((o) => ({ value: o.id, label: o.name }));
-  const urgencyOptions: LkSelectOption[] = urgencies.map((u) => ({ value: u.id, label: u.name }));
+  const urgencyOptions: LkSelectOption[] = urgencies.map((u) => ({
+    value: u.id,
+    label: u.name,
+    color: u.color,
+  }));
 
   const descriptionLength = description.length;
   const counterTone =
     descriptionLength >= MAX_DESCRIPTION_LEN
-      ? ' lk-field__counter--full'
+      ? ' ui-field__counter--full'
       : descriptionLength >= DESCRIPTION_WARN_AT
-        ? ' lk-field__counter--warn'
+        ? ' ui-field__counter--warn'
         : '';
 
   const validate = (): boolean => {
@@ -89,68 +93,68 @@ const CustomerCreateRequest = (): JSX.Element => {
   };
 
   return (
-    <form className="lk-card" onSubmit={handleSubmit}>
-      <h2 className="lk-card__title">Новая заявка</h2>
+    <form className="ui-card" onSubmit={handleSubmit}>
+      <h2 className="ui-card__title">Новая заявка</h2>
 
-      <div className="lk-row">
-        <div className="lk-col-12 lk-col-ml-6">
-          <div className="lk-field">
-            <label className="lk-field__label" htmlFor="lk-create-object">
+      <div className="ui-row">
+        <div className="ui-col-12 ui-col-ml-6">
+          <div className="ui-field">
+            <label className="ui-field__label" htmlFor="ui-create-object">
               Объект
             </label>
             <LkSelect
-              id="lk-create-object"
+              id="ui-create-object"
               value={objectId}
               onChange={setObjectId}
               options={objectOptions}
               placeholder="Выберите объект"
             />
-            {errors.objectId ? <div className="lk-field__error">{errors.objectId}</div> : null}
+            {errors.objectId ? <div className="ui-field__error">{errors.objectId}</div> : null}
           </div>
         </div>
 
-        <div className="lk-col-12 lk-col-ml-6">
-          <div className="lk-field">
-            <label className="lk-field__label" htmlFor="lk-create-urgency">
+        <div className="ui-col-12 ui-col-ml-6">
+          <div className="ui-field">
+            <label className="ui-field__label" htmlFor="ui-create-urgency">
               Срочность
             </label>
             <LkSelect
-              id="lk-create-urgency"
+              id="ui-create-urgency"
               value={urgencyId}
               onChange={setUrgencyId}
               options={urgencyOptions}
               placeholder="Выберите срочность"
             />
-            {errors.urgencyId ? <div className="lk-field__error">{errors.urgencyId}</div> : null}
+            {errors.urgencyId ? <div className="ui-field__error">{errors.urgencyId}</div> : null}
           </div>
         </div>
       </div>
 
-      <div className="lk-field">
-        <label className="lk-field__label" htmlFor="lk-create-desc">
+      <div className="ui-field">
+        <label className="ui-field__label" htmlFor="ui-create-desc">
           Описание проблемы
         </label>
-        <div className="lk-field__control">
+        <div className="ui-field__control">
           <textarea
-            id="lk-create-desc"
-            className="lk-textarea lk-textarea--with-counter"
+            id="ui-create-desc"
+            className="ui-textarea ui-textarea--with-counter"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Опишите, что сломалось"
             maxLength={MAX_DESCRIPTION_LEN}
-            aria-describedby="lk-create-desc-counter"
+            aria-describedby="ui-create-desc-counter"
           />
-          <span id="lk-create-desc-counter" className={`lk-field__counter${counterTone}`}>
-            <span className="lk-field__counter-value">{descriptionLength}</span>
+          <span id="ui-create-desc-counter" className={`ui-field__counter${counterTone}`}>
+            <span className="ui-field__counter-value">{descriptionLength}</span>
             {' / '}
             {MAX_DESCRIPTION_LEN}
           </span>
         </div>
-        {errors.description ? <div className="lk-field__error">{errors.description}</div> : null}
+        {errors.description ? <div className="ui-field__error">{errors.description}</div> : null}
       </div>
 
-      <div className="lk-field">
-        <label className="lk-field__label">
+      <div className="ui-field">
+        <label className="ui-field__label">
           {isPhotoRequired ? 'Фото (1–10)' : 'Фото (по желанию, до 10)'}
         </label>
         <PhotoUploader
@@ -159,12 +163,12 @@ const CustomerCreateRequest = (): JSX.Element => {
           maxFiles={10}
           hint="Снимите проблему с разных ракурсов. Форматы: JPG/JPEG или PNG, до 10 МБ."
         />
-        {errors.files ? <div className="lk-field__error">{errors.files}</div> : null}
+        {errors.files ? <div className="ui-field__error">{errors.files}</div> : null}
       </div>
 
       <button
         type="submit"
-        className="lk-button lk-button--accent lk-button--block"
+        className="ui-button ui-button--accent ui-button--block"
         disabled={creating}
       >
         {creating ? 'Создание...' : 'Создать заявку'}

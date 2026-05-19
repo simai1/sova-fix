@@ -11,8 +11,8 @@
 }
 
 .checkbox :global(.ant-checkbox-checked .ant-checkbox-inner) {
-    background: var(--turquoise-color) !important;
-    border: 2px solid var(--turquoise-color) !important;
+    background: var(--color-primary) !important;
+    border: 2px solid var(--color-primary) !important;
 }
 
 .checkbox :global(.ant-checkbox-checked .ant-checkbox-inner::before) {

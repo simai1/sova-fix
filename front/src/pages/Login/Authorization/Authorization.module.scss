@@ -1,4 +1,4 @@
-@use '@/styles/lk/tokens' as *;
+@use '@/styles/ui/tokens' as *;
 
 .AuthorRegistrar {
   // flex-direction: column нужен, чтобы align-items: center центрировал по
@@ -16,7 +16,7 @@
 
   > div {
     width: min(25rem, 100%);
-    @include lk-mq-up(tp) {
+    @include mq-up(tp) {
       width: min(50rem, 100%);
     }
   }
@@ -39,14 +39,14 @@
     width: 100%;
     padding: 1.75rem 1.75rem;
     box-sizing: border-box;
-    background-color: var(--white-color);
+    background-color: var(--color-bg-container);
     @include flexbox-center(1.0625rem);
-    @include lk-mq-up(tp) {
+    @include mq-up(tp) {
       padding: 3.75rem 0;
     }
     .LogoAuth {
       display: none;
-      @include lk-mq-up(tp) {
+      @include mq-up(tp) {
         display: block;
         height: 21.5625rem;
         position: relative;
@@ -94,7 +94,7 @@
         align-self: center;
         font-size: 0.875rem;
         &:hover {
-          color: var(--ActiveText-color);
+          color: var(--color-warm-text);
         }
       }
       .rememberMe {
@@ -133,12 +133,12 @@
           flex-shrink: 0;
         }
         input:focus-visible + .checkbox {
-          outline: 0.125rem solid var(--turquoise-color, #2cb1bc);
+          outline: 0.125rem solid var(--color-primary, #2cb1bc);
           outline-offset: 0.125rem;
         }
         input:checked + .checkbox {
-          background: var(--turquoise-color, #2cb1bc);
-          border-color: var(--turquoise-color, #2cb1bc);
+          background: var(--color-primary, #2cb1bc);
+          border-color: var(--color-primary, #2cb1bc);
           &::after {
             content: '';
             width: 0.3125rem;
@@ -150,7 +150,7 @@
         }
       }
       .button {
-        @include button(var(--turquoise-color));
+        @include button(var(--color-primary));
         width: 100%;
         box-sizing: border-box;
         justify-content: center;

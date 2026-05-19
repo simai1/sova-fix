@@ -1,6 +1,6 @@
 const LkSpinner = (): JSX.Element => (
-  <div className="lk-spinner-wrap">
-    <span className="lk-spinner" aria-label="Загрузка" />
+  <div className="ui-spinner-wrap">
+    <span className="ui-spinner" aria-label="Загрузка" />
   </div>
 );
 

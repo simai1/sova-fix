@@ -6,7 +6,7 @@
         position: relative;
         top: -35px;
         button{
-            @include button(var(--turquoise-color));
+            @include button(var(--color-primary));
             width: 210px!important;
             display: flex;
             justify-content: center;
@@ -40,7 +40,7 @@
                             margin: 0;
                         }
                         .DataInfo{
-                            background-color: var(--Red-color);
+                            background-color: var(--color-error-muted);
                             border-radius: 6px;
                             margin-left: 15px;
                             width: 300px;
@@ -54,7 +54,7 @@
                         width: 200px;
                     }
                     .paramInfo, .paramInfoGray{
-                        background-color: var(--light-gray-color);
+                        background-color: var(--color-warm-border);
                         border-radius: 6px;
                     }
                   
@@ -80,7 +80,7 @@
                
             }
             .button{
-                @include button(var(--turquoise-color));
+                @include button(var(--color-primary));
                 width: 100%!important;
                 padding: 5px;
                 display: flex;
@@ -99,7 +99,7 @@
         }
        
         .paramInfoSecond{
-            background-color: var(--light-gray-color);
+            background-color: var(--color-warm-border);
             border-radius: 6px;
             width: 100px;
             align-items: start;
@@ -116,7 +116,7 @@
         display: flex;
         justify-content: center;
         width: 100%;
-        background-color: var(--light-gray-color);
+        background-color: var(--color-warm-border);
         border-radius: 6px;
         padding: 5px 10px;
         box-sizing: border-box;
@@ -172,7 +172,7 @@
     }
 }
 .pupUpFirstContainerInfo{
-    background-color: var(--turquoise-color);
+    background-color: var(--color-primary);
     position: absolute;
     left: 0;
     top: 0;

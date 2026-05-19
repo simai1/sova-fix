@@ -47,7 +47,7 @@
       transition: 0.1s linear all;
       cursor: pointer;
       &:hover {
-        color: var( --ActiveText-color);
+        color: var( --color-warm-text);
       }
       &:first-child {
         margin-top: 0px;

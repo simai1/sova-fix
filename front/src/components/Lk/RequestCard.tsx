@@ -265,34 +265,34 @@ const RequestCard = ({ request, mode, me }: Props): JSX.Element => {
   };
 
   return (
-    <div className="lk-card">
-      <div className="lk-card__row">
-        <h2 className="lk-card__title">Заявка № {request.number}</h2>
+    <div className="ui-card">
+      <div className="ui-card__row">
+        <h2 className="ui-card__title">Заявка № {request.number}</h2>
         <StatusChip statusNumber={statusNumber} />
         {showAssignedChip ? (
-          <span className="lk-chip lk-chip--accent" aria-label="Заявка закреплена за вами">
+          <span className="ui-chip ui-chip--accent" aria-label="Заявка закреплена за вами">
             Закреплена за мной
           </span>
         ) : null}
       </div>
 
-      <div className="lk-card__row" style={{ flexWrap: 'wrap', gap: 8 }}>
+      <div className="ui-card__row" style={{ flexWrap: 'wrap', gap: 8 }}>
         <UrgencyChip urgency={getUrgencyObj(request)} fallbackName={getUrgencyName(request)} />
-        <span className="lk-card__muted">{formatDate(request.createdAt)}</span>
+        <span className="ui-card__muted">{formatDate(request.createdAt)}</span>
       </div>
 
       {request.Object?.name || request.Unit?.name ? (
-        <div className="lk-row">
+        <div className="ui-row">
           {request.Object?.name ? (
-            <div className="lk-col-12 lk-col-ml-6">
-              <div className="lk-field__label">Объект</div>
+            <div className="ui-col-12 ui-col-ml-6">
+              <div className="ui-field__label">Объект</div>
               <div>{request.Object.name}</div>
             </div>
           ) : null}
 
           {request.Unit?.name ? (
-            <div className="lk-col-12 lk-col-ml-6">
-              <div className="lk-field__label">Бизнес-юнит</div>
+            <div className="ui-col-12 ui-col-ml-6">
+              <div className="ui-field__label">Бизнес-юнит</div>
               <div>{request.Unit.name}</div>
             </div>
           ) : null}
@@ -304,26 +304,26 @@ const RequestCard = ({ request, mode, me }: Props): JSX.Element => {
       request.exitDate ||
       typeof request.daysAtWork === 'number' ||
       request.completeDate ? (
-        <div className="lk-row">
+        <div className="ui-row">
           {request.Category?.name ? (
-            <div className="lk-col-12 lk-col-ml-6">
-              <div className="lk-field__label">Категория</div>
+            <div className="ui-col-12 ui-col-ml-6">
+              <div className="ui-field__label">Категория</div>
               <div>{request.Category.name}</div>
             </div>
           ) : null}
 
           {request.planCompleteDate ? (
-            <div className="lk-col-12 lk-col-ml-6">
-              <div className="lk-field__label">Плановая дата выполнения</div>
+            <div className="ui-col-12 ui-col-ml-6">
+              <div className="ui-field__label">Плановая дата выполнения</div>
               <div>{formatDateOnly(request.planCompleteDate)}</div>
             </div>
           ) : null}
 
-          <div className="lk-col-12 lk-col-ml-6">
-            <div className="lk-field__label">Дата выезда</div>
+          <div className="ui-col-12 ui-col-ml-6">
+            <div className="ui-field__label">Дата выезда</div>
             {exitDateEditing ? (
-              <div className="lk-exit-date-edit">
-                <div className="lk-exit-date-edit__input">
+              <div className="ui-exit-date-edit">
+                <div className="ui-exit-date-edit__input">
                   <LkSingleDatePicker
                     value={exitDateDraft}
                     onChange={setExitDateDraft}
@@ -331,10 +331,10 @@ const RequestCard = ({ request, mode, me }: Props): JSX.Element => {
                     disabled={updateExitDateState.isLoading}
                   />
                 </div>
-                <div className="lk-exit-date-edit__actions">
+                <div className="ui-exit-date-edit__actions">
                   <button
                     type="button"
-                    className="lk-button lk-button--accent"
+                    className="ui-button ui-button--accent"
                     onClick={handleExitDateSave}
                     disabled={updateExitDateState.isLoading}
                   >
@@ -342,7 +342,7 @@ const RequestCard = ({ request, mode, me }: Props): JSX.Element => {
                   </button>
                   <button
                     type="button"
-                    className="lk-button lk-button--ghost"
+                    className="ui-button ui-button--ghost"
                     onClick={handleExitDateCancel}
                     disabled={updateExitDateState.isLoading}
                   >
@@ -351,12 +351,12 @@ const RequestCard = ({ request, mode, me }: Props): JSX.Element => {
                 </div>
               </div>
             ) : (
-              <div className="lk-exit-date-view">
-                <span className="lk-exit-date-view__value">{formatDateOnly(request.exitDate)}</span>
+              <div className="ui-exit-date-view">
+                <span className="ui-exit-date-view__value">{formatDateOnly(request.exitDate)}</span>
                 {canEditExitDate ? (
                   <button
                     type="button"
-                    className="lk-button lk-button--ghost lk-exit-date-view__btn"
+                    className="ui-button ui-button--ghost ui-exit-date-view__btn"
                     onClick={handleExitDateEdit}
                     aria-label="Изменить дату выезда"
                   >
@@ -368,15 +368,15 @@ const RequestCard = ({ request, mode, me }: Props): JSX.Element => {
           </div>
 
           {typeof request.daysAtWork === 'number' && request.daysAtWork > 0 ? (
-            <div className="lk-col-12 lk-col-ml-6">
-              <div className="lk-field__label">Дней в работе</div>
+            <div className="ui-col-12 ui-col-ml-6">
+              <div className="ui-field__label">Дней в работе</div>
               <div>{request.daysAtWork}</div>
             </div>
           ) : null}
 
           {request.completeDate ? (
-            <div className="lk-col-12 lk-col-ml-6">
-              <div className="lk-field__label">Дата выполнения</div>
+            <div className="ui-col-12 ui-col-ml-6">
+              <div className="ui-field__label">Дата выполнения</div>
               <div>{formatDateOnly(request.completeDate)}</div>
             </div>
           ) : null}
@@ -385,20 +385,20 @@ const RequestCard = ({ request, mode, me }: Props): JSX.Element => {
 
       {request.problemDescription ? (
         <div>
-          <div className="lk-field__label">Описание</div>
+          <div className="ui-field__label">Описание</div>
           <div style={{ whiteSpace: 'pre-wrap' }}>{request.problemDescription}</div>
         </div>
       ) : null}
 
       {photoUrls.length > 0 || canAddPhotos ? (
-        <div className="lk-card__section">
-          <h3 className="lk-card__section-title">Фото поломки</h3>
-          <div className="lk-photo-grid">
+        <div className="ui-card__section">
+          <h3 className="ui-card__section-title">Фото поломки</h3>
+          <div className="ui-photo-grid">
             {photoUrls.map((url, i) => (
               <button
                 key={url}
                 type="button"
-                className="lk-photo-grid__item"
+                className="ui-photo-grid__item"
                 onClick={() => setLightboxIndex(i)}
                 aria-label={`Открыть фото ${i + 1}`}
               >
@@ -408,7 +408,7 @@ const RequestCard = ({ request, mode, me }: Props): JSX.Element => {
             {canAddPhotos ? (
               <button
                 type="button"
-                className="lk-photo-grid__add"
+                className="ui-photo-grid__add"
                 onClick={handleAddPhotosClick}
                 disabled={addPhotosState.isLoading}
                 aria-label="Добавить фото"
@@ -433,12 +433,12 @@ const RequestCard = ({ request, mode, me }: Props): JSX.Element => {
       ) : null}
 
       {checkPhotoUrl ? (
-        <div className="lk-card__section">
-          <h3 className="lk-card__section-title">Фото-подтверждение</h3>
-          <div className="lk-photo-grid">
+        <div className="ui-card__section">
+          <h3 className="ui-card__section-title">Фото-подтверждение</h3>
+          <div className="ui-photo-grid">
             <button
               type="button"
-              className="lk-photo-grid__item"
+              className="ui-photo-grid__item"
               onClick={() => setLightboxIndex(photoUrls.length)}
               aria-label="Открыть фото-подтверждение"
             >
@@ -448,8 +448,8 @@ const RequestCard = ({ request, mode, me }: Props): JSX.Element => {
         </div>
       ) : null}
 
-      <div className="lk-card__section">
-        <h3 className="lk-card__section-title">Переписка</h3>
+      <div className="ui-card__section">
+        <h3 className="ui-card__section-title">Переписка</h3>
         <CommentPreview
           messages={commentsData?.items ?? []}
           legacyComment={request.comment}
@@ -458,13 +458,13 @@ const RequestCard = ({ request, mode, me }: Props): JSX.Element => {
       </div>
 
       {mode === 'contractor' && isMyAssignedContractor ? (
-        <div className="lk-card__section">
-          <h3 className="lk-card__section-title">Действия</h3>
-          <div className="lk-actions">
+        <div className="ui-card__section">
+          <h3 className="ui-card__section-title">Действия</h3>
+          <div className="ui-actions">
             {statusNumber === STATUS_NEW ? (
               <button
                 type="button"
-                className="lk-button lk-button--accent lk-button--block"
+                className="ui-button ui-button--accent ui-button--block"
                 disabled={setStatusState.isLoading}
                 onClick={handleTakeToWork}
               >
@@ -474,7 +474,7 @@ const RequestCard = ({ request, mode, me }: Props): JSX.Element => {
 
             <button
               type="button"
-              className="lk-button lk-button--ghost lk-button--block"
+              className="ui-button ui-button--ghost ui-button--block"
               onClick={handleCheckPhotoClick}
               disabled={uploadCheckPhotoState.isLoading}
             >
@@ -490,7 +490,7 @@ const RequestCard = ({ request, mode, me }: Props): JSX.Element => {
             />
             <button
               type="button"
-              className="lk-button lk-button--primary lk-button--block"
+              className="ui-button ui-button--primary ui-button--block"
               disabled={closeDisabled || setStatusState.isLoading}
               title={
                 closeDisabled && !checkPhotoUrl ? 'Сначала загрузите фото-подтверждение' : undefined

@@ -3,19 +3,19 @@
 // Display-утилиты по образцу Bootstrap (`d-{bp}-{value}`), но с ключами
 // глобальной шкалы Frontend Breakpoints (см. _tokens.scss).
 // Ограничены тем, что реально нужно в ЛК — show/hide и базовые контейнеры.
-// Spacing/sizing-утилиты не вводим: токены `--lk-sp-*` и BEM-классы это покрывают.
-$lk-displays: none, block, flex, inline-flex, inline-block, grid;
+// Spacing/sizing-утилиты не вводим: токены `--space-*` и BEM-классы это покрывают.
+$ui-displays: none, block, flex, inline-flex, inline-block, grid;
 
-@each $d in $lk-displays {
-  .lk-d-#{$d} {
+@each $d in $ui-displays {
+  .ui-d-#{$d} {
     display: #{$d};
   }
 }
 
 @each $bp in (ml, tp, tl, lt, dt, ws) {
-  @include lk-mq-up($bp) {
-    @each $d in $lk-displays {
-      .lk-d-#{$bp}-#{$d} {
+  @include mq-up($bp) {
+    @each $d in $ui-displays {
+      .ui-d-#{$bp}-#{$d} {
         display: #{$d};
       }
     }

@@ -37,11 +37,11 @@ const roleConfig = (
   switch (role) {
     case 'MANAGER':
     case 'ADMIN':
-      return { label: 'Менеджер', modifier: 'lk-chip--role-manager' };
+      return { label: 'Менеджер', modifier: 'ui-chip--role-manager' };
     case 'CONTRACTOR':
-      return { label: 'Исполнитель', modifier: 'lk-chip--role-contractor' };
+      return { label: 'Исполнитель', modifier: 'ui-chip--role-contractor' };
     case 'CUSTOMER':
-      return { label: 'Заказчик', modifier: 'lk-chip--role-customer' };
+      return { label: 'Заказчик', modifier: 'ui-chip--role-customer' };
     default:
       return null;
   }
@@ -54,22 +54,22 @@ const ChatMessage = ({ message, isMine, onOpenPhoto }: Props): JSX.Element => {
   const isImage = isImageName(rawName);
   const authorName = message.author?.name ?? (isMine ? 'Вы' : 'Пользователь удалён');
 
-  const cls = `lk-chat__msg lk-chat__msg--${isMine ? 'mine' : 'other'}`;
+  const cls = `ui-chat__msg ui-chat__msg--${isMine ? 'mine' : 'other'}`;
 
   return (
     <article className={cls} aria-label={`Сообщение от ${authorName}`}>
-      <div className="lk-chat__msg-head">
-        {!isMine ? <span className="lk-chat__msg-author">{authorName}</span> : null}
-        {role ? <span className={`lk-chip ${role.modifier}`}>{role.label}</span> : null}
-        <span className="lk-chat__msg-time">{formatTime(message.createdAt)}</span>
+      <div className="ui-chat__msg-head">
+        {!isMine ? <span className="ui-chat__msg-author">{authorName}</span> : null}
+        {role ? <span className={`ui-chip ${role.modifier}`}>{role.label}</span> : null}
+        <span className="ui-chat__msg-time">{formatTime(message.createdAt)}</span>
       </div>
-      {message.text ? <div className="lk-chat__msg-text">{message.text}</div> : null}
+      {message.text ? <div className="ui-chat__msg-text">{message.text}</div> : null}
       {attachmentUrl ? (
-        <div className="lk-chat__msg-photos">
+        <div className="ui-chat__msg-photos">
           {isImage && onOpenPhoto ? (
             <button
               type="button"
-              className="lk-chat__photo"
+              className="ui-chat__photo"
               onClick={() => onOpenPhoto(attachmentUrl)}
               aria-label="Открыть фото"
             >
@@ -80,7 +80,7 @@ const ChatMessage = ({ message, isMine, onOpenPhoto }: Props): JSX.Element => {
               href={attachmentUrl}
               target="_blank"
               rel="noreferrer"
-              className="lk-chat__photo"
+              className="ui-chat__photo"
               aria-label="Открыть вложение"
             >
               {isImage ? <img src={attachmentUrl} alt="Вложение" /> : <span>Вложение</span>}

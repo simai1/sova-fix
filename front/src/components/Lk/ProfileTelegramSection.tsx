@@ -29,21 +29,21 @@ const ProfileTelegramSection = ({ telegram }: Props): JSX.Element => {
   };
 
   return (
-    <div className="lk-card">
-      <h2 className="lk-card__title">Telegram</h2>
-      <div className="lk-profile__tg">
+    <div className="ui-card">
+      <h2 className="ui-card__title">Telegram</h2>
+      <div className="ui-profile__tg">
         {linked ? (
           <>
-            <div className="lk-profile__tg-status lk-profile__tg-status--linked">
+            <div className="ui-profile__tg-status ui-profile__tg-status--linked">
               <span aria-hidden="true">✓</span>
               <span>Привязан:</span>
-              <span className="lk-profile__tg-username">
+              <span className="ui-profile__tg-username">
                 {username ? `@${username}` : (tgIdMasked ?? 'Telegram')}
               </span>
             </div>
             <button
               type="button"
-              className="lk-button lk-button--danger lk-button--block"
+              className="ui-button ui-button--danger ui-button--block"
               onClick={handleUnlink}
               disabled={unlinkState.isLoading}
             >
@@ -52,12 +52,12 @@ const ProfileTelegramSection = ({ telegram }: Props): JSX.Element => {
           </>
         ) : (
           <>
-            <div className="lk-profile__tg-status lk-profile__tg-status--empty">
+            <div className="ui-profile__tg-status ui-profile__tg-status--empty">
               Уведомления о заявках в Telegram ещё не подключены.
             </div>
             <button
               type="button"
-              className="lk-button lk-button--accent lk-button--block"
+              className="ui-button ui-button--accent ui-button--block"
               onClick={() => setOpen(true)}
             >
               Привязать Telegram

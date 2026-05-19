@@ -134,18 +134,18 @@ const LkSingleDatePicker = ({
   };
 
   return (
-    <div className={`lk-datepicker${hasValue ? '' : ' lk-datepicker--placeholder'}`}>
+    <div className={`ui-datepicker${hasValue ? '' : ' ui-datepicker--placeholder'}`}>
       <button
         ref={triggerRef}
         type="button"
-        className="lk-input lk-datepicker__trigger"
+        className="ui-input ui-datepicker__trigger"
         onClick={handleToggle}
         disabled={disabled}
         aria-haspopup="dialog"
         aria-expanded={open}
       >
         <svg
-          className="lk-datepicker__trigger-icon"
+          className="ui-datepicker__trigger-icon"
           width="16"
           height="16"
           viewBox="0 0 24 24"
@@ -161,16 +161,16 @@ const LkSingleDatePicker = ({
           <line x1="8" y1="2" x2="8" y2="6" />
           <line x1="3" y1="10" x2="21" y2="10" />
         </svg>
-        <span className="lk-datepicker__trigger-value">{display || placeholder}</span>
+        <span className="ui-datepicker__trigger-value">{display || placeholder}</span>
       </button>
 
       {open
         ? createPortal(
             isMobile ? (
-              <div className="lk-datepicker__overlay">
+              <div className="ui-datepicker__overlay">
                 <div
                   ref={popoverRef}
-                  className="lk-datepicker__popover lk-datepicker__popover--sheet"
+                  className="ui-datepicker__popover ui-datepicker__popover--sheet"
                   role="dialog"
                   aria-modal="true"
                   aria-label="Выбор даты"
@@ -184,12 +184,12 @@ const LkSingleDatePicker = ({
                     onSelect={handleSelect}
                     numberOfMonths={1}
                   />
-                  <div className="lk-datepicker__footer">
-                    <button type="button" className="lk-datepicker__btn" onClick={handleToday}>
+                  <div className="ui-datepicker__footer">
+                    <button type="button" className="ui-datepicker__btn" onClick={handleToday}>
                       Сегодня
                     </button>
-                    <span className="lk-datepicker__footer-spacer" aria-hidden />
-                    <button type="button" className="lk-datepicker__btn" onClick={handleClear}>
+                    <span className="ui-datepicker__footer-spacer" aria-hidden />
+                    <button type="button" className="ui-datepicker__btn" onClick={handleClear}>
                       Очистить
                     </button>
                   </div>
@@ -198,7 +198,7 @@ const LkSingleDatePicker = ({
             ) : (
               <div
                 ref={popoverRef}
-                className="lk-datepicker__popover"
+                className="ui-datepicker__popover"
                 style={{
                   position: 'fixed',
                   top: pos ? pos.top : 0,
@@ -217,12 +217,12 @@ const LkSingleDatePicker = ({
                   onSelect={handleSelect}
                   numberOfMonths={1}
                 />
-                <div className="lk-datepicker__footer">
-                  <button type="button" className="lk-datepicker__btn" onClick={handleToday}>
+                <div className="ui-datepicker__footer">
+                  <button type="button" className="ui-datepicker__btn" onClick={handleToday}>
                     Сегодня
                   </button>
-                  <span className="lk-datepicker__footer-spacer" aria-hidden />
-                  <button type="button" className="lk-datepicker__btn" onClick={handleClear}>
+                  <span className="ui-datepicker__footer-spacer" aria-hidden />
+                  <button type="button" className="ui-datepicker__btn" onClick={handleClear}>
                     Очистить
                   </button>
                 </div>

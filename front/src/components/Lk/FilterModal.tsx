@@ -63,7 +63,7 @@ const FilterModal = ({ open, onClose, value, onApply, options }: Props): JSX.Ele
     [options.statuses],
   );
   const urgencyOptions: LkChipOption[] = useMemo(
-    () => options.urgencies.map((u) => ({ value: u.id, label: u.name })),
+    () => options.urgencies.map((u) => ({ value: u.id, label: u.name, color: u.color })),
     [options.urgencies],
   );
 
@@ -98,44 +98,44 @@ const FilterModal = ({ open, onClose, value, onApply, options }: Props): JSX.Ele
 
   return (
     <div
-      className="lk-modal__overlay"
+      className="ui-modal__overlay"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="lk-modal__sheet" role="dialog" aria-modal="true">
-        <h2 className="lk-modal__title">Фильтры</h2>
+      <div className="ui-modal__sheet" role="dialog" aria-modal="true">
+        <h2 className="ui-modal__title">Фильтры</h2>
 
-        <div className="lk-field">
-          <label className="lk-field__label" htmlFor="lk-filter-unit">
+        <div className="ui-field">
+          <label className="ui-field__label" htmlFor="ui-filter-unit">
             Подразделение
           </label>
           <LkSelect
-            id="lk-filter-unit"
+            id="ui-filter-unit"
             value={draft.unitId ?? ''}
             onChange={(v) => update('unitId', v || undefined)}
             options={unitOptions}
           />
         </div>
 
-        <div className="lk-field">
-          <label className="lk-field__label" htmlFor="lk-filter-object">
+        <div className="ui-field">
+          <label className="ui-field__label" htmlFor="ui-filter-object">
             Объект
           </label>
           <LkSelect
-            id="lk-filter-object"
+            id="ui-filter-object"
             value={draft.objectId ?? ''}
             onChange={(v) => update('objectId', v || undefined)}
             options={objectOptions}
           />
         </div>
 
-        <div className="lk-field">
-          <div className="lk-field__label" id="lk-filter-status-label">
+        <div className="ui-field">
+          <div className="ui-field__label" id="ui-filter-status-label">
             Статус
           </div>
           <LkChipSelect
-            id="lk-filter-status"
+            id="ui-filter-status"
             value={draft.statusId}
             onChange={(v) => update('statusId', v)}
             options={statusOptions}
@@ -143,12 +143,12 @@ const FilterModal = ({ open, onClose, value, onApply, options }: Props): JSX.Ele
           />
         </div>
 
-        <div className="lk-field">
-          <div className="lk-field__label" id="lk-filter-urgency-label">
+        <div className="ui-field">
+          <div className="ui-field__label" id="ui-filter-urgency-label">
             Срочность
           </div>
           <LkChipSelect
-            id="lk-filter-urgency"
+            id="ui-filter-urgency"
             value={draft.urgencyId}
             onChange={(v) => update('urgencyId', v)}
             options={urgencyOptions}
@@ -156,8 +156,8 @@ const FilterModal = ({ open, onClose, value, onApply, options }: Props): JSX.Ele
           />
         </div>
 
-        <div className="lk-field">
-          <div className="lk-field__label">Период</div>
+        <div className="ui-field">
+          <div className="ui-field__label">Период</div>
           <LkDatePicker
             value={
               draft.dateFrom || draft.dateTo
@@ -178,17 +178,17 @@ const FilterModal = ({ open, onClose, value, onApply, options }: Props): JSX.Ele
           />
         </div>
 
-        <div className="lk-modal__actions">
+        <div className="ui-modal__actions">
           <button
             type="button"
-            className="lk-button lk-button--ghost lk-button--block"
+            className="ui-button ui-button--ghost ui-button--block"
             onClick={handleReset}
           >
             Сбросить
           </button>
           <button
             type="button"
-            className="lk-button lk-button--primary lk-button--block"
+            className="ui-button ui-button--primary ui-button--block"
             onClick={handleApply}
           >
             Применить

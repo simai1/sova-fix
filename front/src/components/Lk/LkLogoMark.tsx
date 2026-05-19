@@ -6,15 +6,15 @@ type Props = {
 const LkLogoMark = ({ size = 1.5, withWordmark = false }: Props): JSX.Element => {
   const dim = `${size}rem`;
   return (
-    <span className="lk-page__brand" aria-label="sova fix">
+    <span className="ui-page__brand" aria-label="sova fix">
       <span
         aria-hidden="true"
         style={{
           width: dim,
           height: dim,
           borderRadius: '50%',
-          background: 'var(--lk-accent)',
-          color: 'var(--lk-accent-fg)',
+          background: 'var(--color-primary)',
+          color: 'var(--color-primary-fg)',
           display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -26,7 +26,7 @@ const LkLogoMark = ({ size = 1.5, withWordmark = false }: Props): JSX.Element =>
         S
       </span>
       {withWordmark ? (
-        <span style={{ fontWeight: 600, fontSize: 'var(--lk-fs-md)' }}>sova fix</span>
+        <span style={{ fontWeight: 600, fontSize: 'var(--font-size-md)' }}>sova fix</span>
       ) : null}
     </span>
   );

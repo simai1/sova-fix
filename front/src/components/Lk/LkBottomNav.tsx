@@ -31,7 +31,7 @@ const ICON_PROPS = {
   strokeLinecap: 'round' as const,
   strokeLinejoin: 'round' as const,
   'aria-hidden': true,
-  className: 'lk-bottom-nav__icon',
+  className: 'ui-bottom-nav__icon',
 };
 
 const ICONS: Record<IconKind, JSX.Element> = {
@@ -77,13 +77,13 @@ const LkBottomNav = ({ role }: Props): JSX.Element => {
     : null;
 
   return (
-    <nav className="lk-bottom-nav" aria-label="Навигация">
+    <nav className="ui-bottom-nav" aria-label="Навигация">
       {items.map((item) => (
         <NavLink
           key={item.to}
           to={item.to}
-          className={`lk-bottom-nav__item${
-            item.to === activeTo ? ' lk-bottom-nav__item--active' : ''
+          className={`ui-bottom-nav__item${
+            item.to === activeTo ? ' ui-bottom-nav__item--active' : ''
           }`}
         >
           {ICONS[item.icon]}

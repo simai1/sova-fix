@@ -46,7 +46,7 @@
     }
   
     input:checked + .slider {
-      background-color: var(--turquoise-color);
+      background-color: var(--color-primary);
     }
   
     input:checked + .slider::before {

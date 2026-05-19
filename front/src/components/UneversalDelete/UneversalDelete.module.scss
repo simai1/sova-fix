@@ -39,11 +39,11 @@
         }
 
         .confirmButton {
-            @include button(var(--Main-green-color));
+            @include button(var(--color-lime));
         }
 
         .rejectButton {
-            @include button(var(--Red-color));
+            @include button(var(--color-error-muted));
         }
        
     }

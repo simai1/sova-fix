@@ -11,7 +11,7 @@
         .RangeEquipmentButtonInner{
             display: flex;
             button{
-                @include button(var(--turquoise-color));
+                @include button(var(--color-primary));
                 margin-left: 15px;
             }
         }
@@ -23,7 +23,7 @@
             margin-left: 15px;
             button{
               border-radius: 8px;
-              background-color: var(--turquoise-color);
+              background-color: var(--color-primary);
               height: 44px;
               width: 40px;
               transition: 0.1s linear all;

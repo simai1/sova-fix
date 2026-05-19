@@ -86,14 +86,14 @@ const PhotoUploader = ({
 
   return (
     <div>
-      {hint ? <div className="lk-field__hint">{hint}</div> : null}
-      <div className="lk-photo-grid">
+      {hint ? <div className="ui-field__hint">{hint}</div> : null}
+      <div className="ui-photo-grid">
         {previews.map((url, idx) => (
-          <div key={url} className="lk-photo-grid__item">
+          <div key={url} className="ui-photo-grid__item">
             <img src={url} alt={files[idx]?.name ?? ''} />
             <button
               type="button"
-              className="lk-photo-grid__remove"
+              className="ui-photo-grid__remove"
               onClick={() => removeAt(idx)}
               aria-label="Удалить"
             >
@@ -104,7 +104,7 @@ const PhotoUploader = ({
         {files.length < maxFiles ? (
           <button
             type="button"
-            className="lk-photo-grid__add"
+            className="ui-photo-grid__add"
             onClick={() => inputRef.current?.click()}
           >
             <span style={{ fontSize: 24 }}>+</span>

@@ -64,60 +64,60 @@ const LinkTelegramModal = ({ open, onClose }: Props): JSX.Element | null => {
 
   return (
     <div
-      className="lk-modal__overlay"
+      className="ui-modal__overlay"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
       <div
-        className="lk-modal__sheet"
+        className="ui-modal__sheet"
         role="dialog"
         aria-modal="true"
-        aria-labelledby="lk-tg-link-title"
+        aria-labelledby="ui-tg-link-title"
       >
-        <h2 className="lk-modal__title" id="lk-tg-link-title">
+        <h2 className="ui-modal__title" id="ui-tg-link-title">
           Привязка Telegram
         </h2>
 
-        <div className="lk-link-tg">
-          <p className="lk-profile__tg-hint">Чтобы получать уведомления о заявках в Telegram:</p>
-          <ol className="lk-link-tg__steps">
+        <div className="ui-link-tg">
+          <p className="ui-profile__tg-hint">Чтобы получать уведомления о заявках в Telegram:</p>
+          <ol className="ui-link-tg__steps">
             <li>Откройте Telegram</li>
             <li>Нажмите кнопку ниже — она приведёт в бота</li>
             <li>Внутри бота нажмите «Start»</li>
           </ol>
 
           {initState.isLoading ? (
-            <div className="lk-spinner-wrap">
-              <span className="lk-spinner" aria-label="Создание ссылки" />
+            <div className="ui-spinner-wrap">
+              <span className="ui-spinner" aria-label="Создание ссылки" />
             </div>
           ) : null}
 
-          {error ? <div className="lk-link-tg__error">{error}</div> : null}
+          {error ? <div className="ui-link-tg__error">{error}</div> : null}
 
           {deepLink && !expired ? (
             <a
               href={deepLink}
               target="_blank"
               rel="noreferrer"
-              className="lk-button lk-button--primary lk-button--block lk-link-tg__deeplink"
+              className="ui-button ui-button--primary ui-button--block ui-link-tg__deeplink"
             >
               {botUsername ? `Открыть @${botUsername}` : 'Открыть бота'}
             </a>
           ) : null}
 
           {expiresAt && !expired ? (
-            <div className="lk-link-tg__countdown">
+            <div className="ui-link-tg__countdown">
               Ссылка действует ещё {formatRemaining(msLeft)}
             </div>
           ) : null}
 
           {expired ? (
             <>
-              <div className="lk-link-tg__error">Срок действия ссылки истёк.</div>
+              <div className="ui-link-tg__error">Срок действия ссылки истёк.</div>
               <button
                 type="button"
-                className="lk-button lk-button--ghost lk-button--block"
+                className="ui-button ui-button--ghost ui-button--block"
                 onClick={async () => {
                   setError(null);
                   setExpiresAt(null);
@@ -141,10 +141,10 @@ const LinkTelegramModal = ({ open, onClose }: Props): JSX.Element | null => {
           ) : null}
         </div>
 
-        <div className="lk-modal__actions">
+        <div className="ui-modal__actions">
           <button
             type="button"
-            className="lk-button lk-button--ghost lk-button--block"
+            className="ui-button ui-button--ghost ui-button--block"
             onClick={onClose}
           >
             Закрыть

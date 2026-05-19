@@ -32,36 +32,36 @@ const ProfilePushSection = (): JSX.Element => {
   };
 
   return (
-    <div className="lk-card">
-      <h2 className="lk-card__title">Push-уведомления</h2>
-      <div className="lk-profile__push">
-        <div className="lk-profile__push-status">
+    <div className="ui-card">
+      <h2 className="ui-card__title">Push-уведомления</h2>
+      <div className="ui-profile__push">
+        <div className="ui-profile__push-status">
           {state === 'subscribed' ? (
-            <span className="lk-chip lk-chip--push-on">Включены</span>
+            <span className="ui-chip ui-chip--push-on">Включены</span>
           ) : null}
           {state === 'granted-not-subscribed' ? (
-            <span className="lk-chip lk-chip--push-off">Отключены</span>
+            <span className="ui-chip ui-chip--push-off">Отключены</span>
           ) : null}
           {state === 'denied' ? (
-            <span className="lk-chip lk-chip--push-denied">Запрещено</span>
+            <span className="ui-chip ui-chip--push-denied">Запрещено</span>
           ) : null}
           {state === 'unsupported' ? (
             <span
-              className="lk-chip lk-chip--push-muted"
+              className="ui-chip ui-chip--push-muted"
               title="Обновите браузер или войдите с другого устройства"
             >
               Браузер не поддерживает push
             </span>
           ) : null}
           {state === 'unavailable' ? (
-            <span className="lk-chip lk-chip--push-warn">Временно недоступно</span>
+            <span className="ui-chip ui-chip--push-warn">Временно недоступно</span>
           ) : null}
           {state === 'loading' ? (
-            <span className="lk-chip lk-chip--push-muted">Подключение…</span>
+            <span className="ui-chip ui-chip--push-muted">Подключение…</span>
           ) : null}
         </div>
 
-        <p className="lk-profile__push-hint">
+        <p className="ui-profile__push-hint">
           {state === 'denied'
             ? 'Разрешите уведомления в настройках браузера и обновите страницу.'
             : null}
@@ -72,26 +72,26 @@ const ProfilePushSection = (): JSX.Element => {
             : null}
         </p>
 
-        <div className="lk-button-grid">
+        <div className="ui-button-grid">
           {state === 'granted-not-subscribed' ? (
-            <button type="button" className="lk-button lk-button--accent" onClick={handleEnable}>
+            <button type="button" className="ui-button ui-button--accent" onClick={handleEnable}>
               Включить уведомления
             </button>
           ) : null}
 
           {state === 'subscribed' ? (
             <>
-              <button type="button" className="lk-button lk-button--danger" onClick={handleDisable}>
+              <button type="button" className="ui-button ui-button--danger" onClick={handleDisable}>
                 Отключить
               </button>
-              <button type="button" className="lk-button lk-button--ghost" onClick={handleTest}>
+              <button type="button" className="ui-button ui-button--ghost" onClick={handleTest}>
                 Отправить тестовое
               </button>
             </>
           ) : null}
 
           {state === 'loading' ? (
-            <button type="button" className="lk-button lk-button--ghost" disabled>
+            <button type="button" className="ui-button ui-button--ghost" disabled>
               Подключение…
             </button>
           ) : null}

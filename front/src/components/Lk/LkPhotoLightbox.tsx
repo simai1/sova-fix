@@ -44,7 +44,7 @@ const LkPhotoLightbox = ({ photos, index, onClose, onNavigate }: Props): JSX.Ele
 
   return (
     <div
-      className="lk-lightbox"
+      className="ui-lightbox"
       role="dialog"
       aria-modal="true"
       aria-label="Просмотр фото"
@@ -52,7 +52,7 @@ const LkPhotoLightbox = ({ photos, index, onClose, onNavigate }: Props): JSX.Ele
     >
       <button
         type="button"
-        className="lk-lightbox__close"
+        className="ui-lightbox__close"
         aria-label="Закрыть"
         onClick={(e) => {
           e.stopPropagation();
@@ -65,7 +65,7 @@ const LkPhotoLightbox = ({ photos, index, onClose, onNavigate }: Props): JSX.Ele
       {total > 1 ? (
         <button
           type="button"
-          className="lk-lightbox__nav lk-lightbox__nav--prev"
+          className="ui-lightbox__nav ui-lightbox__nav--prev"
           aria-label="Предыдущее фото"
           onClick={(e) => {
             e.stopPropagation();
@@ -77,7 +77,7 @@ const LkPhotoLightbox = ({ photos, index, onClose, onNavigate }: Props): JSX.Ele
       ) : null}
 
       <img
-        className="lk-lightbox__image"
+        className="ui-lightbox__image"
         src={url}
         alt={`Фото ${safeIndex + 1} из ${total}`}
         onClick={(e) => e.stopPropagation()}
@@ -86,7 +86,7 @@ const LkPhotoLightbox = ({ photos, index, onClose, onNavigate }: Props): JSX.Ele
       {total > 1 ? (
         <button
           type="button"
-          className="lk-lightbox__nav lk-lightbox__nav--next"
+          className="ui-lightbox__nav ui-lightbox__nav--next"
           aria-label="Следующее фото"
           onClick={(e) => {
             e.stopPropagation();
@@ -98,7 +98,7 @@ const LkPhotoLightbox = ({ photos, index, onClose, onNavigate }: Props): JSX.Ele
       ) : null}
 
       {total > 1 ? (
-        <div className="lk-lightbox__counter" aria-live="polite">
+        <div className="ui-lightbox__counter" aria-live="polite">
           {safeIndex + 1} / {total}
         </div>
       ) : null}

@@ -31,7 +31,7 @@
   .headerNotMain {
     cursor: auto !important;
     opacity: 1;
-    background-color: var(--tableTh) !important;
+    background-color: var(--color-warm-border) !important;
     th {
       text-align: center;
       display: flex;
@@ -70,9 +70,9 @@
     }
 
     tr {
-      background-color: var(--tableTdBg);
+      background-color: var(--color-fill-alt);
       &:hover td {
-        background-color: var(--tableTrHover)!important;
+        background-color: var(--color-fill)!important;
         cursor: pointer;
       }
     }
@@ -81,13 +81,13 @@
       position: sticky;
       top: 0px;
       z-index: 99;
-      background-color: var(--tableTh);
+      background-color: var(--color-warm-border);
       border-left: 1px solid #e3dfda;
       @include font(14px, 500);
     }
     th[name="fileName"], th[name="checkPhoto"], th[name="problemDescription"] , th[name="number"], th[name="repairPrice"], th[name="commentAttachment"], th[name="itineraryOrder"], th[name="daysAtWork"], th[name="planCompleteDate"] , th[name="completeDate"], th[name="createdAt"] {
       &:hover {
-        background-color: var(--tableTh);
+        background-color: var(--color-warm-border);
         cursor: auto;
       }
     }
@@ -96,7 +96,7 @@
     th {
       &:hover {
         cursor: pointer;
-        background-color: var(--Active-gray-color);
+        background-color: var(--color-warm-active);
       }
     }
 
@@ -124,13 +124,13 @@
       .statusClick, .directoryCategory {
         padding: 4px 8px;
         border-radius: 8px;
-        background-color: var(--dark-grey-color);
+        background-color: var(--color-warm-border);
         text-align: center;
         position: relative;
         cursor: pointer;
         
         &:hover {
-          background-color: var(--Active-gray-color);
+          background-color: var(--color-warm-active);
         }
         
         .shovStatusPop {
@@ -174,7 +174,7 @@
               white-space: nowrap;
               
               &:hover {
-                background-color: var(--Active-gray-color);
+                background-color: var(--color-warm-active);
               }
               
               &.listHeader {
@@ -291,7 +291,7 @@
       z-index: 100;
       background-color: #b7ab9e;
       &:hover {
-        background-color: var(--Active-gray-color);
+        background-color: var(--color-warm-active);
       }
       @media (max-width: 800px) {
         left: auto;
@@ -322,7 +322,7 @@
       background-color: #b7ab9e;
       box-shadow: 5px 0 5px #e3dfda75;
       &:hover {
-        background-color: var(--Active-gray-color);
+        background-color: var(--color-warm-active);
       }
       @media (max-width: 800px) {
         left: auto;
@@ -338,7 +338,7 @@
       z-index: 100;
       background-color: #b7ab9e;
       &:hover {
-        background-color: var(--Active-gray-color);
+        background-color: var(--color-warm-active);
       }
 
       @media (max-width: 800px) {
@@ -360,7 +360,7 @@
       background-color: #d8cdc1ff;
 
       &:hover td {
-        background-color: var(--selectedTr);
+        background-color: var(--color-row-selected);
       }
     }
   }
@@ -438,8 +438,8 @@ input[type="checkbox"]:before {
 }
 
 input[type="checkbox"]:checked:before {
-  background: var(--turquoise-color);
-  border: 2px solid var(--turquoise-color);
+  background: var(--color-primary);
+  border: 2px solid var(--color-primary);
   border-radius: 4px;
 }
 .notData {
@@ -493,8 +493,8 @@ input[type="checkbox"]:checked:before {
   }
   .spinner {
     border: 5px solid transparent;
-    border-top: 5px solid var(--turquoise-color);
-    border-right: 5px solid var(--turquoise-color);
+    border-top: 5px solid var(--color-primary);
+    border-right: 5px solid var(--color-primary);
     border-radius: 50%;
     width: 60px;
     height: 60px;

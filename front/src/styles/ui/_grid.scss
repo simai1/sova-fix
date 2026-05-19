@@ -1,32 +1,32 @@
 @use './tokens' as *;
 
-// 12-колоночная сетка. Внутри `.lk-row` колонки распределяются flex'ом, gutter — через
+// 12-колоночная сетка. Внутри `.ui-row` колонки распределяются flex'ом, gutter — через
 // CSS-переменную, чтобы значение было одинаковым у row и у вертикального row-gap'а
 // и не дублировалось в десятках мест.
 :root {
-  --lk-gutter: var(--lk-sp-3);
+  --grid-gutter: var(--space-sm);
 }
 
 @media (min-width: 1025px) { // ≥ Tablet Landscape
   :root {
-    --lk-gutter: var(--lk-sp-4);
+    --grid-gutter: var(--space-md);
   }
 }
 
-.lk-row {
+.ui-row {
   display: flex;
   flex-wrap: wrap;
   // Отрицательный margin компенсирует padding у колонок — в итоге крайние колонки
   // выравниваются с краем родителя, а внутренние — расходятся ровно на gutter.
-  margin-inline: calc(var(--lk-gutter) / -2);
-  row-gap: var(--lk-gutter);
+  margin-inline: calc(var(--grid-gutter) / -2);
+  row-gap: var(--grid-gutter);
 
-  // Универсальный селектор `.lk-row > *` имеет specificity (0,1,0) — такой же,
-  // как у `.lk-col-ml-6 { width: 50% }`, поэтому каскад выигрывает за счёт порядка
-  // (responsive-правила объявлены ниже). Если использовать `.lk-row > [class*='lk-col']`,
+  // Универсальный селектор `.ui-row > *` имеет specificity (0,1,0) — такой же,
+  // как у `.ui-col-ml-6 { width: 50% }`, поэтому каскад выигрывает за счёт порядка
+  // (responsive-правила объявлены ниже). Если использовать `.ui-row > [class*='ui-col']`,
   // specificity (0,2,0) перебьёт responsive-классы, и колонки останутся 100%.
   > * {
-    padding-inline: calc(var(--lk-gutter) / 2);
+    padding-inline: calc(var(--grid-gutter) / 2);
     box-sizing: border-box;
     flex: 0 0 auto;
     width: 100%;
@@ -34,31 +34,31 @@
 }
 
 // Базовый «авто»-col без модификатора — занимает доступное место поровну.
-.lk-col {
+.ui-col {
   flex: 1 0 0;
   width: auto;
   min-width: 0;
 }
 
 @for $i from 1 through 12 {
-  .lk-col-#{$i} {
+  .ui-col-#{$i} {
     width: percentage(calc($i / 12));
   }
 }
 
 // Ключи синхронизированы с глобальной шкалой Frontend Breakpoints
 // (см. _tokens.scss). mp опускаем — это базовый mobile-first уровень
-// (`lk-col-{1..12}` без префикса), отдельная media-query не нужна.
+// (`ui-col-{1..12}` без префикса), отдельная media-query не нужна.
 @each $bp in (ml, tp, tl, lt, dt, ws) {
-  @include lk-mq-up($bp) {
-    .lk-col-#{$bp} {
+  @include mq-up($bp) {
+    .ui-col-#{$bp} {
       flex: 1 0 0;
       width: auto;
       min-width: 0;
     }
 
     @for $i from 1 through 12 {
-      .lk-col-#{$bp}-#{$i} {
+      .ui-col-#{$bp}-#{$i} {
         width: percentage(calc($i / 12));
       }
     }

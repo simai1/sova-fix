@@ -26,25 +26,25 @@ const CustomerProfile = (): JSX.Element => {
 
   return (
     <>
-      <div className="lk-card">
-        <div className="lk-row">
-          <div className="lk-col-12 lk-col-ml-6">
-            <div className="lk-field__label">Имя</div>
+      <div className="ui-card">
+        <div className="ui-row">
+          <div className="ui-col-12 ui-col-ml-6">
+            <div className="ui-field__label">Имя</div>
             <div>{me.user.name ?? '—'}</div>
           </div>
-          <div className="lk-col-12 lk-col-ml-6">
-            <div className="lk-field__label">Email / логин</div>
+          <div className="ui-col-12 ui-col-ml-6">
+            <div className="ui-field__label">Email / логин</div>
             <div>{me.user.login}</div>
           </div>
         </div>
-        <div className="lk-field__label">Роль</div>
+        <div className="ui-field__label">Роль</div>
         <div>{roleLabel(me.user.role)}</div>
       </div>
 
       <ProfilePushSection />
 
-      <div className="lk-card">
-        <h2 className="lk-card__title">Мои объекты</h2>
+      <div className="ui-card">
+        <h2 className="ui-card__title">Мои объекты</h2>
         {myObjects.length === 0 ? (
           <LkEmpty
             title="Нет назначенных объектов"
@@ -52,9 +52,9 @@ const CustomerProfile = (): JSX.Element => {
           />
         ) : (
           myObjects.map((o) => (
-            <div key={o.id} className="lk-card__row">
+            <div key={o.id} className="ui-card__row">
               <span>{o.name}</span>
-              {o.unit?.name ? <span className="lk-card__muted">{o.unit.name}</span> : null}
+              {o.unit?.name ? <span className="ui-card__muted">{o.unit.name}</span> : null}
             </div>
           ))
         )}

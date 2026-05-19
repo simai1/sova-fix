@@ -9,23 +9,20 @@ export const ThemeProvider: FC<PropsWithChildren> = ({ children }) => {
       theme={{
         algorithm: theme.defaultAlgorithm,
         token: {
-          colorPrimary: '#ffe20d',
-          colorSuccess: '#c5e384',
-          colorError: '#d69a81',
-          colorTextBase: '#1d1d1b',
-          colorBgContainer: '#ffffff',
+          colorPrimary: '#F5C518',
+          colorSuccess: '#15803D',
+          colorError: '#B91C1C',
+          colorTextBase: '#18181B',
+          colorBgContainer: '#FFFFFF',
 
           borderRadius: 8,
 
-          fontFamily: 'Inter, system-ui, sans-serif',
+          fontFamily: 'FactWeb, system-ui, sans-serif',
         },
         components: {
           Table: {
             headerBg: '#b7ab9e',
             rowHoverBg: 'hwb(0 94% 6%)',
-          },
-          Button: {
-            colorPrimaryHover: '#f3d911',
           },
           Input: {
             padding: 10,

@@ -12,7 +12,7 @@
     @include container;
     button {
       margin: 0 10px;
-      @include button(var(--turquoise-color));
+      @include button(var(--color-primary));
     }
   }
 }

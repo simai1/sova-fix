@@ -121,26 +121,26 @@ const ChatComposer = ({ onSubmit, isSending, autoGrow = true }: Props): JSX.Elem
   }, [previewUrl]);
 
   return (
-    <form className="lk-chat__composer" onSubmit={handleSubmit}>
+    <form className="ui-chat__composer" onSubmit={handleSubmit}>
       {file ? (
-        <div className="lk-chat__attach-preview">
+        <div className="ui-chat__attach-preview">
           {previewUrl ? (
-            <img className="lk-chat__attach-thumb" src={previewUrl} alt={`Превью ${file.name}`} />
+            <img className="ui-chat__attach-thumb" src={previewUrl} alt={`Превью ${file.name}`} />
           ) : (
             <span
-              className="lk-chat__attach-thumb lk-chat__attach-thumb--placeholder"
+              className="ui-chat__attach-thumb ui-chat__attach-thumb--placeholder"
               aria-hidden="true"
             >
               {videoThumbIcon}
             </span>
           )}
-          <span className="lk-chat__attach-meta">
-            <span className="lk-chat__attach-name">{file.name}</span>
-            <span className="lk-chat__attach-size">{formatFileSize(file.size)}</span>
+          <span className="ui-chat__attach-meta">
+            <span className="ui-chat__attach-name">{file.name}</span>
+            <span className="ui-chat__attach-size">{formatFileSize(file.size)}</span>
           </span>
           <button
             type="button"
-            className="lk-chat__attach-remove"
+            className="ui-chat__attach-remove"
             onClick={handleClearFile}
             aria-label="Убрать вложение"
           >
@@ -149,10 +149,10 @@ const ChatComposer = ({ onSubmit, isSending, autoGrow = true }: Props): JSX.Elem
         </div>
       ) : null}
 
-      <div className="lk-chat__composer-row">
+      <div className="ui-chat__composer-row">
         <button
           type="button"
-          className="lk-chat__attach-btn"
+          className="ui-chat__attach-btn"
           onClick={handleAttachClick}
           aria-label="Прикрепить фото"
           disabled={isSending}
@@ -168,7 +168,7 @@ const ChatComposer = ({ onSubmit, isSending, autoGrow = true }: Props): JSX.Elem
         />
         <textarea
           ref={textareaRef}
-          className="lk-textarea lk-chat__textarea"
+          className="ui-textarea ui-chat__textarea"
           placeholder="Введите сообщение"
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -180,7 +180,7 @@ const ChatComposer = ({ onSubmit, isSending, autoGrow = true }: Props): JSX.Elem
 
       <button
         type="submit"
-        className="lk-button lk-button--primary lk-chat__send-btn"
+        className="ui-button ui-button--primary ui-chat__send-btn"
         disabled={isSending || text.trim().length === 0}
       >
         {isSending ? 'Отправка…' : 'Отправить'}

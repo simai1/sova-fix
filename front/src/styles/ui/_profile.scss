@@ -1,0 +1,110 @@
+@use './tokens' as *;
+
+// Секция Telegram в Profile (Contractor + Customer).
+// Три состояния: не привязан / pending / привязан. Структура BEM —
+// .ui-profile__tg* классы скоупятся внутри .ui-card в Profile.tsx,
+// дочерние компоненты не имеют собственных стилей.
+
+.ui-profile__tg {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.ui-profile__tg-status {
+  display: flex;
+  gap: var(--space-xs);
+  align-items: center;
+  font-size: var(--font-size-md);
+  flex-wrap: wrap;
+
+  &--linked {
+    color: var(--color-success);
+  }
+
+  &--pending {
+    color: var(--color-text);
+  }
+
+  &--empty {
+    color: var(--color-text-secondary);
+  }
+}
+
+.ui-profile__tg-username {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.ui-profile__tg-countdown {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.ui-profile__tg-hint {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: 1.4;
+}
+
+// Модалка привязки Telegram. Шаги — нумерованный список,
+// deep-link — primary-кнопка, под ней countdown.
+.ui-link-tg {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.ui-link-tg__steps {
+  margin: 0;
+  padding-left: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xxs);
+  font-size: var(--font-size-md);
+  color: var(--color-text);
+}
+
+.ui-link-tg__deeplink {
+  // Кнопка-якорь: визуально как .ui-button.ui-button--primary
+  // (наследуем структуру), но рендерится как <a> для нативного открытия.
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.ui-link-tg__countdown {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  text-align: center;
+}
+
+.ui-link-tg__error {
+  color: var(--color-error);
+  font-size: var(--font-size-sm);
+}
+
+// Секция Push-уведомлений в Profile (Contractor + Customer). Структура BEM
+// аналогична .ui-profile__tg — стили живут только на родительском классе,
+// дочерние компоненты «голые». Layout кнопок унифицирован через .ui-button-grid
+// (см. _components.scss § 23) — нет необходимости держать локальный flex-row.
+.ui-profile__push {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.ui-profile__push-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  align-items: center;
+}
+
+.ui-profile__push-hint {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: 1.4;
+}

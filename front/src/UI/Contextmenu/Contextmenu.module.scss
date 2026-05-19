@@ -6,7 +6,7 @@
     .StatusMenu{
         margin-left: 10px;
         background-color: #fff;
-        box-shadow: 2px 2px 8px var(--dark-grey-color);
+        box-shadow: 2px 2px 8px var(--color-warm-border);
         border-radius: 8px;
         padding: 10px 20px;
         max-width: 170px;
@@ -21,14 +21,14 @@
                 cursor: pointer;
                 transition: 0.1s linear all;
                 &:hover{
-                    color: var(--ActiveText-color);
+                    color: var(--color-warm-text);
                 }
             }
         }
     }
     .SampleMenuInner{
         background-color: #fff;
-        box-shadow: 2px 2px 8px var(--dark-grey-color);
+        box-shadow: 2px 2px 8px var(--color-warm-border);
         padding: 10px 20px;
         border-radius: 8px;
         .SampleMenuInnerList{
@@ -41,7 +41,7 @@
                 cursor: pointer;
                 transition: 0.1s linear all;
                 &:hover{
-                    color: var(--ActiveText-color);
+                    color: var(--color-warm-text);
                 }
             }
             .SampleMenuInnerList{
@@ -50,7 +50,7 @@
                 cursor: pointer;
                 transition: 0.1s linear all;
                 &:hover{
-                    color: var(--ActiveText-color);
+                    color: var(--color-warm-text);
                 }
             }
         }
@@ -63,7 +63,7 @@
         .ConfirmDeleteButtons{
             display: flex;
             button{
-                @include button(var(--turquoise-color));
+                @include button(var(--color-primary));
                 width: 100px;
                 text-align: center;
                 display: flex;

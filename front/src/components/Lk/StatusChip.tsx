@@ -14,7 +14,7 @@ const STATUS_LABELS: Record<number, string> = {
 const StatusChip = ({ statusNumber, label }: Props): JSX.Element | null => {
   if (statusNumber == null) return null;
   const text = label ?? STATUS_LABELS[statusNumber] ?? `Статус ${statusNumber}`;
-  return <span className={`lk-chip lk-chip--status-${statusNumber}`}>{text}</span>;
+  return <span className={`ui-chip ui-chip--status-${statusNumber}`}>{text}</span>;
 };
 
 export default StatusChip;

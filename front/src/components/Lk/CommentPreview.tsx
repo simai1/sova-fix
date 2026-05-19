@@ -42,14 +42,14 @@ const CommentPreview = ({ messages, legacyComment, onOpenChat }: Props): JSX.Ele
 
   if (!last && legacyComment) {
     return (
-      <div className="lk-comment-preview">
-        <div className="lk-comment-preview__head">
-          <span className="lk-comment-preview__author">Сообщение администратора</span>
+      <div className="ui-comment-preview">
+        <div className="ui-comment-preview__head">
+          <span className="ui-comment-preview__author">Сообщение администратора</span>
         </div>
-        <div className="lk-comment-preview__text">{legacyComment}</div>
+        <div className="ui-comment-preview__text">{legacyComment}</div>
         <button
           type="button"
-          className="lk-button lk-button--ghost lk-button--block"
+          className="ui-button ui-button--ghost ui-button--block"
           onClick={onOpenChat}
         >
           Открыть переписку
@@ -60,11 +60,11 @@ const CommentPreview = ({ messages, legacyComment, onOpenChat }: Props): JSX.Ele
 
   if (!last) {
     return (
-      <div className="lk-comment-preview">
-        <div className="lk-comment-preview__empty">Сообщений пока нет</div>
+      <div className="ui-comment-preview">
+        <div className="ui-comment-preview__empty">Сообщений пока нет</div>
         <button
           type="button"
-          className="lk-button lk-button--primary lk-button--block"
+          className="ui-button ui-button--primary ui-button--block"
           onClick={onOpenChat}
         >
           Написать сообщение
@@ -77,16 +77,16 @@ const CommentPreview = ({ messages, legacyComment, onOpenChat }: Props): JSX.Ele
   const role = roleLabel(last.author?.roleName ?? 'OTHER');
 
   return (
-    <div className="lk-comment-preview">
-      <div className="lk-comment-preview__head">
-        <span className="lk-comment-preview__author">{author}</span>
-        {role && role !== author ? <span className="lk-comment-preview__role">{role}</span> : null}
-        <span className="lk-comment-preview__time">{formatTime(last.createdAt)}</span>
+    <div className="ui-comment-preview">
+      <div className="ui-comment-preview__head">
+        <span className="ui-comment-preview__author">{author}</span>
+        {role && role !== author ? <span className="ui-comment-preview__role">{role}</span> : null}
+        <span className="ui-comment-preview__time">{formatTime(last.createdAt)}</span>
       </div>
-      <div className="lk-comment-preview__text">{last.text}</div>
+      <div className="ui-comment-preview__text">{last.text}</div>
       <button
         type="button"
-        className="lk-button lk-button--ghost lk-button--block"
+        className="ui-button ui-button--ghost ui-button--block"
         onClick={onOpenChat}
       >
         Открыть переписку{totalShown > 0 ? ` (${totalShown})` : ''}

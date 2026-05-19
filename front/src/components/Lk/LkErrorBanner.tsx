@@ -4,7 +4,7 @@ type Props = {
 };
 
 const LkErrorBanner = ({ text, onRetry }: Props): JSX.Element => (
-  <div className="lk-error-banner" role="alert">
+  <div className="ui-error-banner" role="alert">
     <svg
       width="20"
       height="20"
@@ -22,7 +22,7 @@ const LkErrorBanner = ({ text, onRetry }: Props): JSX.Element => (
     </svg>
     <span style={{ flex: 1 }}>{text}</span>
     {onRetry ? (
-      <button type="button" className="lk-link" onClick={onRetry}>
+      <button type="button" className="ui-link" onClick={onRetry}>
         Повторить
       </button>
     ) : null}

@@ -816,7 +816,7 @@ function Table() {
           <button
             type="button"
             key={key + row.id}
-            className={`${styles.chatBtn || ''} lk-table-chat-btn${hasMessage ? ' lk-table-chat-btn--has-msg' : ''}`}
+            className={`${styles.chatBtn || ''} ui-table-chat-btn${hasMessage ? ' ui-table-chat-btn--has-msg' : ''}`}
             onClick={(e) => {
               e.stopPropagation()
               openAdminChat(row.id)
@@ -824,7 +824,7 @@ function Table() {
             aria-label={`Открыть чат по заявке № ${row.number ?? ''}${hasMessage ? ' (есть переписка)' : ''}`}
           >
             <svg
-              className="lk-table-chat-btn__icon"
+              className="ui-table-chat-btn__icon"
               width="18"
               height="18"
               viewBox="0 0 24 24"

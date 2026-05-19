@@ -28,7 +28,7 @@
             margin-left: 10px;
             button {
                 border-radius: 8px;
-                background-color: var(--turquoise-color);
+                background-color: var(--color-primary);
                 height: 44px;
                 width: 40px;
                 transition: 0.1s linear all;
@@ -46,7 +46,7 @@
         display: flex;
         button {
             display: flex;
-            background-color: var(--turquoise-color);
+            background-color: var(--color-primary);
             outline: none;
             color: #000;
             border-radius: 8px;

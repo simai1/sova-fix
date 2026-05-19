@@ -121,10 +121,10 @@ const CustomerRequestsList = (): JSX.Element => {
 
   return (
     <>
-      <div className="lk-row-gap-2" style={{ alignItems: 'center' }}>
+      <div className="ui-row-gap-2" style={{ alignItems: 'center' }}>
         <LkSearchInput value={search} onChange={setSearch} placeholder="Поиск по заявкам" />
       </div>
-      <div className="lk-toolbar">
+      <div className="ui-toolbar">
         <button type="button" onClick={() => setFilterOpen(true)}>
           Фильтры
           {activeCount > 0 ? ` (${activeCount})` : ''}
@@ -142,7 +142,7 @@ const CustomerRequestsList = (): JSX.Element => {
       {isError ? <LkErrorBanner text="Не удалось загрузить заявки" /> : null}
 
       {items.length > 0 ? (
-        <div className="lk-card-grid">
+        <div className="ui-card-grid">
           {items.map((req, i) => (
             <LkListItem
               key={req.id}
@@ -188,7 +188,7 @@ const CustomerRequestsList = (): JSX.Element => {
       <div ref={sentinelRef} style={{ height: 1 }} />
 
       {data && items.length >= total && total > 0 ? (
-        <div className="lk-card__muted" style={{ textAlign: 'center', padding: 12 }}>
+        <div className="ui-card__muted" style={{ textAlign: 'center', padding: 12 }}>
           Загружены все заявки
         </div>
       ) : null}

@@ -14,18 +14,18 @@ type Props = {
 };
 
 const LkEmpty = ({ icon, title, text, action }: Props): JSX.Element => (
-  <div className="lk-empty">
+  <div className="ui-empty">
     {icon ? (
-      <div className="lk-empty__icon" aria-hidden>
+      <div className="ui-empty__icon" aria-hidden>
         {icon}
       </div>
     ) : null}
-    {title ? <h3 className="lk-empty__title">{title}</h3> : null}
-    {text ? <p className="lk-empty__text">{text}</p> : null}
+    {title ? <h3 className="ui-empty__title">{title}</h3> : null}
+    {text ? <p className="ui-empty__text">{text}</p> : null}
     {action ? (
       <button
         type="button"
-        className={`lk-button lk-button--${action.variant ?? 'accent'} lk-empty__action`}
+        className={`ui-button ui-button--${action.variant ?? 'accent'} ui-empty__action`}
         onClick={action.onClick}
       >
         {action.label}

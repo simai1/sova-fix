@@ -35,11 +35,11 @@ const LkPageHeader = ({ title, showBack }: Props): JSX.Element => {
   const showBackBtn = !isRoot && (showBack ?? true);
 
   return (
-    <header className="lk-page__header">
+    <header className="ui-page__header">
       {showBackBtn ? (
         <button
           type="button"
-          className="lk-page__back"
+          className="ui-page__back"
           onClick={() => navigate(-1)}
           aria-label="Назад"
         >
@@ -48,11 +48,11 @@ const LkPageHeader = ({ title, showBack }: Props): JSX.Element => {
       ) : (
         <LkLogoMark withWordmark />
       )}
-      <h1 className="lk-page__title">{inferredTitle}</h1>
-      <div className="lk-page__actions">
+      <h1 className="ui-page__title">{inferredTitle}</h1>
+      <div className="ui-page__actions">
         <button
           type="button"
-          className="lk-page__action-btn"
+          className="ui-page__action-btn"
           onClick={handleLogout}
           aria-label="Выйти"
           title="Выйти"

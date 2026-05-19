@@ -18,9 +18,9 @@ const LkToastArea = (): JSX.Element => {
   }, []);
 
   return (
-    <div className="lk-toast-area" aria-live="polite">
+    <div className="ui-toast-area" aria-live="polite">
       {toasts.map((t) => (
-        <div key={t.id} className={`lk-toast lk-toast--${t.type}`} role="status">
+        <div key={t.id} className={`ui-toast ui-toast--${t.type}`} role="status">
           {t.message}
         </div>
       ))}

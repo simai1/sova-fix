@@ -54,24 +54,24 @@ const LkListItem = ({ request, to, index }: Props): JSX.Element => {
       ? `${request.problemDescription.slice(0, 140)}…`
       : request.problemDescription
     : null;
-  const style = index !== undefined ? ({ '--lk-i': index } as CSSProperties) : undefined;
+  const style = index !== undefined ? ({ '--stagger-index': index } as CSSProperties) : undefined;
 
   return (
-    <Link to={to} className="lk-list-item" style={style}>
-      <div className="lk-list-item__top">
-        <span className="lk-list-item__number">№ {request.number}</span>
+    <Link to={to} className="ui-list-item" style={style}>
+      <div className="ui-list-item__top">
+        <span className="ui-list-item__number">№ {request.number}</span>
         <StatusChip statusNumber={statusNumber} />
         {request.isAssigned ? (
-          <span className="lk-chip lk-chip--accent" aria-label="Заявка закреплена за вами">
+          <span className="ui-chip ui-chip--accent" aria-label="Заявка закреплена за вами">
             Моя
           </span>
         ) : null}
       </div>
-      <div className="lk-list-item__title">{objectName}</div>
-      {desc ? <div className="lk-list-item__desc">{desc}</div> : null}
-      <div className="lk-list-item__bottom">
+      <div className="ui-list-item__title">{objectName}</div>
+      {desc ? <div className="ui-list-item__desc">{desc}</div> : null}
+      <div className="ui-list-item__bottom">
         <UrgencyChip urgency={getUrgencyObj(request)} fallbackName={getUrgencyName(request)} />
-        <span className="lk-list-item__date">{formatDate(request.createdAt)}</span>
+        <span className="ui-list-item__date">{formatDate(request.createdAt)}</span>
       </div>
     </Link>
   );

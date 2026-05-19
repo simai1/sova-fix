@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import DataContext from "./context.ts";
 import "./styles/style.css";
+import "./styles/ui/index.scss";
 import { tableHeadAppoint } from "./components/Table/Data.js";
 import HomePageAdmin from "./pages/AdminPages/HomePageAdmin/HomePageAdmin.jsx";
 import { GetAllCategories, GetAllEquipment, GetAllNomenclatures, GetAllRequests, GetAllStatuses, GetAllUrgensies, GetAllUsers, GetAllСontractors, GetContractorsItenerarity, GetOneEquipment } from "./API/API.js";

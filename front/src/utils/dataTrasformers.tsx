@@ -1,6 +1,7 @@
 import { Tag } from 'antd';
 import { DefaultOptionType } from 'antd/es/select';
 
+import UrgencyPill from '../components/Lk/UrgencyPill';
 import { TContractor } from '../types/contractors.types';
 import { TObject } from '../types/object.types';
 import { TStatus } from '../types/status.types';
@@ -24,12 +25,7 @@ export const transformUrgencyListToOptions = (urgencyList: TUrgency[]): DefaultO
   return urgencyList.map((urgency) => ({
     key: urgency.id,
     value: urgency.id,
-    label: (
-      <Tag color={urgency.color} style={{ margin: 0 }}>
-        {urgency.name}
-      </Tag>
-    ),
-
+    label: <UrgencyPill label={urgency.name} color={urgency.color} />,
     labelText: urgency.name,
   }));
 };

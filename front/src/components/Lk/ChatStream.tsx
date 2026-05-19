@@ -123,7 +123,7 @@ const ChatStream = ({
 
   if (isLoading && messages.length === 0) {
     return (
-      <div className="lk-chat__stream" ref={streamRef}>
+      <div className="ui-chat__stream" ref={streamRef}>
         <LkSpinner />
       </div>
     );
@@ -131,7 +131,7 @@ const ChatStream = ({
 
   if (isError) {
     return (
-      <div className="lk-chat__stream" ref={streamRef}>
+      <div className="ui-chat__stream" ref={streamRef}>
         <LkEmpty text="Не удалось загрузить переписку" />
       </div>
     );
@@ -139,7 +139,7 @@ const ChatStream = ({
 
   if (messages.length === 0) {
     return (
-      <div className="lk-chat__stream" ref={streamRef}>
+      <div className="ui-chat__stream" ref={streamRef}>
         <LkEmpty text="Сообщений пока нет — начните переписку" />
       </div>
     );
@@ -151,7 +151,7 @@ const ChatStream = ({
     const k = dayKey(msg.createdAt);
     if (k !== lastDay) {
       rendered.push(
-        <div key={`day-${k}-${msg.id}`} className="lk-chat__day">
+        <div key={`day-${k}-${msg.id}`} className="ui-chat__day">
           {dayLabel(msg.createdAt)}
         </div>,
       );
@@ -164,7 +164,7 @@ const ChatStream = ({
   });
 
   return (
-    <div className="lk-chat__stream" ref={streamRef}>
+    <div className="ui-chat__stream" ref={streamRef}>
       <div ref={topSentinelRef} style={{ height: 1 }} />
       {isFetchingMore ? <LkSpinner /> : null}
       {rendered}

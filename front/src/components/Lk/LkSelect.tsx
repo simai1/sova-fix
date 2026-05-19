@@ -10,9 +10,12 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 
+import UrgencyPill from './UrgencyPill';
+
 export type LkSelectOption = {
   value: string;
   label: string;
+  color?: string;
 };
 
 type Coords = {
@@ -51,7 +54,7 @@ const LkSelect = ({
   'aria-label': ariaLabel,
 }: Props): JSX.Element => {
   const reactId = useId();
-  const triggerId = id ?? `lk-select-${reactId}`;
+  const triggerId = id ?? `ui-select-${reactId}`;
   const listboxId = `${triggerId}-listbox`;
 
   const [open, setOpen] = useState(false);
@@ -64,7 +67,8 @@ const LkSelect = ({
   const optionRefs = useRef<Array<HTMLLIElement | null>>([]);
 
   const selectedIndex = options.findIndex((o) => o.value === value);
-  const selectedLabel = selectedIndex >= 0 ? options[selectedIndex]?.label : undefined;
+  const selectedOption = selectedIndex >= 0 ? options[selectedIndex] : undefined;
+  const selectedLabel = selectedOption?.label;
 
   const computeCoords = useCallback((): void => {
     const trigger = triggerRef.current;
@@ -179,10 +183,10 @@ const LkSelect = ({
   };
 
   const rootClass = [
-    'lk-select',
-    `lk-select--${size}`,
-    open ? 'lk-select--open' : '',
-    disabled ? 'lk-select--disabled' : '',
+    'ui-select',
+    `ui-select--${size}`,
+    open ? 'ui-select--open' : '',
+    disabled ? 'ui-select--disabled' : '',
     className ?? '',
   ]
     .filter(Boolean)
@@ -197,7 +201,7 @@ const LkSelect = ({
         ref={triggerRef}
         type="button"
         id={triggerId}
-        className="lk-select__trigger"
+        className="ui-select__trigger"
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={open ? listboxId : undefined}
@@ -209,11 +213,17 @@ const LkSelect = ({
         }}
         onKeyDown={onTriggerKey}
       >
-        <span className={showPlaceholder ? 'lk-select__placeholder' : 'lk-select__value'}>
-          {triggerLabel}
-        </span>
+        {showPlaceholder ? (
+          <span className="ui-select__placeholder">{triggerLabel}</span>
+        ) : selectedOption?.color ? (
+          <span className="ui-select__value">
+            <UrgencyPill label={selectedOption.label} color={selectedOption.color} />
+          </span>
+        ) : (
+          <span className="ui-select__value">{triggerLabel}</span>
+        )}
         <svg
-          className="lk-select__chevron"
+          className="ui-select__chevron"
           width="12"
           height="8"
           viewBox="0 0 12 8"
@@ -241,7 +251,7 @@ const LkSelect = ({
                 activeIndex >= 0 ? `${triggerId}-opt-${activeIndex}` : undefined
               }
               tabIndex={-1}
-              className={`lk-select__menu${coords.openUp ? ' lk-select__menu--up' : ''}`}
+              className={`ui-select__menu${coords.openUp ? ' ui-select__menu--up' : ''}`}
               style={{
                 position: 'fixed',
                 top: coords.openUp ? undefined : coords.top + MENU_GAP,
@@ -252,18 +262,18 @@ const LkSelect = ({
               onKeyDown={onMenuKey}
             >
               {options.length === 0 ? (
-                <div className="lk-select__option" aria-disabled="true">
-                  <span className="lk-select__label">Нет вариантов</span>
+                <div className="ui-select__option" aria-disabled="true">
+                  <span className="ui-select__label">Нет вариантов</span>
                 </div>
               ) : (
-                <ul className="lk-select__list">
+                <ul className="ui-select__list">
                   {options.map((opt, idx) => {
                     const isSelected = idx === selectedIndex;
                     const isActive = idx === activeIndex;
                     const cls = [
-                      'lk-select__option',
-                      isSelected ? 'lk-select__option--selected' : '',
-                      isActive ? 'lk-select__option--active' : '',
+                      'ui-select__option',
+                      isSelected ? 'ui-select__option--selected' : '',
+                      isActive ? 'ui-select__option--active' : '',
                     ]
                       .filter(Boolean)
                       .join(' ');
@@ -280,8 +290,14 @@ const LkSelect = ({
                         onMouseEnter={() => setActiveIndex(idx)}
                         onClick={() => select(idx)}
                       >
-                        <span className="lk-select__dot" aria-hidden="true" />
-                        <span className="lk-select__label">{opt.label}</span>
+                        {opt.color ? (
+                          <UrgencyPill label={opt.label} color={opt.color} />
+                        ) : (
+                          <>
+                            <span className="ui-select__dot" aria-hidden="true" />
+                            <span className="ui-select__label">{opt.label}</span>
+                          </>
+                        )}
                       </li>
                     );
                   })}

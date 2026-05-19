@@ -1,0 +1,149 @@
+// Дизайн-токены ЛК. Эталон палитры/размеров — см.
+// .memory-base/specs/2026-05-08-lk-redesign-utility-modern-design.md § 2.
+// Стиль: Linear/Notion (утилитарный modern). Жёлтый — точечный CTA-акцент,
+// не фоновая доминанта.
+
+:root {
+  // ── Типографика ──────────────────────────────────────────────────────
+  font-family: 'FactWeb', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  // ── Палитра ──────────────────────────────────────────────────────────
+  // Нейтрали (база)
+  --color-bg-layout          : #FAFAF9;  // фон страницы (warm off-white)
+  --color-bg-container     : #FFFFFF;  // карточки, шапка
+  --color-fill-alt   : #F5F5F4;  // alt-фон, hover-row, skeleton
+  --color-text        : #18181B;  // основной текст
+  --color-text-secondary  : #71717A;  // вторичный
+  --color-text-tertiary : #A1A1AA;  // placeholder, мета, декор
+  --color-border      : #E7E5E4;
+  --color-border-strong: #D6D3D1;
+
+  // Акценты (бренд-жёлтый — только точечный CTA)
+  --color-primary      : #F5C518;
+  --color-primary-fg   : #18181B;  // текст на жёлтом
+  --color-primary-bg : #FEF3C7;  // мягкий жёлтый для плашек
+  --color-primary-active : #B8890D;  // hover/dark-вариант
+
+  // Семантика
+  --color-success      : #15803D;
+  --color-success-bg : #DCFCE7;
+  --color-error       : #B91C1C;
+  --color-error-bg  : #FEE2E2;
+  --color-warning         : #C2410C;
+  --color-warning-bg    : #FED7AA;
+
+  // Тёплая нейтраль и легаси-цвета админки (таблицы, бордеры, статусы).
+  // Единая палитра — отдельного admin-слоя токенов больше нет.
+  --color-warm-border  : #b7ab9e;  // бордеры, muted-текст, шапка таблицы
+  --color-warm-active  : #cabfb4;  // активное/hover-состояние тёплой нейтрали
+  --color-warm-soft    : #d8cdc1;  // светлый тёплый фон
+  --color-warm-text    : #bd966c;  // тёплый акцентный текст
+  --color-fill         : hwb(0 94% 6%);  // hover строки таблицы
+  --color-row-selected : #ababab24;  // выделенная строка таблицы
+  --color-error-muted  : #d69a81;  // приглушённый danger-фон (легаси)
+  --color-lime         : #c5e384;  // легаси-зелёный акцент
+
+  // Тени (warm, минимальные — без чёрного)
+  --shadow-xs   : 0 1px 2px rgba(24, 24, 27, 0.04);
+  --shadow-sm   : 0 1px 3px rgba(24, 24, 27, 0.06), 0 1px 2px rgba(24, 24, 27, 0.04);
+  --shadow-md   : 0 4px 12px rgba(24, 24, 27, 0.08), 0 2px 4px rgba(24, 24, 27, 0.04);
+
+  // Focus ring (Linear-стиль)
+  --shadow-focus        : 0 0 0 3px rgba(245, 197, 24, 0.25);
+
+  // ── Размеры (всё в rem; 1rem = 16px по-умолчанию) ────────────────────
+  // Spacing — 4px шаг от 16px base
+  --space-xxs: 0.25rem;   // 4
+  --space-xs: 0.5rem;    // 8
+  --space-sm: 0.75rem;   // 12
+  --space-md: 1rem;      // 16
+  --space-lg: 1.5rem;    // 24
+  --space-xl: 2rem;      // 32
+  --space-xxl: 3rem;      // 48 — крупные секции, empty-state
+
+  // Radius — острее под Linear-feel
+  --radius-sm: 0.375rem;  // 6
+  --radius-md: 0.5rem;    // 8
+  --radius-lg: 0.75rem;   // 12
+  --radius-xl: 1rem;      // 16 — модалки
+
+  // Font-size
+  --font-size-xs : 0.75rem;    // 12 — badge, мета
+  --font-size-sm : 0.8125rem;  // 13 — label, hint
+  --font-size-md : 0.875rem;   // 14 — body
+  --font-size-lg : 1rem;       // 16 — large body
+  --font-size-xl : 1.125rem;   // 18 — section-title
+  --font-size-2xl: 1.375rem;   // 22 — page-title
+
+  // Высота sticky-хедера. Переопределяется ниже по breakpoint'ам, чтобы
+  // .ui-toolbar / .ui-sidebar и прочие sticky-смещения не зависели от
+  // magic-чисел и не «уезжали» при изменении header'а.
+  --header-height: 3.5rem;
+}
+
+@media (min-width: 768px) {  // ≥ Mobile Landscape
+  :root { --header-height: 3.75rem; }
+}
+
+@media (min-width: 1025px) { // ≥ Tablet Landscape
+  :root { --header-height: 4rem; }
+}
+
+// ── Брейкпоинты ──────────────────────────────────────────────────────────
+// Синхронизированы с глобальной шкалой из ~/.claude/CLAUDE.md (Frontend
+// Breakpoints). Шкала задана через max-width — сюда мы кладём граничные
+// min-width значения, чтобы оба варианта (mq-up / mq-down) давали
+// один и тот же набор переходов.
+//
+// Граничные min-width: первый «не попадает» в диапазон max-width предыдущего
+// устройства (например, Mobile Portrait — это max-width:767, поэтому Mobile
+// Landscape начинается с 768).
+$bp-mp: 0;       // Mobile Portrait    | max-width: 767
+$bp-ml: 768px;   // Mobile Landscape   | 768-880
+$bp-tp: 881px;   // Tablet Portrait    | 881-1024
+$bp-tl: 1025px;  // Tablet Landscape   | 1025-1200
+$bp-lt: 1201px;  // Laptop             | 1201-1366
+$bp-dt: 1367px;  // Desktop (default)  | 1367-2399
+$bp-ws: 2400px;  // Widescreen         | 2400+
+
+// Mobile-first: сработает на $bp и шире.
+@mixin mq-up($bp) {
+  @if $bp == ml {
+    @media (min-width: $bp-ml) { @content; }
+  } @else if $bp == tp {
+    @media (min-width: $bp-tp) { @content; }
+  } @else if $bp == tl {
+    @media (min-width: $bp-tl) { @content; }
+  } @else if $bp == lt {
+    @media (min-width: $bp-lt) { @content; }
+  } @else if $bp == dt {
+    @media (min-width: $bp-dt) { @content; }
+  } @else if $bp == ws {
+    @media (min-width: $bp-ws) { @content; }
+  }
+}
+
+// Desktop-first: сработает на устройстве $bp и уже. Значения совпадают с
+// max-width глобальной шкалы.
+@mixin mq-down($bp) {
+  @if $bp == mp {
+    @media (max-width: 767px) { @content; }   // Mobile Portrait
+  } @else if $bp == ml {
+    @media (max-width: 880px) { @content; }   // Mobile Landscape и уже
+  } @else if $bp == tp {
+    @media (max-width: 1024px) { @content; }  // Tablet Portrait и уже
+  } @else if $bp == tl {
+    @media (max-width: 1200px) { @content; }  // Tablet Landscape и уже
+  } @else if $bp == lt {
+    @media (max-width: 1366px) { @content; }  // Laptop и уже
+  }
+}
+
+// Унифицированный focus-ring для интерактивных элементов ЛК. Подключается
+// внутри `&:focus-visible { @include focus-ring; }`. Если у элемента уже
+// есть дополнительные правила в фокусе (например, цветной border у input'а) —
+// добавляй их рядом с @include, mixin сам их не перетирает.
+@mixin focus-ring {
+  outline: 0;
+  box-shadow: var(--shadow-focus);
+}

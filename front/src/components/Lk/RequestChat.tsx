@@ -90,13 +90,13 @@ const RequestChat = ({ mode, requestId: requestIdProp }: Props): JSX.Element => 
   if (!request) return <LkSpinner />;
 
   return (
-    <div className={isEmbedded ? 'lk-chat lk-chat--embedded' : 'lk-chat'}>
+    <div className={isEmbedded ? 'ui-chat ui-chat--embedded' : 'ui-chat'}>
       {isEmbedded ? null : (
-        <div className="lk-chat__subhead">
-          <button type="button" className="lk-chat__back" onClick={handleBack}>
+        <div className="ui-chat__subhead">
+          <button type="button" className="ui-chat__back" onClick={handleBack}>
             ← К заявке
           </button>
-          <span className="lk-chat__subhead-title">№ {request.number}</span>
+          <span className="ui-chat__subhead-title">№ {request.number}</span>
           {request.Object?.name ? (
             <>
               <span aria-hidden="true">·</span>

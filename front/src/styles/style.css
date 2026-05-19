@@ -1,27 +1,27 @@
 @font-face {
-	font-family: 'FactWebRegular';
-	src: 
-		url('./../assets/fonts/fact_regular.woff') format('woff2'),
-		url('./../assets/fonts/fact_regular.woff2') format('woff');
-	font-weight: normal;
+	font-family: 'FactWeb';
+	src:
+		url('./../assets/fonts/fact_regular.woff2') format('woff2'),
+		url('./../assets/fonts/fact_regular.woff') format('woff');
+	font-weight: 400;
 	font-style: normal;
 }
 
 @font-face {
-	font-family: 'FactWebMedium';
-	src: 
+	font-family: 'FactWeb';
+	src:
 		url('./../assets/fonts/fact_medium.woff2') format('woff2'),
 		url('./../assets/fonts/fact_medium.woff') format('woff');
-	font-weight: normal;
+	font-weight: 500 600;
 	font-style: normal;
 }
 
 @font-face {
-	font-family: 'FactWebBold';
-	src: 
+	font-family: 'FactWeb';
+	src:
 		url('./../assets/fonts/fact_bold.woff2') format('woff2'),
 		url('./../assets/fonts/fact_bold.woff') format('woff');
-	font-weight: normal;
+	font-weight: 700;
 	font-style: normal;
 }
 
@@ -31,29 +31,27 @@ body a {
 
 
 body {
-  font-family: Helvetica, Arial, sans-serif;
-  /* font-family: 'FactWebRegular'; */
+  font-family: 'FactWeb', system-ui, -apple-system, sans-serif;
   background-color: #e3dfda;
-  /* padding: 16px 64px; */
   @media (max-width: 870px) {
 	overflow-y: scroll;
 	overflow-x: hidden;
 	}
 }
 * {
-  font-family: 'FactWebRegular';
+  font-family: 'FactWeb', system-ui, -apple-system, sans-serif;
 }
 h1, h2, h3{
-  font-family: 'FactWebMedium';
-  font-weight: 300!important;
+  font-family: 'FactWeb', system-ui, -apple-system, sans-serif;
+  font-weight: 500!important;
 }
 h5, h4, h6{
-  font-family: 'FactWebMedium';
-  font-weight: 300!important;
+  font-family: 'FactWeb', system-ui, -apple-system, sans-serif;
+  font-weight: 500!important;
 }
 p{
-  font-family: 'FactWebRegular';
-  font-weight: 300!important;
+  font-family: 'FactWeb', system-ui, -apple-system, sans-serif;
+  font-weight: 400!important;
 }
 
 /* Стили для всего скроллба6а */

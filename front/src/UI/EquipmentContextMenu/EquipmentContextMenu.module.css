@@ -4,7 +4,7 @@
     padding: 15px;
 
     border-radius: 8px;
-    background-color: var(--white-color);
+    background-color: var(--color-bg-container);
 
     button {
         outline: none;

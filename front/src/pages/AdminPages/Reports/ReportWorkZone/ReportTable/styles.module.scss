@@ -2,14 +2,14 @@
     border-collapse: collapse;
     background-color: #fff;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-    font-family: "Inter", sans-serif;
+    font-family: 'FactWeb', system-ui, sans-serif;
     font-size: 14px;
     color: #2b2b2b;
     table-layout: fixed;
     overflow: auto;
 
     thead {
-        background: var(--brown-light) !important;
+        background: var(--color-warm-soft) !important;
         position: sticky;
         top: 0;
         z-index: 2;
@@ -59,7 +59,7 @@
         }
 
         .totalRow {
-            background-color: var(--brown-light) !important; // строка Итого
+            background-color: var(--color-warm-soft) !important; // строка Итого
             font-weight: 600;
             color: #000;
         }

@@ -1,4 +1,3 @@
-import '@fontsource-variable/inter/wght.css';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import ReactDOM from 'react-dom/client';

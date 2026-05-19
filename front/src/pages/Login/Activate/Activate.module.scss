@@ -1,4 +1,4 @@
-@use '@/styles/lk/tokens' as *;
+@use '@/styles/ui/tokens' as *;
 
 .AuthorRegistrar {
   display: flex;
@@ -11,7 +11,7 @@
 
   .LogoAuth {
     display: none;
-    @include lk-mq-up(tp) {
+    @include mq-up(tp) {
       display: block;
       height: 21.5625rem;
       position: relative;
@@ -31,12 +31,12 @@
     width: 100%;
     max-width: 25rem;
     padding: 0.625rem 1.875rem;
-    background-color: var(--white-color);
+    background-color: var(--color-bg-container);
     @include flexbox-center(1.0625rem);
-    @include lk-mq-up(ml) {
+    @include mq-up(ml) {
       max-width: 43.75rem;
     }
-    @include lk-mq-up(tp) {
+    @include mq-up(tp) {
       max-width: 50rem;
       padding: 3.75rem 0;
     }
@@ -47,7 +47,7 @@
       flex-direction: column;
       position: relative;
       padding-top: 2.1875rem;
-      @include lk-mq-up(ml) {
+      @include mq-up(ml) {
         padding-top: 4.375rem;
       }
       h2 {
@@ -55,20 +55,20 @@
         @include flexbox-center(0);
         margin-top: 0;
         @include font(1.75rem, 700);
-        @include lk-mq-up(ml) {
+        @include mq-up(ml) {
           @include font(2rem, 700);
         }
       }
       input {
         @include input-text(15.625rem, 0.5rem);
         margin-bottom: 0.9375rem;
-        @include lk-mq-up(ml) {
+        @include mq-up(ml) {
           @include input-text(22.5rem, 0.5rem);
         }
       }
 
       .button {
-        @include button(var(--turquoise-color));
+        @include button(var(--color-primary));
         width: 12.5rem !important;
         padding: 0.78125rem 0;
         text-align: center;

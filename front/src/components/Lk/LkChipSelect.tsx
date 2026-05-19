@@ -1,8 +1,18 @@
-import { KeyboardEvent as ReactKeyboardEvent, useEffect, useId, useRef, useState } from 'react';
+import {
+  CSSProperties,
+  KeyboardEvent as ReactKeyboardEvent,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+} from 'react';
+
+import { getReadableTextColor } from '@/utils/contrastColor';
 
 export type LkChipOption = {
   value: string;
   label: string;
+  color?: string;
 };
 
 type Props = {
@@ -25,7 +35,7 @@ const LkChipSelect = ({
   className,
 }: Props): JSX.Element => {
   const reactId = useId();
-  const groupId = id ?? `lk-chip-select-${reactId}`;
+  const groupId = id ?? `ui-chip-select-${reactId}`;
 
   const itemRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const [focusIdx, setFocusIdx] = useState<number>(-1);
@@ -75,13 +85,26 @@ const LkChipSelect = ({
     onChange(opt.value === value ? undefined : opt.value);
   };
 
-  const rootClass = ['lk-chip-select', className].filter(Boolean).join(' ');
+  const rootClass = ['ui-chip-select', className].filter(Boolean).join(' ');
 
   return (
     <div role="radiogroup" aria-label={ariaLabel} id={groupId} className={rootClass}>
       {options.map((opt, idx) => {
         const isChecked = opt.value === value;
         const isTabbable = idx === (focusIdx >= 0 ? focusIdx : tabIdx);
+        const cls = [
+          'ui-chip-select__item',
+          isChecked ? 'ui-chip-select__item--active' : '',
+          opt.color ? 'ui-chip-select__item--colored' : '',
+        ]
+          .filter(Boolean)
+          .join(' ');
+        const colorStyle = opt.color
+          ? ({
+              '--chip-color': opt.color,
+              '--chip-fg': getReadableTextColor(opt.color),
+            } as CSSProperties)
+          : undefined;
         return (
           <button
             key={opt.value}
@@ -93,7 +116,8 @@ const LkChipSelect = ({
             ref={(el) => {
               itemRefs.current[idx] = el;
             }}
-            className={`lk-chip-select__item${isChecked ? ' lk-chip-select__item--active' : ''}`}
+            className={cls}
+            style={colorStyle}
             onClick={() => onClick(idx)}
             onKeyDown={(e) => onKeyDown(e, idx)}
           >

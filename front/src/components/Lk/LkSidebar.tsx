@@ -31,7 +31,7 @@ const ICON_PROPS = {
   strokeLinecap: 'round' as const,
   strokeLinejoin: 'round' as const,
   'aria-hidden': true,
-  className: 'lk-sidebar__icon',
+  className: 'ui-sidebar__icon',
 };
 
 const ICONS: Record<IconKind, JSX.Element> = {
@@ -77,13 +77,13 @@ const LkSidebar = ({ role }: Props): JSX.Element => {
     : null;
 
   return (
-    <aside className="lk-sidebar" aria-label="Боковая навигация">
-      <div className="lk-sidebar__group-label">Меню</div>
+    <aside className="ui-sidebar" aria-label="Боковая навигация">
+      <div className="ui-sidebar__group-label">Меню</div>
       {items.map((item) => (
         <NavLink
           key={item.to}
           to={item.to}
-          className={`lk-sidebar__item${item.to === activeTo ? ' lk-sidebar__item--active' : ''}`}
+          className={`ui-sidebar__item${item.to === activeTo ? ' ui-sidebar__item--active' : ''}`}
         >
           {ICONS[item.icon]}
           <span>{item.label}</span>

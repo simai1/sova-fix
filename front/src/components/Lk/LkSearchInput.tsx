@@ -34,9 +34,9 @@ const LkSearchInput = ({
   };
 
   return (
-    <div className="lk-search">
+    <div className="ui-search">
       <svg
-        className="lk-search__icon"
+        className="ui-search__icon"
         width="18"
         height="18"
         viewBox="0 0 24 24"
@@ -52,7 +52,7 @@ const LkSearchInput = ({
       </svg>
       <input
         type="search"
-        className="lk-search__input"
+        className="ui-search__input"
         value={local}
         placeholder={placeholder}
         onChange={(e) => setLocal(e.target.value)}
@@ -60,7 +60,7 @@ const LkSearchInput = ({
       {local ? (
         <button
           type="button"
-          className="lk-search__clear"
+          className="ui-search__clear"
           onClick={handleClear}
           aria-label="Очистить"
         >

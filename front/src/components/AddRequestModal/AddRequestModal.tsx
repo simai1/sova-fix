@@ -10,7 +10,7 @@ import LkSelect, { LkSelectOption } from '../Lk/LkSelect';
 import PhotoUploader from '../Lk/PhotoUploader';
 import { showToast } from '../Lk/toastBus';
 
-import '../../styles/lk/index.scss';
+import '../../styles/ui/index.scss';
 
 const MIN_DESCRIPTION_LEN = 10;
 const MAX_FILES = 10;
@@ -79,6 +79,7 @@ const AddRequestModal: FC<TAddRequestModalProps> = ({ handleClose }) => {
   const urgencyOptions: LkSelectOption[] = (urgencyList ?? []).map((u) => ({
     value: u.id,
     label: u.name,
+    color: u.color,
   }));
 
   const validate = (): boolean => {
@@ -118,23 +119,23 @@ const AddRequestModal: FC<TAddRequestModalProps> = ({ handleClose }) => {
 
   return (
     <div
-      className="lk-modal__overlay"
+      className="ui-modal__overlay"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget && !submitting) handleClose();
       }}
     >
       <div
-        className="lk-modal__sheet"
+        className="ui-modal__sheet"
         role="dialog"
         aria-modal="true"
         aria-labelledby="add-request-title"
       >
-        <h2 className="lk-modal__title" id="add-request-title">
+        <h2 className="ui-modal__title" id="add-request-title">
           Создание заявки
         </h2>
 
-        <div className="lk-field">
-          <label className="lk-field__label" htmlFor="add-request-unit">
+        <div className="ui-field">
+          <label className="ui-field__label" htmlFor="add-request-unit">
             Подразделение
           </label>
           <LkSelect
@@ -144,11 +145,11 @@ const AddRequestModal: FC<TAddRequestModalProps> = ({ handleClose }) => {
             options={unitOptions}
             placeholder="Выберите подразделение"
           />
-          {errors.unitId ? <div className="lk-field__error">{errors.unitId}</div> : null}
+          {errors.unitId ? <div className="ui-field__error">{errors.unitId}</div> : null}
         </div>
 
-        <div className="lk-field">
-          <label className="lk-field__label" htmlFor="add-request-object">
+        <div className="ui-field">
+          <label className="ui-field__label" htmlFor="add-request-object">
             Объект
           </label>
           <LkSelect
@@ -159,11 +160,11 @@ const AddRequestModal: FC<TAddRequestModalProps> = ({ handleClose }) => {
             placeholder={objectsLoading ? 'Загрузка...' : 'Выберите объект'}
             disabled={!unitId || objectsLoading}
           />
-          {errors.objectId ? <div className="lk-field__error">{errors.objectId}</div> : null}
+          {errors.objectId ? <div className="ui-field__error">{errors.objectId}</div> : null}
         </div>
 
-        <div className="lk-field">
-          <label className="lk-field__label" htmlFor="add-request-category">
+        <div className="ui-field">
+          <label className="ui-field__label" htmlFor="add-request-category">
             Категория
           </label>
           <LkSelect
@@ -175,22 +176,22 @@ const AddRequestModal: FC<TAddRequestModalProps> = ({ handleClose }) => {
           />
         </div>
 
-        <div className="lk-field">
-          <label className="lk-field__label" htmlFor="add-request-desc">
+        <div className="ui-field">
+          <label className="ui-field__label" htmlFor="add-request-desc">
             Описание проблемы
           </label>
           <textarea
             id="add-request-desc"
-            className="lk-textarea"
+            className="ui-textarea"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Опишите, что сломалось"
           />
-          {errors.description ? <div className="lk-field__error">{errors.description}</div> : null}
+          {errors.description ? <div className="ui-field__error">{errors.description}</div> : null}
         </div>
 
-        <div className="lk-field">
-          <label className="lk-field__label" htmlFor="add-request-urgency">
+        <div className="ui-field">
+          <label className="ui-field__label" htmlFor="add-request-urgency">
             Срочность
           </label>
           <LkSelect
@@ -200,11 +201,11 @@ const AddRequestModal: FC<TAddRequestModalProps> = ({ handleClose }) => {
             options={urgencyOptions}
             placeholder="Выберите срочность"
           />
-          {errors.urgencyId ? <div className="lk-field__error">{errors.urgencyId}</div> : null}
+          {errors.urgencyId ? <div className="ui-field__error">{errors.urgencyId}</div> : null}
         </div>
 
-        <div className="lk-field">
-          <label className="lk-field__label">
+        <div className="ui-field">
+          <label className="ui-field__label">
             {isPhotoRequired ? 'Фотографии (1–10)' : 'Фотографии (по желанию, до 10)'}
           </label>
           <PhotoUploader
@@ -213,13 +214,13 @@ const AddRequestModal: FC<TAddRequestModalProps> = ({ handleClose }) => {
             maxFiles={MAX_FILES}
             hint="Снимите проблему с разных ракурсов. Форматы: JPG/JPEG или PNG, до 10 МБ."
           />
-          {errors.files ? <div className="lk-field__error">{errors.files}</div> : null}
+          {errors.files ? <div className="ui-field__error">{errors.files}</div> : null}
         </div>
 
-        <div className="lk-modal__actions">
+        <div className="ui-modal__actions">
           <button
             type="button"
-            className="lk-button lk-button--ghost lk-button--block"
+            className="ui-button ui-button--ghost ui-button--block"
             onClick={handleClose}
             disabled={submitting}
           >
@@ -227,7 +228,7 @@ const AddRequestModal: FC<TAddRequestModalProps> = ({ handleClose }) => {
           </button>
           <button
             type="button"
-            className="lk-button lk-button--accent lk-button--block"
+            className="ui-button ui-button--accent ui-button--block"
             onClick={handleSubmit}
             disabled={submitting}
           >

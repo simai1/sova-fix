@@ -3,7 +3,7 @@
     top: 20px;
     left: 50%;
     transform: translateX(-50%);
-    background-color: var(--tableTdBg);
+    background-color: var(--color-fill-alt);
     color: #333;
     max-width: 400px;
     width: 90%;
@@ -44,7 +44,7 @@
     }
 
     .confirmBtn {
-        background-color: var(--Main-green-color);
+        background-color: var(--color-lime);
         color: white;
         border: none;
         border-radius: 6px;
@@ -53,7 +53,7 @@
     }
 
     .danger {
-        background-color: var(--Red-color);
+        background-color: var(--color-error-muted);
     }
 
     .cancelBtn {

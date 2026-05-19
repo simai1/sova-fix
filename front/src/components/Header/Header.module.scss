@@ -27,7 +27,7 @@
       width: 115vw;
   }
   .buttonMenu {
-    @include button(var(--turquoise-color));
+    @include button(var(--color-primary));
     margin: 0px;
     width: 180px;
     height: 40px;
@@ -83,7 +83,7 @@
           cursor: pointer; // Move cursor style here for better clarity
           border-radius: 5px;
           &:hover {
-              background-color: var(--turquoise-color)!important;
+              background-color: var(--color-primary)!important;
               transition: 0.1s linear all;
               border-radius: 5px;
           }
@@ -121,7 +121,7 @@
       bottom: 0;
     }
     button {
-      @include button(var(--turquoise-color));
+      @include button(var(--color-primary));
       margin: 0px 5px;
       width: 250px;
       height: 45px;
