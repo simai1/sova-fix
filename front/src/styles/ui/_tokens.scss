@@ -17,6 +17,15 @@
   --color-text-tertiary : #A1A1AA;  // placeholder, мета, декор
   --color-border      : #E7E5E4;
   --color-border-strong: #D6D3D1;
+  --color-text-inverse : #FFFFFF;  // текст/иконка на тёмном или цветном фоне
+
+  // Нейтральная серая шкала — сведённая легаси-палитра серых админки.
+  --color-neutral-100  : #F4F4F5;  // светлейший фон, zebra-строка
+  --color-neutral-200  : #E5E5E5;  // светлый разделитель/бордер
+  --color-neutral-300  : #CCCCCC;  // бордер
+  --color-neutral-400  : #ADADAD;  // disabled, декор-текст
+  --color-neutral-500  : #888888;  // иконки, мета-текст
+  --color-neutral-600  : #555555;  // тёмно-серый текст
 
   // Акценты (бренд-жёлтый — только точечный CTA)
   --color-primary      : #F5C518;
@@ -35,6 +44,7 @@
   // Тёплая нейтраль и легаси-цвета админки (таблицы, бордеры, статусы).
   // Единая палитра — отдельного admin-слоя токенов больше нет.
   --color-warm-border  : #b7ab9e;  // бордеры, muted-текст, шапка таблицы
+  --color-warm-strong  : #9f8b7b;  // тёмная тёплая нейтраль (текст/иконки)
   --color-warm-active  : #cabfb4;  // активное/hover-состояние тёплой нейтрали
   --color-warm-soft    : #d8cdc1;  // светлый тёплый фон
   --color-warm-text    : #bd966c;  // тёплый акцентный текст

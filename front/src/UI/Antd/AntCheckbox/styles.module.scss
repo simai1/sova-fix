@@ -1,9 +1,9 @@
 .checkbox :global(.ant-checkbox-inner) {
     width: 16px;
     height: 16px;
-    border: 2px solid #d3d6db !important;
+    border: 2px solid var(--color-border-strong) !important;
     border-radius: 4px;
-    background: #fff !important;
+    background: var(--color-bg-container) !important;
 }
 
 .checkbox :global(.ant-checkbox-inner::after) {
@@ -20,7 +20,7 @@
     display: block;
     width: 5px;
     height: 10px;
-    border: solid #fff;
+    border: solid var(--color-text-inverse);
     border-width: 0 2px 2px 0;
     position: absolute;
     top: 2px;

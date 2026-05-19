@@ -10,7 +10,7 @@
         justify-content: center;
         .submit__button {
             margin: 40px auto 0 !important;
-            background-color: #b7ab9e !important;
+            background-color: var(--color-warm-border) !important;
             width: 70%;
             height: 42px;
             border-radius: 8px;
@@ -22,8 +22,8 @@
             cursor: pointer;
 
             &:hover {
-                background-color: #9f8b7b !important;
-                color: #fff !important;
+                background-color: var(--color-warm-strong) !important;
+                color: var(--color-text-inverse) !important;
             }
         }
     }
@@ -36,13 +36,13 @@
             width: 80px;
             height: 20px;
             border-radius: 12px;
-            border: 2px solid #ccc;
+            border: 2px solid var(--color-neutral-300);
             background-color: transparent;
             cursor: pointer;
             transition: border-color 0.3s ease, transform 0.2s ease;
 
             &:hover {
-                border-color: #888;
+                border-color: var(--color-neutral-500);
                 transform: scale(1.02);
             }
 

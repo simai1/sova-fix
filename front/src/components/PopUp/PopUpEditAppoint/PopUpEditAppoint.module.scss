@@ -111,7 +111,7 @@
   position: absolute;
   top: 15px;
   right: 35px;
-  color: #f1f1f1;
+  color: var(--color-text-inverse);
   font-size: 40px;
   font-weight: bold;
   transition: 0.3s;
@@ -119,7 +119,7 @@
 
 .close:hover,
 .close:focus {
-  color: #bbb;
+  color: var(--color-neutral-300);
   text-decoration: none;
   cursor: pointer;
 }
@@ -171,7 +171,7 @@
      }
 }
 .soursBg{
-  background-color: #f1f1f1;
+  background-color: var(--color-fill-alt);
   display: flex;
   justify-content: center;
   align-items: center;

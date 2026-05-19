@@ -6,7 +6,7 @@
   
   .label {
     font-size: 16px;
-    color: #000;
+    color: var(--color-text);
     cursor: pointer;
   }
   
@@ -28,7 +28,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background-color: #ccc;
+      background-color: var(--color-neutral-300);
       transition: 0.3s;
       border-radius: 34px;
   
@@ -39,7 +39,7 @@
         width: 14px;
         left: 3px;
         bottom: 3px;
-        background-color: white;
+        background-color: var(--color-text-inverse);
         transition: 0.3s;
         border-radius: 50%;
       }

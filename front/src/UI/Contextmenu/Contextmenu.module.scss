@@ -5,7 +5,7 @@
     display: flex;
     .StatusMenu{
         margin-left: 10px;
-        background-color: #fff;
+        background-color: var(--color-bg-container);
         box-shadow: 2px 2px 8px var(--color-warm-border);
         border-radius: 8px;
         padding: 10px 20px;
@@ -27,7 +27,7 @@
         }
     }
     .SampleMenuInner{
-        background-color: #fff;
+        background-color: var(--color-bg-container);
         box-shadow: 2px 2px 8px var(--color-warm-border);
         padding: 10px 20px;
         border-radius: 8px;

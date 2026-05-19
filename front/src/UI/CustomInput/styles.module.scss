@@ -11,12 +11,12 @@
     .input {
       width: 420px;
       padding: 10px 15px;
-      border: 1px solid #adadad;
+      border: 1px solid var(--color-neutral-400);
       border-radius: 8px;
       font-size: 16px;
       &:focus {
         outline: none;
-        border-color: #353535;
+        border-color: var(--color-text);
       }
     }
   
@@ -27,16 +27,16 @@
       border-radius: 8px;
       padding: 15px;
       font-size: 16px;
-      border: 1px solid #adadad;
+      border: 1px solid var(--color-neutral-400);
       resize: vertical;
       &:focus {
         outline: none;
-        border-color: #353535;
+        border-color: var(--color-text);
       }
     }
   
     .invalid {
-      border: 1px solid red;
+      border: 1px solid var(--color-error);
     }
   }
   

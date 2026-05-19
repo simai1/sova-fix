@@ -1,10 +1,10 @@
 .table {
     border-collapse: collapse;
-    background-color: #fff;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    background-color: var(--color-bg-container);
+    box-shadow: var(--shadow-sm);
     font-family: 'FactWeb', system-ui, sans-serif;
     font-size: 14px;
-    color: #2b2b2b;
+    color: var(--color-text);
     table-layout: fixed;
     overflow: auto;
 
@@ -18,9 +18,9 @@
         th {
             padding: 12px 16px;
             font-weight: 600;
-            color: #000 !important;
-            border-bottom: 1px solid #e5e7eb;
-            border-right: 1px solid #e5e7eb;
+            color: var(--color-text) !important;
+            border-bottom: 1px solid var(--color-neutral-200);
+            border-right: 1px solid var(--color-neutral-200);
             max-width: 150px;
         }
     }
@@ -30,16 +30,16 @@
             transition: background-color 0.15s ease;
 
             &:nth-child(even) {
-                background-color: #fafafa;
+                background-color: var(--color-fill-alt);
             }
 
             &:hover {
-                background-color: #f1f5f9;
+                background-color: var(--color-neutral-100);
             }
         }
 
         .trTable:last-child {
-            background: #f7f8fa;
+            background: var(--color-neutral-100);
             position: sticky;
             bottom: 0;
             z-index: 2;
@@ -47,11 +47,11 @@
 
         td {
             padding: 10px 16px;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--color-neutral-200);
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            border-right: 1px solid #e5e7eb;
+            border-right: 1px solid var(--color-neutral-200);
         }
 
         tr:last-child td {
@@ -59,9 +59,9 @@
         }
 
         .totalRow {
-            background-color: var(--color-warm-soft) !important; // строка Итого
+            background-color: var(--color-warm-soft) !important;
             font-weight: 600;
-            color: #000;
+            color: var(--color-text);
         }
     }
 }

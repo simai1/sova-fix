@@ -24,7 +24,7 @@
     position: absolute !important;
     right: -40px;
     top: -40px;
-    color: white;
+    color: var(--color-text-inverse);
     font-size: 30px !important;
     font-weight: bold;
     background: none !important;
@@ -43,7 +43,7 @@
 .nextButton {
     background: none !important;
     border: none;
-    color: white;
+    color: var(--color-text-inverse);
     font-size: 30px !important;
     cursor: pointer;
     padding: 20px;
@@ -63,7 +63,7 @@
 }
 
 .sliderIndicator {
-    color: white;
+    color: var(--color-text-inverse);
     margin-top: 20px;
     font-size: 16px;
 }

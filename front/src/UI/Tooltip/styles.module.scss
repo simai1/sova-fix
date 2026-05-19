@@ -9,8 +9,8 @@
     bottom: calc(100% + 5px);
     left: 50%;
     transform: translateX(-50%);
-    background: #333;
-    color: #fff;
+    background: var(--color-text);
+    color: var(--color-text-inverse);
     font-size: 12px;
     padding: 4px 8px;
     border-radius: 6px;

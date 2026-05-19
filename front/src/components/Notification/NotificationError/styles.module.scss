@@ -5,7 +5,7 @@
     transform: translateX(-50%);
     background-color: var(--color-error-muted);
     // background-color: var(--color-error-muted);
-    color: #3b2a23;
+    color: var(--color-text);
     max-width: 320px;
     width: 90%;
     padding: 16px 20px 12px;
@@ -39,7 +39,7 @@
 
     .progressBar {
         height: 4px;
-        background-color: #d84418;
+        background-color: var(--color-error);
         border-radius: 4px;
         animation: progressFade 4s linear forwards;
         margin-top: 8px;

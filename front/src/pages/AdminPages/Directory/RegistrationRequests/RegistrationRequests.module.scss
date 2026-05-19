@@ -17,18 +17,18 @@
   th,
   td {
     padding: 10px 12px;
-    border-bottom: 1px solid #e3dfda;
+    border-bottom: 1px solid var(--color-border);
     text-align: left;
     font-size: 14px;
   }
 
   th {
-    background-color: #f6f4f0;
+    background-color: var(--color-fill-alt);
     font-weight: 600;
   }
 
   tbody tr:hover {
-    background-color: #fafafa;
+    background-color: var(--color-fill-alt);
   }
 }
 
@@ -50,20 +50,20 @@
   }
 
   .approve {
-    background-color: #4caf50;
-    color: #fff;
+    background-color: var(--color-success);
+    color: var(--color-text-inverse);
 
     &:hover:not(:disabled) {
-      background-color: #45a047;
+      background-color: var(--color-success);
     }
   }
 
   .reject {
-    background-color: #f44336;
-    color: #fff;
+    background-color: var(--color-error);
+    color: var(--color-text-inverse);
 
     &:hover:not(:disabled) {
-      background-color: #e53935;
+      background-color: var(--color-error);
     }
   }
 }
@@ -71,7 +71,7 @@
 .empty {
   text-align: center;
   padding: 32px;
-  color: #888;
+  color: var(--color-neutral-500);
 }
 
 .modalOverlay {
@@ -85,7 +85,7 @@
 }
 
 .modal {
-  background-color: #fff;
+  background-color: var(--color-bg-container);
   padding: 24px;
   border-radius: 8px;
   min-width: 320px;
@@ -115,13 +115,13 @@
     }
 
     .confirm {
-      background-color: #f44336;
-      color: #fff;
+      background-color: var(--color-error);
+      color: var(--color-text-inverse);
     }
 
     .cancel {
-      background-color: #e0e0e0;
-      color: #000;
+      background-color: var(--color-neutral-200);
+      color: var(--color-text);
     }
   }
 }

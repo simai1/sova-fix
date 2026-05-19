@@ -61,7 +61,7 @@
           max-width: 225px;
           min-width: 225px;
           // height: 200px;
-          background-color: #ffffff;
+          background-color: var(--color-bg-container);
           left: 0;
           top: 45px;
           border-radius: 8px;
@@ -81,8 +81,8 @@
                 padding: 10px;
                 align-items: center;
                 text-align: center;
-                background-color:#f7f7f7;
-                
+                background-color: var(--color-fill-alt);
+
             }
         }
         .imgTable{
@@ -123,15 +123,15 @@
         position: absolute;
         top: 15px;
         right: 35px;
-        color: #f1f1f1;
+        color: var(--color-text-inverse);
         font-size: 40px;
         font-weight: bold;
         transition: 0.3s;
       }
-      
+
       .close:hover,
       .close:focus {
-        color: #bbb;
+        color: var(--color-neutral-300);
         text-decoration: none;
         cursor: pointer;
       }
@@ -167,7 +167,7 @@
 }
 .tgIdLink{
   text-decoration: none;
-  color: rgb(189, 150, 108);
+  color: var(--color-warm-text);
   &:hover{
     color: var(--color-warm-text);
   }
@@ -179,7 +179,7 @@
   position: absolute;
   top: -20px;
   left: calc(100% + 10px);
-  background-color: #fff;
+  background-color: var(--color-bg-container);
   padding: 10px;
   border-radius: 8px;
   box-shadow: 1px 0px 8px var(--color-warm-border);
@@ -224,7 +224,7 @@
   overflow-y: scroll;
   transform: translateY(20px);
   position: absolute;
-  background-color: #fff;
+  background-color: var(--color-bg-container);
   padding: 10px;
   border-radius: 8px!important;
   box-shadow: 1px 0px 8px var(--color-warm-border);
@@ -258,8 +258,8 @@
     background-color: var(--color-primary);
   }
   &:active{
-    background-color: #ffd30d;
-    border: 2px solid #ffd30d;
+    background-color: var(--color-primary);
+    border: 2px solid var(--color-primary);
   }
   
 }

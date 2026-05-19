@@ -58,19 +58,19 @@
             justify-content: center;
             width: 100%;
             .PupUpCreateButton{
-                background-color: #B7AB9E!important;
+                background-color: var(--color-warm-border)!important;
                 width: 70%;
                 height: 42px;
                 border-radius: 8px;
                 margin-top: 20px;
                 &:hover{
-                    background-color: #9f8b7b!important;
-                    color: #fff;
+                    background-color: var(--color-warm-strong)!important;
+                    color: var(--color-text-inverse);
                 }
             }
         }
         .ErrorMessage{
-            color: #d69a81;
+            color: var(--color-error-muted);
         }
     }
     .ListCreateDataCont{
@@ -82,8 +82,8 @@
         }
         .ListCreateData{
             list-style: none;
-            background-color: #fff;
-            border: 1px solid #ADADAD;
+            background-color: var(--color-bg-container);
+            border: 1px solid var(--color-neutral-400);
             border-radius: 0px 0px 8px 8px;       
             z-index: 100;
             top: 40px;
@@ -97,7 +97,7 @@
                 padding: 0;
                 cursor: pointer;
                 width: 100%;
-                background-color: #fff;
+                background-color: var(--color-bg-container);
                 font-size: 18px;
                 &:hover{
                     color:var(  --color-warm-text);

@@ -185,10 +185,10 @@
         position: relative;
         height: 100%;
         button{
-          background-color: #000;
+          background-color: var(--color-text);
           border: none;
           border-radius: 8px;
-          color: #fff;
+          color: var(--color-text-inverse);
           padding: 10px 20px;
           transition: 0.1s linear all;
           cursor: pointer;

@@ -84,7 +84,7 @@
     }
     input{
         font-size: 16px;
-        color: #000;
+        color: var(--color-text);
         padding-left: 10px;
         &::placeholder{
             color: grey;
@@ -101,13 +101,13 @@
         margin: 10px 0px 0px 0px;
         padding: 15px 10px;
         width: 400px;
-        color: #000000;
+        color: var(--color-text);
         background-color: var(--color-primary)!important;
         border-radius: 6px;
         &:hover{
             background-color: var(--color-warm-border)!important;
             cursor: pointer;
-            color: #ffffff!important;
+            color: var(--color-text-inverse)!important;
         }
     }
 }

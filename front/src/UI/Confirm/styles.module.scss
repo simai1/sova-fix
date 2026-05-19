@@ -4,7 +4,7 @@
     left: 50%;
     transform: translateX(-50%);
     background-color: var(--color-fill-alt);
-    color: #333;
+    color: var(--color-text);
     max-width: 400px;
     width: 90%;
     border-radius: 10px;
@@ -57,8 +57,8 @@
     }
 
     .cancelBtn {
-        background-color: #ccc;
-        color: #333;
+        background-color: var(--color-neutral-300);
+        color: var(--color-text);
         border: none;
         border-radius: 6px;
         padding: 6px 12px;

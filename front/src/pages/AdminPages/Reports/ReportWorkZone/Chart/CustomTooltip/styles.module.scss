@@ -1,16 +1,16 @@
 .tooltipContainer {
-    background-color: #ffffff;
-    color: #333333;
+    background-color: var(--color-bg-container);
+    color: var(--color-text);
     border-radius: 8px;
     padding: 10px 15px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-sm);
     font-size: 14px;
     min-width: 120px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--color-neutral-200);
 }
 
 .label {
     font-weight: 600;
     margin-bottom: 6px;
-    color: #555555;
+    color: var(--color-neutral-600);
 }

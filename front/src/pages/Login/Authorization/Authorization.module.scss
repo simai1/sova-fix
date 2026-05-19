@@ -80,15 +80,15 @@
         appearance: auto;
         cursor: pointer;
         font: inherit;
-        color: #353535;
+        color: var(--color-text);
       }
       .errorText {
-        color: red;
+        color: var(--color-error);
         font-size: 0.8125rem;
         margin: -0.5rem 0 0 0.25rem;
       }
       .resetPassword {
-        color: #000;
+        color: var(--color-text);
         margin: 0;
         text-align: center;
         align-self: center;
@@ -105,7 +105,7 @@
         align-items: center;
         gap: 0.5rem;
         font-size: 0.875rem;
-        color: #353535;
+        color: var(--color-text);
         cursor: pointer;
         user-select: none;
         // Кастомный визуал чекбокса: нативный скрываем, рисуем квадрат через
@@ -123,9 +123,9 @@
         .checkbox {
           width: 1.125rem;
           height: 1.125rem;
-          border: 0.0625rem solid #c4c4c4;
+          border: 0.0625rem solid var(--color-neutral-300);
           border-radius: 0.25rem;
-          background: #fff;
+          background: var(--color-bg-container);
           display: inline-flex;
           align-items: center;
           justify-content: center;
@@ -143,7 +143,7 @@
             content: '';
             width: 0.3125rem;
             height: 0.625rem;
-            border: solid #fff;
+            border: solid var(--color-text-inverse);
             border-width: 0 0.125rem 0.125rem 0;
             transform: rotate(45deg) translate(-0.0125rem, -0.0625rem);
           }

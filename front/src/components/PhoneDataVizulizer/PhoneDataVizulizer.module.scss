@@ -13,14 +13,14 @@
   }
 
   &::-webkit-scrollbar-track {
-    background: #f1f1f1; /* Цвет фона трека */
+    background: var(--color-fill-alt);
     border-radius: 10px; /* Скругление трека */
   }
 
   &::-webkit-scrollbar-thumb {
-    background:  #444444; /* Цвет ползунка */
-    border-radius: 10px; /* Скругление ползунка */
-    border: 2px solid #f1f1f1; /* Обводка для создания эффекта пустого пространства */
+    background: var(--color-neutral-600);
+    border-radius: 10px;
+    border: 2px solid var(--color-fill-alt);
   }
 
   &::-webkit-scrollbar-thumb:hover {
@@ -37,7 +37,7 @@
         width: 100%;
         .dataBlockInner{
             position: relative;
-            background-color: #f1f1f1;
+            background-color: var(--color-fill-alt);
             width: 80%;
             // border: var(--GrenColor) 1px solid;
             padding: 5px 10px;
@@ -123,7 +123,7 @@
     border: none;
     font-size: 40px;
     cursor: pointer;
-    color: #fff;
+    color: var(--color-text-inverse);
   }
   
   .imgTable,
@@ -148,7 +148,7 @@
     bottom: 20px;
     right: 20px;
     background-color: var(--color-primary);
-    color: #000000;
+    color: var(--color-text);
     border: none;
     border-radius: 50%;
     width: 50px;

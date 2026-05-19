@@ -1,6 +1,6 @@
 .PopUpToCopy {
     .input {
-        border: 1px solid #000;
+        border: 1px solid var(--color-text);
         padding: 10px 15px;
         border-radius: 5px;
         width: 70%;
