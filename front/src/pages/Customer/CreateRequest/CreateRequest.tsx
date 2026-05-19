@@ -17,14 +17,14 @@ import { IS_PHOTO_REQUIRED } from '@/constants/settings.constants';
 import { getErrorMessage } from '@/utils/getErrorMessage';
 
 const MIN_DESCRIPTION_LEN = 10;
+const MAX_DESCRIPTION_LEN = 1000;
+const DESCRIPTION_WARN_AT = 900;
 
 const CustomerCreateRequest = (): JSX.Element => {
   const navigate = useNavigate();
   const { data: me, isLoading: meLoading } = useGetMeQuery();
   const { data: urgencies = [], isLoading: urgLoading } = useGetUrgenciesQuery();
   const { data: myObjects = [], isLoading: objLoading } = useGetMyObjectsQuery();
-  // Если сеттинг ещё не загрузился или эндпоинт упал — считаем фото обязательным
-  // (это безопасный дефолт, совпадающий с прежним поведением и с seedSettings).
   const { data: photoSetting } = useGetSettingByNameQuery(IS_PHOTO_REQUIRED);
   const isPhotoRequired = photoSetting?.value ?? true;
   const [createRequest, { isLoading: creating }] = useCreateRequestMutation();
@@ -44,6 +44,14 @@ const CustomerCreateRequest = (): JSX.Element => {
 
   const objectOptions: LkSelectOption[] = myObjects.map((o) => ({ value: o.id, label: o.name }));
   const urgencyOptions: LkSelectOption[] = urgencies.map((u) => ({ value: u.id, label: u.name }));
+
+  const descriptionLength = description.length;
+  const counterTone =
+    descriptionLength >= MAX_DESCRIPTION_LEN
+      ? ' lk-field__counter--full'
+      : descriptionLength >= DESCRIPTION_WARN_AT
+        ? ' lk-field__counter--warn'
+        : '';
 
   const validate = (): boolean => {
     const next: Record<string, string> = {};
@@ -122,13 +130,22 @@ const CustomerCreateRequest = (): JSX.Element => {
         <label className="lk-field__label" htmlFor="lk-create-desc">
           Описание проблемы
         </label>
-        <textarea
-          id="lk-create-desc"
-          className="lk-textarea"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Опишите, что сломалось"
-        />
+        <div className="lk-field__control">
+          <textarea
+            id="lk-create-desc"
+            className="lk-textarea lk-textarea--with-counter"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Опишите, что сломалось"
+            maxLength={MAX_DESCRIPTION_LEN}
+            aria-describedby="lk-create-desc-counter"
+          />
+          <span id="lk-create-desc-counter" className={`lk-field__counter${counterTone}`}>
+            <span className="lk-field__counter-value">{descriptionLength}</span>
+            {' / '}
+            {MAX_DESCRIPTION_LEN}
+          </span>
+        </div>
         {errors.description ? <div className="lk-field__error">{errors.description}</div> : null}
       </div>
 

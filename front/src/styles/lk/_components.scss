@@ -470,6 +470,12 @@
   min-height: 5.5rem;
   resize: vertical;
   line-height: 1.4;
+
+  // Резерв снизу под плавающий .lk-field__counter — чтобы вводимый текст не
+  // уходил под «пилюлю» счётчика в правом нижнем углу.
+  &--with-counter {
+    padding-bottom: 2.25rem;
+  }
 }
 
 // ── 5. .lk-select ────────────────────────────────────────────────────────────
@@ -684,6 +690,63 @@
   &__hint {
     font-size: var(--lk-fs-sm);
     color: var(--lk-text-muted);
+  }
+
+  // Позиционный контекст для плавающих потомков поля (счётчик символов).
+  &__control {
+    position: relative;
+  }
+
+  // Счётчик символов — «пилюля» в правом нижнем углу textarea. pointer-events:
+  // none, чтобы пилюля не перехватывала resize-грип textarea, лежащий в том же
+  // углу. tabular-nums держит ширину стабильной при смене числа.
+  &__counter {
+    position: absolute;
+    right: var(--lk-sp-2);
+    bottom: var(--lk-sp-2);
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.15em;
+    padding: 0.15rem 0.5rem;
+    border: 1px solid var(--lk-border);
+    border-radius: var(--lk-r-sm);
+    background: var(--lk-surface);
+    box-shadow: var(--lk-shadow-xs);
+    font-size: var(--lk-fs-xs);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+    color: var(--lk-text-subtle);
+    pointer-events: none;
+    user-select: none;
+    transition:
+      color 0.14s ease-out,
+      background 0.14s ease-out,
+      border-color 0.14s ease-out;
+  }
+
+  &__counter-value {
+    font-weight: 600;
+    color: var(--lk-text);
+  }
+
+  &__counter--warn {
+    color: var(--lk-warn);
+    background: var(--lk-warn-soft);
+    border-color: var(--lk-warn-soft);
+
+    .lk-field__counter-value {
+      color: var(--lk-warn);
+    }
+  }
+
+  &__counter--full {
+    color: var(--lk-danger);
+    background: var(--lk-danger-soft);
+    border-color: var(--lk-danger-soft);
+
+    .lk-field__counter-value {
+      color: var(--lk-danger);
+    }
   }
 }
 
