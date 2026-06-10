@@ -9,81 +9,74 @@
   padding: 1rem;
   box-sizing: border-box;
 
-  .LogoAuth {
-    display: none;
+  > div {
+    width: min(25rem, 100%);
     @include mq-up(tp) {
-      display: block;
-      height: 21.5625rem;
-      position: relative;
-      top: 1.875rem;
+      width: min(50rem, 100%);
     }
   }
+
   .box {
-    label {
-      display: flex;
-      justify-content: start;
-      width: 100%;
-      align-items: start;
-      text-align: start;
-      padding-left: 0.5rem;
-      font-size: 0.875rem;
-    }
     width: 100%;
-    max-width: 25rem;
-    padding: 0.625rem 1.875rem;
+    padding: 1.75rem 1.75rem;
+    box-sizing: border-box;
     background-color: var(--color-bg-container);
     @include flexbox-center(1.0625rem);
-    @include mq-up(ml) {
-      max-width: 43.75rem;
-    }
     @include mq-up(tp) {
-      max-width: 50rem;
-      padding: 3.75rem 0;
+      padding: 3.75rem 1.75rem;
     }
-
+    .LogoAuth {
+      display: none;
+      @include mq-up(tp) {
+        display: block;
+        height: 21.5625rem;
+        position: relative;
+        right: -2.5rem;
+        top: 1.875rem;
+      }
+    }
     .container {
       margin: 0 auto;
-      @include flexbox-center(1.0625rem);
+      display: flex;
       flex-direction: column;
+      align-items: stretch;
+      gap: 1.0625rem;
       position: relative;
-      padding-top: 2.1875rem;
-      @include mq-up(ml) {
-        padding-top: 4.375rem;
-      }
+      width: 100%;
+      max-width: 22.5rem;
       h2 {
         width: 100%;
-        @include flexbox-center(0);
-        margin-top: 0;
-        @include font(1.75rem, 700);
-        @include mq-up(ml) {
-          @include font(2rem, 700);
-        }
+        text-align: center;
+        margin: 0 0 0.25rem;
+        @include font(2rem, 700);
+      }
+      label {
+        display: block;
+        width: 100%;
+        text-align: start;
+        padding-left: 0.25rem;
+        margin-bottom: -0.625rem;
+        font-size: 0.875rem;
       }
       input {
-        @include input-text(15.625rem, 0.5rem);
-        margin-bottom: 0.9375rem;
-        @include mq-up(ml) {
-          @include input-text(22.5rem, 0.5rem);
-        }
+        @include input-text(100%, 0.5rem);
+        box-sizing: border-box;
+        margin: 0;
+        min-width: 0;
       }
-
       .button {
         @include button(var(--color-primary));
-        width: 12.5rem !important;
-        padding: 0.78125rem 0;
-        text-align: center;
-        display: flex;
+        width: 100%;
+        box-sizing: border-box;
         justify-content: center;
-      }
-      .buttonReg {
-        margin-top: 0.625rem;
-        @include button(var(--gray--button--color));
+        padding: 0.875rem 0;
+        font-weight: 500;
+        margin-top: 0.25rem;
       }
     }
-  }
-  .text_Logo {
-    position: relative;
-    top: -0.9375rem;
+    .text_Logo {
+      position: relative;
+    }
   }
   @keyframes bounce {
     0% {
