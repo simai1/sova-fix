@@ -115,7 +115,6 @@ const PhotoUploader = ({
           ref={inputRef}
           type="file"
           accept={accept}
-          capture="environment"
           multiple={multiple}
           onChange={handlePick}
           style={{ display: 'none' }}
