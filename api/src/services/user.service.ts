@@ -129,7 +129,9 @@ const deleteDirUser = async (userId: string): Promise<void> => {
     if (!user) {
         user = await TgUser.findByPk(userId, { include: [{ model: Contractor }] });
         if (!user) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found user/tgUser with id ' + userId);
-        if (user.role === 4) await Contractor.destroy({ where: { id: user.Contractor?.id }, force: true });
+        if (user.role === roles.CONTRACTOR && user.Contractor?.id) {
+            await Contractor.destroy({ where: { id: user.Contractor.id }, force: true });
+        }
     }
     await user.destroy({ force: true });
 };
