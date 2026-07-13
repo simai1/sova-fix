@@ -1,10 +1,21 @@
+import { normalizeUserId } from './userDirectoryActions';
 import { ROLE_LABELS_BY_ID, WEB_ROLE_IDS, type WebRoleName } from '../../constants/roles.constant';
 
 type UserDirectoryRoleId = (typeof WEB_ROLE_IDS)[keyof typeof WEB_ROLE_IDS];
 
 type UserDirectoryTarget = {
-  id: string;
+  id: string | null;
   role: number;
+};
+
+type UserDirectorySourceRow = {
+  id?: unknown;
+  isConfirmed?: unknown;
+  login?: unknown;
+  name?: unknown;
+  role?: unknown;
+  tgUserId?: unknown;
+  [key: string]: unknown;
 };
 
 type UserDirectoryPolicy = {
@@ -75,9 +86,46 @@ export const getUserDirectoryRowPolicy = (
 
   return {
     canAssignObjects,
-    canChangeRole: canManageUsers && actorUserId !== null && actorUserId !== target.id,
+    canChangeRole:
+      canManageUsers && actorUserId !== null && target.id !== null && actorUserId !== target.id,
   };
 };
 
 export const formatUserDirectoryRole = (role: number): string =>
   ROLE_LABELS_BY_ID[role as UserDirectoryRoleId] ?? '___';
+
+export const normalizeAllowedRoleId = (
+  value: unknown,
+  allowedRoleIds: readonly number[],
+): number | null => {
+  if (typeof value !== 'string' && typeof value !== 'number') return null;
+  const normalized = Number(value);
+  return Number.isFinite(normalized) &&
+    Number.isInteger(normalized) &&
+    allowedRoleIds.includes(normalized)
+    ? normalized
+    : null;
+};
+
+export const buildUserDirectoryRows = (
+  data: readonly UserDirectorySourceRow[],
+  actorRole: WebRoleName | null,
+  actorUserId: string | null,
+): Array<UserDirectorySourceRow & Record<string, unknown>> =>
+  data.map((item) => {
+    const id = normalizeUserId(item.id);
+    const roleId = Number(item.role);
+    const rowPolicy = getUserDirectoryRowPolicy(actorRole, actorUserId, { id, role: roleId });
+    return {
+      ...item,
+      id: id ?? '___',
+      isConfirmed: item.isConfirmed === true ? 'Активирован' : 'Не активирован',
+      login: item.login || '___',
+      tgUserId: item.tgUserId || '___',
+      name: item.name || '___',
+      role: formatUserDirectoryRole(roleId),
+      roleId,
+      roleEditable: rowPolicy.canChangeRole,
+      accessButton: rowPolicy.canAssignObjects ? 'button' : null,
+    };
+  });

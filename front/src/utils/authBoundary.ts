@@ -1,11 +1,13 @@
 import { lkApi } from '@/API/rtkQuery/lk.api';
 import { lkPushApi } from '@/API/rtkQuery/lkPush.api';
 import { repairRequestsApi } from '@/API/rtkQuery/requests.api';
+import { userObjectsApi } from '@/API/rtkQuery/userObjects.api';
 
 type ActorScopedResetAction =
   | ReturnType<typeof lkApi.util.resetApiState>
   | ReturnType<typeof lkPushApi.util.resetApiState>
-  | ReturnType<typeof repairRequestsApi.util.resetApiState>;
+  | ReturnType<typeof repairRequestsApi.util.resetApiState>
+  | ReturnType<typeof userObjectsApi.util.resetApiState>;
 
 type ActorBoundaryDispatch = (action: ActorScopedResetAction) => unknown;
 
@@ -27,6 +29,7 @@ const resetActorScopedApiState = (dispatch: ActorBoundaryDispatch): void => {
   dispatch(lkApi.util.resetApiState());
   dispatch(lkPushApi.util.resetApiState());
   dispatch(repairRequestsApi.util.resetApiState());
+  dispatch(userObjectsApi.util.resetApiState());
 };
 
 export const transitionAfterSuccessfulLogin = ({

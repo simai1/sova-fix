@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 
 import styles from "./UsersDirectory.module.scss";
 import { useDispatch } from "react-redux";
@@ -13,27 +13,23 @@ import СonfirmDeleteUser from "./../../components/СonfirmDeleteUser/СonfirmDe
 import ClearImg from "./../../assets/images/ClearFilter.svg"
 import { resetFilters } from "../../store/samplePoints/samplePoits";
 import UserObjectsAssign from "../UserObjectsAssign/UserObjectsAssign";
-import { getStoredRole } from "../../constants/roles.constant";
+import { useStoredRole } from "../../hooks/useStoredRole";
+import { getUserData } from "../../utils/auth";
+import { normalizeUserId } from "./userDirectoryActions";
 import {
+  buildUserDirectoryRows,
   formatUserDirectoryRole,
   getUserDirectoryPolicy,
   getUserDirectoryRowPolicy,
+  normalizeAllowedRoleId,
 } from "./userDirectoryPolicy";
-
-function getStoredUserId() {
-  try {
-    return JSON.parse(sessionStorage.getItem("userData"))?.user?.id ?? null;
-  } catch {
-    return null;
-  }
-}
 
 function funFixRole(value) {
   return formatUserDirectoryRole(value);
 }
 
 function UsersDirectory() {
-    const [tableDataObject, setTableDataObject] = useState([]);
+    const [users, setUsers] = useState([]);
     const [popUpCreate, setPopUpCreate] = useState(false);
     const {context} = useContext(DataContext);
     const [Email, setEmail] = useState("");
@@ -41,35 +37,23 @@ function UsersDirectory() {
     const [errorMessage, setErrorMessage] = useState("");
     const dispatch = useDispatch();
     const [objectsAssignFor, setObjectsAssignFor] = useState(null);
-    const currentRole = getStoredRole();
-    const currentUserId = getStoredUserId();
+    const currentRole = useStoredRole();
+    const currentUserId = normalizeUserId(getUserData()?.user?.id);
     const { canActivate, canCreateOrDelete, roleOptions } = getUserDirectoryPolicy(currentRole);
-
-    function funFixData(data) {
-        return data.map((item) => {
-          const roleId = Number(item?.role);
-          const rowPolicy = getUserDirectoryRowPolicy(currentRole, currentUserId, {
-            id: item?.id,
-            role: roleId,
-          });
-          return {
-            ...item,
-            id: item?.id || "___",
-            isConfirmed: item?.isConfirmed === true ? "Активирован" : "Не активирован",
-            login: item?.login || "___",
-            tgUserId: item?.tgUserId || "___",
-            name: item?.name || "___",
-            role: funFixRole(roleId),
-            roleId,
-            roleEditable: rowPolicy.canChangeRole,
-            accessButton: rowPolicy.canAssignObjects ? "button" : null,
-          };
-        });
-      }
+    const selectedUserId = normalizeUserId(context.selectRowDirectory);
+    const canShowObjectsAssign = objectsAssignFor !== null && getUserDirectoryRowPolicy(
+      currentRole,
+      currentUserId,
+      { id: objectsAssignFor.id, role: objectsAssignFor.roleId },
+    ).canAssignObjects;
+    const tableDataObject = useMemo(
+      () => buildUserDirectoryRows(users, currentRole, currentUserId),
+      [users, currentRole, currentUserId],
+    );
 
     const getData = () => {
         GetAllUsers().then((response) => {
-            setTableDataObject(funFixData(response.data));
+            setUsers(response.data);
         })
     }
 
@@ -77,10 +61,14 @@ function UsersDirectory() {
         getData();
     }, []);
 
+    useEffect(() => {
+      setObjectsAssignFor(null);
+    }, [currentRole, currentUserId]);
+
     const ActivateUser = () => {
         if (!canActivate) return;
-        if(context.selectRowDirectory != null){
-            RejectActiveAccount(context.selectRowDirectory).then((resp)=>{
+        if(selectedUserId !== null){
+            RejectActiveAccount(selectedUserId).then((resp)=>{
               if(resp?.status === 200){
                getData();
                 context.setPopUp("PopUpGoodMessage")
@@ -98,12 +86,14 @@ function UsersDirectory() {
     }
 
     const ClickRole = (roleId, id) => {
-      if (!roleOptions.includes(roleId)) return;
+      const normalizedRoleId = normalizeAllowedRoleId(roleId, roleOptions);
+      const targetUserId = normalizeUserId(id);
+      if (normalizedRoleId === null || targetUserId === null || currentUserId === null) return;
       const data = {
-        role: roleId,
-        userId: id,
+        role: normalizedRoleId,
+        userId: targetUserId,
       }
-      if(id !== currentUserId){
+      if(targetUserId !== currentUserId){
         SetRole(data).then((resp)=>{
           if(resp?.status === 200){
               getData();
@@ -119,7 +109,7 @@ function UsersDirectory() {
         return (
           <button
             className={styles.accessButton}
-            onClick={() => setObjectsAssignFor({ id: row.id, name: row.name })}
+            onClick={() => setObjectsAssignFor({ id: row.id, name: row.name, roleId: row.roleId })}
           >
             Доступы
           </button>
@@ -153,9 +143,9 @@ function UsersDirectory() {
 
     const deletedUser = ()=>{
         if (!canCreateOrDelete) return;
-        if( context.selectRowDirectory !== null && context.selectRowDirectory !== currentUserId){
+        if(selectedUserId !== null && selectedUserId !== currentUserId){
           context.setPopUp("СonfirmDeleteUser")
-        }else if( context.selectRowDirectory === null){
+        }else if(selectedUserId === null){
           context.setPopupErrorText("Сначала выберите пользователя!");
           context.setPopUp("PopUpError")
         }else{
@@ -198,8 +188,8 @@ function UsersDirectory() {
           }}
         />
         <UserObjectsAssign
-          open={objectsAssignFor !== null}
-          userId={objectsAssignFor?.id ?? null}
+          open={canShowObjectsAssign}
+          userId={canShowObjectsAssign ? objectsAssignFor.id : null}
           userName={objectsAssignFor?.name}
           onClose={() => setObjectsAssignFor(null)}
         />
@@ -239,7 +229,7 @@ function UsersDirectory() {
             )}
             {context.popUp === "PopUpError" && <PopUpError />}
              {context.popUp === "PopUpGoodMessage" && <PopUpGoodMessage />}
-             {canCreateOrDelete && context.popUp === "СonfirmDeleteUser" &&  <СonfirmDeleteUser updateTable={getData} />}
+             {canCreateOrDelete && context.popUp === "СonfirmDeleteUser" &&  <СonfirmDeleteUser userId={selectedUserId} currentUserId={currentUserId} updateTable={getData} />}
     </div>
      );
 }

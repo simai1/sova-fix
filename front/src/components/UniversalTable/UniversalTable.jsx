@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import EquipmentContextMenu from "../../UI/EquipmentContextMenu/EquipmentContextMenu";
 import { getStatusValue } from "./utils";
 import { API_URL } from "../../constants/env.constant";
+import { clearUserDirectorySelection } from "../../modules/UsersDirectory/userDirectoryActions";
 
 function UniversalTable(props) {
   const store = useSelector(
@@ -41,7 +42,11 @@ function UniversalTable(props) {
   }, [props?.tableHeader, props?.tableBody, store]);
 
   useEffect(() => {
-    context.setSelectRowDirectory(null);
+    setDropdownVisible(null);
+  }, [props?.roleOptions, props?.tableBody]);
+
+  useEffect(() => {
+    clearUserDirectorySelection(context);
   }, []);
 
   const openModal = (src) => {
@@ -272,7 +277,7 @@ function UniversalTable(props) {
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (!event.target.closest("tr") && !event.target.closest("button")) {
-        context.setSelectedTr(null);
+        clearUserDirectorySelection(context);
       }
     };
 

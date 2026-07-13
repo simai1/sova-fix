@@ -1,22 +1,30 @@
-import { DeleteRequest, DeleteUserFunc } from '../../API/API';
+import { DeleteUserFunc } from '../../API/API';
 import DataContext from '../../context';
+import {
+    clearUserDirectorySelection,
+    getDeletableUserId,
+} from '../../modules/UsersDirectory/userDirectoryActions';
 import styles from './СonfirmDeleteUser.module.scss';
 import React from 'react';
 function СonfirmDeleteUser(props) {
     const { context } = React.useContext(DataContext);
 
-
+    const ClosePopUp = () => {
+        context.setPopUp("");
+        clearUserDirectorySelection(context);
+    }
     const DeletedRequest = () => {
-         DeleteUserFunc(context.selectedTr).then((resp)=>{
-        if(resp?.status === 200){
-            props.updateTable();
+        const deletableUserId = getDeletableUserId(props.userId, props.currentUserId);
+        if (deletableUserId === null) {
             ClosePopUp();
+            return;
+        }
+        DeleteUserFunc(deletableUserId).then((resp)=>{
+            if(resp?.status === 200){
+                props.updateTable();
+                ClosePopUp();
             }
         })
-    }
-     const ClosePopUp = () => {
-        context.setPopUp("");
-        context.setSelectedTr(null)
     }
     return ( 
         <div className={styles.СonfirmDeleteUser}>
