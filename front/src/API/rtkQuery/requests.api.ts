@@ -16,9 +16,9 @@ export const repairRequestsApi = createApi({
   baseQuery: fetchMainBaseQuery(''),
   endpoints: (builder) => ({
     getAllObjects: builder.query<TObject[], IGetAllObjectsPayload>({
-      query: (params) => ({
+      query: ({ scope, unitId }) => ({
         url: '/objects',
-        params,
+        params: { scope, unitId },
       }),
     }),
     getOneRequest: builder.query<TRequest, IGetOneRequestPayload>({

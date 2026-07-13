@@ -1,7 +1,6 @@
 import { notification } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import { RcFile } from 'antd/es/upload';
-import { skipToken } from '@reduxjs/toolkit/query/react';
 import dayjs from 'dayjs';
 import { FC, useContext, useEffect, useMemo, useState } from 'react';
 
@@ -38,12 +37,10 @@ const RequestEditModalContainer: FC<IRequestEditModalContainer> = ({ open, handl
   const [isSliderOpen, setIsSliderOpen] = useState<boolean>(false);
   const [form] = useForm<IRepairEditForm>();
   const isUploadDisabled = parsedFiles.length === 5;
-  const userDataRaw = sessionStorage.getItem('userData');
-  const userId = userDataRaw ? JSON.parse(userDataRaw)?.user?.id : null;
 
-  const { data: objects, isLoading: isObjectsLoading } = useGetAllObjectsQuery(
-    userId ? { userId } : skipToken,
-  );
+  const { data: objects, isLoading: isObjectsLoading } = useGetAllObjectsQuery({
+    scope: 'requests',
+  });
   const [getOneRequest, { data: requestData, isLoading: isRequestDataLoading }] =
     useLazyGetOneRequestQuery();
   const [attachMedia] = useAttachMediaMutation();

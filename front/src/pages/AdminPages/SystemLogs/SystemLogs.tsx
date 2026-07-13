@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 
 import styles from './SystemLogs.module.scss';
@@ -7,6 +7,7 @@ import {
   type SystemLogLevel,
   useLazyGetSystemLogsQuery,
 } from '../../../API/rtkQuery/admin.api';
+import { ROLE_LABELS_BY_ID, getStoredRole, isAdminUiRole } from '../../../constants/roles.constant';
 
 type LevelOption = SystemLogLevel | 'all';
 
@@ -66,10 +67,7 @@ type LogMeta = {
 
 const roleLabels: Record<number, string> = {
   1: 'Пользователь',
-  2: 'Менеджер',
-  3: 'Заказчик',
-  4: 'Исполнитель',
-  5: 'Наблюдатель',
+  ...ROLE_LABELS_BY_ID,
 };
 
 const formatRole = (role: number | null | undefined) => {
@@ -78,13 +76,8 @@ const formatRole = (role: number | null | undefined) => {
 };
 
 function SystemLogs() {
-  const role = useMemo(() => {
-    try {
-      return JSON.parse(sessionStorage.getItem('userData') || 'null')?.user?.role;
-    } catch {
-      return null;
-    }
-  }, []);
+  const role = getStoredRole();
+  const canViewLogs = isAdminUiRole(role);
 
   const [level, setLevel] = useState<LevelOption>('all');
   const [from, setFrom] = useState('');
@@ -108,7 +101,7 @@ function SystemLogs() {
   }, [search]);
 
   useEffect(() => {
-    if (role !== 'ADMIN') return;
+    if (!canViewLogs) return;
     let cancelled = false;
     const load = async () => {
       const fromIso = dayBoundaryToISO(from, false);
@@ -137,9 +130,9 @@ function SystemLogs() {
     return () => {
       cancelled = true;
     };
-  }, [role, level, from, to, debouncedSearch, trigger]);
+  }, [canViewLogs, level, from, to, debouncedSearch, trigger]);
 
-  if (role !== 'ADMIN') return <Navigate to="/" replace />;
+  if (!canViewLogs) return <Navigate to="/" replace />;
 
   const onLoadMore = async () => {
     if (!cursor) return;

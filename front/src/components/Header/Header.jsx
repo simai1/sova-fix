@@ -10,6 +10,7 @@ import arrowBottom from "./../../assets/images/arrow_bottom.svg";
 import Logo from "./../../assets/images/SovaFixLogo.svg"
 import Toggle from "../../UI/Toggle/Toggle";
 import { GLOBAL_OPEN_REPORT_BLOCK, GLOBAL_OPEN_TO_BLOCK, OBJECTS_LIMIT, PICTURE_NAME } from "../../constants/env.constant";
+import { getStoredRole, isAdminUiRole } from "../../constants/roles.constant";
 
 function Header() {
     const { context } = useContext(DataContext);
@@ -30,6 +31,8 @@ function Header() {
     const [objectsLength, setObjectsLength] = useState(0)
 
     const [isRepairWithPhotoSetting, setIsRepairWithPhotoSettings] = useState()
+    const userRole = getStoredRole();
+    const hasAdminUiAccess = isAdminUiRole(userRole);
 
     useEffect(()=>{
       if(!sessionStorage.getItem("userData")){navigate("/Authorization")}else{
@@ -120,7 +123,7 @@ function Header() {
     GetAllSettings().then(res => {
       context?.setSettingsList(res.data)
     })
-    GetObjectsAll(`?userId=${JSON.parse(sessionStorage.getItem("userData"))?.user?.id}`).then(res => {
+    GetObjectsAll("?scope=requests").then(res => {
       if (res.status === 200) setObjectsLength(res.data?.length)
     })
   }, [])
@@ -130,7 +133,7 @@ return (
   <div className={styles.headerButton}>
   
     {PICTURE_NAME &&  <img src={getLinkImg()} /> }
-    {JSON.parse(sessionStorage.getItem("userData"))?.user?.role !== "CUSTOMER" ? (
+    {hasAdminUiAccess ? (
       !getLinkPatchname() ? (
         <button className={styles.buttonMenu} onClick={toggleMenu}>Меню</button>
       ) : (
@@ -191,12 +194,12 @@ return (
                     <li className={styles.menuLi} onClick={() => LinkPage("Directory/Urgency")}>Срочность заявок</li>
                     <li className={styles.menuLi} onClick={() => LinkPage("Directory/Status")}>Статус заявок</li>
                     <li className={styles.menuLi} onClick={() => LinkPage("Directory/Category")}>Категории</li>
-                    {JSON.parse(sessionStorage.getItem("userData"))?.user?.role === "ADMIN" && (
+                    {hasAdminUiAccess ? (
                       <li className={styles.menuLi} onClick={() => LinkPage("Directory/RegistrationRequests")}>Заявки на регистрацию</li>
-                    )}
-                    {JSON.parse(sessionStorage.getItem("userData"))?.user?.role === "ADMIN" && (
+                    ) : null}
+                    {hasAdminUiAccess ? (
                       <li className={styles.menuLi} onClick={() => LinkPage("Directory/SystemLogs")}>Системные логи</li>
-                    )}
+                    ) : null}
                 </ul>
                 {GLOBAL_OPEN_REPORT_BLOCK === "open" &&
                     <li className={styles.menuLi} onClick={() => LinkPage('reports')}>Отчеты</li>
@@ -277,5 +280,4 @@ return (
 );
 };
 export default Header;
-
 

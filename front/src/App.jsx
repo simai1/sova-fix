@@ -46,6 +46,7 @@ import CustomerRequestDetail from "./pages/Customer/RequestDetail/RequestDetail.
 import CustomerProfile from "./pages/Customer/Profile/Profile.tsx";
 import CustomerChat from "./pages/Customer/Chat/Chat.tsx";
 import CustomerCreateRequest from "./pages/Customer/CreateRequest/CreateRequest.tsx";
+import { getStoredRole, isAdminUiRole } from "./constants/roles.constant.ts";
 
 function App() {
   const [selectContructor, setSelectContractor] = useState("")
@@ -94,6 +95,8 @@ function App() {
   const [statusList, setStatusList] = useState([])
   const [settingsList, setSettingsList] = useState([])
   const [directoryCategories, setDirectoryCategories] = useState([])
+  const userRole = getStoredRole();
+  const hasAdminUiAccess = isAdminUiRole(userRole);
   const checkedAllFunc = () => {
     if(moreSelect.length > 0){
       setCheckedAll(true)
@@ -280,14 +283,14 @@ const UpdateStatus = () => {
   };
   
   useEffect(() => {
-    if(loader){
+    if(hasAdminUiAccess && loader){
       context.setLoader(false);
       setDataTableHomePage([]);
       setTotalCount(0);
       setOfset(0);
       UpdateTableReguest();
     }
-  },[textSearchTableData, storeFilter, enabledTo] )
+  },[textSearchTableData, storeFilter, enabledTo, hasAdminUiAccess] )
 
   const getParam = (value, key) =>{
     switch (key) {
@@ -378,6 +381,7 @@ const UpdateStatus = () => {
   }
   
   useEffect(() => {
+    if (!hasAdminUiAccess) return;
     const userId = getUserData()?.user?.id;
     if (!userId) return;
     setDataAppointment([])
@@ -389,7 +393,7 @@ const UpdateStatus = () => {
     GetAllRequests(`?userId=${userId}`).then((resp) => {
       setDataAppointment(funFixEducator(resp?.data?.data));
     });
-  }, [dataUsers]);
+  }, [dataUsers, hasAdminUiAccess]);
 
   useEffect(() => {
     if (!getUserData()?.user?.id) return;
@@ -397,8 +401,6 @@ const UpdateStatus = () => {
       if(response?.status === 200) setUrgencyList(response.data)
     })
   }, [dataApointment])
-
-  const userRole = getUserData()?.user?.role;
 
   return (
     <DataContext.Provider
@@ -416,7 +418,7 @@ const UpdateStatus = () => {
             <Route path="/Authorization/Pending" element={<Pending />}></Route>
             <Route path="/reset-password-request" element={<RequestPasswordRequest/>}></Route>
             <Route path="/reset-password" element={<ResetPassword/>}></Route>
-            <Route path="/reports" element={<ReportsContainer />}/>
+            {hasAdminUiAccess ? <Route path="/reports" element={<ReportsContainer />}/> : null}
 
             <Route path="/contractor/*" element={<LkLayout role="CONTRACTOR" />}>
               <Route index element={<Navigate to="requests" replace />} />
@@ -435,7 +437,7 @@ const UpdateStatus = () => {
               <Route path="profile" element={<CustomerProfile />} />
             </Route>
             
-            {userRole === "CUSTOMER" ? null : (
+            {hasAdminUiAccess ? (
               <Route path="/Directory/*" element={<Directory />}>
                <Route path="BusinessUnitReference" element={<BusinessUnitReference />}></Route>
                <Route path="DirectoryLegalEntities" element={<DirectoryLegalEntities />}></Route>
@@ -445,30 +447,26 @@ const UpdateStatus = () => {
                <Route path="Urgency" element={<DirectoryUrgency />}></Route>
                <Route path="Status" element={<DirectoryStatuses />}></Route>
                <Route path="Category" element={<DirectoryCategory />}></Route>
-               {userRole === "ADMIN" && (
-                 <Route path="RegistrationRequests" element={<RegistrationRequests />}></Route>
-               )}
-               {userRole === "ADMIN" && (
-                 <Route path="SystemLogs" element={<SystemLogs />}></Route>
-               )}
+               <Route path="RegistrationRequests" element={<RegistrationRequests />}></Route>
+               <Route path="SystemLogs" element={<SystemLogs />}></Route>
              </Route>
-            )}
+            ) : null}
 
-            {userRole === "CUSTOMER" ? null : (
+            {hasAdminUiAccess ? (
               <Route path="/CardPage/*" element={<CardPage />}>
                <Route path="Card" element={<PageCardContractors />}></Route>
                <Route path="CardPageModule" element={<CardPageModule />}></Route>
              </Route>
-            )}
+            ) : null}
 
-            {userRole === "CUSTOMER" ? null : (
+            {hasAdminUiAccess ? (
               <Route path="/Equipment/*" element={<Equipment />}>
                 <Route path="GraphicEquipment" element={<GraphicEquipment />}></Route>
                 <Route path="CategoryEquipment" element={<CategoryEquipment />}></Route>
                 <Route path="RangeEquipment" element={<RangeEquipment />}></Route>
                 <Route path="EquipmentInfo" element={<EquipmentInfo />}></Route>
               </Route>
-            )}
+            ) : null}
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
@@ -479,5 +477,3 @@ const UpdateStatus = () => {
 }
 
 export default App;
-
-

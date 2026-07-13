@@ -19,9 +19,6 @@ const AddRequestModal: FC<TAddRequestModalProps> = ({ handleClose }) => {
   const { context } = useContext(DataContext);
   const { urgencyList, directoryCategories, settingsList } = context;
 
-  const userDataRaw = sessionStorage.getItem('userData');
-  const userId: string | null = userDataRaw ? (JSON.parse(userDataRaw)?.user?.id ?? null) : null;
-
   const isPhotoRequired = settingsList?.find((s) => s.setting === IS_PHOTO_REQUIRED)?.value ?? true;
 
   const [unitId, setUnitId] = useState('');
@@ -48,8 +45,8 @@ const AddRequestModal: FC<TAddRequestModalProps> = ({ handleClose }) => {
 
   useEffect(() => {
     setObjectId('');
-    if (unitId && userId) getObjects({ userId, unitId });
-  }, [unitId, userId, getObjects]);
+    if (unitId) getObjects({ scope: 'requests', unitId });
+  }, [unitId, getObjects]);
 
   useEffect(() => {
     const prevOverflow = document.body.style.overflow;

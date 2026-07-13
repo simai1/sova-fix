@@ -3,12 +3,13 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import withReauth from './withReauth';
 
 import { API_URL } from '@/constants/env.constant';
+import type { WebRoleName } from '@/constants/roles.constant';
 
 export type LkUser = {
   id: string;
   login: string;
   name: string | null;
-  role: string;
+  role: WebRoleName;
 };
 
 export type LkContractor = {
@@ -117,7 +118,7 @@ export type ListResponse = {
   limit: number;
 };
 
-export type ChatMessageRole = 'MANAGER' | 'CONTRACTOR' | 'CUSTOMER' | 'ADMIN' | 'OTHER';
+export type ChatMessageRole = WebRoleName | 'OTHER';
 
 export type ChatMessage = {
   id: string;

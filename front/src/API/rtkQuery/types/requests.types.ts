@@ -1,7 +1,7 @@
 import { TCreateRequestForm } from '../../../components/AddRequestModal/types';
 
 export interface IGetAllObjectsPayload {
-  userId: string;
+  scope: 'requests';
   unitId?: string;
 }
 

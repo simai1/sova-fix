@@ -50,16 +50,12 @@ function PopUpEditEquipment() {
   }, [context.selectEquipment, objects, contractors, nomenclatures]);
 
   useEffect(() => {
-    const userData = JSON.parse(sessionStorage.getItem("userData"));
-    const userId = userData && userData.user ? userData.user.id : null;
-    if (userId) {
-      GetObjectsAll(`?userId=${userId}`).then((response) => {
-        if (!response) return;
-        if (response.status === 200) {
-          setObjects(response.data);
-        }
-      });
-    }
+    GetObjectsAll().then((response) => {
+      if (!response) return;
+      if (response.status === 200) {
+        setObjects(response.data);
+      }
+    });
 
     Promise.all([GetAllСontractors(), GetextContractorsAll()])
     .then(([response1, response2]) => {

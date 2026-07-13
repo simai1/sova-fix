@@ -6,30 +6,83 @@ import {
   useDeleteUserMutation,
 } from '../../../../API/rtkQuery/users.api'
 import DataContext from '../../../../context.ts'
+import {
+  ROLE_LABELS_BY_NAME,
+  getStoredRole,
+  isAdminOnlyRole,
+  isAdminUiRole,
+} from '../../../../constants/roles.constant.ts'
 import { PopUpError } from '../../../../UI/PopUpError/PopUpError'
 import styles from './RegistrationRequests.module.scss'
 
-const ROLE_LABELS = {
-  CUSTOMER: 'Заказчик',
-  CONTRACTOR: 'Исполнитель',
-  ADMIN: 'Администратор',
-  OBSERVER: 'Наблюдатель',
+function DeleteRegistrationButton({ userId, approveLoading }) {
+  const { context } = useContext(DataContext)
+  const [deleteUser, { isLoading }] = useDeleteUserMutation()
+  const [confirmDelete, setConfirmDelete] = useState(false)
+
+  const onDelete = async () => {
+    try {
+      await deleteUser(userId).unwrap()
+      setConfirmDelete(false)
+    } catch (e) {
+      context.setPopupErrorText(e?.data?.message || 'Ошибка удаления')
+      context.setPopUp('PopUpError')
+      setConfirmDelete(false)
+    }
+  }
+
+  return (
+    <>
+      <button
+        type="button"
+        className={styles.reject}
+        onClick={() => setConfirmDelete(true)}
+        disabled={approveLoading || isLoading}
+      >
+        Удалить
+      </button>
+      {confirmDelete ? (
+        <div className={styles.modalOverlay} onClick={() => setConfirmDelete(false)}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <p>Удалить заявку на регистрацию? Действие необратимо.</p>
+            <div className={styles.modalActions}>
+              <button
+                type="button"
+                className={styles.cancel}
+                onClick={() => setConfirmDelete(false)}
+                disabled={isLoading}
+              >
+                Отмена
+              </button>
+              <button
+                type="button"
+                className={styles.confirm}
+                onClick={onDelete}
+                disabled={isLoading}
+              >
+                {isLoading ? 'Удаление...' : 'Удалить'}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </>
+  )
 }
 
 function RegistrationRequests() {
-  const role = JSON.parse(sessionStorage.getItem('userData'))?.user?.role
-  const isAdmin = role === 'ADMIN'
+  const role = getStoredRole()
+  const canManageRegistrations = isAdminUiRole(role)
+  const canDeleteUsers = isAdminOnlyRole(role)
 
   const { context } = useContext(DataContext)
   const { data = [], isLoading, isError } = useGetPendingRegistrationsQuery(undefined, {
     refetchOnMountOrArgChange: true,
-    skip: !isAdmin,
+    skip: !canManageRegistrations,
   })
   const [approve, { isLoading: aLoad }] = useApproveUserMutation()
-  const [del, { isLoading: dLoad }] = useDeleteUserMutation()
-  const [confirmDelete, setConfirmDelete] = useState(null)
 
-  if (!isAdmin) return <Navigate to="/" replace />
+  if (!canManageRegistrations) return <Navigate to="/" replace />
 
   const onApprove = async (id) => {
     try {
@@ -37,18 +90,6 @@ function RegistrationRequests() {
     } catch (e) {
       context.setPopupErrorText(e?.data?.message || 'Ошибка подтверждения')
       context.setPopUp('PopUpError')
-    }
-  }
-
-  const onReject = async () => {
-    if (!confirmDelete) return
-    try {
-      await del(confirmDelete).unwrap()
-      setConfirmDelete(null)
-    } catch (e) {
-      context.setPopupErrorText(e?.data?.message || 'Ошибка удаления')
-      context.setPopUp('PopUpError')
-      setConfirmDelete(null)
     }
   }
 
@@ -95,7 +136,7 @@ function RegistrationRequests() {
             <tr key={u.id}>
               <td>{u.name}</td>
               <td>{u.login}</td>
-              <td>{ROLE_LABELS[u.role] || u.role}</td>
+              <td>{ROLE_LABELS_BY_NAME[u.role] || u.role}</td>
               <td>
                 {u.createdAt
                   ? new Date(u.createdAt).toLocaleString('ru-RU', {
@@ -109,50 +150,19 @@ function RegistrationRequests() {
                     type="button"
                     className={styles.approve}
                     onClick={() => onApprove(u.id)}
-                    disabled={aLoad || dLoad}
+                    disabled={aLoad}
                   >
                     Одобрить
                   </button>
-                  <button
-                    type="button"
-                    className={styles.reject}
-                    onClick={() => setConfirmDelete(u.id)}
-                    disabled={aLoad || dLoad}
-                  >
-                    Удалить
-                  </button>
+                  {canDeleteUsers ? (
+                    <DeleteRegistrationButton userId={u.id} approveLoading={aLoad} />
+                  ) : null}
                 </div>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-
-      {confirmDelete && (
-        <div className={styles.modalOverlay} onClick={() => setConfirmDelete(null)}>
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <p>Удалить заявку на регистрацию? Действие необратимо.</p>
-            <div className={styles.modalActions}>
-              <button
-                type="button"
-                className={styles.cancel}
-                onClick={() => setConfirmDelete(null)}
-                disabled={dLoad}
-              >
-                Отмена
-              </button>
-              <button
-                type="button"
-                className={styles.confirm}
-                onClick={onReject}
-                disabled={dLoad}
-              >
-                {dLoad ? 'Удаление...' : 'Удалить'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {context.popUp === 'PopUpError' && <PopUpError />}
     </div>
