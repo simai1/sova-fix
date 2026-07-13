@@ -24,8 +24,10 @@ import roles from '../config/roles';
 import statuses from '../config/statuses';
 import notificationService from './notification.service';
 import { contractorInclude } from '../utils/contractorInclude';
+import { getAdministrativeAudienceUserIds, scopeWhere } from './request-access.service';
+import type { RequestScope } from './request-access.service';
 
-type Role = 'CONTRACTOR' | 'CUSTOMER' | 'ADMIN';
+type Role = 'CONTRACTOR' | 'CUSTOMER' | 'ADMIN' | 'MANAGER';
 
 type ListQuery = {
     page?: number | string;
@@ -225,12 +227,22 @@ const listForCustomer = async (userId: string, query: ListQuery) => {
     return fetchAndCount(where, order, page, limit, offset, userId);
 };
 
+const listForManager = async (userId: string, query: ListQuery) => {
+    const { objectIds } = await loadUserContext(userId);
+    const { page, limit, offset } = parsePagination(query);
+    const order = parseOrder(query);
+    const scope: RequestScope = { kind: 'objects', userId, objectIds };
+    const where = scopeWhere(scope, buildBaseFilter(query, {}));
+    return fetchAndCount(where, order, page, limit, offset, userId);
+};
+
 const canRead = (
     request: RepairRequest,
     role: Role,
     ctx: { contractor: Contractor | null; objectIds: string[]; userId: string }
 ): boolean => {
     if (role === 'ADMIN') return true;
+    if (role === 'MANAGER') return !!request.objectId && ctx.objectIds.includes(request.objectId);
     if (role === 'CONTRACTOR') {
         const own = !!ctx.contractor && request.contractorId === ctx.contractor.id;
         const byObject = !!request.objectId && ctx.objectIds.includes(request.objectId);
@@ -247,6 +259,7 @@ const canWrite = (
     ctx: { contractor: Contractor | null; objectIds: string[]; userId: string }
 ): boolean => {
     if (role === 'ADMIN') return true;
+    if (role === 'MANAGER') return !!request.objectId && ctx.objectIds.includes(request.objectId);
     if (role === 'CONTRACTOR') {
         return !!ctx.contractor && request.contractorId === ctx.contractor.id;
     }
@@ -256,6 +269,12 @@ const canWrite = (
 const ensureAccess = async (userId: string, request: RepairRequest, role: Role) => {
     const { contractor, objectIds } = await loadUserContext(userId);
     if (role === 'ADMIN') {
+        return { contractor, objectIds };
+    }
+    if (role === 'MANAGER') {
+        if (!request.objectId || !objectIds.includes(request.objectId)) {
+            throw new ApiError(httpStatus.FORBIDDEN, 'У вас нет доступа к этой заявке');
+        }
         return { contractor, objectIds };
     }
     if (role === 'CONTRACTOR') {
@@ -277,6 +296,12 @@ const ensureAccess = async (userId: string, request: RepairRequest, role: Role) 
 const ensureWriteAccess = async (userId: string, request: RepairRequest, role: Role) => {
     const { contractor, objectIds } = await loadUserContext(userId);
     if (role === 'ADMIN') {
+        return { contractor, objectIds };
+    }
+    if (role === 'MANAGER') {
+        if (!request.objectId || !objectIds.includes(request.objectId)) {
+            throw new ApiError(httpStatus.FORBIDDEN, 'У вас нет доступа к этой заявке');
+        }
         return { contractor, objectIds };
     }
     if (role === 'CONTRACTOR') {
@@ -465,20 +490,23 @@ const setStatusForContractor = async (userId: string, requestId: string, statusN
     const request = await loadRequest(requestId);
     const { contractor } = await ensureAccess(userId, request, role);
 
-    if (role !== 'CONTRACTOR' || !contractor || request.contractorId !== contractor.id) {
+    if (role === 'CONTRACTOR' && (!contractor || request.contractorId !== contractor.id)) {
         throw new ApiError(httpStatus.FORBIDDEN, 'Эту операцию может выполнять только назначенный исполнитель');
     }
+    if (role === 'CONTRACTOR') {
+        const allowed = CONTRACTOR_TRANSITIONS[request.status] ?? [];
+        if (!allowed.includes(statusNumber)) {
+            throw new ApiError(httpStatus.BAD_REQUEST, 'Недопустимый переход статуса заявки');
+        }
 
-    const allowed = CONTRACTOR_TRANSITIONS[request.status] ?? [];
-    if (!allowed.includes(statusNumber)) {
-        throw new ApiError(httpStatus.BAD_REQUEST, 'Недопустимый переход статуса заявки');
-    }
-
-    if (statusNumber === statuses.DONE && !request.checkPhoto) {
-        throw new ApiError(
-            httpStatus.BAD_REQUEST,
-            'Закрытие заявки требует фото-подтверждения. Загрузите фото после ремонта.'
-        );
+        if (statusNumber === statuses.DONE && !request.checkPhoto) {
+            throw new ApiError(
+                httpStatus.BAD_REQUEST,
+                'Закрытие заявки требует фото-подтверждения. Загрузите фото после ремонта.'
+            );
+        }
+    } else if (role !== 'ADMIN' && role !== 'MANAGER') {
+        throw new ApiError(httpStatus.FORBIDDEN, 'Эта операция недоступна');
     }
 
     const oldStatus = request.status;
@@ -501,8 +529,11 @@ const uploadCheckPhoto = async (userId: string, requestId: string, file: Express
     if (!file) throw new ApiError(httpStatus.BAD_REQUEST, 'Файл не передан');
     const request = await loadRequest(requestId);
     const { contractor } = await ensureAccess(userId, request, role);
-    if (role !== 'CONTRACTOR' || !contractor || request.contractorId !== contractor.id) {
+    if (role === 'CONTRACTOR' && (!contractor || request.contractorId !== contractor.id)) {
         throw new ApiError(httpStatus.FORBIDDEN, 'Эту операцию может выполнять только назначенный исполнитель');
+    }
+    if (role !== 'CONTRACTOR' && role !== 'ADMIN' && role !== 'MANAGER') {
+        throw new ApiError(httpStatus.FORBIDDEN, 'Эта операция недоступна');
     }
     await request.update({ checkPhoto: file.filename });
     return new LkRequestDto(request, { currentUserId: userId });
@@ -511,7 +542,7 @@ const uploadCheckPhoto = async (userId: string, requestId: string, file: Express
 const updateExitDate = async (userId: string, requestId: string, exitDate: string | null, role: Role) => {
     const request = await loadRequest(requestId);
     const { contractor } = await ensureAccess(userId, request, role);
-    if (role !== 'CONTRACTOR' && role !== 'ADMIN') {
+    if (role !== 'CONTRACTOR' && role !== 'ADMIN' && role !== 'MANAGER') {
         throw new ApiError(httpStatus.FORBIDDEN, 'Дату выезда может фиксировать только исполнитель или менеджер');
     }
     if (role === 'CONTRACTOR' && (!contractor || request.contractorId !== contractor.id)) {
@@ -547,7 +578,11 @@ const createForCustomer = async (
 ) => {
     const { objectIds } = await loadUserContext(userId);
     const isAdmin = actorRoleNumber === roles.ADMIN;
-    if (!isAdmin && !objectIds.includes(body.objectId)) {
+    const isManager = actorRoleNumber === roles.MANAGER;
+    if (isManager && !objectIds.includes(body.objectId)) {
+        throw new ApiError(httpStatus.FORBIDDEN, 'У вас нет доступа к этому объекту');
+    }
+    if (!isAdmin && !isManager && !objectIds.includes(body.objectId)) {
         throw new ApiError(httpStatus.BAD_REQUEST, 'Объект не входит в список ваших доступных объектов');
     }
 
@@ -585,7 +620,8 @@ const createForCustomer = async (
         number: 0,
     });
 
-    emitTo({ kind: 'role', roles: [roles.ADMIN] }, 'REQUEST_CREATE', {
+    const audienceUserIds = await getAdministrativeAudienceUserIds(created.objectId);
+    emitTo({ kind: 'users', userIds: audienceUserIds }, 'REQUEST_CREATE', {
         requestId: created.id,
         objectId: created.objectId,
     });
@@ -611,6 +647,7 @@ export default {
     canWrite,
     listForContractor,
     listForCustomer,
+    listForManager,
     getOneForRole,
     listComments,
     createComment,

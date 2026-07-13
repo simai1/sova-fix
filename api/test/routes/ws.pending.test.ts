@@ -5,10 +5,21 @@ import http from 'http';
 import WebSocket from 'ws';
 import app from '../../src/app';
 import User from '../../src/models/user';
+import ObjectDir from '../../src/models/object';
+import RepairRequest from '../../src/models/repairRequest';
+import UserObject from '../../src/models/userObject';
 import userService from '../../src/services/user.service';
 import { encrypt } from '../../src/utils/encryption';
 import roles from '../../src/config/roles';
 import wsEvents from '../../src/config/wsEvents';
+import {
+    cleanupByLogin,
+    createObjectFor,
+    createRequest,
+    createUserAuth,
+    ensureBaseRefs,
+    TestAuth,
+} from '../helpers/lk-helper';
 
 // Поднимаем настоящий http-сервер для каждого WS-теста: express-ws вешает
 // upgrade-handler на server, и без listen() рукопожатие не доходит до нашего
@@ -67,6 +78,20 @@ const handshake = (url: string, subprotocols: string[]): Promise<HandshakeResult
             // 'error' приходит вместе с 'close' для отказов upgrade —
             // не reject'им, ждём 'close'.
         });
+    });
+
+const sendFrame = (ws: WebSocket, frame: unknown): Promise<any> =>
+    new Promise((resolve, reject) => {
+        const timer = setTimeout(() => reject(new Error('no reply')), 1000);
+        ws.once('message', data => {
+            clearTimeout(timer);
+            try {
+                resolve(JSON.parse(data.toString()));
+            } catch (error) {
+                reject(error);
+            }
+        });
+        ws.send(JSON.stringify(frame));
     });
 
 describe('WS handshake — pending.<verifyToken>', () => {
@@ -209,6 +234,89 @@ describe('WS handshake — pending.<verifyToken>', () => {
         expect(after.kind).toBe('close');
         if (after.kind === 'close') {
             expect(after.code).toBe(1008);
+        }
+    });
+});
+
+describe('WS Manager request subscriptions', () => {
+    const managerLogin = 'ws-manager@t.local';
+    const otherLogin = 'ws-manager-other@t.local';
+    let server: http.Server;
+    let port: number;
+    let manager: TestAuth;
+    let other: TestAuth;
+    let assignedObject: ObjectDir;
+    let foreignObject: ObjectDir;
+    let assignedRequest: RepairRequest;
+    let foreignRequest: RepairRequest;
+
+    beforeAll(async () => {
+        const listening = await startServer();
+        server = listening.server;
+        port = listening.port;
+        await ensureBaseRefs();
+        await cleanupByLogin(managerLogin);
+        await cleanupByLogin(otherLogin);
+        manager = await createUserAuth(managerLogin, roles.MANAGER, 'WS Manager');
+        other = await createUserAuth(otherLogin, roles.CUSTOMER, 'WS Other');
+        assignedObject = await createObjectFor(manager.user, 'WsManagerAssigned');
+        foreignObject = await createObjectFor(other.user, 'WsManagerForeign');
+        assignedRequest = await createRequest({ objectId: assignedObject.id, createdByUserId: other.user.id });
+        foreignRequest = await createRequest({ objectId: foreignObject.id, createdByUserId: manager.user.id });
+    });
+
+    afterAll(async () => {
+        await stopServer(server);
+        await RepairRequest.destroy({ where: { id: [assignedRequest.id, foreignRequest.id] }, force: true });
+        await ObjectDir.destroy({ where: { id: [assignedObject.id, foreignObject.id] }, force: true });
+        await cleanupByLogin(managerLogin);
+        await cleanupByLogin(otherLogin);
+    });
+
+    it('подписывает MANAGER на назначенную заявку и запрещает заявку чужого объекта даже автору', async () => {
+        const open = await handshake(`ws://127.0.0.1:${port}/`, [`bearer.${manager.accessToken}`]);
+        expect(open.kind).toBe('open');
+        if (open.kind !== 'open') return;
+        try {
+            const assigned = await sendFrame(open.ws, { type: 'subscribe', requestId: assignedRequest.id });
+            expect(assigned).toEqual({ type: 'subscribed', requestId: assignedRequest.id });
+
+            const foreign = await sendFrame(open.ws, { type: 'subscribe', requestId: foreignRequest.id });
+            expect(foreign).toEqual({ type: 'error', code: 'forbidden', requestId: foreignRequest.id });
+        } finally {
+            open.ws.terminate();
+        }
+    });
+
+    it('новая подписка перечитывает live UserObject после удаления назначения', async () => {
+        const first = await handshake(`ws://127.0.0.1:${port}/`, [`bearer.${manager.accessToken}`]);
+        expect(first.kind).toBe('open');
+        if (first.kind !== 'open') return;
+        try {
+            expect(await sendFrame(first.ws, { type: 'subscribe', requestId: assignedRequest.id })).toEqual({
+                type: 'subscribed',
+                requestId: assignedRequest.id,
+            });
+        } finally {
+            first.ws.terminate();
+        }
+
+        await UserObject.destroy({ where: { userId: manager.user.id, objectId: assignedObject.id }, force: true });
+        try {
+            const next = await handshake(`ws://127.0.0.1:${port}/`, [`bearer.${manager.accessToken}`]);
+            expect(next.kind).toBe('open');
+            if (next.kind !== 'open') return;
+            try {
+                expect(await sendFrame(next.ws, { type: 'subscribe', requestId: assignedRequest.id })).toEqual({
+                    type: 'error',
+                    code: 'forbidden',
+                    requestId: assignedRequest.id,
+                });
+            } finally {
+                next.ws.terminate();
+            }
+        } finally {
+            await UserObject.create({ userId: manager.user.id, objectId: assignedObject.id });
         }
     });
 });

@@ -7,7 +7,6 @@ import { Op } from 'sequelize';
 import { statusesRuLocale } from '../config/statuses';
 import sequelize from 'sequelize';
 import { emitTo } from '../utils/ws';
-import roles from '../config/roles';
 import TgUser from '../models/tgUser';
 import ObjectDir from '../models/object';
 import objectService from './object.service';
@@ -36,7 +35,7 @@ import {
     contractorNameIsNotNull,
     contractorNameOrderExpr,
 } from '../utils/contractorNameFilter';
-import { scopeWhere } from './request-access.service';
+import { getAdministrativeAudienceUserIds, scopeWhere } from './request-access.service';
 import type { RequestScope } from './request-access.service';
 
 export type RequestCreator = { kind: 'web'; userId: string } | { kind: 'bot'; tgUserId: string };
@@ -515,7 +514,8 @@ const createRequest = async (
 
     if (directoryCategoryId) await updateDirectoryCategoryBuilder(request.id, directoryCategoryId);
 
-    emitTo({ kind: 'role', roles: [roles.ADMIN] }, 'REQUEST_CREATE', {
+    const audienceUserIds = await getAdministrativeAudienceUserIds(request.objectId ?? '');
+    emitTo({ kind: 'users', userIds: audienceUserIds }, 'REQUEST_CREATE', {
         requestId: request.id,
         customer: request.createdBy ?? request.createdByUserId,
     });
@@ -558,7 +558,8 @@ const createRequestWithoutPhoto = async (
 
     if (directoryCategoryId) await updateDirectoryCategoryBuilder(request.id, directoryCategoryId);
 
-    emitTo({ kind: 'role', roles: [roles.ADMIN] }, 'REQUEST_CREATE', {
+    const audienceUserIds = await getAdministrativeAudienceUserIds(request.objectId ?? '');
+    emitTo({ kind: 'users', userIds: audienceUserIds }, 'REQUEST_CREATE', {
         requestId: request.id,
         customer: request.createdBy ?? request.createdByUserId,
     });
@@ -603,7 +604,8 @@ const createRequestWithMultiplePhotos = async (
 
     if (directoryCategoryId) await updateDirectoryCategoryBuilder(request.id, directoryCategoryId);
 
-    emitTo({ kind: 'role', roles: [roles.ADMIN] }, 'REQUEST_CREATE', {
+    const audienceUserIds = await getAdministrativeAudienceUserIds(request.objectId ?? '');
+    emitTo({ kind: 'users', userIds: audienceUserIds }, 'REQUEST_CREATE', {
         requestId: request.id,
         customer: request.createdBy ?? request.createdByUserId,
     });
@@ -743,16 +745,11 @@ const setContractor = async (
                     customer: customer ? customer.tgId : null,
                 });
 
-                const assignee = tgContractor?.userId ?? null;
-                const assignedUserIds = assignee ? [assignee] : [];
-                if (assignedUserIds.length > 0) {
-                    emitTo({ kind: 'users', userIds: assignedUserIds }, wsEvents.REQUEST_ASSIGNED, {
-                        requestId: request.id,
-                        contractorId: request.contractorId,
-                        objectId: request.objectId,
-                    });
-                }
-                emitTo({ kind: 'role', roles: [roles.ADMIN] }, wsEvents.REQUEST_ASSIGNED, {
+                const administrativeAudience = await getAdministrativeAudienceUserIds(request.objectId ?? '');
+                const assignedUserIds = Array.from(
+                    new Set([...administrativeAudience, ...(tgContractor?.userId ? [tgContractor.userId] : [])])
+                );
+                emitTo({ kind: 'users', userIds: assignedUserIds }, wsEvents.REQUEST_ASSIGNED, {
                     requestId: request.id,
                     contractorId: request.contractorId,
                     objectId: request.objectId,
@@ -1317,6 +1314,15 @@ const bulkSetContractor = async (repairRequests: RepairRequest[], contractorId: 
         });
         await notificationService.notifyStatusChanged(request, 2);
         if (request.contractorId) {
+            const administrativeAudience = await getAdministrativeAudienceUserIds(request.objectId ?? '');
+            const assignedUserIds = Array.from(
+                new Set([...administrativeAudience, ...(contractor?.userId ? [contractor.userId] : [])])
+            );
+            emitTo({ kind: 'users', userIds: assignedUserIds }, wsEvents.REQUEST_ASSIGNED, {
+                requestId: request.id,
+                contractorId: request.contractorId,
+                objectId: request.objectId,
+            });
             await notificationService.notifyRequestAssigned(request);
         }
     }

@@ -7,12 +7,13 @@ import lkService from '../services/lk.service';
 import roles, { mapRoles } from '../config/roles';
 
 type Mode = 'read' | 'write';
-type LkRole = 'CONTRACTOR' | 'CUSTOMER' | 'ADMIN';
+type LkRole = 'CONTRACTOR' | 'CUSTOMER' | 'ADMIN' | 'MANAGER';
 
 const resolveLkRole = (req: Request): LkRole => {
     const u = (req as any).user || {};
     const roleNumber: number = typeof u.role === 'number' ? u.role : (roles as Record<string, number>)[u.role] || 0;
     if (roleNumber === roles.ADMIN) return 'ADMIN';
+    if (roleNumber === roles.MANAGER) return 'MANAGER';
     if (roleNumber === roles.CONTRACTOR) return 'CONTRACTOR';
     return 'CUSTOMER';
 };
@@ -47,7 +48,9 @@ export const requireRequestAccess = (paramName: string, mode: Mode) =>
                 const msg =
                     role === 'CUSTOMER'
                         ? 'Изменять заявку может только её автор'
-                        : 'Изменять заявку может только назначенный исполнитель';
+                        : role === 'CONTRACTOR'
+                          ? 'Изменять заявку может только назначенный исполнитель'
+                          : 'У вас нет доступа к этой заявке';
                 return next(new ApiError(httpStatus.FORBIDDEN, msg));
             }
         }
