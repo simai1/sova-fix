@@ -385,6 +385,7 @@ describe('request access service and guards', () => {
         it('возвращает активную административную аудиторию с учётом объекта и paranoid назначений', async () => {
             const objectAudience = await getAdministrativeAudienceUserIds(objectA.id);
             const generalAudience = await getAdministrativeAudienceUserIds();
+            const objectlessAudience = await getAdministrativeAudienceUserIds(null);
 
             expect(objectAudience).toEqual(expect.arrayContaining([admin.id, manager.id, secondManager.id]));
             for (const excludedId of [
@@ -413,6 +414,21 @@ describe('request access service and guards', () => {
                 expect(generalAudience).not.toContain(excludedId);
             }
             expect(new Set(generalAudience).size).toBe(generalAudience.length);
+
+            expect(objectlessAudience).toContain(admin.id);
+            for (const excludedId of [
+                manager.id,
+                secondManager.id,
+                foreignObjectManager.id,
+                emptyManager.id,
+                softDeletedAssignmentManager.id,
+                inactiveManager.id,
+                inactiveAdmin.id,
+                customer.id,
+            ]) {
+                expect(objectlessAudience).not.toContain(excludedId);
+            }
+            expect(new Set(objectlessAudience).size).toBe(objectlessAudience.length);
         });
     });
 

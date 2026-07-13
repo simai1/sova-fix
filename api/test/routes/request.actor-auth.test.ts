@@ -9,9 +9,11 @@ vi.mock('../../src/utils/migrationUtils', () => ({
 
 import app from '../../src/app';
 import roles from '../../src/config/roles';
+import Contractor from '../../src/models/contractor';
+import RepairRequest from '../../src/models/repairRequest';
 import { migrateManagerIds, validateManagerIds } from '../../src/utils/migrationUtils';
 import { createAdminAuth, createManagerAuth, TestAdminAuth } from '../helpers/auth-helper';
-import { cleanupByLogin, createUserAuth, TestAuth } from '../helpers/lk-helper';
+import { cleanupByLogin, createContractorFor, createRequest, createUserAuth, TestAuth } from '../helpers/lk-helper';
 
 describe('legacy /requests actor auth', () => {
     const suffix = `${process.pid}-${Date.now()}`;
@@ -27,6 +29,8 @@ describe('legacy /requests actor auth', () => {
     let manager: TestAdminAuth;
     let customer: TestAuth;
     let contractor: TestAuth;
+    let contractorModel: Contractor;
+    let objectlessRequest: RepairRequest;
 
     beforeAll(async () => {
         process.env.MASTER_API_KEY = masterKey;
@@ -34,9 +38,12 @@ describe('legacy /requests actor auth', () => {
         manager = await createManagerAuth(logins.manager);
         customer = await createUserAuth(logins.customer, roles.CUSTOMER);
         contractor = await createUserAuth(logins.contractor, roles.CONTRACTOR);
+        contractorModel = await createContractorFor(contractor.user);
+        objectlessRequest = await createRequest({ objectId: null } as any);
     });
 
     afterAll(async () => {
+        await RepairRequest.destroy({ where: { id: objectlessRequest.id }, force: true });
         for (const login of Object.values(logins)) await cleanupByLogin(login);
         if (previousMasterKey === undefined) delete process.env.MASTER_API_KEY;
         else process.env.MASTER_API_KEY = previousMasterKey;
@@ -51,6 +58,18 @@ describe('legacy /requests actor auth', () => {
         const response = await request(app).get('/requests').set('master-api-key', masterKey);
 
         expect(response.status).toBe(200);
+    });
+
+    it('bot назначает исполнителя objectless legacy заявке без UUID ошибки', async () => {
+        const response = await request(app).patch('/requests/set/contractor').set('master-api-key', masterKey).send({
+            requestId: objectlessRequest.id,
+            contractorId: contractorModel.id,
+        });
+
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual({ status: 'OK' });
+        await objectlessRequest.reload();
+        expect(objectlessRequest.contractorId).toBe(contractorModel.id);
     });
 
     it('запрещает Customer и Contractor legacy API', async () => {

@@ -620,7 +620,7 @@ const createForCustomer = async (
         number: 0,
     });
 
-    const audienceUserIds = await getAdministrativeAudienceUserIds(created.objectId);
+    const audienceUserIds = await getAdministrativeAudienceUserIds(created.objectId ?? null);
     emitTo({ kind: 'users', userIds: audienceUserIds }, 'REQUEST_CREATE', {
         requestId: created.id,
         objectId: created.objectId,

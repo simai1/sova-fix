@@ -62,7 +62,7 @@ export const loadAccessibleRequests = async (requestIds: string[], scope: Reques
     return orderedRequests;
 };
 
-export const getAdministrativeAudienceUserIds = async (objectId?: string): Promise<string[]> => {
+export const getAdministrativeAudienceUserIds = async (objectId?: string | null): Promise<string[]> => {
     const users = await User.findAll({
         attributes: ['id', 'role'],
         where: {
@@ -70,9 +70,10 @@ export const getAdministrativeAudienceUserIds = async (objectId?: string): Promi
             isActivated: true,
         },
     });
-    if (objectId === undefined) return Array.from(new Set(users.map(user => user.id)));
-
     const adminIds = users.filter(user => user.role === roles.ADMIN).map(user => user.id);
+    if (objectId === undefined) return Array.from(new Set(users.map(user => user.id)));
+    if (objectId === null) return Array.from(new Set(adminIds));
+
     const managerIds = users.filter(user => user.role === roles.MANAGER).map(user => user.id);
     const assignments = await UserObject.findAll({
         attributes: ['userId'],

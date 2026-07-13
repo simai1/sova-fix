@@ -119,7 +119,7 @@ const notifyCommentChanged = async (
 
 const notifyRequestAssigned = async (request: RepairRequest): Promise<void> => {
     const contractorUserId = await getContractorUserId(request);
-    const administrativeAudience = await getAdministrativeAudienceUserIds(request.objectId ?? '');
+    const administrativeAudience = await getAdministrativeAudienceUserIds(request.objectId ?? null);
     const audience = [...administrativeAudience, ...(contractorUserId ? [contractorUserId] : [])];
     if (audience.length === 0) return;
 
@@ -138,7 +138,7 @@ const notifyRequestAssigned = async (request: RepairRequest): Promise<void> => {
 };
 
 const notifyRequestCreated = async (request: RepairRequest): Promise<void> => {
-    const audienceUserIds = await getAdministrativeAudienceUserIds(request.objectId ?? '');
+    const audienceUserIds = await getAdministrativeAudienceUserIds(request.objectId ?? null);
     if (audienceUserIds.length === 0) return;
 
     const { title, body } = notificationContent.requestCreated(request.number);

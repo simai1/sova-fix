@@ -162,7 +162,7 @@ export default {
                             level: 'info',
                             message: `[${format(new Date(), 'dd.MM.yyyy HH:mm')}] [CRON autoRequests]: ${request.number}, ${request.createdBy}] `,
                         });
-                        const audienceUserIds = await getAdministrativeAudienceUserIds(request.objectId ?? '');
+                        const audienceUserIds = await getAdministrativeAudienceUserIds(request.objectId ?? null);
                         emitTo({ kind: 'users', userIds: audienceUserIds }, 'REQUEST_CREATE', {
                             requestId: request.id,
                             customer: request.createdBy,

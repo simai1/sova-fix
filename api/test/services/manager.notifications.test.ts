@@ -2,11 +2,14 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vites
 import roles from '../../src/config/roles';
 import wsEvents from '../../src/config/wsEvents';
 import Contractor from '../../src/models/contractor';
+import Equipment from '../../src/models/equipment';
 import ObjectDir from '../../src/models/object';
 import RepairRequest from '../../src/models/repairRequest';
+import TgUser from '../../src/models/tgUser';
 import User from '../../src/models/user';
 import UserObject from '../../src/models/userObject';
 import authService from '../../src/services/auth.service';
+import cronService from '../../src/services/cron.service';
 import lkService from '../../src/services/lk.service';
 import notificationService from '../../src/services/notification.service';
 import pushNotificationService from '../../src/services/pushNotification.service';
@@ -37,6 +40,8 @@ describe('Manager request and registration audiences', () => {
     let assignedObject: ObjectDir;
     let foreignObject: ObjectDir;
     let repairRequest: RepairRequest;
+    let objectlessSingleRequest: RepairRequest;
+    let objectlessBulkRequest: RepairRequest;
     let urgencyId: string;
     const createdRequestIds: string[] = [];
     const sendSpy = vi.spyOn(pushNotificationService, 'sendToUsers');
@@ -65,10 +70,17 @@ describe('Manager request and registration audiences', () => {
             contractorId: contractor.id,
             createdByUserId: foreignManager.id,
         });
+        objectlessSingleRequest = await createRequest({ objectId: null, createdByUserId: foreignManager.id } as any);
+        objectlessBulkRequest = await createRequest({ objectId: null, createdByUserId: foreignManager.id } as any);
     });
 
     afterAll(async () => {
-        await RepairRequest.destroy({ where: { id: [repairRequest.id, ...createdRequestIds] }, force: true });
+        await RepairRequest.destroy({
+            where: {
+                id: [repairRequest.id, objectlessSingleRequest.id, objectlessBulkRequest.id, ...createdRequestIds],
+            },
+            force: true,
+        });
         await Contractor.destroy({ where: { id: contractor.id }, force: true });
         await ObjectDir.destroy({ where: { id: [assignedObject.id, foreignObject.id] }, force: true });
         for (const login of Object.values(logins)) await cleanupByLogin(login);
@@ -129,6 +141,86 @@ describe('Manager request and registration audiences', () => {
         const createdEmits = emitSpy.mock.calls.filter(([, event]) => event === 'REQUEST_CREATE');
         expect(createdEmits).toHaveLength(1);
         expect(createdEmits[0][0]).toEqual({ kind: 'users', userIds: expected });
+    });
+
+    it('objectless single assignment отправляет Admin+assignee без Manager и UUID ошибки', async () => {
+        const adminAudience = await getAdministrativeAudienceUserIds('00000000-0000-4000-8000-000000000001');
+        const expected = unique([...adminAudience, contractorUser.id]);
+
+        await expect(
+            requestService.setContractor(objectlessSingleRequest.id, contractor.id, undefined, objectlessSingleRequest)
+        ).resolves.toBeUndefined();
+
+        const assignedEmits = emitSpy.mock.calls.filter(([, event]) => event === wsEvents.REQUEST_ASSIGNED);
+        expect(assignedEmits).toHaveLength(1);
+        expect(assignedEmits[0][0]).toEqual({ kind: 'users', userIds: expected });
+        const assignedPush = sendSpy.mock.calls.find(
+            ([, payload]) => payload.tag === `request-${objectlessSingleRequest.id}-assigned`
+        );
+        expect(assignedPush?.[0]).toEqual(expected);
+        expect(expected).not.toEqual(
+            expect.arrayContaining([assignedManager.id, foreignManager.id, inactiveManager.id])
+        );
+    });
+
+    it('objectless bulk assignment отправляет один users event/Push Admin+assignee без Manager', async () => {
+        const adminAudience = await getAdministrativeAudienceUserIds('00000000-0000-4000-8000-000000000001');
+        const expected = unique([...adminAudience, contractorUser.id]);
+
+        await expect(requestService.bulkSetContractor([objectlessBulkRequest], contractor.id)).resolves.toBeUndefined();
+
+        const assignedEmits = emitSpy.mock.calls.filter(([, event]) => event === wsEvents.REQUEST_ASSIGNED);
+        expect(assignedEmits).toHaveLength(1);
+        expect(assignedEmits[0][0]).toEqual({ kind: 'users', userIds: expected });
+        const assignedPush = sendSpy.mock.calls.find(
+            ([, payload]) => payload.tag === `request-${objectlessBulkRequest.id}-assigned`
+        );
+        expect(assignedPush?.[0]).toEqual(expected);
+        expect(expected).not.toEqual(
+            expect.arrayContaining([assignedManager.id, foreignManager.id, inactiveManager.id])
+        );
+    });
+
+    it('MANAGER comment notification направляется заказчику как admin-like author', async () => {
+        await notificationService.notifyCommentChanged(repairRequest, 'MANAGER', assignedManager.id);
+
+        expect(sendSpy).toHaveBeenCalledTimes(1);
+        expect(sendSpy.mock.calls[0][0]).toEqual([foreignManager.id]);
+        expect(sendSpy.mock.calls[0][1].tag).toBe(`request-${repairRequest.id}-comments`);
+    });
+
+    it('cron created=false не отправляет повторный REQUEST_CREATE WS/Push', async () => {
+        const equipmentSpy = vi.spyOn(Equipment, 'findAll').mockResolvedValue([
+            {
+                lastTO: new Date(),
+                objectId: assignedObject.id,
+                photo: null,
+                Contractor: contractor,
+                ExtContractor: null,
+                Object: { Unit: { id: repairRequest.unitId }, LegalEntity: { id: repairRequest.legalEntityId } },
+                Nomenclature: { name: 'Cron equipment', Category: { name: 'Cron category' } },
+            },
+        ] as any);
+        const tgUserSpy = vi.spyOn(TgUser, 'findOne').mockResolvedValue({ id: foreignManager.id } as TgUser);
+        const findOrCreateSpy = vi
+            .spyOn(RepairRequest, 'findOrCreate')
+            .mockResolvedValue([objectlessSingleRequest, false]);
+        const notifySpy = vi.spyOn(notificationService, 'notifyRequestCreated');
+
+        try {
+            const callbacks = (cronService.autoRequests as unknown as { _callbacks: Array<() => Promise<void>> })
+                ._callbacks;
+            await callbacks[0]();
+
+            expect(findOrCreateSpy).toHaveBeenCalledOnce();
+            expect(emitSpy.mock.calls.filter(([, event]) => event === 'REQUEST_CREATE')).toHaveLength(0);
+            expect(notifySpy).not.toHaveBeenCalled();
+        } finally {
+            equipmentSpy.mockRestore();
+            tgUserSpy.mockRestore();
+            findOrCreateSpy.mockRestore();
+            notifySpy.mockRestore();
+        }
     });
 
     it('registration WS/Push получает всех active Admin/Manager globally без дублей', async () => {

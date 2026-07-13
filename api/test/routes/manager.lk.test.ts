@@ -22,6 +22,14 @@ import {
 } from '../helpers/lk-helper';
 
 const uploadsDir = path.resolve('./uploads');
+const uploadNames = (): string[] => (fs.existsSync(uploadsDir) ? fs.readdirSync(uploadsDir).sort() : []);
+
+const waitForUploadNames = async (expected: string[]): Promise<void> => {
+    for (let attempt = 0; attempt < 40; attempt += 1) {
+        if (uploadNames().join('\n') === expected.join('\n')) return;
+        await new Promise(resolve => setTimeout(resolve, 10));
+    }
+};
 
 const removeUpload = (filename: string | null | undefined): void => {
     if (!filename) return;
@@ -188,6 +196,7 @@ describe('LK Manager object scope', () => {
     });
 
     it('все read/write операции по заявке чужого объекта возвращают 403', async () => {
+        const before = uploadNames();
         const calls = [
             request(app)
                 .get(`/lk/requests/${foreignRequest.id}`)
@@ -201,7 +210,11 @@ describe('LK Manager object scope', () => {
                 .post(`/lk/requests/${foreignRequest.id}/comments`)
                 .set('Authorization', manager.authHeader)
                 .set('Cookie', manager.cookie)
-                .field('text', 'Нельзя'),
+                .field('text', 'Нельзя')
+                .attach('file', Buffer.from('foreign-comment'), {
+                    filename: 'foreign-comment.png',
+                    contentType: 'image/png',
+                }),
             request(app)
                 .post(`/lk/requests/${foreignRequest.id}/photos`)
                 .set('Authorization', manager.authHeader)
@@ -226,6 +239,8 @@ describe('LK Manager object scope', () => {
 
         const responses = await Promise.all(calls);
         expect(responses.map(response => response.status)).toEqual([403, 403, 403, 403, 403, 403, 403]);
+        await waitForUploadNames(before);
+        expect(uploadNames()).toEqual(before);
     });
 
     it('создаёт заявку только на назначенном объекте', async () => {
@@ -243,16 +258,21 @@ describe('LK Manager object scope', () => {
         expect(assigned.body.createdByUserId).toBe(manager.user.id);
         createdRequestIds.push(assigned.body.id);
 
+        const before = uploadNames();
         const foreign = await request(app)
             .post('/lk/requests')
             .set('Authorization', manager.authHeader)
             .set('Cookie', manager.cookie)
-            .send({
-                objectId: foreignObject.id,
-                problemDescription: 'Чужой объект',
-                urgencyId,
+            .field('objectId', foreignObject.id)
+            .field('problemDescription', 'Чужой объект')
+            .field('urgencyId', urgencyId)
+            .attach('files', Buffer.from('foreign-create'), {
+                filename: 'foreign-create.png',
+                contentType: 'image/png',
             });
         expect(foreign.status).toBe(403);
+        await waitForUploadNames(before);
+        expect(uploadNames()).toEqual(before);
     });
 
     it('удаление UserObject видно на следующем API-вызове', async () => {
@@ -265,5 +285,125 @@ describe('LK Manager object scope', () => {
         expect(denied.status).toBe(403);
 
         await UserObject.create({ userId: manager.user.id, objectId: assignedObject.id });
+    });
+});
+
+describe('LK uses the live database role with stale access tokens', () => {
+    const promotedLogin = 'lk-role-promoted@t.local';
+    const demotedLogin = 'lk-role-demoted@t.local';
+    const otherLogin = 'lk-role-other@t.local';
+    let promoted: TestAuth;
+    let demoted: TestAuth;
+    let other: TestAuth;
+    let promotedObject: ObjectDir;
+    let demotedObject: ObjectDir;
+    let foreignObject: ObjectDir;
+    let promotedAssignedRequest: RepairRequest;
+    let promotedForeignRequest: RepairRequest;
+    let demotedAssignedRequest: RepairRequest;
+    let demotedOwnForeignRequest: RepairRequest;
+
+    beforeAll(async () => {
+        await ensureBaseRefs();
+        for (const login of [promotedLogin, demotedLogin, otherLogin]) await cleanupByLogin(login);
+
+        promoted = await createUserAuth(promotedLogin, roles.CUSTOMER, 'Promoted Manager');
+        demoted = await createUserAuth(demotedLogin, roles.MANAGER, 'Demoted Customer');
+        other = await createUserAuth(otherLogin, roles.CUSTOMER, 'Role Other');
+        const promotedContractor = await createContractorFor(promoted.user);
+
+        promotedObject = await createObjectFor(promoted.user, 'PromotedAssigned');
+        demotedObject = await createObjectFor(demoted.user, 'DemotedAssigned');
+        foreignObject = await createObjectFor(other.user, 'RoleForeign');
+        promotedAssignedRequest = await createRequest({
+            objectId: promotedObject.id,
+            createdByUserId: other.user.id,
+        });
+        promotedForeignRequest = await createRequest({
+            objectId: foreignObject.id,
+            createdByUserId: promoted.user.id,
+            contractorId: promotedContractor.id,
+        });
+        demotedAssignedRequest = await createRequest({
+            objectId: demotedObject.id,
+            createdByUserId: other.user.id,
+        });
+        demotedOwnForeignRequest = await createRequest({
+            objectId: foreignObject.id,
+            createdByUserId: demoted.user.id,
+        });
+
+        await promoted.user.update({ role: roles.MANAGER });
+        await demoted.user.update({ role: roles.CUSTOMER });
+    });
+
+    afterAll(async () => {
+        const requestIds = [
+            promotedAssignedRequest.id,
+            promotedForeignRequest.id,
+            demotedAssignedRequest.id,
+            demotedOwnForeignRequest.id,
+        ];
+        await RequestComment.destroy({ where: { requestId: requestIds }, force: true });
+        await RepairRequest.destroy({ where: { id: requestIds }, force: true });
+        await ObjectDir.destroy({
+            where: { id: [promotedObject.id, demotedObject.id, foreignObject.id] },
+            force: true,
+        });
+        for (const login of [promotedLogin, demotedLogin, otherLogin]) await cleanupByLogin(login);
+    });
+
+    it('CUSTOMER→MANAGER сразу применяет object-only semantics при старом токене', async () => {
+        const list = await request(app)
+            .get('/lk/requests?role=customer&limit=100')
+            .set('Authorization', promoted.authHeader);
+        expect(list.status).toBe(200);
+        const ids = list.body.items.map((item: { id: string }) => item.id);
+        expect(ids).toContain(promotedAssignedRequest.id);
+        expect(ids).not.toContain(promotedForeignRequest.id);
+
+        const assigned = await request(app)
+            .get(`/lk/requests/${promotedAssignedRequest.id}`)
+            .set('Authorization', promoted.authHeader);
+        const foreign = await request(app)
+            .get(`/lk/requests/${promotedForeignRequest.id}`)
+            .set('Authorization', promoted.authHeader);
+        const foreignWrite = await request(app)
+            .post(`/lk/requests/${promotedForeignRequest.id}/comments`)
+            .set('Authorization', promoted.authHeader)
+            .field('text', 'stale customer must not write');
+        expect(assigned.status).toBe(200);
+        expect(foreign.status).toBe(403);
+        expect(foreignWrite.status).toBe(403);
+
+        await UserObject.destroy({ where: { userId: promoted.user.id, objectId: promotedObject.id }, force: true });
+        const afterRemoval = await request(app)
+            .get(`/lk/requests/${promotedAssignedRequest.id}`)
+            .set('Authorization', promoted.authHeader);
+        expect(afterRemoval.status).toBe(403);
+    });
+
+    it('MANAGER→CUSTOMER сразу возвращает author semantics при старом токене', async () => {
+        const list = await request(app)
+            .get('/lk/requests?role=customer&limit=100')
+            .set('Authorization', demoted.authHeader);
+        expect(list.status).toBe(200);
+        const ids = list.body.items.map((item: { id: string }) => item.id);
+        expect(ids).toEqual(expect.arrayContaining([demotedAssignedRequest.id, demotedOwnForeignRequest.id]));
+
+        const ownForeign = await request(app)
+            .get(`/lk/requests/${demotedOwnForeignRequest.id}`)
+            .set('Authorization', demoted.authHeader);
+        const ownWrite = await request(app)
+            .post(`/lk/requests/${demotedOwnForeignRequest.id}/comments`)
+            .set('Authorization', demoted.authHeader)
+            .field('text', 'live customer author');
+        const assignedWrite = await request(app)
+            .post(`/lk/requests/${demotedAssignedRequest.id}/comments`)
+            .set('Authorization', demoted.authHeader)
+            .field('text', 'customer cannot write by object');
+        expect(ownForeign.status).toBe(200);
+        expect(ownWrite.status).toBe(201);
+        expect(assignedWrite.status).toBe(403);
     });
 });

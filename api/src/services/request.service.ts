@@ -514,7 +514,7 @@ const createRequest = async (
 
     if (directoryCategoryId) await updateDirectoryCategoryBuilder(request.id, directoryCategoryId);
 
-    const audienceUserIds = await getAdministrativeAudienceUserIds(request.objectId ?? '');
+    const audienceUserIds = await getAdministrativeAudienceUserIds(request.objectId ?? null);
     emitTo({ kind: 'users', userIds: audienceUserIds }, 'REQUEST_CREATE', {
         requestId: request.id,
         customer: request.createdBy ?? request.createdByUserId,
@@ -558,7 +558,7 @@ const createRequestWithoutPhoto = async (
 
     if (directoryCategoryId) await updateDirectoryCategoryBuilder(request.id, directoryCategoryId);
 
-    const audienceUserIds = await getAdministrativeAudienceUserIds(request.objectId ?? '');
+    const audienceUserIds = await getAdministrativeAudienceUserIds(request.objectId ?? null);
     emitTo({ kind: 'users', userIds: audienceUserIds }, 'REQUEST_CREATE', {
         requestId: request.id,
         customer: request.createdBy ?? request.createdByUserId,
@@ -604,7 +604,7 @@ const createRequestWithMultiplePhotos = async (
 
     if (directoryCategoryId) await updateDirectoryCategoryBuilder(request.id, directoryCategoryId);
 
-    const audienceUserIds = await getAdministrativeAudienceUserIds(request.objectId ?? '');
+    const audienceUserIds = await getAdministrativeAudienceUserIds(request.objectId ?? null);
     emitTo({ kind: 'users', userIds: audienceUserIds }, 'REQUEST_CREATE', {
         requestId: request.id,
         customer: request.createdBy ?? request.createdByUserId,
@@ -745,7 +745,7 @@ const setContractor = async (
                     customer: customer ? customer.tgId : null,
                 });
 
-                const administrativeAudience = await getAdministrativeAudienceUserIds(request.objectId ?? '');
+                const administrativeAudience = await getAdministrativeAudienceUserIds(request.objectId ?? null);
                 const assignedUserIds = Array.from(
                     new Set([...administrativeAudience, ...(tgContractor?.userId ? [tgContractor.userId] : [])])
                 );
@@ -1314,7 +1314,7 @@ const bulkSetContractor = async (repairRequests: RepairRequest[], contractorId: 
         });
         await notificationService.notifyStatusChanged(request, 2);
         if (request.contractorId) {
-            const administrativeAudience = await getAdministrativeAudienceUserIds(request.objectId ?? '');
+            const administrativeAudience = await getAdministrativeAudienceUserIds(request.objectId ?? null);
             const assignedUserIds = Array.from(
                 new Set([...administrativeAudience, ...(contractor?.userId ? [contractor.userId] : [])])
             );

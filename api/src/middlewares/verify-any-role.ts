@@ -29,6 +29,7 @@ const verifyAnyRole = (roleNames: string[]) =>
             const userRoleRu = roleNamesRu[user.role] ?? 'вашей роли';
             return next(new ApiError(httpStatus.FORBIDDEN, `Операция недоступна для роли «${userRoleRu}».`));
         }
+        req.user.role = user.role;
         return next();
     });
 
