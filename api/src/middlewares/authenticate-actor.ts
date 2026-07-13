@@ -44,21 +44,21 @@ const hasValidMasterKey = (req: Request): boolean => {
 export const authenticateWebOrMaster: RequestHandler = catchAsync(async (req, _res, next) => {
     const accessToken = getBearerToken(req.headers.authorization);
     if (accessToken) {
-        let user: User | null = null;
+        const jwtUtils = await loadJwtUtils();
+        let payload: unknown = null;
         try {
-            const jwtUtils = await loadJwtUtils();
-            const payload = jwtUtils.verifyAccessToken(accessToken);
-            const userId = typeof payload === 'object' && payload !== null ? (payload as AccessPayload).id : undefined;
-            if (typeof userId === 'string') {
-                user = await User.findByPk(userId);
-            }
+            payload = jwtUtils.verifyAccessToken(accessToken);
         } catch {
-            user = null;
+            payload = null;
         }
-        if (user) {
-            req.actor = { kind: 'web', userId: user.id, role: user.role };
-            req.user = { id: user.id, role: user.role };
-            return next();
+        const userId = typeof payload === 'object' && payload !== null ? (payload as AccessPayload).id : undefined;
+        if (typeof userId === 'string') {
+            const user = await User.findByPk(userId);
+            if (user) {
+                req.actor = { kind: 'web', userId: user.id, role: user.role };
+                req.user = { id: user.id, role: user.role };
+                return next();
+            }
         }
     }
 

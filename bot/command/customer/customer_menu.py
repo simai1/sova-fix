@@ -2,6 +2,7 @@ import asyncio
 
 from aiogram.types import Message, FSInputFile
 from aiogram.types import InlineKeyboardButton as IKB, InlineKeyboardMarkup as IKM
+import config as cf
 from util import crm
 
 

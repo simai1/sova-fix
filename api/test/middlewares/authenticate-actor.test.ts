@@ -1,6 +1,6 @@
 import cookieParser from 'cookie-parser';
 import express from 'express';
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import request from 'supertest';
 import roles from '../../src/config/roles';
 import errorHandler from '../../src/middlewares/errorHandler';
@@ -65,6 +65,16 @@ describe('authenticateWebOrMaster', () => {
         expect(response.body).toEqual({ kind: 'web', userId: user.id, role: roles.MANAGER });
     });
 
+    it('передаёт ошибку загрузки User в error middleware', async () => {
+        const findByPk = vi.spyOn(User, 'findByPk').mockRejectedValueOnce(new Error('database unavailable'));
+        try {
+            const response = await request(app).get('/actor').set('Authorization', authHeader(roles.MANAGER));
+            expect(response.status).toBe(500);
+        } finally {
+            findByPk.mockRestore();
+        }
+    });
+
     it('принимает корректный непустой master key как bot actor', async () => {
         const response = await request(app).get('/actor').set('master-api-key', testMasterKey);
 
@@ -74,6 +84,12 @@ describe('authenticateWebOrMaster', () => {
 
     it('возвращает 401 без credentials', async () => {
         const response = await request(app).get('/actor');
+
+        expect(response.status).toBe(401);
+    });
+
+    it('возвращает 401 для невалидного Bearer', async () => {
+        const response = await request(app).get('/actor').set('Authorization', 'Bearer invalid-token');
 
         expect(response.status).toBe(401);
     });
