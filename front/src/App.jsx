@@ -46,7 +46,7 @@ import CustomerRequestDetail from "./pages/Customer/RequestDetail/RequestDetail.
 import CustomerProfile from "./pages/Customer/Profile/Profile.tsx";
 import CustomerChat from "./pages/Customer/Chat/Chat.tsx";
 import CustomerCreateRequest from "./pages/Customer/CreateRequest/CreateRequest.tsx";
-import { getStoredRole, isAdminUiRole } from "./constants/roles.constant.ts";
+import { getStoredRole, isAdminUiRole, isBackOfficeUiRole } from "./constants/roles.constant.ts";
 
 function App() {
   const [selectContructor, setSelectContractor] = useState("")
@@ -97,6 +97,7 @@ function App() {
   const [directoryCategories, setDirectoryCategories] = useState([])
   const userRole = getStoredRole();
   const hasAdminUiAccess = isAdminUiRole(userRole);
+  const hasBackOfficeUiAccess = isBackOfficeUiRole(userRole);
   const checkedAllFunc = () => {
     if(moreSelect.length > 0){
       setCheckedAll(true)
@@ -418,7 +419,7 @@ const UpdateStatus = () => {
             <Route path="/Authorization/Pending" element={<Pending />}></Route>
             <Route path="/reset-password-request" element={<RequestPasswordRequest/>}></Route>
             <Route path="/reset-password" element={<ResetPassword/>}></Route>
-            {hasAdminUiAccess ? <Route path="/reports" element={<ReportsContainer />}/> : null}
+            {hasBackOfficeUiAccess ? <Route path="/reports" element={<ReportsContainer />}/> : null}
 
             <Route path="/contractor/*" element={<LkLayout role="CONTRACTOR" />}>
               <Route index element={<Navigate to="requests" replace />} />
@@ -437,7 +438,7 @@ const UpdateStatus = () => {
               <Route path="profile" element={<CustomerProfile />} />
             </Route>
             
-            {hasAdminUiAccess ? (
+            {hasBackOfficeUiAccess ? (
               <Route path="/Directory/*" element={<Directory />}>
                <Route path="BusinessUnitReference" element={<BusinessUnitReference />}></Route>
                <Route path="DirectoryLegalEntities" element={<DirectoryLegalEntities />}></Route>
@@ -447,19 +448,23 @@ const UpdateStatus = () => {
                <Route path="Urgency" element={<DirectoryUrgency />}></Route>
                <Route path="Status" element={<DirectoryStatuses />}></Route>
                <Route path="Category" element={<DirectoryCategory />}></Route>
-               <Route path="RegistrationRequests" element={<RegistrationRequests />}></Route>
-               <Route path="SystemLogs" element={<SystemLogs />}></Route>
+               {hasAdminUiAccess ? (
+                 <Route path="RegistrationRequests" element={<RegistrationRequests />}></Route>
+               ) : null}
+               {hasAdminUiAccess ? (
+                 <Route path="SystemLogs" element={<SystemLogs />}></Route>
+               ) : null}
              </Route>
             ) : null}
 
-            {hasAdminUiAccess ? (
+            {hasBackOfficeUiAccess ? (
               <Route path="/CardPage/*" element={<CardPage />}>
                <Route path="Card" element={<PageCardContractors />}></Route>
                <Route path="CardPageModule" element={<CardPageModule />}></Route>
              </Route>
             ) : null}
 
-            {hasAdminUiAccess ? (
+            {hasBackOfficeUiAccess ? (
               <Route path="/Equipment/*" element={<Equipment />}>
                 <Route path="GraphicEquipment" element={<GraphicEquipment />}></Route>
                 <Route path="CategoryEquipment" element={<CategoryEquipment />}></Route>

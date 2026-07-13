@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { LogOut } from '@/API/API';
 import { lkApi } from '@/API/rtkQuery/lk.api';
 import { lkPushApi } from '@/API/rtkQuery/lkPush.api';
+import { repairRequestsApi } from '@/API/rtkQuery/requests.api';
 import { useAppDispatch } from '@/hooks/store';
 import { SAVED_FILTERS_KEY_PREFIX } from '@/hooks/useSavedFilters';
 import { clearUserData } from '@/utils/auth';
@@ -32,6 +33,7 @@ export const useLogout = (): (() => Promise<void>) => {
     clearLkSavedFilters();
     dispatch(lkApi.util.resetApiState());
     dispatch(lkPushApi.util.resetApiState());
+    dispatch(repairRequestsApi.util.resetApiState());
     navigate('/Authorization', { replace: true });
   };
 };

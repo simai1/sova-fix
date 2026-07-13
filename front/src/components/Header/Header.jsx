@@ -3,14 +3,14 @@ import React, { useState, useEffect, useRef, useContext } from 'react';
 import './Menu.css';
 import { useNavigate } from "react-router-dom";
 import DataContext from "../../context";
-import { GetAllSettings, GetObjectsAll, LogOut } from "../../API/API";
-import { useDispatch } from "react-redux";
+import { GetAllSettings, GetObjectsAll } from "../../API/API";
 import imgClose from "./../../assets/images/x.svg";
 import arrowBottom from "./../../assets/images/arrow_bottom.svg";
 import Logo from "./../../assets/images/SovaFixLogo.svg"
 import Toggle from "../../UI/Toggle/Toggle";
 import { GLOBAL_OPEN_REPORT_BLOCK, GLOBAL_OPEN_TO_BLOCK, OBJECTS_LIMIT, PICTURE_NAME } from "../../constants/env.constant";
-import { getStoredRole, isAdminUiRole } from "../../constants/roles.constant";
+import { getStoredRole, isAdminUiRole, isBackOfficeUiRole } from "../../constants/roles.constant";
+import { useLogout } from "../../hooks/useLogout";
 
 function Header() {
     const { context } = useContext(DataContext);
@@ -18,6 +18,7 @@ function Header() {
     const menuRef = useRef(null);
     const [shortName, setShortName] = useState("")
     const navigate = useNavigate();
+    const logout = useLogout();
     const [isOpenSprav, setIsOpenSprav] = useState(false);
     const [isOpenFinans, setIsOpenFinans] = useState(false);
     const [isOpenSystem, setIsOpenSystem] = useState(false);
@@ -33,6 +34,7 @@ function Header() {
     const [isRepairWithPhotoSetting, setIsRepairWithPhotoSettings] = useState()
     const userRole = getStoredRole();
     const hasAdminUiAccess = isAdminUiRole(userRole);
+    const hasBackOfficeUiAccess = isBackOfficeUiRole(userRole);
 
     useEffect(()=>{
       if(!sessionStorage.getItem("userData")){navigate("/Authorization")}else{
@@ -73,14 +75,8 @@ function Header() {
     }, [isOpen]);
 
   const Exit =()=>{
-    LogOut().then((resp)=>{
-      if(resp?.status === 200){
-      navigate("/Authorization");
-      }
-    })
+    void logout();
   }
-
-  const dispatch = useDispatch();
 
   const LinkPage = (Link) => {
     if(Link !== undefined && Link !==  "Polzovateli"){
@@ -133,7 +129,7 @@ return (
   <div className={styles.headerButton}>
   
     {PICTURE_NAME &&  <img src={getLinkImg()} /> }
-    {hasAdminUiAccess ? (
+    {hasBackOfficeUiAccess ? (
       !getLinkPatchname() ? (
         <button className={styles.buttonMenu} onClick={toggleMenu}>Меню</button>
       ) : (
@@ -280,4 +276,3 @@ return (
 );
 };
 export default Header;
-

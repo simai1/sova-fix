@@ -34,6 +34,9 @@ const isWebRoleName = (role: unknown): role is WebRoleName =>
 export const isAdminUiRole = (role?: string | null): boolean =>
   role === 'ADMIN' || role === 'MANAGER';
 
+export const isBackOfficeUiRole = (role?: string | null): boolean =>
+  isAdminUiRole(role) || role === 'OBSERVER';
+
 export const isAdminOnlyRole = (role?: string | null): boolean => role === 'ADMIN';
 
 export const getStoredRole = (): WebRoleName | null => {
