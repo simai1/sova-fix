@@ -10,10 +10,11 @@ export const requestStatusUiLabel: Record<number, string> = {
 };
 
 export const roleUiLabel: Record<number, string> = {
-    [roles.ADMIN]: 'Менеджер',
+    [roles.ADMIN]: 'Администратор',
     [roles.CUSTOMER]: 'Заказчик',
     [roles.CONTRACTOR]: 'Исполнитель',
     [roles.OBSERVER]: 'Наблюдатель',
+    [roles.MANAGER]: 'Менеджер',
 };
 
 export const formatRequestRef = (number: number | null | undefined): string => {
