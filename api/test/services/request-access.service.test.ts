@@ -38,6 +38,7 @@ describe('request access service and guards', () => {
     let inactiveAdmin: User;
     let manager: User;
     let secondManager: User;
+    let foreignObjectManager: User;
     let emptyManager: User;
     let softDeletedAssignmentManager: User;
     let inactiveManager: User;
@@ -102,6 +103,7 @@ describe('request access service and guards', () => {
         inactiveAdmin = await createUser('Scope Inactive Admin', roles.ADMIN, false);
         manager = await createUser('Scope Manager', roles.MANAGER);
         secondManager = await createUser('Scope Second Manager', roles.MANAGER);
+        foreignObjectManager = await createUser('Scope Foreign Object Manager', roles.MANAGER);
         emptyManager = await createUser('Scope Empty Manager', roles.MANAGER);
         softDeletedAssignmentManager = await createUser('Scope Deleted Assignment Manager', roles.MANAGER);
         inactiveManager = await createUser('Scope Inactive Manager', roles.MANAGER, false);
@@ -115,6 +117,7 @@ describe('request access service and guards', () => {
             { userId: manager.id, objectId: objectA.id },
             { userId: manager.id, objectId: objectB.id },
             { userId: secondManager.id, objectId: objectA.id },
+            { userId: foreignObjectManager.id, objectId: foreignObject.id },
             { userId: inactiveManager.id, objectId: objectA.id },
         ]);
         const deletedAssignment = await UserObject.create({
@@ -386,6 +389,7 @@ describe('request access service and guards', () => {
             expect(objectAudience).toEqual(expect.arrayContaining([admin.id, manager.id, secondManager.id]));
             for (const excludedId of [
                 emptyManager.id,
+                foreignObjectManager.id,
                 softDeletedAssignmentManager.id,
                 inactiveManager.id,
                 inactiveAdmin.id,
@@ -400,6 +404,7 @@ describe('request access service and guards', () => {
                     admin.id,
                     manager.id,
                     secondManager.id,
+                    foreignObjectManager.id,
                     emptyManager.id,
                     softDeletedAssignmentManager.id,
                 ])
