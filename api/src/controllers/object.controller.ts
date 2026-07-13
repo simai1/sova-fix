@@ -23,7 +23,8 @@ const getAll = catchAsync(async (req, res) => {
     }
 
     if (scope === 'requests') {
-        if (actor.role === roles.ADMIN) return res.json(await objectService.getAllObjects(normalizedUnitId));
+        if ([roles.ADMIN, roles.OBSERVER].includes(actor.role))
+            return res.json(await objectService.getAllObjects(normalizedUnitId));
         if (actor.role === roles.MANAGER)
             return res.json(await objectService.getScopeObjects(req.requestScope!, normalizedUnitId));
         if ([roles.CUSTOMER, roles.CONTRACTOR].includes(actor.role))
@@ -31,7 +32,8 @@ const getAll = catchAsync(async (req, res) => {
         throw new ApiError(httpStatus.FORBIDDEN, 'Доступ запрещён');
     }
 
-    if (![roles.ADMIN, roles.MANAGER].includes(actor.role)) throw new ApiError(httpStatus.FORBIDDEN, 'Доступ запрещён');
+    if (![roles.ADMIN, roles.MANAGER, roles.OBSERVER].includes(actor.role))
+        throw new ApiError(httpStatus.FORBIDDEN, 'Доступ запрещён');
     return res.json(await objectService.getAllObjects(normalizedUnitId));
 });
 

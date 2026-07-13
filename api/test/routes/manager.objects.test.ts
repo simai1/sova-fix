@@ -171,14 +171,46 @@ describe('Manager object directory and request-object scope', () => {
         expect(ids(contractorScoped.body)).not.toContain(assignedObject.id);
     });
 
-    it('не отдаёт Наблюдателю обычный и request-mode справочник объектов', async () => {
-        const [directory, requestScope] = await Promise.all([
+    it('сохраняет Наблюдателю read-only GET-контракт Header и справочника объектов', async () => {
+        const [directory, requestScope, detail] = await Promise.all([
             asWeb(observer, '/objects'),
             asWeb(observer, '/objects?scope=requests'),
+            asWeb(observer, `/objects/${assignedObject.id}`),
         ]);
 
-        expect(directory.status).toBe(403);
-        expect(requestScope.status).toBe(403);
+        for (const response of [directory, requestScope]) {
+            expect(response.status).toBe(200);
+            expect(ids(response.body)).toEqual(
+                expect.arrayContaining([assignedObject.id, secondAssignedObject.id, foreignObject.id])
+            );
+        }
+        expect(detail.status).toBe(200);
+        expect(detail.body).toMatchObject({ id: assignedObject.id, name: assignedObject.name });
+    });
+
+    it('не разрешает Наблюдателю создавать, изменять и удалять объекты', async () => {
+        const forbiddenName = `Observer forbidden object ${suffix}`;
+        const originalName = assignedObject.name;
+        const [created, updated, deleted] = await Promise.all([
+            request(app).post('/objects').set('Authorization', observer.authHeader).send({
+                name: forbiddenName,
+                unitId: assignedObject.unitId,
+                legalEntityId: assignedObject.legalEntityId,
+                city: 'Москва',
+                budgetPlan: 100,
+            }),
+            request(app)
+                .patch(`/objects/${assignedObject.id}`)
+                .set('Authorization', observer.authHeader)
+                .send({ name: forbiddenName }),
+            request(app).delete(`/objects/${assignedObject.id}`).set('Authorization', observer.authHeader),
+        ]);
+
+        expect(created.status).toBe(403);
+        expect(updated.status).toBe(403);
+        expect(deleted.status).toBe(403);
+        expect(await ObjectDir.findOne({ where: { name: forbiddenName } })).toBeNull();
+        expect((await ObjectDir.findByPk(assignedObject.id))?.name).toBe(originalName);
     });
 
     it('отдаёт Администратору все объекты в обоих режимах', async () => {

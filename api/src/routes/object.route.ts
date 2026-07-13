@@ -16,9 +16,8 @@ router
     .post(requireActorRoles(roles.ADMIN, roles.MANAGER), objectController.create);
 router
     .route('/:objectId')
-    .all(requireActorRoles(roles.ADMIN, roles.MANAGER))
-    .get(objectController.getOne)
-    .delete(objectController.destroy)
-    .patch(objectController.update);
+    .get(requireActorRoles(roles.ADMIN, roles.MANAGER, roles.OBSERVER), objectController.getOne)
+    .delete(requireActorRoles(roles.ADMIN, roles.MANAGER), objectController.destroy)
+    .patch(requireActorRoles(roles.ADMIN, roles.MANAGER), objectController.update);
 
 export default router;
