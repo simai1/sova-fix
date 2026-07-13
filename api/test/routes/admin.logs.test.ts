@@ -2,15 +2,17 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import request from 'supertest';
 import app from '../../src/app';
 import SystemLog from '../../src/models/systemLog';
-import { createAdminAuth, TestAdminAuth } from '../helpers/auth-helper';
+import { createAdminAuth, createManagerAuth, TestAdminAuth } from '../helpers/auth-helper';
 
 describe('GET /admin/logs', () => {
     let admin: TestAdminAuth;
+    let manager: TestAdminAuth;
     const seedMarker = `__TEST_SYSLOG_${Date.now()}__`;
 
     beforeAll(async () => {
         await SystemLog.destroy({ where: {}, truncate: true, force: true });
         admin = await createAdminAuth('admin-syslogs@t.local');
+        manager = await createManagerAuth('manager-syslogs@t.local');
 
         const now = Date.now();
         // Намеренно три уровня с разными createdAt — проверяем фильтр по level
@@ -45,7 +47,7 @@ describe('GET /admin/logs', () => {
         await (
             await import('../../src/models/user')
         ).default.destroy({
-            where: { login: 'admin-syslogs@t.local' },
+            where: { login: ['admin-syslogs@t.local', 'manager-syslogs@t.local'] },
             force: true,
         });
     });
@@ -126,5 +128,15 @@ describe('GET /admin/logs', () => {
             .set('Authorization', admin.authHeader)
             .set('Cookie', admin.cookie);
         expect(res.status).toBe(400);
+    });
+
+    it('Менеджер получает системные логи', async () => {
+        const res = await request(app)
+            .get('/admin/logs')
+            .set('Authorization', manager.authHeader)
+            .set('Cookie', manager.cookie);
+
+        expect(res.status).toBe(200);
+        expect(Array.isArray(res.body.items)).toBe(true);
     });
 });

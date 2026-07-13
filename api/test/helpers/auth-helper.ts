@@ -34,3 +34,23 @@ export const createAdminAuth = async (login = 'admin@test.local'): Promise<TestA
         authHeader: `Bearer ${accessToken}`,
     };
 };
+
+export const createManagerAuth = async (login = 'manager@test.local'): Promise<TestAdminAuth> => {
+    await User.destroy({ where: { login }, force: true });
+    const user = await User.create({
+        login,
+        password: 'x',
+        name: 'Manager',
+        role: roles.MANAGER,
+        isActivated: true,
+    });
+    const { accessToken, refreshToken } = jwtUtils.generate({ id: user.id, role: roles.MANAGER });
+    await jwtUtils.saveToken(user.id, refreshToken);
+    return {
+        user,
+        accessToken,
+        refreshToken,
+        cookie: [`refreshToken=${refreshToken}`],
+        authHeader: `Bearer ${accessToken}`,
+    };
+};

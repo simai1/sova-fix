@@ -4,10 +4,12 @@ import authController from '../controllers/auth.controller';
 import { validator } from '../middlewares/validator';
 import { registerPublicSchema, loginSchema } from '../validations/auth.validation';
 import { loginRateLimiter, registerRateLimiter } from '../middlewares/rate-limit';
+import verifyRole from '../middlewares/verify-role';
+import roles from '../config/roles';
 
 const router = Router();
 
-router.route('/register').post(authController.registerViaEmail);
+router.route('/register').post(verifyToken.auth, verifyRole(roles.ADMIN), authController.registerViaEmail);
 router
     .route('/register-public')
     .post(registerRateLimiter, validator(registerPublicSchema), authController.registerPublic);
