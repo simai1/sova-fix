@@ -154,7 +154,7 @@ describe('Manager contractor-derived requests and reports scope', () => {
             urgency: 'Маршрут',
             builder: assignedBuilder,
             itineraryOrder: 2,
-            repairPrice: 200,
+            repairPrice: 400,
             problemDescription: `second-assigned-report-${suffix}`,
         });
         foreignRequest = await createRequest({
@@ -164,7 +164,7 @@ describe('Manager contractor-derived requests and reports scope', () => {
             urgency: 'Маршрут',
             builder: foreignBuilder,
             itineraryOrder: 3,
-            repairPrice: 300,
+            repairPrice: 900,
             problemDescription: `foreign-report-${suffix}`,
         });
     });
@@ -287,16 +287,16 @@ describe('Manager contractor-derived requests and reports scope', () => {
         expect(secondAssignedRow).toMatchObject({
             totalCountRequests: 1,
             percentOfTotalCountRequest: 50,
-            budget: 200,
+            budget: 400,
             budgetPlan: 2000,
-            percentOfBudgetPlan: 10,
+            percentOfBudgetPlan: 20,
         });
         expect(totalRow).toMatchObject({
             totalCountRequests: 2,
             percentOfTotalCountRequest: 100,
-            budget: 300,
+            budget: 500,
             budgetPlan: 3000,
-            percentOfBudgetPlan: 10,
+            percentOfBudgetPlan: 16.7,
         });
         expect(response.body.resultRows.some((row: { objectId?: string }) => row.objectId === foreignObject.id)).toBe(
             false
