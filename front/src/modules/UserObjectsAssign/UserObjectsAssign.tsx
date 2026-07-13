@@ -32,20 +32,9 @@ const HIDDEN_CHECKBOX_STYLE: CSSProperties = {
 };
 
 const UserObjectsAssign = ({ open, userId, userName, onClose }: Props): JSX.Element => {
-  const adminUserId = useMemo<string | undefined>(() => {
-    try {
-      return JSON.parse(sessionStorage.getItem('userData') ?? '{}')?.user?.id;
-    } catch {
-      return undefined;
-    }
-  }, []);
-
-  const { data: allObjects = [], isLoading: objLoading } = useGetAllObjectsQuery(
-    adminUserId ?? '',
-    {
-      skip: !open || !adminUserId,
-    },
-  );
+  const { data: allObjects = [], isLoading: objLoading } = useGetAllObjectsQuery(undefined, {
+    skip: !open,
+  });
   const { data: userObjects, isLoading: prefillLoading } = useGetUserObjectsQuery(userId ?? '', {
     skip: !open || !userId,
   });

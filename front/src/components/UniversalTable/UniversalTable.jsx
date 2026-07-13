@@ -356,8 +356,9 @@ function UniversalTable(props) {
     return 0;
   };
 
-  const handleRoleClick = (rowIndex, role) => {
-    (role === "Администратор" || role === "Наблюдатель") && JSON.parse(sessionStorage.getItem("userData"))?.user?.role === "ADMIN" && setDropdownVisible(dropdownVisible === rowIndex ? null : rowIndex);
+  const handleRoleClick = (rowIndex, row) => {
+    if (!row.roleEditable || !props?.roleOptions?.length) return;
+    setDropdownVisible(dropdownVisible === rowIndex ? null : rowIndex);
   };
 
   const checkHeights = (arr, index) => {
@@ -571,10 +572,9 @@ function UniversalTable(props) {
         ) : (
             <div key={rowIndex} className={styles.RoleClick}>
               <div
-                onClick={() => handleRoleClick(rowIndex , row.role)}
+                onClick={() => handleRoleClick(rowIndex, row)}
                 className={
-                  (row.role === "Администратор" || row.role === "Наблюдатель") &&
-                  JSON.parse(sessionStorage.getItem("userData"))?.user?.role === "ADMIN"
+                  row.roleEditable && props?.roleOptions?.length
                     ? styles.statusClick
                     : styles.statusReadonly
                 }
@@ -592,8 +592,17 @@ function UniversalTable(props) {
                   }
                 >
                   <ul>
-                    <li onClick={() => {props?.ClickRole("Администратор", row.id); setDropdownVisible(null);}}>Администратор</li>
-                    <li onClick={() => {props?.ClickRole("Наблюдатель", row.id); setDropdownVisible(null);}}>Наблюдатель</li>
+                    {props.roleOptions.map((roleId) => (
+                      <li
+                        key={roleId}
+                        onClick={() => {
+                          props?.ClickRole(roleId, row.id);
+                          setDropdownVisible(null);
+                        }}
+                      >
+                        {props?.roleOptionLabel?.(roleId) ?? roleId}
+                      </li>
+                    ))}
                   </ul>
                 </div>
                 )}
