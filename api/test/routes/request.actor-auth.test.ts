@@ -2,9 +2,14 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import request from 'supertest';
 
 vi.mock('../../src/services/email.service', () => ({ default: vi.fn() }));
+vi.mock('../../src/utils/migrationUtils', () => ({
+    migrateManagerIds: vi.fn().mockResolvedValue(undefined),
+    validateManagerIds: vi.fn().mockResolvedValue(undefined),
+}));
 
 import app from '../../src/app';
 import roles from '../../src/config/roles';
+import { migrateManagerIds, validateManagerIds } from '../../src/utils/migrationUtils';
 import { createAdminAuth, createManagerAuth, TestAdminAuth } from '../helpers/auth-helper';
 import { cleanupByLogin, createUserAuth, TestAuth } from '../helpers/lk-helper';
 
@@ -58,12 +63,26 @@ describe('legacy /requests actor auth', () => {
     });
 
     it('разрешает миграции только web Admin', async () => {
-        const [managerResponse, botResponse] = await Promise.all([
-            request(app).post('/requests/validate/manager-ids').set('Authorization', manager.authHeader),
-            request(app).post('/requests/validate/manager-ids').set('master-api-key', masterKey),
-        ]);
+        const cases = [
+            { path: '/requests/validate/manager-ids', handler: vi.mocked(validateManagerIds) },
+            { path: '/requests/migrate/manager-ids', handler: vi.mocked(migrateManagerIds) },
+        ];
 
-        expect(managerResponse.status).toBe(403);
-        expect(botResponse.status).toBe(403);
+        for (const testCase of cases) {
+            testCase.handler.mockClear();
+            const [managerResponse, botResponse] = await Promise.all([
+                request(app).post(testCase.path).set('Authorization', manager.authHeader),
+                request(app).post(testCase.path).set('master-api-key', masterKey),
+            ]);
+
+            expect(managerResponse.status, testCase.path).toBe(403);
+            expect(botResponse.status, testCase.path).toBe(403);
+            expect(testCase.handler, testCase.path).not.toHaveBeenCalled();
+
+            const adminResponse = await request(app).post(testCase.path).set('Authorization', admin.authHeader);
+
+            expect(adminResponse.status, testCase.path).toBe(200);
+            expect(testCase.handler, testCase.path).toHaveBeenCalledOnce();
+        }
     });
 });

@@ -8,8 +8,10 @@ vi.mock('../../src/services/email.service', () => ({ default: vi.fn() }));
 import app from '../../src/app';
 import ObjectDir from '../../src/models/object';
 import RepairRequest from '../../src/models/repairRequest';
+import Status from '../../src/models/status';
 import TgUser from '../../src/models/tgUser';
 import TgUserObject from '../../src/models/tgUserObject';
+import Urgency from '../../src/models/urgency';
 import UserObject from '../../src/models/userObject';
 import { createAdminAuth, createManagerAuth, TestAdminAuth } from '../helpers/auth-helper';
 import { cleanupByLogin, createRequest, ensureBaseRefs } from '../helpers/lk-helper';
@@ -262,6 +264,117 @@ describe('Manager legacy /requests access scope', () => {
         expect(foreignDone.urgency).toBe(initialForeignUrgency);
         expect(assignedWork.contractorId).toBeNull();
         expect(foreignDone.contractorId).toBeNull();
+    });
+
+    it('разрешает Manager mutation назначенной заявки, а Admin и bot — foreign mutation и bulk', async () => {
+        const assignedComment = assignedNew.comment ?? null;
+        const foreignComment = foreignDone.comment ?? null;
+        const foreignUrgency = foreignDone.urgency;
+
+        try {
+            const managerMutation = await asManager('patch', '/requests/set/comment').send({
+                requestId: assignedNew.id,
+                comment: `manager-mutation-${suffix}`,
+            });
+            expect(managerMutation.status).toBe(200);
+            await assignedNew.reload();
+            expect(assignedNew.comment).toBe(`manager-mutation-${suffix}`);
+
+            const adminMutation = await request(app)
+                .patch('/requests/set/comment')
+                .set('Authorization', admin.authHeader)
+                .send({ requestId: foreignDone.id, comment: `admin-mutation-${suffix}` });
+            expect(adminMutation.status).toBe(200);
+            await foreignDone.reload();
+            expect(foreignDone.comment).toBe(`admin-mutation-${suffix}`);
+
+            const botMutation = await request(app)
+                .patch('/requests/set/comment')
+                .set('master-api-key', masterKey)
+                .send({ requestId: foreignDone.id, comment: `bot-mutation-${suffix}` });
+            expect(botMutation.status).toBe(200);
+            await foreignDone.reload();
+            expect(foreignDone.comment).toBe(`bot-mutation-${suffix}`);
+
+            const adminBulk = await request(app)
+                .patch('/requests/urgency/bulk')
+                .set('Authorization', admin.authHeader)
+                .send({ ids: [foreignDone.id], urgency: `admin-bulk-${suffix}` });
+            expect(adminBulk.status).toBe(200);
+            await foreignDone.reload();
+            expect(foreignDone.urgency).toBe(`admin-bulk-${suffix}`);
+
+            const botBulk = await request(app)
+                .patch('/requests/urgency/bulk')
+                .set('master-api-key', masterKey)
+                .send({ ids: [foreignDone.id], urgency: `bot-bulk-${suffix}` });
+            expect(botBulk.status).toBe(200);
+            await foreignDone.reload();
+            expect(foreignDone.urgency).toBe(`bot-bulk-${suffix}`);
+        } finally {
+            await Promise.all([
+                assignedNew.update({ comment: assignedComment }),
+                foreignDone.update({ comment: foreignComment, urgency: foreignUrgency }),
+            ]);
+        }
+    });
+
+    it('сохраняет глобальную семантику changeUrgency и changeStatus для Manager', async () => {
+        const assignedSnapshot = {
+            urgency: assignedNew.urgency,
+            urgencyId: assignedNew.urgencyId ?? null,
+            status: assignedNew.status,
+            statusId: assignedNew.statusId ?? null,
+        };
+        const foreignSnapshot = {
+            urgency: foreignDone.urgency,
+            urgencyId: foreignDone.urgencyId ?? null,
+            status: foreignDone.status,
+            statusId: foreignDone.statusId ?? null,
+        };
+        const sourceUrgency = `global-source-${suffix}`;
+        const sourceStatus = 29999;
+        let targetUrgency: Urgency | null = null;
+        let targetStatus: Status | null = null;
+
+        try {
+            targetUrgency = await Urgency.create({
+                name: `global-target-${suffix}`,
+                color: '#fff',
+                number: 0,
+            } as Urgency);
+            targetStatus = await Status.create({
+                name: `global-target-${suffix}`,
+                color: '#fff',
+                number: 0,
+            } as Status);
+            await Promise.all([
+                assignedNew.update({ urgency: sourceUrgency, urgencyId: null, status: sourceStatus, statusId: null }),
+                foreignDone.update({ urgency: sourceUrgency, urgencyId: null, status: sourceStatus, statusId: null }),
+            ]);
+
+            const urgencyResponse = await asManager('post', '/requests/changeUrgency').send({
+                prevName: sourceUrgency,
+                urgencyId: targetUrgency.id,
+            });
+            expect(urgencyResponse.status).toBe(200);
+            await Promise.all([assignedNew.reload(), foreignDone.reload()]);
+            expect([assignedNew.urgency, foreignDone.urgency]).toEqual([targetUrgency.name, targetUrgency.name]);
+            expect([assignedNew.urgencyId, foreignDone.urgencyId]).toEqual([targetUrgency.id, targetUrgency.id]);
+
+            const statusResponse = await asManager('post', '/requests/changeStatus').send({
+                prevNumber: sourceStatus,
+                statusId: targetStatus.id,
+            });
+            expect(statusResponse.status).toBe(200);
+            await Promise.all([assignedNew.reload(), foreignDone.reload()]);
+            expect([assignedNew.status, foreignDone.status]).toEqual([targetStatus.number, targetStatus.number]);
+            expect([assignedNew.statusId, foreignDone.statusId]).toEqual([targetStatus.id, targetStatus.id]);
+        } finally {
+            await Promise.all([assignedNew.update(assignedSnapshot), foreignDone.update(foreignSnapshot)]);
+            if (targetStatus) await targetStatus.destroy({ force: true });
+            if (targetUrgency) await targetUrgency.destroy({ force: true });
+        }
     });
 
     it('web create использует actor userId, а bot сохраняет legacy createdBy', async () => {
