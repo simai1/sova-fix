@@ -14,5 +14,6 @@ export const getObjectsQuerySchema = Joi.object({
         userId: Joi.string().uuid().optional().messages(ru('userId')),
         unitId: Joi.string().uuid().optional().messages(ru('unitId')),
         tgUserId: Joi.string().optional().messages(ru('tgUserId')),
+        scope: Joi.string().valid('requests').optional().messages(ru('scope')),
     }).unknown(false),
 });

@@ -15,6 +15,7 @@ import TgUser from '../models/tgUser';
 import User from '../models/user';
 import { contractorInclude } from '../utils/contractorInclude';
 import { contractorNameIn, contractorNameILike, contractorNameOrderExpr } from '../utils/contractorNameFilter';
+import { assertObjectAccess, RequestScope, scopeWhere } from './request-access.service';
 
 const getAllContractors = async (): Promise<ContractorDto[]> => {
     const contractors = await Contractor.findAll({
@@ -47,7 +48,7 @@ const buildContractorWhereParams = (filter: any) => {
     return whereParams;
 };
 
-const getContractorsRequests = async (id: string, filter: any): Promise<RequestDto[]> => {
+const getContractorsRequests = async (id: string, filter: any, scope: RequestScope): Promise<RequestDto[]> => {
     let requests;
     const whereParams = buildContractorWhereParams(filter);
     const contractor = await Contractor.findByPk(id);
@@ -89,14 +90,14 @@ const getContractorsRequests = async (id: string, filter: any): Promise<RequestD
             searchParams.push({ daysAtWork: filter.search });
         }
         requests = await RepairRequest.findAll({
-            where: {
+            where: scopeWhere(scope, {
                 [Op.and]: [
                     {
                         [Op.or]: searchParams,
                     },
                     whereParams,
                 ],
-            },
+            }),
             include: [
                 contractorInclude,
                 { model: ObjectDir },
@@ -108,7 +109,7 @@ const getContractorsRequests = async (id: string, filter: any): Promise<RequestD
         });
     } else {
         requests = await RepairRequest.findAll({
-            where: whereParams,
+            where: scopeWhere(scope, whereParams),
             include: [
                 contractorInclude,
                 { model: ObjectDir },
@@ -122,7 +123,7 @@ const getContractorsRequests = async (id: string, filter: any): Promise<RequestD
     return requests.map(request => new RequestDto(request));
 };
 
-const getContractorsItinerary = async (id: string, filter: any): Promise<RequestDto[]> => {
+const getContractorsItinerary = async (id: string, filter: any, scope: RequestScope): Promise<RequestDto[]> => {
     let requests;
     const whereParams = buildContractorWhereParams(filter);
     const contractor = await Contractor.findByPk(id);
@@ -162,7 +163,7 @@ const getContractorsItinerary = async (id: string, filter: any): Promise<Request
             searchParams.push({ daysAtWork: filter.search });
         }
         requests = await RepairRequest.findAll({
-            where: {
+            where: scopeWhere(scope, {
                 [Op.and]: [
                     { contractorId: contractor.id, urgency: 'Маршрут', status: { [Op.notIn]: [3, 4] } },
                     {
@@ -170,18 +171,18 @@ const getContractorsItinerary = async (id: string, filter: any): Promise<Request
                     },
                     whereParams,
                 ],
-            },
+            }),
             include: [contractorInclude, { model: ObjectDir }, { model: Unit }, { model: LegalEntity }],
             order: [['itineraryOrder', 'ASC']],
         });
     } else {
         requests = await RepairRequest.findAll({
-            where: {
+            where: scopeWhere(scope, {
                 [Op.and]: [
                     { contractorId: contractor.id, urgency: 'Маршрут', status: { [Op.notIn]: [3, 4] } },
                     whereParams,
                 ],
-            },
+            }),
             include: [contractorInclude, { model: ObjectDir }, { model: Unit }, { model: LegalEntity }],
             order: [['itineraryOrder', 'ASC']],
         });
@@ -189,11 +190,21 @@ const getContractorsItinerary = async (id: string, filter: any): Promise<Request
     return requests.map(request => new RequestDto(request));
 };
 
-export const getContractorsActualRequests = async (contractorId: string, unitId: string, objectId?: string) => {
+export const getContractorsActualRequests = async (
+    contractorId: string,
+    unitId: string,
+    objectId: string | undefined,
+    scope: RequestScope
+) => {
     const actualStatuses = [1, 2, 5];
 
+    if (objectId) assertObjectAccess(objectId, scope);
+
     const unitObjects = await ObjectDir.findAll({
-        where: { unitId },
+        where: {
+            unitId,
+            ...(scope.kind === 'objects' ? { id: { [Op.in]: scope.objectIds } } : {}),
+        },
         attributes: ['id'],
     });
     const unitObjectIds = unitObjects.map(uo => uo.id);
@@ -214,7 +225,7 @@ export const getContractorsActualRequests = async (contractorId: string, unitId:
     }
 
     const requests = await RepairRequest.findAll({
-        where: whereClause,
+        where: scopeWhere(scope, whereClause),
         include: [
             { model: Unit },
             contractorInclude,

@@ -12,6 +12,10 @@ import ExtContractor from '../models/externalContractor';
 import TgUser from '../models/tgUser';
 import User from '../models/user';
 import dayjs from 'dayjs';
+import { RequestScope, scopeWhere } from './request-access.service';
+
+const scopeObjectWhere = (scope: RequestScope, where: Record<string | symbol, any> = {}) =>
+    scope.kind === 'all' ? where : { [Op.and]: [where, { id: { [Op.in]: scope.objectIds } }] };
 
 const applyFilterData = (combined: any[], filterData: Record<string, any[]>) => {
     if (!filterData) return combined;
@@ -30,57 +34,53 @@ const getTableReportData = async (
     parametrs: Record<string, boolean>,
     indicators: ReportInidicators,
     additionalParametrs: AdditionalParametrsI,
-    filterData: any
+    filterData: any,
+    scope: RequestScope
 ) => {
-    try {
-        const data: Record<string, any[]> = {};
-        const relatedKeys = ['legalEntity', 'unit', 'object'];
-        const hasRelated = relatedKeys.some(key => parametrs[key]);
-
-        const relatedData = hasRelated ? await loadRelatedData(parametrs, data) : [];
-
-        await buildParamData(parametrs, data);
-
-        let combined = cartesianProduct(data);
-
-        combined = await filterRealBuilderContractorPairs(parametrs, combined);
-
-        let filtered = filterByRelations(parametrs, combined, relatedData);
-
-        if (filterData) {
-            filtered = applyFilterData(filtered, filterData);
+    const data: Record<string, any[]> = {};
+    if (scope.kind === 'objects' && scope.objectIds.length === 0) {
+        for (const [key, enabled] of Object.entries(parametrs)) {
+            if (enabled && TABLE_FOR_REPORT[key]) data[key] = [];
         }
-
-        let resultRows = await calculateIndicators(filtered, parametrs, indicators, additionalParametrs);
-
-        if (additionalParametrs.isResult) {
-            resultRows = await addTotalRow(resultRows, parametrs, indicators, additionalParametrs);
-        }
-
-        if (additionalParametrs?.dynamicsTypes && additionalParametrs?.dynamicsTypes?.length > 0) {
-            resultRows = await addDynamics(resultRows, parametrs, indicators, additionalParametrs, filterData);
-        }
-        return {
-            resultRows,
-            filterData: data,
-        };
-    } catch (e) {
-        console.error('getTableReportData error:', e);
-        return [];
+        return { resultRows: [], filterData: data };
     }
+    const relatedKeys = ['legalEntity', 'unit', 'object'];
+    const hasRelated = relatedKeys.some(key => parametrs[key]);
+
+    const relatedData = hasRelated ? await loadRelatedData(parametrs, data, scope) : [];
+
+    await buildParamData(parametrs, data, scope);
+
+    let combined = cartesianProduct(data);
+
+    combined = await filterRealBuilderContractorPairs(parametrs, combined, scope);
+
+    let filtered = filterByRelations(parametrs, combined, relatedData);
+
+    if (filterData) {
+        filtered = applyFilterData(filtered, filterData);
+    }
+
+    let resultRows = await calculateIndicators(filtered, parametrs, indicators, additionalParametrs, scope);
+
+    if (additionalParametrs.isResult) {
+        resultRows = await addTotalRow(resultRows, parametrs, indicators, additionalParametrs, scope);
+    }
+
+    if (additionalParametrs?.dynamicsTypes && additionalParametrs?.dynamicsTypes?.length > 0) {
+        resultRows = await addDynamics(resultRows, parametrs, indicators, additionalParametrs, filterData, scope);
+    }
+    return {
+        resultRows,
+        filterData: data,
+    };
 };
 
-const getTotalCountRepairRequest = async (filters: Record<string, any>) => {
-    try {
-        const count = await RepairRequest.count({ where: filters });
-        return count;
-    } catch (e) {
-        console.error('getTotalCountRepairRequest error:', e);
-        return 0;
-    }
+const getTotalCountRepairRequest = async (filters: Record<string, any>, scope: RequestScope) => {
+    return RepairRequest.count({ where: scopeWhere(scope, filters) });
 };
 
-const getAllContractorsFromRequests = async () => {
+const getAllContractorsFromRequests = async (scope: RequestScope) => {
     const requests = await RepairRequest.findAll({
         attributes: ['id', 'contractorId', 'extContractorId', 'managerId', 'isExternal'],
         include: [
@@ -98,6 +98,7 @@ const getAllContractorsFromRequests = async () => {
         ],
         raw: true,
         nest: true,
+        where: scopeWhere(scope),
     });
 
     const result = new Map<
@@ -152,7 +153,8 @@ const getAllContractorsFromRequests = async () => {
 
 export const loadRelatedData = async (
     params: Record<string, boolean>,
-    data: Record<string, RelatedDataI[]>
+    data: Record<string, RelatedDataI[]>,
+    scope: RequestScope
 ): Promise<RelatedDataI[]> => {
     const objects = await ObjectDir.findAll({
         include: [
@@ -162,6 +164,7 @@ export const loadRelatedData = async (
         attributes: ['id', 'name', 'unitId', 'legalEntityId'],
         raw: true,
         nest: true,
+        where: scopeObjectWhere(scope),
     });
 
     const relatedData: RelatedDataI[] = [];
@@ -206,14 +209,18 @@ export const loadRelatedData = async (
     return relatedData;
 };
 
-export const buildParamData = async (parametrs: Record<string, boolean>, data: Record<string, any[]>) => {
+export const buildParamData = async (
+    parametrs: Record<string, boolean>,
+    data: Record<string, any[]>,
+    scope: RequestScope
+) => {
     for (const [key, enabled] of Object.entries(parametrs)) {
         if (!enabled || ['legalEntity', 'unit', 'object'].includes(key)) continue;
         const config = TABLE_FOR_REPORT[key];
         if (!config) continue;
 
         if (key === 'contractor') {
-            data.contractor = await getAllContractorsFromRequests();
+            data.contractor = await getAllContractorsFromRequests(scope);
             continue;
         }
 
@@ -225,13 +232,18 @@ export const buildParamData = async (parametrs: Record<string, boolean>, data: R
         const rows = await config.model.findAll({
             attributes,
             raw: true,
+            ...(key === 'builder' ? { where: scopeWhere(scope) } : {}),
         });
 
         data[key] = rows.map((row: any) => ({ [`${key}Id`]: row.id, [key]: row[config.field] }));
     }
 };
 
-export const filterRealBuilderContractorPairs = async (parametrs: Record<string, boolean>, combined: any[]) => {
+export const filterRealBuilderContractorPairs = async (
+    parametrs: Record<string, boolean>,
+    combined: any[],
+    scope: RequestScope
+) => {
     if (!(parametrs.builder && parametrs.contractor)) return combined;
 
     const realPairs = await RepairRequest.findAll({
@@ -242,7 +254,7 @@ export const filterRealBuilderContractorPairs = async (parametrs: Record<string,
             'managerId',
         ],
         include: [{ model: TgUser, attributes: ['name'], required: false }],
-        where: { builder: { [Op.ne]: null } },
+        where: scopeWhere(scope, { builder: { [Op.ne]: null } }),
         raw: true,
         nest: true,
     });
@@ -276,7 +288,8 @@ export const filterRealBuilderContractorPairs = async (parametrs: Record<string,
 
 export const filterByRelations = (parametrs: Record<string, boolean>, combined: any[], relatedData: RelatedDataI[]) => {
     const hasRelated = ['legalEntity', 'unit', 'object'].some(k => parametrs[k]);
-    if (!hasRelated || relatedData.length === 0) return combined;
+    if (!hasRelated) return combined;
+    if (relatedData.length === 0) return [];
 
     return combined.filter(row =>
         relatedData.some(
@@ -292,7 +305,8 @@ export const calculateIndicators = async (
     filtered: any[],
     parametrs: Record<string, boolean>,
     indicators: ReportInidicators,
-    additional: AdditionalParametrsI
+    additional: AdditionalParametrsI,
+    scope: RequestScope
 ) => {
     const where: any = {};
 
@@ -301,11 +315,13 @@ export const calculateIndicators = async (
             [Op.between]: [additional.dateStart, additional.dateEnd],
         };
     }
-    const allRequestsCount = indicators.percentOfTotalCountRequest ? await RepairRequest.count({ where }) : 0;
+    const allRequestsCount = indicators.percentOfTotalCountRequest
+        ? await RepairRequest.count({ where: scopeWhere(scope, where) })
+        : 0;
     const result = await Promise.all(
         filtered.map(async row => {
             const filterIds = await buildFilterIds(row, parametrs, additional);
-            return await buildIndicators(row, filterIds, indicators, allRequestsCount);
+            return await buildIndicators(row, filterIds, indicators, allRequestsCount, scope);
         })
     );
     return result;
@@ -346,12 +362,13 @@ const buildIndicators = async (
     row: any,
     filterIds: Record<string, any>,
     indicators: ReportInidicators,
-    allRequestsCount: number
+    allRequestsCount: number,
+    scope: RequestScope
 ) => {
     const result: Record<string, any> = { ...row };
 
     if (indicators.totalCountRequests || indicators.percentOfTotalCountRequest) {
-        const count = await getTotalCountRepairRequest(filterIds);
+        const count = await getTotalCountRepairRequest(filterIds, scope);
         if (indicators.totalCountRequests) result.totalCountRequests = count;
         if (indicators.percentOfTotalCountRequest)
             result.percentOfTotalCountRequest =
@@ -359,13 +376,16 @@ const buildIndicators = async (
     }
 
     if (indicators.budgetPlan && row.objectId) {
-        const object = await ObjectDir.findByPk(row.objectId, { attributes: ['budgetPlan'] });
+        const object = await ObjectDir.findOne({
+            attributes: ['budgetPlan'],
+            where: scopeObjectWhere(scope, { id: row.objectId }),
+        });
         result.budgetPlan = object?.budgetPlan ?? null;
     }
 
     if (indicators.budget) {
         const budgets = await RepairRequest.findAll({
-            where: filterIds,
+            where: scopeWhere(scope, filterIds),
             attributes: ['repairPrice'],
         });
 
@@ -373,9 +393,15 @@ const buildIndicators = async (
     }
 
     if (indicators.percentOfBudgetPlan && row.objectId) {
-        const object = await ObjectDir.findByPk(row.objectId, { attributes: ['budgetPlan'] });
+        const object = await ObjectDir.findOne({
+            attributes: ['budgetPlan'],
+            where: scopeObjectWhere(scope, { id: row.objectId }),
+        });
         const objectBudgetPlan = object?.budgetPlan ?? 0;
-        const budgets = await RepairRequest.findAll({ where: filterIds, attributes: ['repairPrice'] });
+        const budgets = await RepairRequest.findAll({
+            where: scopeWhere(scope, filterIds),
+            attributes: ['repairPrice'],
+        });
         const sumBudgets = budgets.length > 0 ? budgets.reduce((sum, r) => sum + (r.repairPrice ?? 0), 0) : 0;
         result.percentOfBudgetPlan =
             objectBudgetPlan > 0 ? Number(((sumBudgets / objectBudgetPlan) * 100).toFixed(0)) : 0;
@@ -383,7 +409,7 @@ const buildIndicators = async (
 
     if (indicators.closingSpeedOfRequests) {
         const requests = await RepairRequest.findAll({
-            where: { ...filterIds, status: 3 },
+            where: scopeWhere(scope, { ...filterIds, status: 3 }),
             attributes: ['daysAtWork'],
         });
 
@@ -413,7 +439,8 @@ export const addTotalRow = async (
     rows: any[],
     parametrs: Record<string, boolean>,
     indicators: ReportInidicators,
-    additional: AdditionalParametrsI
+    additional: AdditionalParametrsI,
+    scope: RequestScope
 ) => {
     if (rows.length === 0) return rows;
 
@@ -459,9 +486,12 @@ export const addTotalRow = async (
     if (indicators.budget) addField('budget');
 
     if (indicators.percentOfBudgetPlan) {
-        const totalBudgetPlan = await ObjectDir.sum('budgetPlan');
+        const totalBudgetPlan = await ObjectDir.sum('budgetPlan', {
+            where: scopeObjectWhere(scope),
+        });
         const totalBudget = await RepairRequest.sum('repairPrice', {
-            where:
+            where: scopeWhere(
+                scope,
                 additional.dateStart || additional.dateEnd
                     ? {
                           createdAt: {
@@ -469,7 +499,8 @@ export const addTotalRow = async (
                               ...(additional.dateEnd ? { [Op.lte]: new Date(additional.dateEnd) } : {}),
                           },
                       }
-                    : {},
+                    : {}
+            ),
         });
 
         const percent = totalBudgetPlan ? (totalBudget / totalBudgetPlan) * 100 : 0;
@@ -485,7 +516,8 @@ export const addDynamics = async (
     parametrs: Record<string, boolean>,
     indicators: ReportInidicators,
     additional: AdditionalParametrsI,
-    filterData: any
+    filterData: any,
+    scope: RequestScope
 ) => {
     const { dynamicsTypes = [], dateStart, dateEnd } = additional;
     if (!dynamicsTypes.length) return rows;
@@ -532,7 +564,8 @@ export const addDynamics = async (
                         dynamicsTypes: [],
                         isResult: false,
                     },
-                    filterData
+                    filterData,
+                    scope
                 )) as { resultRows?: Record<string, any>[] };
 
                 return [type, data?.resultRows ?? []];
@@ -571,7 +604,9 @@ export const addDynamics = async (
             const prevRows = prevPeriods[type];
             if (!prevRows?.length) continue;
 
-            const prevTotal = (await addTotalRow(structuredClone(prevRows), parametrs, indicators, additional)).at(-1);
+            const prevTotal = (
+                await addTotalRow(structuredClone(prevRows), parametrs, indicators, additional, scope)
+            ).at(-1);
             if (!prevTotal) continue;
 
             for (const key of enabledIndicators) {

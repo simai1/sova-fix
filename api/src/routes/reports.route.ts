@@ -1,8 +1,12 @@
-import { Router } from "express";
-import reportsController from "../controllers/reports.controller";
+import { Router } from 'express';
+import reportsController from '../controllers/reports.controller';
+import { authenticateWebOrMaster, requireActorRoles } from '../middlewares/authenticate-actor';
+import { attachRequestScope } from '../middlewares/require-admin-request-access';
+import roles from '../config/roles';
 
-const router = Router()
+const router = Router();
 
-router.route("/").post(reportsController.getTableReportData)
+router.use(authenticateWebOrMaster, requireActorRoles(roles.ADMIN, roles.MANAGER, roles.OBSERVER), attachRequestScope);
+router.route('/').post(reportsController.getTableReportData);
 
-export default router
+export default router;
