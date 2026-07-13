@@ -9,8 +9,9 @@ import arrowBottom from "./../../assets/images/arrow_bottom.svg";
 import Logo from "./../../assets/images/SovaFixLogo.svg"
 import Toggle from "../../UI/Toggle/Toggle";
 import { GLOBAL_OPEN_REPORT_BLOCK, GLOBAL_OPEN_TO_BLOCK, OBJECTS_LIMIT, PICTURE_NAME } from "../../constants/env.constant";
-import { getStoredRole, isAdminUiRole, isBackOfficeUiRole } from "../../constants/roles.constant";
+import { isAdminUiRole, isBackOfficeUiRole } from "../../constants/roles.constant";
 import { useLogout } from "../../hooks/useLogout";
+import { useStoredRole } from "../../hooks/useStoredRole";
 
 function Header() {
     const { context } = useContext(DataContext);
@@ -32,7 +33,7 @@ function Header() {
     const [objectsLength, setObjectsLength] = useState(0)
 
     const [isRepairWithPhotoSetting, setIsRepairWithPhotoSettings] = useState()
-    const userRole = getStoredRole();
+    const userRole = useStoredRole();
     const hasAdminUiAccess = isAdminUiRole(userRole);
     const hasBackOfficeUiAccess = isBackOfficeUiRole(userRole);
 

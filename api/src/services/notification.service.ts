@@ -30,7 +30,7 @@ const safeSend = async (userIds: string[], payload: PushPayload, eventName: stri
 };
 
 const buildRequestUrl = (requestId: string, audience: 'customer' | 'contractor'): string =>
-    `/lk/${audience}/requests/${requestId}`;
+    `/${audience}/requests/${requestId}`;
 
 const notifyStatusChanged = async (
     request: RepairRequest,
@@ -120,18 +120,30 @@ const notifyCommentChanged = async (
 const notifyRequestAssigned = async (request: RepairRequest): Promise<void> => {
     const contractorUserId = await getContractorUserId(request);
     const administrativeAudience = await getAdministrativeAudienceUserIds(request.objectId ?? null);
-    const audience = [...administrativeAudience, ...(contractorUserId ? [contractorUserId] : [])];
-    if (audience.length === 0) return;
+    const contractorAudience =
+        contractorUserId && !administrativeAudience.includes(contractorUserId) ? [contractorUserId] : [];
+    if (administrativeAudience.length === 0 && contractorAudience.length === 0) return;
 
     const { title, body } = notificationContent.requestAssigned(request.number);
+    const payload = {
+        title,
+        body,
+        tag: `request-${request.id}-assigned`,
+        requestId: request.id,
+    };
     await safeSend(
-        audience,
+        administrativeAudience,
         {
-            title,
-            body,
+            ...payload,
+            url: '/',
+        },
+        'REQUEST_ASSIGNED'
+    );
+    await safeSend(
+        contractorAudience,
+        {
+            ...payload,
             url: buildRequestUrl(request.id, 'contractor'),
-            tag: `request-${request.id}-assigned`,
-            requestId: request.id,
         },
         'REQUEST_ASSIGNED'
     );

@@ -7,7 +7,8 @@ import {
   type SystemLogLevel,
   useLazyGetSystemLogsQuery,
 } from '../../../API/rtkQuery/admin.api';
-import { ROLE_LABELS_BY_ID, getStoredRole, isAdminUiRole } from '../../../constants/roles.constant';
+import { ROLE_LABELS_BY_ID, isAdminUiRole } from '../../../constants/roles.constant';
+import { useStoredRole } from '../../../hooks/useStoredRole';
 
 type LevelOption = SystemLogLevel | 'all';
 
@@ -76,7 +77,7 @@ const formatRole = (role: number | null | undefined) => {
 };
 
 function SystemLogs() {
-  const role = getStoredRole();
+  const role = useStoredRole();
   const canViewLogs = isAdminUiRole(role);
 
   const [level, setLevel] = useState<LevelOption>('all');

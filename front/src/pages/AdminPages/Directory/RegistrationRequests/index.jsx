@@ -8,10 +8,10 @@ import {
 import DataContext from '../../../../context.ts'
 import {
   ROLE_LABELS_BY_NAME,
-  getStoredRole,
   isAdminOnlyRole,
   isAdminUiRole,
 } from '../../../../constants/roles.constant.ts'
+import { useStoredRole } from '../../../../hooks/useStoredRole.ts'
 import { PopUpError } from '../../../../UI/PopUpError/PopUpError'
 import styles from './RegistrationRequests.module.scss'
 
@@ -71,7 +71,7 @@ function DeleteRegistrationButton({ userId, approveLoading }) {
 }
 
 function RegistrationRequests() {
-  const role = getStoredRole()
+  const role = useStoredRole()
   const canManageRegistrations = isAdminUiRole(role)
   const canDeleteUsers = isAdminOnlyRole(role)
 

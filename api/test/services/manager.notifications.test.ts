@@ -107,7 +107,7 @@ describe('Manager request and registration audiences', () => {
         expect(new Set(audience).size).toBe(audience.length);
     });
 
-    it('REQUEST_ASSIGNED WS/Push использует один deduped union assignee и object administrative audience', async () => {
+    it('REQUEST_ASSIGNED сохраняет WS union и разделяет Push по административному и contractor URL', async () => {
         const administrativeAudience = await getAdministrativeAudienceUserIds(assignedObject.id);
         const expected = unique([...administrativeAudience, contractorUser.id]);
 
@@ -116,11 +116,52 @@ describe('Manager request and registration audiences', () => {
         const assignedEmits = emitSpy.mock.calls.filter(([, event]) => event === wsEvents.REQUEST_ASSIGNED);
         expect(assignedEmits).toHaveLength(1);
         expect(assignedEmits[0][0]).toEqual({ kind: 'users', userIds: expected });
-        const assignedPush = sendSpy.mock.calls.find(
+        const assignedPushes = sendSpy.mock.calls.filter(
             ([, payload]) => payload.tag === `request-${repairRequest.id}-assigned`
         );
-        expect(assignedPush?.[0]).toEqual(expected);
+        expect(assignedPushes).toHaveLength(2);
+        expect(assignedPushes.find(([, payload]) => payload.url === '/')?.[0]).toEqual(administrativeAudience);
+        expect(
+            assignedPushes.find(([, payload]) => payload.url === `/contractor/requests/${repairRequest.id}`)?.[0]
+        ).toEqual([contractorUser.id]);
+        expect(assignedPushes.every(([, payload]) => !payload.url?.includes('/lk'))).toBe(true);
+        for (const [audience] of assignedPushes) expect(new Set(audience).size).toBe(audience.length);
         expect(expected).not.toEqual(expect.arrayContaining([foreignManager.id, inactiveManager.id, inactiveAdmin.id]));
+    });
+
+    it('REQUEST_ASSIGNED при пересечении аудиторий отправляет пользователю только административный URL', async () => {
+        const administrativeAudience = await getAdministrativeAudienceUserIds(assignedObject.id);
+        await contractor.update({ userId: assignedManager.id });
+
+        try {
+            await notificationService.notifyRequestAssigned(repairRequest);
+
+            const assignedPushes = sendSpy.mock.calls.filter(
+                ([, payload]) => payload.tag === `request-${repairRequest.id}-assigned`
+            );
+            expect(assignedPushes).toHaveLength(1);
+            expect(assignedPushes[0][0]).toEqual(administrativeAudience);
+            expect(assignedPushes[0][1].url).toBe('/');
+            expect(
+                assignedPushes.flatMap(([audience]) => audience).filter(id => id === assignedManager.id)
+            ).toHaveLength(1);
+        } finally {
+            await contractor.update({ userId: contractorUser.id });
+        }
+    });
+
+    it('REQUEST_ASSIGNED продолжает contractor Push после ошибки административной отправки', async () => {
+        sendSpy.mockRejectedValueOnce(new Error('expected administrative Push failure'));
+
+        await expect(notificationService.notifyRequestAssigned(repairRequest)).resolves.toBeUndefined();
+
+        const assignedPushes = sendSpy.mock.calls.filter(
+            ([, payload]) => payload.tag === `request-${repairRequest.id}-assigned`
+        );
+        expect(assignedPushes).toHaveLength(2);
+        expect(assignedPushes[0][1].url).toBe('/');
+        expect(assignedPushes[1][0]).toEqual([contractorUser.id]);
+        expect(assignedPushes[1][1].url).toBe(`/contractor/requests/${repairRequest.id}`);
     });
 
     it('LK REQUEST_CREATE WS отправляется один раз объектной users-аудитории', async () => {
@@ -143,7 +184,7 @@ describe('Manager request and registration audiences', () => {
         expect(createdEmits[0][0]).toEqual({ kind: 'users', userIds: expected });
     });
 
-    it('objectless single assignment отправляет Admin+assignee без Manager и UUID ошибки', async () => {
+    it('objectless single assignment отправляет Admin и assignee раздельно без Manager и UUID ошибки', async () => {
         const adminAudience = await getAdministrativeAudienceUserIds('00000000-0000-4000-8000-000000000001');
         const expected = unique([...adminAudience, contractorUser.id]);
 
@@ -154,16 +195,22 @@ describe('Manager request and registration audiences', () => {
         const assignedEmits = emitSpy.mock.calls.filter(([, event]) => event === wsEvents.REQUEST_ASSIGNED);
         expect(assignedEmits).toHaveLength(1);
         expect(assignedEmits[0][0]).toEqual({ kind: 'users', userIds: expected });
-        const assignedPush = sendSpy.mock.calls.find(
+        const assignedPushes = sendSpy.mock.calls.filter(
             ([, payload]) => payload.tag === `request-${objectlessSingleRequest.id}-assigned`
         );
-        expect(assignedPush?.[0]).toEqual(expected);
+        expect(assignedPushes).toHaveLength(2);
+        expect(assignedPushes.find(([, payload]) => payload.url === '/')?.[0]).toEqual(adminAudience);
+        expect(
+            assignedPushes.find(
+                ([, payload]) => payload.url === `/contractor/requests/${objectlessSingleRequest.id}`
+            )?.[0]
+        ).toEqual([contractorUser.id]);
         expect(expected).not.toEqual(
             expect.arrayContaining([assignedManager.id, foreignManager.id, inactiveManager.id])
         );
     });
 
-    it('objectless bulk assignment отправляет один users event/Push Admin+assignee без Manager', async () => {
+    it('objectless bulk assignment отправляет один users event и раздельные Push без Manager', async () => {
         const adminAudience = await getAdministrativeAudienceUserIds('00000000-0000-4000-8000-000000000001');
         const expected = unique([...adminAudience, contractorUser.id]);
 
@@ -172,10 +219,16 @@ describe('Manager request and registration audiences', () => {
         const assignedEmits = emitSpy.mock.calls.filter(([, event]) => event === wsEvents.REQUEST_ASSIGNED);
         expect(assignedEmits).toHaveLength(1);
         expect(assignedEmits[0][0]).toEqual({ kind: 'users', userIds: expected });
-        const assignedPush = sendSpy.mock.calls.find(
+        const assignedPushes = sendSpy.mock.calls.filter(
             ([, payload]) => payload.tag === `request-${objectlessBulkRequest.id}-assigned`
         );
-        expect(assignedPush?.[0]).toEqual(expected);
+        expect(assignedPushes).toHaveLength(2);
+        expect(assignedPushes.find(([, payload]) => payload.url === '/')?.[0]).toEqual(adminAudience);
+        expect(
+            assignedPushes.find(
+                ([, payload]) => payload.url === `/contractor/requests/${objectlessBulkRequest.id}`
+            )?.[0]
+        ).toEqual([contractorUser.id]);
         expect(expected).not.toEqual(
             expect.arrayContaining([assignedManager.id, foreignManager.id, inactiveManager.id])
         );
@@ -187,6 +240,16 @@ describe('Manager request and registration audiences', () => {
         expect(sendSpy).toHaveBeenCalledTimes(1);
         expect(sendSpy.mock.calls[0][0]).toEqual([foreignManager.id]);
         expect(sendSpy.mock.calls[0][1].tag).toBe(`request-${repairRequest.id}-comments`);
+        expect(sendSpy.mock.calls[0][1].url).toBe(`/customer/requests/${repairRequest.id}`);
+    });
+
+    it('CUSTOMER comment notification направляется исполнителю по contractor URL', async () => {
+        await notificationService.notifyCommentChanged(repairRequest, 'CUSTOMER', foreignManager.id);
+
+        expect(sendSpy).toHaveBeenCalledTimes(1);
+        expect(sendSpy.mock.calls[0][0]).toEqual([contractorUser.id]);
+        expect(sendSpy.mock.calls[0][1].tag).toBe(`request-${repairRequest.id}-comments`);
+        expect(sendSpy.mock.calls[0][1].url).toBe(`/contractor/requests/${repairRequest.id}`);
     });
 
     it('cron created=false не отправляет повторный REQUEST_CREATE WS/Push', async () => {

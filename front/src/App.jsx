@@ -46,7 +46,8 @@ import CustomerRequestDetail from "./pages/Customer/RequestDetail/RequestDetail.
 import CustomerProfile from "./pages/Customer/Profile/Profile.tsx";
 import CustomerChat from "./pages/Customer/Chat/Chat.tsx";
 import CustomerCreateRequest from "./pages/Customer/CreateRequest/CreateRequest.tsx";
-import { getStoredRole, isAdminUiRole, isBackOfficeUiRole } from "./constants/roles.constant.ts";
+import { isAdminUiRole, isBackOfficeUiRole } from "./constants/roles.constant.ts";
+import { useStoredRole } from "./hooks/useStoredRole.ts";
 
 function App() {
   const [selectContructor, setSelectContractor] = useState("")
@@ -95,7 +96,7 @@ function App() {
   const [statusList, setStatusList] = useState([])
   const [settingsList, setSettingsList] = useState([])
   const [directoryCategories, setDirectoryCategories] = useState([])
-  const userRole = getStoredRole();
+  const userRole = useStoredRole();
   const hasAdminUiAccess = isAdminUiRole(userRole);
   const hasBackOfficeUiAccess = isBackOfficeUiRole(userRole);
   const checkedAllFunc = () => {
