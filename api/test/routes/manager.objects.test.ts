@@ -8,6 +8,7 @@ import roles from '../../src/config/roles';
 import ObjectDir from '../../src/models/object';
 import TgUser from '../../src/models/tgUser';
 import TgUserObject from '../../src/models/tgUserObject';
+import Unit from '../../src/models/unit';
 import User from '../../src/models/user';
 import UserObject from '../../src/models/userObject';
 import { createAdminAuth, createManagerAuth, TestAdminAuth } from '../helpers/auth-helper';
@@ -23,6 +24,7 @@ describe('Manager object directory and request-object scope', () => {
         emptyManager: `manager-objects-empty-${suffix}@test.local`,
         customer: `manager-objects-customer-${suffix}@test.local`,
         contractor: `manager-objects-contractor-${suffix}@test.local`,
+        observer: `manager-objects-observer-${suffix}@test.local`,
         legacy: `manager-objects-legacy-${suffix}@test.local`,
     };
     let admin: TestAdminAuth;
@@ -30,8 +32,11 @@ describe('Manager object directory and request-object scope', () => {
     let emptyManager: TestAdminAuth;
     let customer: TestAuth;
     let contractor: TestAuth;
+    let observer: TestAuth;
     let assignedObject: ObjectDir;
+    let secondAssignedObject: ObjectDir;
     let foreignObject: ObjectDir;
+    let secondAssignedUnit: Unit;
     let legacyTgUser: TgUser;
 
     const ids = (body: Array<{ id: string }>): string[] => body.map(item => item.id);
@@ -45,10 +50,23 @@ describe('Manager object directory and request-object scope', () => {
         emptyManager = await createManagerAuth(logins.emptyManager);
         customer = await createUserAuth(logins.customer, roles.CUSTOMER, `Customer ${suffix}`);
         contractor = await createUserAuth(logins.contractor, roles.CONTRACTOR, `Contractor ${suffix}`);
+        observer = await createUserAuth(logins.observer, roles.OBSERVER, `Observer ${suffix}`);
         const { legal, unit } = await ensureBaseRefs();
         assignedObject = await ObjectDir.create({
             name: `Manager objects assigned ${suffix}`,
             unitId: unit.id,
+            legalEntityId: legal.id,
+            city: 'Москва',
+            number: 0,
+        } as ObjectDir);
+        secondAssignedUnit = await Unit.create({
+            name: `Manager objects second unit ${suffix}`,
+            count: 0,
+            number: 0,
+        } as Unit);
+        secondAssignedObject = await ObjectDir.create({
+            name: `Manager objects second assigned ${suffix}`,
+            unitId: secondAssignedUnit.id,
             legalEntityId: legal.id,
             city: 'Москва',
             number: 0,
@@ -62,6 +80,7 @@ describe('Manager object directory and request-object scope', () => {
         } as ObjectDir);
         await UserObject.bulkCreate([
             { userId: manager.user.id, objectId: assignedObject.id },
+            { userId: manager.user.id, objectId: secondAssignedObject.id },
             { userId: customer.user.id, objectId: assignedObject.id },
             { userId: contractor.user.id, objectId: foreignObject.id },
         ]);
@@ -79,7 +98,7 @@ describe('Manager object directory and request-object scope', () => {
             isActivated: true,
             tgManagerId: legacyTgUser.id,
         });
-        await TgUserObject.create({ tgUserId: legacyTgUser.id, objectId: assignedObject.id });
+        await TgUserObject.create({ tgUserId: legacyTgUser.id, objectId: foreignObject.id });
     });
 
     afterAll(async () => {
@@ -88,7 +107,11 @@ describe('Manager object directory and request-object scope', () => {
             force: true,
         });
         await TgUserObject.destroy({ where: { tgUserId: legacyTgUser.id }, force: true });
-        await ObjectDir.destroy({ where: { id: [assignedObject.id, foreignObject.id] }, force: true });
+        await ObjectDir.destroy({
+            where: { id: [assignedObject.id, secondAssignedObject.id, foreignObject.id] },
+            force: true,
+        });
+        await Unit.destroy({ where: { id: secondAssignedUnit.id }, force: true });
         for (const login of Object.values(logins)) await cleanupByLogin(login);
         await TgUser.destroy({ where: { id: legacyTgUser.id }, force: true });
         if (previousMasterKey === undefined) delete process.env.MASTER_API_KEY;
@@ -99,15 +122,28 @@ describe('Manager object directory and request-object scope', () => {
         const response = await asWeb(manager, `/objects?userId=${admin.user.id}`);
 
         expect(response.status).toBe(200);
-        expect(ids(response.body)).toEqual(expect.arrayContaining([assignedObject.id, foreignObject.id]));
+        expect(ids(response.body)).toEqual(
+            expect.arrayContaining([assignedObject.id, secondAssignedObject.id, foreignObject.id])
+        );
     });
 
-    it('ограничивает request-mode назначенными объектами и игнорирует spoofed userId', async () => {
-        const response = await asWeb(manager, `/objects?scope=requests&userId=${admin.user.id}`);
+    it('ограничивает request-mode всеми назначенными объектами, unitId и actor-derived scope', async () => {
+        const [allAssigned, firstUnit, secondUnit, spoofedTgUser] = await Promise.all([
+            asWeb(manager, `/objects?scope=requests&userId=${admin.user.id}`),
+            asWeb(manager, `/objects?scope=requests&unitId=${assignedObject.unitId}`),
+            asWeb(manager, `/objects?scope=requests&unitId=${secondAssignedUnit.id}`),
+            asWeb(manager, `/objects?scope=requests&tgUserId=${legacyTgUser.id}`),
+        ]);
 
-        expect(response.status).toBe(200);
-        expect(ids(response.body)).toContain(assignedObject.id);
-        expect(ids(response.body)).not.toContain(foreignObject.id);
+        for (const response of [allAssigned, firstUnit, secondUnit, spoofedTgUser]) {
+            expect(response.status).toBe(200);
+        }
+        expect(ids(allAssigned.body)).toEqual(expect.arrayContaining([assignedObject.id, secondAssignedObject.id]));
+        expect(ids(allAssigned.body)).toHaveLength(2);
+        expect(ids(firstUnit.body)).toEqual([assignedObject.id]);
+        expect(ids(secondUnit.body)).toEqual([secondAssignedObject.id]);
+        expect(ids(spoofedTgUser.body)).toEqual(expect.arrayContaining([assignedObject.id, secondAssignedObject.id]));
+        expect(ids(spoofedTgUser.body)).not.toContain(foreignObject.id);
     });
 
     it('возвращает пустой request-mode Менеджеру без назначений', async () => {
@@ -135,6 +171,16 @@ describe('Manager object directory and request-object scope', () => {
         expect(ids(contractorScoped.body)).not.toContain(assignedObject.id);
     });
 
+    it('не отдаёт Наблюдателю обычный и request-mode справочник объектов', async () => {
+        const [directory, requestScope] = await Promise.all([
+            asWeb(observer, '/objects'),
+            asWeb(observer, '/objects?scope=requests'),
+        ]);
+
+        expect(directory.status).toBe(403);
+        expect(requestScope.status).toBe(403);
+    });
+
     it('отдаёт Администратору все объекты в обоих режимах', async () => {
         const [directory, requestScope] = await Promise.all([
             asWeb(admin, '/objects'),
@@ -143,7 +189,9 @@ describe('Manager object directory and request-object scope', () => {
 
         for (const response of [directory, requestScope]) {
             expect(response.status).toBe(200);
-            expect(ids(response.body)).toEqual(expect.arrayContaining([assignedObject.id, foreignObject.id]));
+            expect(ids(response.body)).toEqual(
+                expect.arrayContaining([assignedObject.id, secondAssignedObject.id, foreignObject.id])
+            );
         }
     });
 
@@ -153,8 +201,7 @@ describe('Manager object directory and request-object scope', () => {
             .set('master-api-key', masterKey);
 
         expect(response.status).toBe(200);
-        expect(ids(response.body)).toContain(assignedObject.id);
-        expect(ids(response.body)).not.toContain(foreignObject.id);
+        expect(ids(response.body)).toEqual([foreignObject.id]);
     });
 
     it('разрешает Менеджеру create, update, read и delete объекта', async () => {

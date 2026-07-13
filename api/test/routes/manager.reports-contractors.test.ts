@@ -8,6 +8,7 @@ import roles from '../../src/config/roles';
 import Contractor from '../../src/models/contractor';
 import ObjectDir from '../../src/models/object';
 import RepairRequest from '../../src/models/repairRequest';
+import Unit from '../../src/models/unit';
 import UserObject from '../../src/models/userObject';
 import { createAdminAuth, createManagerAuth, TestAdminAuth } from '../helpers/auth-helper';
 import {
@@ -54,8 +55,11 @@ describe('Manager contractor-derived requests and reports scope', () => {
     let contractorUser: TestAuth;
     let contractor: Contractor;
     let assignedObject: ObjectDir;
+    let secondAssignedObject: ObjectDir;
     let foreignObject: ObjectDir;
+    let secondAssignedUnit: Unit;
     let assignedRequest: RepairRequest;
+    let secondAssignedRequest: RepairRequest;
     let foreignRequest: RepairRequest;
 
     const asWeb = (auth: TestAdminAuth | TestAuth, method: 'get' | 'post', url: string) =>
@@ -107,6 +111,19 @@ describe('Manager contractor-derived requests and reports scope', () => {
             budgetPlan: 1000,
             number: 0,
         } as ObjectDir);
+        secondAssignedUnit = await Unit.create({
+            name: `Reports second assigned unit ${suffix}`,
+            count: 0,
+            number: 0,
+        } as Unit);
+        secondAssignedObject = await ObjectDir.create({
+            name: `Reports second assigned ${suffix}`,
+            unitId: secondAssignedUnit.id,
+            legalEntityId: legal.id,
+            city: 'Москва',
+            budgetPlan: 2000,
+            number: 0,
+        } as ObjectDir);
         foreignObject = await ObjectDir.create({
             name: `Reports foreign ${suffix}`,
             unitId: unit.id,
@@ -115,7 +132,10 @@ describe('Manager contractor-derived requests and reports scope', () => {
             budgetPlan: 3000,
             number: 0,
         } as ObjectDir);
-        await UserObject.create({ userId: manager.user.id, objectId: assignedObject.id });
+        await UserObject.bulkCreate([
+            { userId: manager.user.id, objectId: assignedObject.id },
+            { userId: manager.user.id, objectId: secondAssignedObject.id },
+        ]);
         assignedRequest = await createRequest({
             objectId: assignedObject.id,
             contractorId: contractor.id,
@@ -126,39 +146,85 @@ describe('Manager contractor-derived requests and reports scope', () => {
             repairPrice: 100,
             problemDescription: `assigned-report-${suffix}`,
         });
+        secondAssignedRequest = await createRequest({
+            objectId: secondAssignedObject.id,
+            unitId: secondAssignedUnit.id,
+            contractorId: contractor.id,
+            status: 1,
+            urgency: 'Маршрут',
+            builder: assignedBuilder,
+            itineraryOrder: 2,
+            repairPrice: 200,
+            problemDescription: `second-assigned-report-${suffix}`,
+        });
         foreignRequest = await createRequest({
             objectId: foreignObject.id,
             contractorId: contractor.id,
             status: 2,
             urgency: 'Маршрут',
             builder: foreignBuilder,
-            itineraryOrder: 2,
+            itineraryOrder: 3,
             repairPrice: 300,
             problemDescription: `foreign-report-${suffix}`,
         });
     });
 
     afterAll(async () => {
-        await RepairRequest.destroy({ where: { id: [assignedRequest.id, foreignRequest.id] }, force: true });
+        await RepairRequest.destroy({
+            where: { id: [assignedRequest.id, secondAssignedRequest.id, foreignRequest.id] },
+            force: true,
+        });
         await UserObject.destroy({ where: { userId: [manager.user.id, emptyManager.user.id] }, force: true });
         await Contractor.destroy({ where: { id: contractor.id }, force: true });
-        await ObjectDir.destroy({ where: { id: [assignedObject.id, foreignObject.id] }, force: true });
+        await ObjectDir.destroy({
+            where: { id: [assignedObject.id, secondAssignedObject.id, foreignObject.id] },
+            force: true,
+        });
+        await Unit.destroy({ where: { id: secondAssignedUnit.id }, force: true });
         for (const login of Object.values(logins)) await cleanupByLogin(login);
         if (previousMasterKey === undefined) delete process.env.MASTER_API_KEY;
         else process.env.MASTER_API_KEY = previousMasterKey;
     });
 
     it('пересекает requests, itinerary и actual исполнителя со scope Менеджера', async () => {
-        const [requestsResponse, itineraryResponse, actualResponse] = await Promise.all([
+        const [requestsResponse, itineraryResponse, firstActual, secondActual] = await Promise.all([
             asWeb(manager, 'get', `/contractors/${contractor.id}/requests`),
             asWeb(manager, 'get', `/contractors/${contractor.id}/itinerary`),
             asWeb(manager, 'get', `/contractors/${contractor.id}/${assignedObject.unitId}`),
+            asWeb(manager, 'get', `/contractors/${contractor.id}/${secondAssignedUnit.id}`),
         ]);
 
-        for (const response of [requestsResponse, itineraryResponse, actualResponse]) {
+        for (const response of [requestsResponse, itineraryResponse]) {
+            expect(response.status).toBe(200);
+            expect(requestIds(response.body)).toEqual(
+                expect.arrayContaining([assignedRequest.id, secondAssignedRequest.id])
+            );
+            expect(requestIds(response.body)).not.toContain(foreignRequest.id);
+        }
+        expect(firstActual.status).toBe(200);
+        expect(requestIds(firstActual.body)).toEqual([assignedRequest.id]);
+        expect(secondActual.status).toBe(200);
+        expect(requestIds(secondActual.body)).toEqual([secondAssignedRequest.id]);
+    });
+
+    it('scope-ит search branches contractor requests и itinerary', async () => {
+        const assignedSearch = encodeURIComponent(`assigned-report-${suffix}`);
+        const foreignSearch = encodeURIComponent(`foreign-report-${suffix}`);
+        const [requestsAssigned, requestsForeign, itineraryAssigned, itineraryForeign] = await Promise.all([
+            asWeb(manager, 'get', `/contractors/${contractor.id}/requests?search=${assignedSearch}`),
+            asWeb(manager, 'get', `/contractors/${contractor.id}/requests?search=${foreignSearch}`),
+            asWeb(manager, 'get', `/contractors/${contractor.id}/itinerary?search=${assignedSearch}`),
+            asWeb(manager, 'get', `/contractors/${contractor.id}/itinerary?search=${foreignSearch}`),
+        ]);
+
+        for (const response of [requestsAssigned, itineraryAssigned]) {
             expect(response.status).toBe(200);
             expect(requestIds(response.body)).toContain(assignedRequest.id);
             expect(requestIds(response.body)).not.toContain(foreignRequest.id);
+        }
+        for (const response of [requestsForeign, itineraryForeign]) {
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual([]);
         }
     });
 
@@ -192,25 +258,44 @@ describe('Manager contractor-derived requests and reports scope', () => {
         const response = await report(manager, objectReportBody());
 
         expect(response.status).toBe(200);
-        expect(response.body.filterData.object).toEqual([
-            expect.objectContaining({ objectId: assignedObject.id, object: assignedObject.name }),
-        ]);
+        expect(response.body.filterData.object.map((row: { objectId: string }) => row.objectId).sort()).toEqual(
+            [assignedObject.id, secondAssignedObject.id].sort()
+        );
+        expect(response.body.filterData.object).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({ objectId: assignedObject.id, object: assignedObject.name }),
+                expect.objectContaining({
+                    objectId: secondAssignedObject.id,
+                    object: secondAssignedObject.name,
+                }),
+            ])
+        );
         const assignedRow = response.body.resultRows.find(
             (row: { objectId?: string }) => row.objectId === assignedObject.id
+        );
+        const secondAssignedRow = response.body.resultRows.find(
+            (row: { objectId?: string }) => row.objectId === secondAssignedObject.id
         );
         const totalRow = response.body.resultRows.find((row: { object?: string }) => row.object === 'Итого');
         expect(assignedRow).toMatchObject({
             totalCountRequests: 1,
-            percentOfTotalCountRequest: 100,
+            percentOfTotalCountRequest: 50,
             budget: 100,
             budgetPlan: 1000,
             percentOfBudgetPlan: 10,
         });
-        expect(totalRow).toMatchObject({
+        expect(secondAssignedRow).toMatchObject({
             totalCountRequests: 1,
+            percentOfTotalCountRequest: 50,
+            budget: 200,
+            budgetPlan: 2000,
+            percentOfBudgetPlan: 10,
+        });
+        expect(totalRow).toMatchObject({
+            totalCountRequests: 2,
             percentOfTotalCountRequest: 100,
-            budget: 100,
-            budgetPlan: 1000,
+            budget: 300,
+            budgetPlan: 3000,
             percentOfBudgetPlan: 10,
         });
         expect(response.body.resultRows.some((row: { objectId?: string }) => row.objectId === foreignObject.id)).toBe(
@@ -227,7 +312,7 @@ describe('Manager contractor-derived requests and reports scope', () => {
         expect(allBuilders.status).toBe(200);
         expect(allBuilders.body.filterData.builder).toEqual([expect.objectContaining({ builder: assignedBuilder })]);
         expect(allBuilders.body.resultRows).toEqual([
-            expect.objectContaining({ builder: assignedBuilder, totalCountRequests: 1 }),
+            expect.objectContaining({ builder: assignedBuilder, totalCountRequests: 2 }),
         ]);
         expect(spoofed.status).toBe(200);
         expect(spoofed.body.resultRows).toEqual([]);
@@ -313,12 +398,83 @@ describe('Manager contractor-derived requests and reports scope', () => {
             expect(response.body.resultRows).toEqual([
                 expect.objectContaining({
                     builder: assignedBuilder,
-                    totalCountRequests: 1,
-                    totalCountRequestsWeekDynamics: 0,
+                    totalCountRequests: 2,
+                    totalCountRequestsWeekDynamics: 100,
                 }),
             ]);
         } finally {
             await RepairRequest.destroy({ where: { id: previousRequests.map(item => item.id) }, force: true });
+        }
+    });
+
+    it('считает closingSpeed только по закрытым заявкам назначенных объектов', async () => {
+        const closingBuilder = `Closing builder ${suffix}`;
+        const temporaryRequests: RepairRequest[] = [];
+        try {
+            temporaryRequests.push(
+                await createRequest({
+                    objectId: assignedObject.id,
+                    contractorId: contractor.id,
+                    status: 3,
+                    builder: closingBuilder,
+                    daysAtWork: 2,
+                })
+            );
+            temporaryRequests.push(
+                await createRequest({
+                    objectId: secondAssignedObject.id,
+                    unitId: secondAssignedUnit.id,
+                    contractorId: contractor.id,
+                    status: 3,
+                    builder: closingBuilder,
+                    daysAtWork: 4,
+                })
+            );
+            temporaryRequests.push(
+                await createRequest({
+                    objectId: foreignObject.id,
+                    contractorId: contractor.id,
+                    status: 3,
+                    builder: closingBuilder,
+                    daysAtWork: 20,
+                })
+            );
+            temporaryRequests.push(
+                await createRequest({
+                    objectId: foreignObject.id,
+                    contractorId: contractor.id,
+                    status: 3,
+                    builder: closingBuilder,
+                    daysAtWork: 30,
+                })
+            );
+            const body: ReportBody = {
+                parametrs: { builder: true },
+                indicators: {
+                    totalCountRequests: false,
+                    percentOfTotalCountRequest: false,
+                    budget: false,
+                    budgetPlan: false,
+                    percentOfBudgetPlan: false,
+                    closingSpeedOfRequests: true,
+                },
+                additionalParametrs: { isResult: false, reportType: 0, dynamicsTypes: [] },
+                filterData: { builder: [closingBuilder] },
+            };
+
+            const response = await report(manager, body);
+
+            expect(response.status).toBe(200);
+            expect(response.body.resultRows).toEqual([
+                expect.objectContaining({
+                    builder: closingBuilder,
+                    totalDaysAtWork: 6,
+                    totalRequestsCount: 2,
+                    closingSpeedOfRequests: 3,
+                }),
+            ]);
+        } finally {
+            await RepairRequest.destroy({ where: { id: temporaryRequests.map(item => item.id) }, force: true });
         }
     });
 
@@ -329,24 +485,53 @@ describe('Manager contractor-derived requests and reports scope', () => {
         expect(response.body).toEqual({ resultRows: [], filterData: { object: [] } });
     });
 
-    it('Администратор, Наблюдатель и bot видят обе заявки в reports и contractor-derived data', async () => {
-        const [adminContractor, botContractor, adminReport, observerReport, botReport] = await Promise.all([
+    it('Администратор, Наблюдатель и bot видят все заявки в reports и contractor-derived data', async () => {
+        const [
+            adminContractor,
+            botContractor,
+            adminItinerary,
+            botItinerary,
+            adminFirstActual,
+            botFirstActual,
+            adminSecondActual,
+            botSecondActual,
+            adminReport,
+            observerReport,
+            botReport,
+        ] = await Promise.all([
             asWeb(admin, 'get', `/contractors/${contractor.id}/requests`),
             request(app).get(`/contractors/${contractor.id}/requests`).set('master-api-key', masterKey),
+            asWeb(admin, 'get', `/contractors/${contractor.id}/itinerary`),
+            request(app).get(`/contractors/${contractor.id}/itinerary`).set('master-api-key', masterKey),
+            asWeb(admin, 'get', `/contractors/${contractor.id}/${assignedObject.unitId}`),
+            request(app).get(`/contractors/${contractor.id}/${assignedObject.unitId}`).set('master-api-key', masterKey),
+            asWeb(admin, 'get', `/contractors/${contractor.id}/${secondAssignedUnit.id}`),
+            request(app).get(`/contractors/${contractor.id}/${secondAssignedUnit.id}`).set('master-api-key', masterKey),
             report(admin, builderReportBody()),
             report(observer, builderReportBody()),
             request(app).post('/reports').set('master-api-key', masterKey).send(builderReportBody()),
         ]);
 
-        for (const response of [adminContractor, botContractor]) {
+        for (const response of [adminContractor, botContractor, adminItinerary, botItinerary]) {
+            expect(response.status).toBe(200);
+            expect(requestIds(response.body)).toEqual(
+                expect.arrayContaining([assignedRequest.id, secondAssignedRequest.id, foreignRequest.id])
+            );
+        }
+        for (const response of [adminFirstActual, botFirstActual]) {
             expect(response.status).toBe(200);
             expect(requestIds(response.body)).toEqual(expect.arrayContaining([assignedRequest.id, foreignRequest.id]));
+            expect(requestIds(response.body)).toHaveLength(2);
+        }
+        for (const response of [adminSecondActual, botSecondActual]) {
+            expect(response.status).toBe(200);
+            expect(requestIds(response.body)).toEqual([secondAssignedRequest.id]);
         }
         for (const response of [adminReport, observerReport, botReport]) {
             expect(response.status).toBe(200);
             expect(response.body.resultRows).toEqual(
                 expect.arrayContaining([
-                    expect.objectContaining({ builder: assignedBuilder, totalCountRequests: 1 }),
+                    expect.objectContaining({ builder: assignedBuilder, totalCountRequests: 2 }),
                     expect.objectContaining({ builder: foreignBuilder, totalCountRequests: 1 }),
                 ])
             );
