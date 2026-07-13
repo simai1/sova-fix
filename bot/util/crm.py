@@ -5,6 +5,10 @@ import requests
 import config as cf
 from util import logger
 
+http = requests.Session()
+if cf.MASTER_API_KEY:
+    http.headers.update({'master-api-key': cf.MASTER_API_KEY})
+
 
 class roles:
     USER = 1
@@ -58,13 +62,12 @@ async def bind_tg(token: str, tg_id: int, username: str | None) -> dict:
     """
     url = f'{cf.API_URL}/tgUsers/bind'
 
-    headers = {'master-api-key': cf.MASTER_API_KEY}
     body: dict = {'token': token, 'tgId': str(tg_id)}
     if username:
         body['username'] = username
 
     try:
-        response = requests.post(url, json=body, headers=headers, timeout=10)
+        response = http.post(url, json=body, timeout=10)
     except Exception as e:
         logger.error(f'API: exception during tg bind, tg_id={tg_id}, error={str(e)}')
         return {'ok': False, 'status': 0, 'message': 'Сервер недоступен'}
@@ -104,7 +107,7 @@ async def register_user(user_id: int, name: str, role: int, username: str) -> di
     data: dict = {'name': name, 'role': role, 'tgId': str(user_id), 'linkId': username}
     
     try:
-        request = requests.post(url, data)
+        request = http.post(url, data)
 
         if request.status_code == 200:
             logger.info(f'API: successfully registered user with tgId={user_id}')
@@ -127,7 +130,7 @@ async def get_all_users() -> list | dict | None:
     url = f'{cf.API_URL}/tgUsers'
 
     try:
-        request = requests.get(url)
+        request = http.get(url)
         
         if request.status_code == 200:
             return request.json()
@@ -152,7 +155,7 @@ async def get_user(user_id: int) -> dict | None:
     url = f'{cf.API_URL}/tgUsers/{user_id}'
     
     try:
-        request = requests.get(url)
+        request = http.get(url)
         
         if request.status_code != 200:
             logger.debug(f"API: user with tgId={user_id} not found, status={request.status_code}")
@@ -183,7 +186,7 @@ async def user_already_exists(user_id: int) -> bool:
     url = f'{cf.API_URL}/tgUsers/{user_id}'
     
     try:
-        request = requests.get(url)
+        request = http.get(url)
         return request.status_code == 200 and request.json() is not None
     except Exception as e:
         logger.error(f"API: exception checking if user with tgId={user_id} exists: {str(e)}")
@@ -193,7 +196,7 @@ async def user_already_exists(user_id: int) -> bool:
 async def get_all_repair_requests(params: str = "") -> dict | None:
     url = f'{cf.API_URL}/requests?{params}'
 
-    request = requests.get(url)
+    request = http.get(url)
     data: dict = request.json()
 
     if request.status_code == 200:
@@ -209,7 +212,7 @@ async def get_repair_request(request_id: str) -> dict | None:
     logger.info(f"Запрашиваем детали заявки: id={request_id}")
     
     try:
-        request = requests.get(url)
+        request = http.get(url)
         
         if request.status_code != 200:
             logger.error(f'API: could not get repair request, код: {request.status_code}, request_id={request_id}')
@@ -296,7 +299,7 @@ async def create_repair_request(
 
     files = {"file": (filename, file)}
 
-    request = requests.post(url=url, data=values, files=files)
+    request = http.post(url=url, data=values, files=files)
 
     if request.status_code == 200:
         logger.info('new repair request!', f'{values}')
@@ -336,7 +339,7 @@ async def create_repair_request_without_photo(
     if legal_entity is not None:
         data['legalEntity'] = legal_entity
 
-    request = requests.post(url=url, json=data)
+    request = http.post(url=url, json=data)
 
     if request.status_code == 200:
         logger.info('new repair request without photo!', f'{data}')
@@ -379,7 +382,7 @@ async def create_repair_request_multiple_photos(
 
     files = [('file', (f'img{i}.jpg', file)) for i, file in enumerate(files_list)]
 
-    request = requests.post(url=url, data=values, files=files)
+    request = http.post(url=url, data=values, files=files)
 
     if request.status_code == 200:
         logger.info('new repair request with multiple photos!', f'{values}')
@@ -392,7 +395,7 @@ async def create_repair_request_multiple_photos(
 async def get_all_contractors() -> list:
     url = f'{cf.API_URL}/contractors/'
 
-    request = requests.get(url)
+    request = http.get(url)
     data = request.json()
 
     return data
@@ -418,7 +421,7 @@ async def get_contractor_requests(user_id: int, params: str = '') -> list | None
 
     url = f'{cf.API_URL}/contractors/{contractor_id}/requests?{params}'
 
-    request = requests.get(url)
+    request = http.get(url)
     data = request.json()
 
     if request.status_code == 200:
@@ -433,7 +436,7 @@ async def get_itinerary(user_id) -> list | None:
 
     url = f'{cf.API_URL}/contractors/{contractor_id}/itinerary'
 
-    request = requests.get(url)
+    request = http.get(url)
     data = request.json()
 
     if request.status_code == 200:
@@ -449,7 +452,7 @@ async def get_customer_requests(user_id: int, params: str = '') -> list | None:
 
     url = f'{cf.API_URL}/requests/customer/{tg_user_id}?{params}'
 
-    request = requests.get(url)
+    request = http.get(url)
     data = request.json()
 
     if request.status_code == 200:
@@ -481,7 +484,7 @@ async def get_requests_by_objects(user_id: int, params: str = '') -> list | None
     logger.info(f"Getting requests by objects: user_id={user_id}, tg_user_id={tg_user_id}, url={url}")
     
     try:
-        request = requests.get(url)
+        request = http.get(url)
         
         if request.status_code == 200:
             data = request.json()
@@ -517,7 +520,7 @@ async def change_repair_request_status(request_id: str, status: int) -> bool:
     }
 
     try:
-        request = requests.patch(url, json=data)
+        request = http.patch(url, json=data)
         
         if request.status_code == 200:
             return True
@@ -547,7 +550,7 @@ async def set_repair_request_comment(request_id: str, comment: str) -> bool:
         "comment": comment
     }
 
-    request = requests.patch(url, json=data)
+    request = http.patch(url, json=data)
 
     if request.status_code == 200:
         logger.info("API: successfully changed comment", f"request_id={request_id}")
@@ -570,7 +573,7 @@ async def set_rr_comment_attachment(request_id: str, file, content_type: str) ->
         "file": (filename, file)
     }
 
-    request = requests.patch(url, data=data, files=files)
+    request = http.patch(url, data=data, files=files)
 
     if request.status_code == 200:
         logger.info("API: successfully changed comment attachment", f"request_id={request_id}")
@@ -614,7 +617,7 @@ async def sync_manager(email: str, password: str, name: str, tg_id: int, usernam
     }
 
     try:
-        request = requests.post(url, data)
+        request = http.post(url, data)
         
         if request.status_code == 200:
             logger.info(f'Successfully synced manager with tgId={tg_id}')
@@ -630,7 +633,7 @@ async def sync_manager(email: str, password: str, name: str, tg_id: int, usernam
 async def get_all_managers() -> list | None:
     url = f"{cf.API_URL}/tgUsers/managers"
 
-    request = requests.get(url)
+    request = http.get(url)
 
     if request.status_code == 200:
         return request.json()
@@ -657,7 +660,7 @@ async def get_all_manager_tg_ids() -> list[int] | None:
 async def get_user_by_id(_id: str) -> dict | None:
     url = f"{cf.API_URL}/tgUsers/get/{_id}"
 
-    request = requests.get(url)
+    request = http.get(url)
 
     if request.status_code == 200:
         return request.json()
@@ -676,7 +679,7 @@ async def get_all_requests_with_params(params: str = "") -> list | None:
     
     logger.info(f"Запрашиваем заявки с параметрами: {params}")
     
-    req = requests.get(url)
+    req = http.get(url)
 
     if req.status_code == 200:
         response = req.json()
@@ -701,7 +704,7 @@ async def get_all_requests_with_params(params: str = "") -> list | None:
 async def units_get_all() -> list | None:
     url = f"{cf.API_URL}/units"
 
-    req = requests.get(url)
+    req = http.get(url)
 
     if req.status_code == 200:
         return req.json()
@@ -713,7 +716,7 @@ async def units_get_all() -> list | None:
 async def objects_get_all() -> list | None:
     url = f"{cf.API_URL}/objects"
 
-    req = requests.get(url)
+    req = http.get(url)
 
     if req.status_code == 200:
         return req.json()
@@ -726,7 +729,7 @@ async def add_check(rr_id: str, file: BinaryIO) -> bool:
     url = f"{cf.API_URL}/requests/add/check/{rr_id}"
     photo_file = {'file': ('img.jpg', file, 'image/jpeg')}
 
-    req = requests.patch(url, files=photo_file)
+    req = http.patch(url, files=photo_file)
 
     if req.status_code == 200:
         logger.info("successfully added check", f"requestId: {rr_id}")
@@ -752,7 +755,7 @@ async def update_repair_request(request_id: str, data: dict) -> bool:
     logger.info(f"Отправляем запрос на обновление заявки: id={request_id}, данные={data}")
     
     try:
-        req = requests.patch(url, json=data)
+        req = http.patch(url, json=data)
         
         if req.status_code == 200:
             return True
@@ -773,7 +776,7 @@ async def set_contractor(request_id: str, contractor_id: str) -> bool:
         'contractorId': contractor_id
     }
 
-    req = requests.patch(url, data)
+    req = http.patch(url, data)
 
     if req.status_code == 200:
         logger.info("successfully set contractor", f"data: {data}")
@@ -844,7 +847,7 @@ async def get_rrs_for_user(user_data: dict, params: str = "") -> list:
 async def get_static_content(filename: str) -> bytes | None:
     url = f"{cf.API_URL}/uploads/{filename}"
 
-    req = requests.get(url)
+    req = http.get(url)
 
     if req.status_code == 200:
         logger.debug("UPLOADS: successfully loaded", f"{filename}")
@@ -867,7 +870,7 @@ async def get_user_objects(tg_user_id: str) -> list | None:
     url = f"{cf.API_URL}/tgUsers/{tg_user_id}/objects/public"
     
     try:
-        request = requests.get(url)
+        request = http.get(url)
         
         if request.status_code == 200:
             response = request.json()
@@ -920,7 +923,7 @@ async def get_user_objects_with_count_requests_manager(tg_user_id: str) -> list 
     url = f"{cf.API_URL}/tgUsers/{tg_user_id}/manager/count"
     
     try:
-        request = requests.get(url)
+        request = http.get(url)
         
         if request.status_code == 200:
             response = request.json()
@@ -973,7 +976,7 @@ async def get_user_objects_with_count_requests_contractor(tg_user_id: str) -> li
     url = f"{cf.API_URL}/tgUsers/{tg_user_id}/contractor/count"
     
     try:
-        request = requests.get(url)
+        request = http.get(url)
         
         if request.status_code == 200:
             response = request.json()
@@ -1027,7 +1030,7 @@ async def get_tguser_object_relations(tg_user_id: str) -> list | None:
     
     try:
         logger.info(f"Запрашиваем связи объектов для пользователя {tg_user_id}")
-        request = requests.get(url)
+        request = http.get(url)
         
         if request.status_code == 200:
             relations = request.json()
@@ -1052,7 +1055,7 @@ async def get_repair_requests_by_contractor(contractor_id: str, filter_: dict | 
     if filter_ is not None:
         url += "?" + "&".join([f"{key}={value}" for key, value in filter_.items()])
 
-    request = requests.get(url)
+    request = http.get(url)
     data = request.json()
 
     return data
@@ -1081,7 +1084,7 @@ async def get_manager_assigned_requests(tg_user_id: str) -> list | None:
         url = f'{cf.API_URL}/requests?managerTgId={tg_user_id_str}&status=2'
         logger.info(f"URL запроса: {url}")
         
-        request = requests.get(url)
+        request = http.get(url)
         
         if request.status_code == 200:
             response = request.json()
@@ -1111,7 +1114,7 @@ async def get_manager_assigned_requests(tg_user_id: str) -> list | None:
         url = f'{cf.API_URL}/requests?managerId={user_id}&status=2'
         logger.info(f"Fallback URL запроса: {url}")
         
-        request = requests.get(url)
+        request = http.get(url)
         
         if request.status_code == 200:
             response = request.json()
@@ -1148,10 +1151,24 @@ async def get_user_by_tg_id(tg_id: int) -> dict | None:
     """
     return await get_user(tg_id)
 
+
+def get_web_user_by_tg_id(tg_id: int) -> dict | None:
+    url = f'{cf.API_URL}/users/{tg_id}'
+
+    try:
+        response = http.get(url)
+        if response.status_code == 200:
+            return response.json()
+        return None
+    except Exception as e:
+        logger.error(f'API: exception getting web user with tgId={tg_id}: {str(e)}')
+        return None
+
+
 async def get_all_urgencies() -> list | None:
     url = f"{cf.API_URL}/urgency"
 
-    request = requests.get(url)
+    request = http.get(url)
     data = request.json()
 
     return data
@@ -1170,7 +1187,7 @@ async def register_customer_crm(login: str, user_id: int) -> bool:
     data = {'login': login, 'user_id': user_id}
 
     try:
-        response = requests.post(url, json=data)
+        response = http.post(url, json=data)
 
         if response.status_code == 200:
             logger.info(f"CRM access requested successfully for login={login}")
@@ -1185,7 +1202,7 @@ async def register_customer_crm(login: str, user_id: int) -> bool:
 async def get_status_name(statusNumber: int) -> str | None:
     url = f"{cf.API_URL}/status/{statusNumber}"
 
-    request = requests.get(url)
+    request = http.get(url)
     data = request.json()
 
     return data.get("name")
@@ -1193,7 +1210,7 @@ async def get_status_name(statusNumber: int) -> str | None:
 async def get_count_of_files_in_request(requestId: str) -> int | None:
     url = f"{cf.API_URL}/requests/files/{requestId}"
 
-    request = requests.get(url)
+    request = http.get(url)
     data = request.json()
     
     return data.get("count")
@@ -1201,7 +1218,7 @@ async def get_count_of_files_in_request(requestId: str) -> int | None:
 async def get_setting_by_name(settingName: str) -> bool | None:
     url = f"{cf.API_URL}/settings/{settingName}"
 
-    response = requests.get(url)
+    response = http.get(url)
     try:
         data = response.json()
     except ValueError:
@@ -1215,12 +1232,10 @@ async def get_setting_by_name(settingName: str) -> bool | None:
 async def get_customer_directory_category(tg_id: str) -> list:
     url = f"{cf.API_URL}/directoryCategory/customers/{tg_id}"
 
-    response = requests.get(url)
+    response = http.get(url)
     data = response.json()
 
     return data
-    
-import requests
 
 async def get_actual_admin_requests_by_objects(tg_user_id: int, unit_id: int, object_id: str | None = None) -> list:
     """
@@ -1231,7 +1246,7 @@ async def get_actual_admin_requests_by_objects(tg_user_id: int, unit_id: int, ob
     if object_id:
         url += f"/{object_id}"
 
-    response = requests.get(url)
+    response = http.get(url)
     data = response.json()
     return data.get("requests", [])
 
@@ -1244,7 +1259,7 @@ async def get_actual_contractor_requests_by_objects(user_id: str, unit_id: str, 
     if object_id:
         url += f"/{object_id}"
 
-    response = requests.get(url)
+    response = http.get(url)
     response.raise_for_status()
     data = response.json()
 
