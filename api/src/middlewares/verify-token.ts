@@ -16,13 +16,17 @@ const auth = (req: Request, res: Response, next: NextFunction) => {
         }
 
         const userData = jwtUtils.verifyAccessToken(accessToken);
-        if (!userData) {
+        if (typeof userData !== 'object' || userData === null || typeof userData.id !== 'string') {
             return next(new ApiError(httpStatus.UNAUTHORIZED, 'User unauthorized'));
         }
 
-        req.user = userData;
+        req.user = {
+            id: userData.id,
+            ...(typeof userData.role === 'number' || typeof userData.role === 'string' ? { role: userData.role } : {}),
+            ...(typeof userData.login === 'string' ? { login: userData.login } : {}),
+        };
         next();
-    } catch (e) {
+    } catch {
         return next(new ApiError(httpStatus.UNAUTHORIZED, 'User unauthorized'));
     }
 };
