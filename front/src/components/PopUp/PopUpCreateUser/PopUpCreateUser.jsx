@@ -53,6 +53,7 @@ function PopUpCreateUser() {
             <option value="3">Заказчик</option>
             <option value="4">Исполнитель</option>
             <option value="5">Наблюдатель</option>
+            <option value="6">Менеджер</option>
           </select>
         </div>
       </div>

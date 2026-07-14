@@ -8,7 +8,7 @@ const setRole = catchAsync(async (req, res) => {
     const { role, userId } = req.body;
     if (!role) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing role');
     if (!userId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing userId');
-    await userService.setRole(role, userId);
+    await userService.setRole(role, userId, req.user.id);
     res.json({ status: 'OK' });
 });
 
@@ -59,14 +59,14 @@ const setUserObjects = catchAsync(async (req, res) => {
     if (!Array.isArray(objectIds)) {
         throw new ApiError(httpStatus.BAD_REQUEST, 'Поле objectIds должно быть массивом');
     }
-    const ids = await userService.setUserObjects(userId, objectIds);
+    const ids = await userService.setUserObjects(userId, objectIds, req.user.id);
     res.json({ objectIds: ids });
 });
 
 const getUserObjects = catchAsync(async (req, res) => {
     const { userId } = req.params;
     if (!userId) throw new ApiError(httpStatus.BAD_REQUEST, 'Не указан userId');
-    const ids = await userService.getUserObjects(userId);
+    const ids = await userService.getUserObjects(userId, req.user.id);
     res.json({ objectIds: ids });
 });
 

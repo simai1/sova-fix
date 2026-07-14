@@ -1,4 +1,5 @@
 import { ChatMessage } from '@/API/rtkQuery/lk.api';
+import { ROLE_LABELS_BY_NAME } from '@/constants/roles.constant';
 
 type Props = {
   messages: ChatMessage[];
@@ -24,13 +25,14 @@ const formatTime = (iso: string): string => {
 
 const roleLabel = (role: ChatMessage['author']['roleName']): string => {
   switch (role) {
-    case 'MANAGER':
     case 'ADMIN':
-      return 'Менеджер';
+      return ROLE_LABELS_BY_NAME.ADMIN;
+    case 'MANAGER':
+      return ROLE_LABELS_BY_NAME.MANAGER;
     case 'CONTRACTOR':
-      return 'Исполнитель';
+      return ROLE_LABELS_BY_NAME.CONTRACTOR;
     case 'CUSTOMER':
-      return 'Заказчик';
+      return ROLE_LABELS_BY_NAME.CUSTOMER;
     default:
       return '';
   }

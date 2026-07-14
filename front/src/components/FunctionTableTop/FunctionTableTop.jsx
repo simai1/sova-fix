@@ -135,14 +135,14 @@ function FunctionTableTop(props) {
                     placeholder={'Поиск...'}
                     settextSearchTableData={context.setextSearchTableData}
                   />
-                  <img src="./img/Search_light.png" />
+                  <img src="/img/Search_light.png" />
                   {context.selectedTable === 'Заявки' && context.selectPage === 'Main' && (
                     <div
                       className={styles.dropFilter}
                       onClick={() => DropFilter()}
                       title="нажмите для сброса фильтров"
                     >
-                      <img src="./img/ClearFilter.svg" />
+                      <img src="/img/ClearFilter.svg" />
                     </div>
                   )}
                 </>

@@ -72,7 +72,7 @@ const imageOnlyFilter: multer.Options['fileFilter'] = (_req, file, cb) => {
 const imageOrVideo = multer({ storage, limits, fileFilter: imageOrVideoFilter });
 const imageOnly = multer({ storage, limits, fileFilter: imageOnlyFilter });
 
-router.use(verifyToken.auth, verifyAnyRole(['CONTRACTOR', 'CUSTOMER', 'ADMIN', 'OBSERVER']));
+router.use(verifyToken.auth, verifyAnyRole(['CONTRACTOR', 'CUSTOMER', 'ADMIN', 'OBSERVER', 'MANAGER']));
 
 router.get('/me', lkController.getMe);
 
@@ -84,7 +84,7 @@ router.get('/requests/:id', validateUuidParam('id'), validator(requestIdParamSch
 
 router.post(
     '/requests',
-    verifyAnyRole(['CUSTOMER', 'ADMIN']),
+    verifyAnyRole(['CUSTOMER', 'ADMIN', 'MANAGER']),
     lkCreateRequestRateLimiter,
     imageOnly.array('files', 10),
     validator(createRequestSchema),
@@ -121,7 +121,7 @@ router.post(
 router.patch(
     '/requests/:id/status',
     validateUuidParam('id'),
-    verifyAnyRole(['CONTRACTOR', 'ADMIN']),
+    verifyAnyRole(['CONTRACTOR', 'ADMIN', 'MANAGER']),
     requireRequestAccess('id', 'write'),
     validator(statusSchema),
     lkController.setStatus
@@ -130,7 +130,7 @@ router.patch(
 router.post(
     '/requests/:id/check-photo',
     validateUuidParam('id'),
-    verifyAnyRole(['CONTRACTOR', 'ADMIN']),
+    verifyAnyRole(['CONTRACTOR', 'ADMIN', 'MANAGER']),
     requireRequestAccess('id', 'write'),
     imageOnly.single('file'),
     validator(requestIdParamSchema),
@@ -140,7 +140,7 @@ router.post(
 router.patch(
     '/requests/:id/exit-date',
     validateUuidParam('id'),
-    verifyAnyRole(['CONTRACTOR', 'ADMIN']),
+    verifyAnyRole(['CONTRACTOR', 'ADMIN', 'MANAGER']),
     requireRequestAccess('id', 'write'),
     validator(exitDateSchema),
     lkController.updateExitDate

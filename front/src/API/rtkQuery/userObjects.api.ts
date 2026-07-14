@@ -50,8 +50,8 @@ export const userObjectsApi = createApi({
       invalidatesTags: (_r, _e, { userId }) => [{ type: 'UserObjects', id: userId }],
     }),
 
-    getAllObjects: build.query<UserObjectsObject[], string>({
-      query: (adminUserId) => `/objects?userId=${adminUserId}`,
+    getAllObjects: build.query<UserObjectsObject[], void>({
+      query: () => '/objects',
       providesTags: ['AllObjects'],
     }),
   }),

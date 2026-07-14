@@ -1,12 +1,11 @@
 import RepairRequest from '../models/repairRequest';
 import Contractor from '../models/contractor';
-import User from '../models/user';
-import roles from '../config/roles';
 import { notificationContent } from '../config/notificationLabels';
 import pushNotificationService, { PushPayload } from './pushNotification.service';
 import logger from '../utils/logger';
+import { getAdministrativeAudienceUserIds } from './request-access.service';
 
-type Role = 'CONTRACTOR' | 'CUSTOMER' | 'ADMIN' | 'OBSERVER';
+type Role = 'CONTRACTOR' | 'CUSTOMER' | 'ADMIN' | 'MANAGER' | 'OBSERVER';
 
 const getCustomerUserId = (request: RepairRequest): string | null => request.createdByUserId ?? null;
 
@@ -14,22 +13,6 @@ const getContractorUserId = async (request: RepairRequest): Promise<string | nul
     if (!request.contractorId) return null;
     const contractor = await Contractor.findByPk(request.contractorId);
     return contractor?.userId ?? null;
-};
-
-const getManagerUserIds = async (): Promise<string[]> => {
-    try {
-        const managers = await User.findAll({
-            where: { role: roles.ADMIN, isActivated: true },
-            attributes: ['id'],
-        });
-        return managers.map(m => m.id);
-    } catch (err) {
-        logger.log({
-            level: 'error',
-            message: `notification.getManagerUserIds failed: ${(err as Error).message}`,
-        });
-        return [];
-    }
 };
 
 const safeSend = async (userIds: string[], payload: PushPayload, eventName: string): Promise<void> => {
@@ -47,7 +30,7 @@ const safeSend = async (userIds: string[], payload: PushPayload, eventName: stri
 };
 
 const buildRequestUrl = (requestId: string, audience: 'customer' | 'contractor'): string =>
-    `/lk/${audience}/requests/${requestId}`;
+    `/${audience}/requests/${requestId}`;
 
 const notifyStatusChanged = async (
     request: RepairRequest,
@@ -106,7 +89,7 @@ const notifyCommentChanged = async (
     let targetUserId: string | null = null;
     let audience: 'customer' | 'contractor' = 'customer';
 
-    if (authorRole === 'CONTRACTOR' || authorRole === 'ADMIN') {
+    if (authorRole === 'CONTRACTOR' || authorRole === 'ADMIN' || authorRole === 'MANAGER') {
         if (customerId && customerId !== authorUserId) {
             targetUserId = customerId;
             audience = 'customer';
@@ -136,29 +119,43 @@ const notifyCommentChanged = async (
 
 const notifyRequestAssigned = async (request: RepairRequest): Promise<void> => {
     const contractorUserId = await getContractorUserId(request);
-    if (!contractorUserId) return;
+    const administrativeAudience = await getAdministrativeAudienceUserIds(request.objectId ?? null);
+    const contractorAudience =
+        contractorUserId && !administrativeAudience.includes(contractorUserId) ? [contractorUserId] : [];
+    if (administrativeAudience.length === 0 && contractorAudience.length === 0) return;
 
     const { title, body } = notificationContent.requestAssigned(request.number);
+    const payload = {
+        title,
+        body,
+        tag: `request-${request.id}-assigned`,
+        requestId: request.id,
+    };
     await safeSend(
-        [contractorUserId],
+        administrativeAudience,
         {
-            title,
-            body,
+            ...payload,
+            url: '/',
+        },
+        'REQUEST_ASSIGNED'
+    );
+    await safeSend(
+        contractorAudience,
+        {
+            ...payload,
             url: buildRequestUrl(request.id, 'contractor'),
-            tag: `request-${request.id}-assigned`,
-            requestId: request.id,
         },
         'REQUEST_ASSIGNED'
     );
 };
 
 const notifyRequestCreated = async (request: RepairRequest): Promise<void> => {
-    const managerIds = await getManagerUserIds();
-    if (managerIds.length === 0) return;
+    const audienceUserIds = await getAdministrativeAudienceUserIds(request.objectId ?? null);
+    if (audienceUserIds.length === 0) return;
 
     const { title, body } = notificationContent.requestCreated(request.number);
     await safeSend(
-        managerIds,
+        audienceUserIds,
         {
             title,
             body,
@@ -171,12 +168,12 @@ const notifyRequestCreated = async (request: RepairRequest): Promise<void> => {
 };
 
 const notifyRegistrationRequest = async (roleNumber?: number): Promise<void> => {
-    const managerIds = await getManagerUserIds();
-    if (managerIds.length === 0) return;
+    const audienceUserIds = await getAdministrativeAudienceUserIds();
+    if (audienceUserIds.length === 0) return;
 
     const { title, body } = notificationContent.registrationRequest(roleNumber);
     await safeSend(
-        managerIds,
+        audienceUserIds,
         {
             title,
             body,

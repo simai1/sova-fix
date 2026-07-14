@@ -7,7 +7,6 @@ import { Op } from 'sequelize';
 import { statusesRuLocale } from '../config/statuses';
 import sequelize from 'sequelize';
 import { emitTo } from '../utils/ws';
-import roles from '../config/roles';
 import TgUser from '../models/tgUser';
 import ObjectDir from '../models/object';
 import objectService from './object.service';
@@ -36,8 +35,17 @@ import {
     contractorNameIsNotNull,
     contractorNameOrderExpr,
 } from '../utils/contractorNameFilter';
+import { getAdministrativeAudienceUserIds, scopeWhere } from './request-access.service';
+import type { RequestScope } from './request-access.service';
 
-const getAllRequests = async (filter: any, order: any, pagination: any, userId?: string) => {
+export type RequestCreator = { kind: 'web'; userId: string } | { kind: 'bot'; tgUserId: string };
+
+const creatorFields = (creator: RequestCreator): { createdBy: string | null; createdByUserId: string | null } =>
+    creator.kind === 'web'
+        ? { createdBy: null, createdByUserId: creator.userId }
+        : { createdBy: creator.tgUserId, createdByUserId: null };
+
+const getAllRequests = async (filter: any, order: any, pagination: any, scope: RequestScope, userId?: string) => {
     try {
         let requests;
         const whereParams: any = {};
@@ -337,15 +345,16 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
                 // @ts-expect-error skip
                 searchParams.push({ daysAtWork: filter.search });
             }
+            const searchWhere = {
+                [Op.and]: [
+                    {
+                        [Op.or]: searchParams,
+                    },
+                    whereParams,
+                ],
+            };
             requests = await RepairRequest.findAll({
-                where: {
-                    [Op.and]: [
-                        {
-                            [Op.or]: searchParams,
-                        },
-                        whereParams,
-                    ],
-                },
+                where: scopeWhere(scope, searchWhere),
                 include: [
                     contractorInclude,
                     { model: ObjectDir },
@@ -365,14 +374,7 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
                 offset: pagination.offset,
             });
             totalCount = await RepairRequest.count({
-                where: {
-                    [Op.and]: [
-                        {
-                            [Op.or]: searchParams,
-                        },
-                        whereParams,
-                    ],
-                },
+                where: scopeWhere(scope, searchWhere),
                 include: [
                     contractorInclude,
                     {
@@ -395,7 +397,7 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
             });
         } else {
             requests = await RepairRequest.findAll({
-                where: whereParams,
+                where: scopeWhere(scope, whereParams),
                 include: [
                     contractorInclude,
                     { model: ObjectDir },
@@ -415,7 +417,7 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
                 offset: pagination.offset,
             });
             totalCount = await RepairRequest.count({
-                where: whereParams,
+                where: scopeWhere(scope, whereParams),
                 include: [
                     contractorInclude,
                     { model: ObjectDir },
@@ -431,7 +433,8 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
         const sortedRequests: RepairRequest[] = [];
         const copiedRequests: RepairRequest[] = [];
         requests.forEach(request => {
-            request.copiedRequestId ? copiedRequests.push(request) : sortedRequests.push(request);
+            if (request.copiedRequestId) copiedRequests.push(request);
+            else sortedRequests.push(request);
         });
         for (const r of copiedRequests) {
             const targetIndex = sortedRequests.findIndex(sortedRequest => sortedRequest.id === r.copiedRequestId);
@@ -445,10 +448,10 @@ const getAllRequests = async (filter: any, order: any, pagination: any, userId?:
     }
 };
 
-const getRequestCount = async () => {
-    const newRequests = await RepairRequest.count({ where: { status: 1 } });
-    const inWorkRequests = await RepairRequest.count({ where: { status: 2 } });
-    const doneRequests = await RepairRequest.count({ where: { status: 3 } });
+const getRequestCount = async (scope: RequestScope) => {
+    const newRequests = await RepairRequest.count({ where: scopeWhere(scope, { status: 1 }) });
+    const inWorkRequests = await RepairRequest.count({ where: scopeWhere(scope, { status: 2 }) });
+    const doneRequests = await RepairRequest.count({ where: scopeWhere(scope, { status: 3 }) });
 
     return {
         newRequests,
@@ -457,8 +460,9 @@ const getRequestCount = async () => {
     };
 };
 
-const getRequestById = async (requestId: string): Promise<RequestDto> => {
-    const request = await RepairRequest.findByPk(requestId, {
+const getRequestById = async (requestId: string, scope: RequestScope): Promise<RequestDto> => {
+    const request = await RepairRequest.findOne({
+        where: scopeWhere(scope, { id: requestId }),
         include: [
             contractorInclude,
             { model: ObjectDir },
@@ -480,7 +484,7 @@ const createRequest = async (
     repairPrice: number | undefined,
     comment: string | undefined,
     fileName: string,
-    tgUserId: string,
+    creator: RequestCreator,
     directoryCategoryId: string | undefined
 ): Promise<RequestDto> => {
     const objectDir = await objectService.getObjectById(objectId);
@@ -499,7 +503,7 @@ const createRequest = async (
         comment,
         legalEntityId: objectDir.LegalEntity.id,
         fileName,
-        createdBy: tgUserId,
+        ...creatorFields(creator),
         number: 0,
         urgencyId: urgencyRecord.id,
         directoryCategoryId,
@@ -510,9 +514,10 @@ const createRequest = async (
 
     if (directoryCategoryId) await updateDirectoryCategoryBuilder(request.id, directoryCategoryId);
 
-    emitTo({ kind: 'role', roles: [roles.ADMIN] }, 'REQUEST_CREATE', {
+    const audienceUserIds = await getAdministrativeAudienceUserIds(request.objectId ?? null);
+    emitTo({ kind: 'users', userIds: audienceUserIds }, 'REQUEST_CREATE', {
         requestId: request.id,
-        customer: request.createdBy,
+        customer: request.createdBy ?? request.createdByUserId,
     });
 
     await notificationService.notifyRequestCreated(request);
@@ -525,7 +530,7 @@ const createRequestWithoutPhoto = async (
     urgency: string,
     repairPrice: number | undefined,
     comment: string | undefined,
-    tgUserId: string,
+    creator: RequestCreator,
     directoryCategoryId: string | undefined
 ): Promise<RequestDto> => {
     const objectDir = await objectService.getObjectById(objectId);
@@ -542,7 +547,7 @@ const createRequestWithoutPhoto = async (
         comment,
         legalEntityId: objectDir.LegalEntity.id,
         fileName: null,
-        createdBy: tgUserId,
+        ...creatorFields(creator),
         number: 0,
         directoryCategoryId: directoryCategoryId ? directoryCategoryId : null,
     });
@@ -553,9 +558,10 @@ const createRequestWithoutPhoto = async (
 
     if (directoryCategoryId) await updateDirectoryCategoryBuilder(request.id, directoryCategoryId);
 
-    emitTo({ kind: 'role', roles: [roles.ADMIN] }, 'REQUEST_CREATE', {
+    const audienceUserIds = await getAdministrativeAudienceUserIds(request.objectId ?? null);
+    emitTo({ kind: 'users', userIds: audienceUserIds }, 'REQUEST_CREATE', {
         requestId: request.id,
-        customer: request.createdBy,
+        customer: request.createdBy ?? request.createdByUserId,
     });
 
     await notificationService.notifyRequestCreated(request);
@@ -569,7 +575,7 @@ const createRequestWithMultiplePhotos = async (
     repairPrice: number | undefined,
     comment: string | undefined,
     fileNames: string[],
-    tgUserId: string,
+    creator: RequestCreator,
     directoryCategoryId: string | undefined
 ): Promise<RequestDto> => {
     const objectDir = await objectService.getObjectById(objectId);
@@ -587,7 +593,7 @@ const createRequestWithMultiplePhotos = async (
         legalEntityId: objectDir.LegalEntity.id,
         fileName: fileNames.length > 1 ? JSON.stringify(fileNames) : fileNames[0],
         commentAttachment: null,
-        createdBy: tgUserId,
+        ...creatorFields(creator),
         number: 0,
         directoryCategoryId: directoryCategoryId ? directoryCategoryId : null,
     });
@@ -598,18 +604,24 @@ const createRequestWithMultiplePhotos = async (
 
     if (directoryCategoryId) await updateDirectoryCategoryBuilder(request.id, directoryCategoryId);
 
-    emitTo({ kind: 'role', roles: [roles.ADMIN] }, 'REQUEST_CREATE', {
+    const audienceUserIds = await getAdministrativeAudienceUserIds(request.objectId ?? null);
+    emitTo({ kind: 'users', userIds: audienceUserIds }, 'REQUEST_CREATE', {
         requestId: request.id,
-        customer: request.createdBy,
+        customer: request.createdBy ?? request.createdByUserId,
     });
 
     await notificationService.notifyRequestCreated(request);
     return new RequestDto(request);
 };
 
-const setContractor = async (requestId: string, contractorId: string, managerId?: string): Promise<void> => {
+const setContractor = async (
+    requestId: string,
+    contractorId: string,
+    managerId?: string,
+    scopedRequest?: RepairRequest
+): Promise<void> => {
     try {
-        const request = await RepairRequest.findByPk(requestId);
+        const request = scopedRequest ?? (await RepairRequest.findByPk(requestId));
         if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
         const oldStatus = request.status;
 
@@ -733,16 +745,11 @@ const setContractor = async (requestId: string, contractorId: string, managerId?
                     customer: customer ? customer.tgId : null,
                 });
 
-                const assignee = tgContractor?.userId ?? null;
-                const assignedUserIds = assignee ? [assignee] : [];
-                if (assignedUserIds.length > 0) {
-                    emitTo({ kind: 'users', userIds: assignedUserIds }, wsEvents.REQUEST_ASSIGNED, {
-                        requestId: request.id,
-                        contractorId: request.contractorId,
-                        objectId: request.objectId,
-                    });
-                }
-                emitTo({ kind: 'role', roles: [roles.ADMIN] }, wsEvents.REQUEST_ASSIGNED, {
+                const administrativeAudience = await getAdministrativeAudienceUserIds(request.objectId ?? null);
+                const assignedUserIds = Array.from(
+                    new Set([...administrativeAudience, ...(tgContractor?.userId ? [tgContractor.userId] : [])])
+                );
+                emitTo({ kind: 'users', userIds: assignedUserIds }, wsEvents.REQUEST_ASSIGNED, {
                     requestId: request.id,
                     contractorId: request.contractorId,
                     objectId: request.objectId,
@@ -764,11 +771,15 @@ const setContractor = async (requestId: string, contractorId: string, managerId?
     }
 };
 
-const setExtContractor = async (requestId: string, extContractorId: string): Promise<void> => {
+const setExtContractor = async (
+    requestId: string,
+    extContractorId: string,
+    scopedRequest?: RepairRequest
+): Promise<void> => {
     try {
         logger.info(`Setting external contractor ${extContractorId} for request ${requestId}`);
 
-        const request = await RepairRequest.findByPk(requestId);
+        const request = scopedRequest ?? (await RepairRequest.findByPk(requestId));
         if (!request) {
             logger.error(`Request with id ${requestId} not found`);
             throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
@@ -813,8 +824,8 @@ const setExtContractor = async (requestId: string, extContractorId: string): Pro
     }
 };
 
-const setComment = async (requestId: string, comment: string): Promise<void> => {
-    const request = await RepairRequest.findByPk(requestId);
+const setComment = async (requestId: string, comment: string, scopedRequest?: RepairRequest): Promise<void> => {
+    const request = scopedRequest ?? (await RepairRequest.findByPk(requestId));
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
     const customer = await TgUser.findByPk(request.createdBy);
     const contractor = await Contractor.findByPk(request.contractorId, {
@@ -832,17 +843,22 @@ const setComment = async (requestId: string, comment: string): Promise<void> => 
     await notificationService.notifyCommentChanged(request, 'ADMIN', null);
 };
 
-const setCommentAttachment = async (requestId: string, filename: string): Promise<RequestDto> => {
-    const request = await RepairRequest.findByPk(requestId, {
-        include: [
-            { model: Unit },
-            { model: ObjectDir },
-            { model: LegalEntity },
-            contractorInclude,
-            { model: ExtContractor },
-            { model: DirectoryCategory },
-        ],
-    });
+const setCommentAttachment = async (
+    requestId: string,
+    filename: string,
+    scopedRequest?: RepairRequest
+): Promise<RequestDto> => {
+    const include = [
+        { model: Unit },
+        { model: ObjectDir },
+        { model: LegalEntity },
+        contractorInclude,
+        { model: ExtContractor },
+        { model: DirectoryCategory },
+    ];
+    const request = scopedRequest
+        ? await scopedRequest.reload({ include })
+        : await RepairRequest.findByPk(requestId, { include });
 
     if (!request) {
         throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest with id ' + requestId);
@@ -858,8 +874,8 @@ const setCommentAttachment = async (requestId: string, filename: string): Promis
     return new RequestDto(request);
 };
 
-const removeContractor = async (requestId: string): Promise<void> => {
-    const request = await RepairRequest.findByPk(requestId);
+const removeContractor = async (requestId: string, scopedRequest?: RepairRequest): Promise<void> => {
+    const request = scopedRequest ?? (await RepairRequest.findByPk(requestId));
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
     await request.update({
         contractorId: null,
@@ -869,14 +885,19 @@ const removeContractor = async (requestId: string): Promise<void> => {
     });
 };
 
-const removeExtContractor = async (requestId: string): Promise<void> => {
-    const request = await RepairRequest.findByPk(requestId);
+const removeExtContractor = async (requestId: string, scopedRequest?: RepairRequest): Promise<void> => {
+    const request = scopedRequest ?? (await RepairRequest.findByPk(requestId));
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
     await request.update({ extContractorId: null, isExternal: false, builder: 'Укажите подрядчика' });
 };
 
-const setStatus = async (requestId: string, status: number, statusId: string): Promise<void> => {
-    const request = await RepairRequest.findByPk(requestId);
+const setStatus = async (
+    requestId: string,
+    status: number,
+    statusId: string,
+    scopedRequest?: RepairRequest
+): Promise<void> => {
+    const request = scopedRequest ?? (await RepairRequest.findByPk(requestId));
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
     const customer = await TgUser.findByPk(request.createdBy);
     const contractor = await Contractor.findByPk(request.contractorId, {
@@ -904,7 +925,11 @@ const setStatus = async (requestId: string, status: number, statusId: string): P
     await notificationService.notifyStatusChanged(request, status);
 };
 
-const updateDirectoryCategoryBuilder = async (requestId: string, directoryCategoryId: string) => {
+const updateDirectoryCategoryBuilder = async (
+    requestId: string,
+    directoryCategoryId: string,
+    scopedRequest?: RepairRequest
+) => {
     const autoSetting = await Settings.findOne({ where: { setting: 'is_auto_set_category' } });
     if (!autoSetting) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found is_auto_set_category');
     if (!autoSetting?.value) return;
@@ -912,29 +937,33 @@ const updateDirectoryCategoryBuilder = async (requestId: string, directoryCatego
     if (!directoryCategory) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found directoryCategory');
 
     if (!directoryCategory.isExternal && directoryCategory.builderId) {
-        return await setContractor(requestId, directoryCategory.builderId);
+        return await setContractor(requestId, directoryCategory.builderId, undefined, scopedRequest);
     }
 
     if (directoryCategory.isExternal && directoryCategory.builderExternalId) {
-        return await setExtContractor(requestId, directoryCategory.builderExternalId);
+        return await setExtContractor(requestId, directoryCategory.builderExternalId, scopedRequest);
     }
 
     if (directoryCategory.isManager && directoryCategory.managerId) {
-        return await setManager(requestId, directoryCategory.managerId);
+        return await setManager(requestId, directoryCategory.managerId, scopedRequest);
     }
 };
 
-const setNewDirectoryCategory = async (requestId: string, directoryCategoryId: string) => {
-    const request = await RepairRequest.findByPk(requestId);
+const setNewDirectoryCategory = async (
+    requestId: string,
+    directoryCategoryId: string,
+    scopedRequest?: RepairRequest
+) => {
+    const request = scopedRequest ?? (await RepairRequest.findByPk(requestId));
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
 
-    await updateDirectoryCategoryBuilder(requestId, directoryCategoryId);
+    await updateDirectoryCategoryBuilder(requestId, directoryCategoryId, request);
 
     await request.update({ directoryCategoryId });
 };
 
-const deleteRequest = async (requestId: string): Promise<void> => {
-    const request = await RepairRequest.findByPk(requestId);
+const deleteRequest = async (requestId: string, scopedRequest?: RepairRequest): Promise<void> => {
+    const request = scopedRequest ?? (await RepairRequest.findByPk(requestId));
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
     await request.destroy({ force: true });
 };
@@ -952,9 +981,10 @@ const update = async (
     builder: string | undefined,
     planCompleteDate: Date | null | undefined,
     urgencyId: string | null | undefined,
-    managerTgId: string | undefined
+    managerTgId: string | undefined,
+    scopedRequest?: RepairRequest
 ): Promise<void> => {
-    const request = await RepairRequest.findByPk(requestId);
+    const request = scopedRequest ?? (await RepairRequest.findByPk(requestId));
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found request with id ' + requestId);
 
     logger.info({
@@ -1068,7 +1098,7 @@ const update = async (
     );
 };
 
-const getCustomersRequests = async (tgUserId: string, filter: any): Promise<RequestDto[]> => {
+const getCustomersRequests = async (tgUserId: string, filter: any, scope: RequestScope): Promise<RequestDto[]> => {
     let requests;
     const whereParams: any = {};
     Object.keys(filter).forEach((k: any) => {
@@ -1134,15 +1164,16 @@ const getCustomersRequests = async (tgUserId: string, filter: any): Promise<Requ
                 searchParams.push({ daysAtWork: { [Op.eq]: filter.search } });
             }
 
+            const searchWhere = {
+                [Op.and]: [
+                    {
+                        [Op.or]: searchParams,
+                    },
+                    whereParams,
+                ],
+            };
             requests = await RepairRequest.findAll({
-                where: {
-                    [Op.and]: [
-                        {
-                            [Op.or]: searchParams,
-                        },
-                        whereParams,
-                    ],
-                },
+                where: scopeWhere(scope, searchWhere),
                 include: [
                     contractorInclude,
                     { model: ObjectDir },
@@ -1156,7 +1187,7 @@ const getCustomersRequests = async (tgUserId: string, filter: any): Promise<Requ
             });
         } else {
             requests = await RepairRequest.findAll({
-                where: whereParams,
+                where: scopeWhere(scope, whereParams),
                 include: [
                     contractorInclude,
                     { model: ObjectDir },
@@ -1186,15 +1217,16 @@ const getCustomersRequests = async (tgUserId: string, filter: any): Promise<Requ
     }
 };
 
-const addCheck = async (requestId: string, fileName: string): Promise<void> => {
-    await RepairRequest.update({ checkPhoto: fileName }, { where: { id: requestId } });
+const addCheck = async (requestId: string, fileName: string, scopedRequest?: RepairRequest): Promise<void> => {
+    const request = scopedRequest ?? (await RepairRequest.findByPk(requestId));
+    if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
+    await request.update({ checkPhoto: fileName });
     const status = await Status.findOne({ where: { number: 3 } });
     if (!status) throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid status');
-    await setStatus(requestId, 3, status.id);
+    await setStatus(requestId, 3, status.id, request);
 };
 
-const bulkDeleteRequests = async (ids: object): Promise<void> => {
-    const repairRequests = await RepairRequest.findAll({ where: { id: ids } });
+const bulkDeleteRequests = async (repairRequests: RepairRequest[]): Promise<void> => {
     if (repairRequests.length === 0) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found any requests');
     await repairRequests.reduce(
         (chain, request) => chain.then(() => request.destroy({ force: true })),
@@ -1202,8 +1234,7 @@ const bulkDeleteRequests = async (ids: object): Promise<void> => {
     );
 };
 
-const bulkSetStatus = async (ids: object, status: number): Promise<void> => {
-    const repairRequests = await RepairRequest.findAll({ where: { id: ids } });
+const bulkSetStatus = async (repairRequests: RepairRequest[], status: number): Promise<void> => {
     if (repairRequests.length === 0) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found any requests');
     for (const request of repairRequests) {
         const oldStatus = request.status;
@@ -1229,8 +1260,7 @@ const bulkSetStatus = async (ids: object, status: number): Promise<void> => {
     }
 };
 
-const bulkSetUrgency = async (ids: object, urgency: string): Promise<void> => {
-    const repairRequests = await RepairRequest.findAll({ where: { id: ids } });
+const bulkSetUrgency = async (repairRequests: RepairRequest[], urgency: string): Promise<void> => {
     if (repairRequests.length === 0) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found any requests');
     for (const request of repairRequests) {
         const oldUrgency = request.urgency;
@@ -1251,8 +1281,7 @@ const bulkSetUrgency = async (ids: object, urgency: string): Promise<void> => {
     }
 };
 
-const bulkSetContractor = async (ids: object, contractorId: string): Promise<void> => {
-    const repairRequests = await RepairRequest.findAll({ where: { id: ids } });
+const bulkSetContractor = async (repairRequests: RepairRequest[], contractorId: string): Promise<void> => {
     if (repairRequests.length === 0) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found any requests');
     let contractor;
     if (contractorId.toLowerCase() !== 'внешний подрядчик')
@@ -1285,13 +1314,22 @@ const bulkSetContractor = async (ids: object, contractorId: string): Promise<voi
         });
         await notificationService.notifyStatusChanged(request, 2);
         if (request.contractorId) {
+            const administrativeAudience = await getAdministrativeAudienceUserIds(request.objectId ?? null);
+            const assignedUserIds = Array.from(
+                new Set([...administrativeAudience, ...(contractor?.userId ? [contractor.userId] : [])])
+            );
+            emitTo({ kind: 'users', userIds: assignedUserIds }, wsEvents.REQUEST_ASSIGNED, {
+                requestId: request.id,
+                contractorId: request.contractorId,
+                objectId: request.objectId,
+            });
             await notificationService.notifyRequestAssigned(request);
         }
     }
 };
 
-const copyRequest = async (requestId: string): Promise<void> => {
-    const request = await RepairRequest.findByPk(requestId);
+const copyRequest = async (requestId: string, scopedRequest?: RepairRequest): Promise<void> => {
+    const request = scopedRequest ?? (await RepairRequest.findByPk(requestId));
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found request with id ' + requestId);
     await RepairRequest.create({
         status: request.status,
@@ -1306,6 +1344,7 @@ const copyRequest = async (requestId: string): Promise<void> => {
         checkPhoto: request.checkPhoto,
         createdAt: request.createdAt,
         createdBy: request.createdBy,
+        createdByUserId: request.createdByUserId,
         unitId: request.unitId,
         objectId: request.objectId,
         legalEntityId: request.legalEntityId,
@@ -1314,12 +1353,12 @@ const copyRequest = async (requestId: string): Promise<void> => {
     });
 };
 
-const getRequestsByObjects = async (tgUserId: string, filter: any): Promise<RequestDto[]> => {
-    return getCustomersRequests(tgUserId, filter);
+const getRequestsByObjects = async (tgUserId: string, filter: any, scope: RequestScope): Promise<RequestDto[]> => {
+    return getCustomersRequests(tgUserId, filter, scope);
 };
 
-const setManager = async (requestId: string, managerId: string): Promise<void> => {
-    const request = await RepairRequest.findByPk(requestId);
+const setManager = async (requestId: string, managerId: string, scopedRequest?: RepairRequest): Promise<void> => {
+    const request = scopedRequest ?? (await RepairRequest.findByPk(requestId));
     if (!request) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found repairRequest');
 
     const oldStatus = request.status;
@@ -1390,14 +1429,19 @@ const changeStatus = async (prevNumber: number, statusId: string) => {
     );
 };
 
-const countOfRepairRequest = async (repairId: string) => {
-    const request = await RepairRequest.findByPk(repairId);
+const countOfRepairRequest = async (repairId: string, scope: RequestScope) => {
+    const request = await RepairRequest.findOne({ where: scopeWhere(scope, { id: repairId }) });
     if (!request) throw new Error(`Repair Request with id ${repairId} not found`);
     const currentFiles = normalizeFileNames(request.fileName);
     return currentFiles.length;
 };
 
-export const getActualRequestsByObjectId = async (tgUserId: string, unitId: string, objectId?: string) => {
+export const getActualRequestsByObjectId = async (
+    tgUserId: string,
+    unitId: string,
+    scope: RequestScope,
+    objectId?: string
+) => {
     const actualStatuses = [1, 2, 5];
 
     const unitObjects = await ObjectDir.findAll({
@@ -1440,7 +1484,7 @@ export const getActualRequestsByObjectId = async (tgUserId: string, unitId: stri
     }
 
     const requests = await RepairRequest.findAll({
-        where: whereClause,
+        where: scopeWhere(scope, whereClause),
         include: [
             { model: Unit },
             contractorInclude,

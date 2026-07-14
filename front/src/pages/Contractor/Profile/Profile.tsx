@@ -4,19 +4,7 @@ import LkErrorBanner from '@/components/Lk/LkErrorBanner';
 import LkSpinner from '@/components/Lk/LkSpinner';
 import ProfilePushSection from '@/components/Lk/ProfilePushSection';
 import ProfileTelegramSection from '@/components/Lk/ProfileTelegramSection';
-
-const roleLabel = (role: string | undefined): string => {
-  switch (role) {
-    case 'CONTRACTOR':
-      return 'Исполнитель';
-    case 'CUSTOMER':
-      return 'Заказчик';
-    case 'ADMIN':
-      return 'Администратор';
-    default:
-      return role ?? '—';
-  }
-};
+import { ROLE_LABELS_BY_NAME } from '@/constants/roles.constant';
 
 const ContractorProfile = (): JSX.Element => {
   const { data: me, isLoading, isError } = useGetMeQuery();
@@ -39,7 +27,7 @@ const ContractorProfile = (): JSX.Element => {
           </div>
         </div>
         <div className="ui-field__label">Роль</div>
-        <div>{roleLabel(me.user.role)}</div>
+        <div>{ROLE_LABELS_BY_NAME[me.user.role]}</div>
       </div>
 
       <ProfileTelegramSection telegram={me.telegram ?? null} />

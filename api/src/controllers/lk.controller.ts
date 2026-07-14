@@ -6,7 +6,7 @@ import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
 import roles, { mapRoles } from '../config/roles';
 
-type LkRole = 'CONTRACTOR' | 'CUSTOMER' | 'ADMIN';
+type LkRole = 'CONTRACTOR' | 'CUSTOMER' | 'ADMIN' | 'MANAGER';
 
 const getCurrent = (req: any): { userId: string; roleNumber: number; roleName: string } => {
     const u = req.user || {};
@@ -19,6 +19,7 @@ const getCurrent = (req: any): { userId: string; roleNumber: number; roleName: s
 const resolveRole = (req: any): LkRole => {
     const { roleNumber } = getCurrent(req);
     if (roleNumber === roles.ADMIN) return 'ADMIN';
+    if (roleNumber === roles.MANAGER) return 'MANAGER';
     if (roleNumber === roles.CONTRACTOR) return 'CONTRACTOR';
     return 'CUSTOMER';
 };
@@ -37,6 +38,11 @@ const getMyObjects = catchAsync(async (req, res) => {
 
 const list = catchAsync(async (req, res) => {
     const { userId, roleNumber } = getCurrent(req);
+    if (roleNumber === roles.MANAGER) {
+        const data = await lkService.listForManager(userId, req.query);
+        res.json(data);
+        return;
+    }
     const requested = String(req.query.role || '').toUpperCase();
     if (requested !== 'CONTRACTOR' && requested !== 'CUSTOMER') {
         throw new ApiError(httpStatus.BAD_REQUEST, 'Параметр role обязателен и должен быть contractor или customer');

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 
 import styles from "./UsersDirectory.module.scss";
 import { useDispatch } from "react-redux";
@@ -13,9 +13,23 @@ import СonfirmDeleteUser from "./../../components/СonfirmDeleteUser/СonfirmDe
 import ClearImg from "./../../assets/images/ClearFilter.svg"
 import { resetFilters } from "../../store/samplePoints/samplePoits";
 import UserObjectsAssign from "../UserObjectsAssign/UserObjectsAssign";
+import { useStoredRole } from "../../hooks/useStoredRole";
+import { getUserData } from "../../utils/auth";
+import { normalizeUserId } from "./userDirectoryActions";
+import {
+  buildUserDirectoryRows,
+  formatUserDirectoryRole,
+  getUserDirectoryPolicy,
+  getUserDirectoryRowPolicy,
+  normalizeAllowedRoleId,
+} from "./userDirectoryPolicy";
+
+function funFixRole(value) {
+  return formatUserDirectoryRole(value);
+}
 
 function UsersDirectory() {
-    const [tableDataObject, setTableDataObject] = useState([]);
+    const [users, setUsers] = useState([]);
     const [popUpCreate, setPopUpCreate] = useState(false);
     const {context} = useContext(DataContext);
     const [Email, setEmail] = useState("");
@@ -23,41 +37,23 @@ function UsersDirectory() {
     const [errorMessage, setErrorMessage] = useState("");
     const dispatch = useDispatch();
     const [objectsAssignFor, setObjectsAssignFor] = useState(null);
-    const isCurrentUserManager = JSON.parse(sessionStorage.getItem("userData"))?.user?.role === "ADMIN";
-
-    function funFixData(data) {
-        return data.map((item) => {
-          return {
-            ...item,
-            id: item?.id || "___",
-            isConfirmed: item?.isConfirmed === true ? "Активирован" : "Не активирован",
-            login: item?.login || "___",
-            tgUserId: item?.tgUserId || "___",
-            name: item?.name || "___",
-            role: funFixRole(item?.role),
-            accessButton: (isCurrentUserManager && (item?.role === 3 || item?.role === 4)) ? "button" : null,
-          };
-        });
-      }
-
-    function funFixRole(value){
-      if(value === 2){
-        return "Администратор"
-      }else if(value === 3){
-        return "Заказчик"
-      }else if(value === 4){
-        return "Исполнитель"
-      }else if(value === 5){
-        return "Наблюдатель"
-      }
-      else{
-        return "___"
-      }
-    }
+    const currentRole = useStoredRole();
+    const currentUserId = normalizeUserId(getUserData()?.user?.id);
+    const { canActivate, canCreateOrDelete, roleOptions } = getUserDirectoryPolicy(currentRole);
+    const selectedUserId = normalizeUserId(context.selectRowDirectory);
+    const canShowObjectsAssign = objectsAssignFor !== null && getUserDirectoryRowPolicy(
+      currentRole,
+      currentUserId,
+      { id: objectsAssignFor.id, role: objectsAssignFor.roleId },
+    ).canAssignObjects;
+    const tableDataObject = useMemo(
+      () => buildUserDirectoryRows(users, currentRole, currentUserId),
+      [users, currentRole, currentUserId],
+    );
 
     const getData = () => {
         GetAllUsers().then((response) => {
-            setTableDataObject(funFixData(response.data));
+            setUsers(response.data);
         })
     }
 
@@ -65,9 +61,14 @@ function UsersDirectory() {
         getData();
     }, []);
 
+    useEffect(() => {
+      setObjectsAssignFor(null);
+    }, [currentRole, currentUserId]);
+
     const ActivateUser = () => {
-        if(context.selectRowDirectory != null){
-            RejectActiveAccount(context.selectRowDirectory).then((resp)=>{
+        if (!canActivate) return;
+        if(selectedUserId !== null){
+            RejectActiveAccount(selectedUserId).then((resp)=>{
               if(resp?.status === 200){
                getData();
                 context.setPopUp("PopUpGoodMessage")
@@ -84,23 +85,15 @@ function UsersDirectory() {
         
     }
 
-    const ClickRole = (role, id) => {
-      let roleId;
-      switch (role) {
-        case "Администратор":
-          roleId = 2;
-          break;
-        case "Наблюдатель":
-          roleId = 5;
-          break;
-        default:
-          return;
-      }
+    const ClickRole = (roleId, id) => {
+      const normalizedRoleId = normalizeAllowedRoleId(roleId, roleOptions);
+      const targetUserId = normalizeUserId(id);
+      if (normalizedRoleId === null || targetUserId === null || currentUserId === null) return;
       const data = {
-        role: roleId,
-        userId: id,
+        role: normalizedRoleId,
+        userId: targetUserId,
       }
-      if(id !== JSON.parse(sessionStorage.getItem("userData"))?.user?.id){
+      if(targetUserId !== currentUserId){
         SetRole(data).then((resp)=>{
           if(resp?.status === 200){
               getData();
@@ -116,7 +109,7 @@ function UsersDirectory() {
         return (
           <button
             className={styles.accessButton}
-            onClick={() => setObjectsAssignFor({ id: row.id, name: row.name })}
+            onClick={() => setObjectsAssignFor({ id: row.id, name: row.name, roleId: row.roleId })}
           >
             Доступы
           </button>
@@ -126,6 +119,7 @@ function UsersDirectory() {
     };
 
     const handleCreateUnit = () => {
+        if (!canCreateOrDelete) return;
         if (!Email || !NewRole) {
             setErrorMessage("Пожалуйста, заполните все поля!");
             return;
@@ -148,9 +142,10 @@ function UsersDirectory() {
     }
 
     const deletedUser = ()=>{
-        if( context.selectRowDirectory !== null &&   context.selectRowDirectory !== JSON.parse(sessionStorage.getItem("userData")).user?.id){
+        if (!canCreateOrDelete) return;
+        if(selectedUserId !== null && selectedUserId !== currentUserId){
           context.setPopUp("СonfirmDeleteUser")
-        }else if( context.selectRowDirectory === null){
+        }else if(selectedUserId === null){
           context.setPopupErrorText("Сначала выберите пользователя!");
           context.setPopUp("PopUpError")
         }else{
@@ -170,11 +165,11 @@ function UsersDirectory() {
                   <button onClick={() => dispatch(resetFilters({tableName: "table5"}))} ><img src={ClearImg} /></button>
               </div>
             </div>
-            {JSON.parse(sessionStorage.getItem("userData"))?.user?.role === "ADMIN" && 
+            {canActivate &&
               <div className={styles.ReferenceObjectsTopButton}>
-                  <button onClick={() => setPopUpCreate(true)}>Добавить</button>
+                  {canCreateOrDelete ? <button onClick={() => setPopUpCreate(true)}>Добавить</button> : null}
                   <button onClick={() => ActivateUser()}>Активировать</button>
-                  <button onClick={()=>deletedUser()}>Удалить</button>
+                  {canCreateOrDelete ? <button onClick={()=>deletedUser()}>Удалить</button> : null}
               </div>
             }
         </div>
@@ -185,18 +180,20 @@ function UsersDirectory() {
           tableBody={tableDataObject} 
           selectFlag={true} 
           ClickRole={ClickRole} 
+          roleOptions={roleOptions}
+          roleOptionLabel={funFixRole}
           heightTable="calc(100vh - 285px)"
           customRender={{
             accessButton: renderAccessButton,
           }}
         />
         <UserObjectsAssign
-          open={objectsAssignFor !== null}
-          userId={objectsAssignFor?.id ?? null}
+          open={canShowObjectsAssign}
+          userId={canShowObjectsAssign ? objectsAssignFor.id : null}
           userName={objectsAssignFor?.name}
           onClose={() => setObjectsAssignFor(null)}
         />
-        {popUpCreate && (
+        {canCreateOrDelete && popUpCreate && (
                 <div className={styles.PupUpCreate}>
                     <PopUpContainer mT={300} title="Добавление пользователя" closePopUpFunc={setPopUpCreate}>
                         <div className={styles.PupUpCreateInputInner}>
@@ -216,6 +213,7 @@ function UsersDirectory() {
                                         <option value="3">Заказчик</option>
                                         <option value="4">Исполнитель</option>
                                         <option value="5">Наблюдатель</option>
+                                        <option value="6">Менеджер</option>
                                     </select>
                                       <div>
                                     {errorMessage && <div className={styles.ErrorMessage}>{errorMessage}</div>}
@@ -231,7 +229,7 @@ function UsersDirectory() {
             )}
             {context.popUp === "PopUpError" && <PopUpError />}
              {context.popUp === "PopUpGoodMessage" && <PopUpGoodMessage />}
-             {context.popUp === "СonfirmDeleteUser" &&  <СonfirmDeleteUser updateTable={getData} />}
+             {canCreateOrDelete && context.popUp === "СonfirmDeleteUser" &&  <СonfirmDeleteUser userId={selectedUserId} currentUserId={currentUserId} updateTable={getData} />}
     </div>
      );
 }

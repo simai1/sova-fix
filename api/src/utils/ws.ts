@@ -112,9 +112,17 @@ export const ensureSubscribeAccess = async (user: WsUser, requestId: string): Pr
     const repairRequest = await RepairRequest.findByPk(requestId);
     if (!repairRequest) return 'not_found';
 
-    const roleNumber = user.role ?? 0;
-    const roleName: 'CONTRACTOR' | 'CUSTOMER' | 'ADMIN' =
-        roleNumber === roles.ADMIN ? 'ADMIN' : roleNumber === roles.CONTRACTOR ? 'CONTRACTOR' : 'CUSTOMER';
+    const currentUser = await User.findByPk(user.userId);
+    if (!currentUser || !currentUser.isActivated) return 'forbidden';
+    const roleNumber = currentUser.role;
+    const roleName: 'CONTRACTOR' | 'CUSTOMER' | 'ADMIN' | 'MANAGER' =
+        roleNumber === roles.ADMIN
+            ? 'ADMIN'
+            : roleNumber === roles.MANAGER
+              ? 'MANAGER'
+              : roleNumber === roles.CONTRACTOR
+                ? 'CONTRACTOR'
+                : 'CUSTOMER';
     const ctx = await lkService.loadUserContext(user.userId);
     const canRead = lkService.canRead(repairRequest, roleName, {
         contractor: ctx.contractor,

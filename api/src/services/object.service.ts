@@ -10,6 +10,9 @@ import { emitTo } from '../utils/ws';
 import roles from '../config/roles';
 import { models } from '../models';
 import logger from '../utils/logger';
+import UserObject from '../models/userObject';
+import { RequestScope } from './request-access.service';
+import { Op } from 'sequelize';
 
 const getObjectById = async (id: string): Promise<ObjectDir | null> => {
     return await ObjectDir.findByPk(id, { include: [{ model: Unit }, { model: LegalEntity }] });
@@ -24,6 +27,36 @@ const getAllObjects = async (unitId?: string | null): Promise<ObjectDto[]> => {
         where,
     });
     return objects.map(o => new ObjectDto(o));
+};
+
+const getObjectsByIds = async (objectIds: string[], unitId?: string | null): Promise<ObjectDto[]> => {
+    if (objectIds.length === 0) return [];
+    const objects = await ObjectDir.findAll({
+        include: [{ model: Unit }, { model: LegalEntity }],
+        order: [['number', 'ASC']],
+        where: {
+            id: { [Op.in]: objectIds },
+            ...(unitId ? { unitId } : {}),
+        },
+    });
+    return objects.map(object => new ObjectDto(object));
+};
+
+const getScopeObjects = async (scope: RequestScope, unitId?: string | null): Promise<ObjectDto[]> => {
+    if (scope.kind === 'all') return getAllObjects(unitId);
+    return getObjectsByIds(scope.objectIds, unitId);
+};
+
+const getWebUserObjects = async (userId: string, unitId?: string | null): Promise<ObjectDto[]> => {
+    const assignments = await UserObject.findAll({
+        attributes: ['objectId'],
+        where: { userId },
+        raw: true,
+    });
+    return getObjectsByIds(
+        assignments.map(assignment => assignment.objectId),
+        unitId
+    );
 };
 
 /**
@@ -95,7 +128,7 @@ const createObject = async (
     const objectDir = await ObjectDir.create({ name, unitId, city, number: 1, legalEntityId, budgetPlan });
     await legalEntityService.setCountLegalEntity(legalEntityId);
     await unitService.setCountUnit(unitId);
-    emitTo({ kind: 'role', roles: [roles.ADMIN] }, 'OBJECT_CREATE', { objectName: name });
+    emitTo({ kind: 'role', roles: [roles.ADMIN, roles.MANAGER] }, 'OBJECT_CREATE', { objectName: name });
     objectDir.LegalEntity = legalEntity;
     objectDir.Unit = unit;
     return new ObjectDto(objectDir);
@@ -141,6 +174,8 @@ const updateObject = async (
 export default {
     getObjectById,
     getAllObjects,
+    getScopeObjects,
+    getWebUserObjects,
     getUserObjects,
     createObject,
     getOneObject,

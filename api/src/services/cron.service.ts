@@ -14,8 +14,9 @@ import Unit from '../models/unit';
 import TgUser from '../models/tgUser';
 import LegalEntity from '../models/legalEntity';
 import { emitTo } from '../utils/ws';
-import roles from '../config/roles';
 import { contractorInclude } from '../utils/contractorInclude';
+import notificationService from './notification.service';
+import { getAdministrativeAudienceUserIds } from './request-access.service';
 
 function isDifferenceGreaterThan7Days(date2: Date) {
     try {
@@ -156,15 +157,18 @@ export default {
                             number: 0,
                         },
                     });
-                    if (created)
+                    if (created) {
                         logger.log({
                             level: 'info',
                             message: `[${format(new Date(), 'dd.MM.yyyy HH:mm')}] [CRON autoRequests]: ${request.number}, ${request.createdBy}] `,
                         });
-                    emitTo({ kind: 'role', roles: [roles.ADMIN] }, 'REQUEST_CREATE', {
-                        requestId: request.id,
-                        customer: request.createdBy,
-                    });
+                        const audienceUserIds = await getAdministrativeAudienceUserIds(request.objectId ?? null);
+                        emitTo({ kind: 'users', userIds: audienceUserIds }, 'REQUEST_CREATE', {
+                            requestId: request.id,
+                            customer: request.createdBy,
+                        });
+                        await notificationService.notifyRequestCreated(request);
+                    }
                 } catch (e) {
                     console.log(e);
                 }

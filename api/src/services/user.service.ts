@@ -39,11 +39,16 @@ const getUserByRefreshToken = async (refreshToken: string): Promise<User | null>
     return await getUserById(token.userId);
 };
 
-const setRole = async (role: number, userId: string): Promise<void> => {
-    if (!Object.values(roles).includes(role)) throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid role');
-    const user = await getUserById(userId);
-    if (!user) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found user');
-    await user.update({ role });
+const setRole = async (role: number, userId: string, actorUserId: string): Promise<void> => {
+    if (!Object.values(roles).includes(role)) throw new ApiError(httpStatus.BAD_REQUEST, 'Некорректная роль');
+    const [actor, target] = await Promise.all([getUserById(actorUserId), getUserById(userId)]);
+    if (!actor) throw new ApiError(httpStatus.NOT_FOUND, 'Пользователь не найден');
+    if (actor.role !== roles.ADMIN) {
+        throw new ApiError(httpStatus.FORBIDDEN, 'Изменять роли пользователей может только Администратор');
+    }
+    if (!target) throw new ApiError(httpStatus.NOT_FOUND, 'Пользователь не найден');
+    if (actor.id === target.id) throw new ApiError(httpStatus.BAD_REQUEST, 'Нельзя изменить собственную роль');
+    await target.update({ role });
 };
 
 const getAllUsers = async (): Promise<UserDto[]> => {
@@ -156,9 +161,21 @@ const getUserByTgId = async (tgId: string) => {
     return new UserDto(user);
 };
 
-const setUserObjects = async (userId: string, objectIds: string[]): Promise<string[]> => {
-    const user = await User.findByPk(userId);
-    if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'Пользователь не найден');
+const assertCanManageUserObjects = async (actorUserId: string, targetUserId: string): Promise<User> => {
+    const [actor, target] = await Promise.all([getUserById(actorUserId), getUserById(targetUserId)]);
+    if (!actor || !target) throw new ApiError(httpStatus.NOT_FOUND, 'Пользователь не найден');
+    const allowedTargets =
+        actor.role === roles.ADMIN
+            ? [roles.CUSTOMER, roles.CONTRACTOR, roles.MANAGER]
+            : [roles.CUSTOMER, roles.CONTRACTOR];
+    if (!allowedTargets.includes(target.role)) {
+        throw new ApiError(httpStatus.FORBIDDEN, 'Недостаточно прав для управления доступами пользователя');
+    }
+    return target;
+};
+
+const setUserObjects = async (userId: string, objectIds: string[], actorUserId: string): Promise<string[]> => {
+    await assertCanManageUserObjects(actorUserId, userId);
 
     const unique = Array.from(new Set(objectIds));
     if (unique.length) {
@@ -180,9 +197,8 @@ const setUserObjects = async (userId: string, objectIds: string[]): Promise<stri
     return fresh.map(uo => uo.objectId);
 };
 
-const getUserObjects = async (userId: string): Promise<string[]> => {
-    const user = await User.findByPk(userId);
-    if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'Пользователь не найден');
+const getUserObjects = async (userId: string, actorUserId: string): Promise<string[]> => {
+    await assertCanManageUserObjects(actorUserId, userId);
     const rows = await UserObject.findAll({ where: { userId }, attributes: ['objectId'] });
     return rows.map(r => r.objectId);
 };

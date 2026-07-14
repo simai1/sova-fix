@@ -53,7 +53,7 @@ function PopUpEditAppoint(props) {
   useEffect(() => {
     setSelectId(context.moreSelect[0] || context.selectedTr);
     updGetData(context.moreSelect[0] || context.selectedTr);
-    GetObjectsAll(`?userId=${JSON.parse(sessionStorage.getItem("userData"))?.user?.id}`).then((response) => {
+    GetObjectsAll("?scope=requests").then((response) => {
       setDataObject(response.data);
     });
 

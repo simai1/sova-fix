@@ -8,6 +8,19 @@ import logger from '../utils/logger';
 import { migrateManagerIds, validateManagerIds } from '../utils/migrationUtils';
 import Status from '../models/status';
 import { resolveTgUser } from '../utils/resolveTgUser';
+import type { Request } from 'express';
+import type { RequestCreator } from '../services/request.service';
+import { assertObjectAccess } from '../services/request-access.service';
+
+const resolveRequestCreator = async (req: Request): Promise<RequestCreator> => {
+    if (req.actor?.kind === 'web') return { kind: 'web', userId: req.actor.userId };
+    if (req.actor?.kind !== 'bot') throw new ApiError(httpStatus.UNAUTHORIZED, 'Пользователь не авторизован');
+
+    const { userId, tgUserId } = req.body;
+    if (!userId && !tgUserId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing userId or tgUserId');
+    const tgUser = await resolveTgUser({ userId, tgUserId });
+    return { kind: 'bot', tgUserId: tgUser.id };
+};
 
 const getAll = catchAsync(async (req, res) => {
     const filter = prepare(
@@ -58,33 +71,34 @@ const getAll = catchAsync(async (req, res) => {
     const pagination = prepare(pick(req.query, ['limit', 'offset']));
     if (order.type && ['asc', 'desc'].indexOf(order.type) === -1)
         throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid order type');
-    const [requestsDtos, maxCount] = await requestService.getAllRequests(filter, order, pagination, userId);
+    const [requestsDtos, maxCount] = await requestService.getAllRequests(
+        filter,
+        order,
+        pagination,
+        req.requestScope!,
+        userId
+    );
     res.json({ maxCount, data: requestsDtos });
 });
 
 const getRequestCountController = catchAsync(async (req, res) => {
-    const response = await requestService.getRequestCount();
+    const response = await requestService.getRequestCount(req.requestScope!);
     res.json({ response });
 });
 
 const getOne = catchAsync(async (req, res) => {
     const { requestId } = req.params;
-    const requestDto = await requestService.getRequestById(requestId);
+    const requestDto = await requestService.getRequestById(requestId, req.requestScope!);
     res.json(requestDto);
 });
 
 const create = catchAsync(async (req, res) => {
-    const { objectId, problemDescription, urgency, repairPrice, comment, tgUserId, userId, directoryCategoryId } =
-        req.body;
+    const { objectId, problemDescription, urgency, repairPrice, comment, directoryCategoryId } = req.body;
     const fileName = req.file?.filename;
     if (!fileName) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing file');
-    if (!userId && !tgUserId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing userId or tgUserId');
     if (!objectId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing object');
     if (!urgency) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing urgency');
-    const tgUser = await resolveTgUser({ userId, tgUserId });
-
-    if (!tgUser || (tgUser.role !== 3 && tgUser.role !== 2 && tgUser.role !== 1))
-        throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid tgUser');
+    const creator = await resolveRequestCreator(req);
     const requestDto = await requestService.createRequest(
         objectId,
         problemDescription,
@@ -92,48 +106,37 @@ const create = catchAsync(async (req, res) => {
         repairPrice,
         comment,
         fileName,
-        tgUser.id,
+        creator,
         directoryCategoryId
     );
     res.json({ requestDto });
 });
 
 const createWithoutPhoto = catchAsync(async (req, res) => {
-    const { objectId, problemDescription, urgency, repairPrice, comment, tgUserId, userId, directoryCategoryId } =
-        req.body;
-    if (!userId && !tgUserId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing userId or tgUserId');
+    const { objectId, problemDescription, urgency, repairPrice, comment, directoryCategoryId } = req.body;
     if (!objectId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing object');
     if (!urgency) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing urgency');
-    const tgUser = await resolveTgUser({ userId, tgUserId });
-
-    if (!tgUser || (tgUser.role !== 3 && tgUser.role !== 2 && tgUser.role !== 1))
-        throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid tgUser');
+    const creator = await resolveRequestCreator(req);
     const requestDto = await requestService.createRequestWithoutPhoto(
         objectId,
         problemDescription,
         urgency,
         repairPrice,
         comment,
-        tgUser.id,
+        creator,
         directoryCategoryId
     );
     res.json({ requestDto });
 });
 
 const createWithMultiplePhotos = catchAsync(async (req, res) => {
-    const { objectId, problemDescription, urgency, repairPrice, comment, userId, tgUserId, directoryCategoryId } =
-        req.body;
+    const { objectId, problemDescription, urgency, repairPrice, comment, directoryCategoryId } = req.body;
     const files = (req as any).files as Express.Multer.File[];
 
     if (!files || files.length === 0) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing files');
-    if (!userId && !tgUserId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing userId or tgUserId');
     if (!objectId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing object');
     if (!urgency) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing urgency');
-
-    const tgUser = await resolveTgUser({ userId, tgUserId });
-
-    if (!tgUser || (tgUser.role !== 3 && tgUser.role !== 2 && tgUser.role !== 1))
-        throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid tgUser');
+    const creator = await resolveRequestCreator(req);
 
     const fileNames = files.map(file => file.filename);
 
@@ -144,7 +147,7 @@ const createWithMultiplePhotos = catchAsync(async (req, res) => {
         repairPrice,
         comment,
         fileNames,
-        tgUser.id,
+        creator,
         directoryCategoryId
     );
 
@@ -155,7 +158,7 @@ const setContractor = catchAsync(async (req, res) => {
     const { requestId, contractorId, managerId } = req.body;
     if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
     if (!contractorId && !managerId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing contractorId or managerId');
-    await requestService.setContractor(requestId, contractorId, managerId);
+    await requestService.setContractor(requestId, contractorId, managerId, req.repairRequest!);
     res.json({ status: 'OK' });
 });
 
@@ -163,7 +166,7 @@ const setExtContractor = catchAsync(async (req, res) => {
     const { requestId, extContractorId } = req.body;
     if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
     if (!extContractorId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing extContractorId');
-    await requestService.setExtContractor(requestId, extContractorId);
+    await requestService.setExtContractor(requestId, extContractorId, req.repairRequest!);
     res.json({ status: 'OK' });
 });
 
@@ -171,7 +174,7 @@ const setComment = catchAsync(async (req, res) => {
     const { requestId, comment } = req.body;
     if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
     if (!comment) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing comment');
-    await requestService.setComment(requestId, comment);
+    await requestService.setComment(requestId, comment, req.repairRequest!);
     res.json({ status: 'OK' });
 });
 
@@ -180,21 +183,21 @@ const setCommentAttachment = catchAsync(async (req, res) => {
     const fileName = req.file?.filename;
     if (!fileName) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing file');
     if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
-    const request = await requestService.setCommentAttachment(requestId, fileName);
+    const request = await requestService.setCommentAttachment(requestId, fileName, req.repairRequest!);
     res.json(request);
 });
 
 const removeContractor = catchAsync(async (req, res) => {
     const { requestId } = req.body;
     if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
-    await requestService.removeContractor(requestId);
+    await requestService.removeContractor(requestId, req.repairRequest!);
     res.json({ status: 'OK' });
 });
 
 const removeExtContractor = catchAsync(async (req, res) => {
     const { requestId } = req.body;
     if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
-    await requestService.removeExtContractor(requestId);
+    await requestService.removeExtContractor(requestId, req.repairRequest!);
     res.json({ status: 'OK' });
 });
 
@@ -205,14 +208,14 @@ const setStatus = catchAsync(async (req, res) => {
     if (!status) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing status');
     const statusFromDb = await Status.findOne({ where: { number: status } });
     if (!statusFromDb) throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid status');
-    await requestService.setStatus(requestId, status, statusFromDb.id);
+    await requestService.setStatus(requestId, status, statusFromDb.id, req.repairRequest!);
     res.json({ status: 'OK' });
 });
 
 const deleteRequest = catchAsync(async (req, res) => {
     const { requestId } = req.params;
     if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
-    await requestService.deleteRequest(requestId);
+    await requestService.deleteRequest(requestId, req.repairRequest!);
     res.json({ status: 'OK' });
 });
 
@@ -233,6 +236,7 @@ const update = catchAsync(async (req, res) => {
     } = req.body;
     const { requestId } = req.params;
     if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
+    if (objectId) assertObjectAccess(objectId, req.requestScope!);
 
     if (
         !objectId &&
@@ -271,7 +275,8 @@ const update = catchAsync(async (req, res) => {
         builder,
         planCompleteDate,
         urgencyId,
-        managerTgId
+        managerTgId,
+        req.repairRequest!
     );
     res.json({ status: 'OK' });
 });
@@ -300,7 +305,7 @@ const getCustomersRequests = catchAsync(async (req, res) => {
     );
 
     if (!tgUserId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing tgUserId');
-    const requestsDtos = await requestService.getCustomersRequests(tgUserId, filter);
+    const requestsDtos = await requestService.getCustomersRequests(tgUserId, filter, req.requestScope!);
     res.json(requestsDtos);
 });
 
@@ -332,7 +337,7 @@ const getRequestsByObjects = catchAsync(async (req, res) => {
     }
 
     try {
-        const requestsDtos = await requestService.getRequestsByObjects(tgUserId, filter);
+        const requestsDtos = await requestService.getRequestsByObjects(tgUserId, filter, req.requestScope!);
         res.json(requestsDtos);
     } catch (error) {
         console.error('Error getting requests by objects:', error);
@@ -345,7 +350,7 @@ const addCheck = catchAsync(async (req, res) => {
     const fileName = req.file?.filename;
     if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
     if (!fileName) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing file');
-    await requestService.addCheck(requestId, fileName);
+    await requestService.addCheck(requestId, fileName, req.repairRequest!);
     res.json({ status: 'OK' });
 });
 
@@ -353,7 +358,7 @@ const bulkDelete = catchAsync(async (req, res) => {
     const { ids } = req.body;
     if (!ids) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing ids');
     if (typeof ids !== 'object') throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid ids');
-    await requestService.bulkDeleteRequests(ids);
+    await requestService.bulkDeleteRequests(req.scopedRequests!);
     res.json({ status: 'OK' });
 });
 
@@ -362,7 +367,7 @@ const bulkStatus = catchAsync(async (req, res) => {
     if (!ids) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing ids');
     if (!status) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing status');
     if (typeof ids !== 'object') throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid ids');
-    await requestService.bulkSetStatus(ids, status);
+    await requestService.bulkSetStatus(req.scopedRequests!, status);
     res.json({ status: 'OK' });
 });
 
@@ -371,7 +376,7 @@ const bulkUrgency = catchAsync(async (req, res) => {
     if (!ids) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing ids');
     if (!urgency) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing urgency');
     if (typeof ids !== 'object') throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid ids');
-    await requestService.bulkSetUrgency(ids, urgency);
+    await requestService.bulkSetUrgency(req.scopedRequests!, urgency);
     res.json({ status: 'OK' });
 });
 
@@ -380,19 +385,19 @@ const bulkContractor = catchAsync(async (req, res) => {
     if (!ids) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing ids');
     if (!contractorId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing contractorId');
     if (typeof ids !== 'object') throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid ids');
-    await requestService.bulkSetContractor(ids, contractorId);
+    await requestService.bulkSetContractor(req.scopedRequests!, contractorId);
     res.json({ status: 'OK' });
 });
 
 const copy = catchAsync(async (req, res) => {
     const { requestId } = req.params;
     if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
-    await requestService.copyRequest(requestId);
+    await requestService.copyRequest(requestId, req.repairRequest!);
     res.json({ status: 'OK' });
 });
 
 const getStat = catchAsync(async (req, res) => {
-    const [requests] = await requestService.getAllRequests({}, {}, {});
+    const [requests] = await requestService.getAllRequests({}, {}, {}, req.requestScope!);
 
     if (!Array.isArray(requests)) {
         throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Failed to get requests');
@@ -417,7 +422,7 @@ const setManager = catchAsync(async (req, res) => {
     const { requestId, managerId } = req.body;
     if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing requestId');
     if (!managerId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing managerId');
-    await requestService.setManager(requestId, managerId);
+    await requestService.setManager(requestId, managerId, req.repairRequest!);
     res.json({ status: 'OK' });
 });
 
@@ -444,14 +449,14 @@ const setNewDirectoryCategory = catchAsync(async (req, res) => {
     if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'missing requestId');
     if (!directoryCategoryId) throw new ApiError(httpStatus.BAD_REQUEST, 'missing directoryCategoryId');
 
-    await requestService.setNewDirectoryCategory(requestId, directoryCategoryId);
+    await requestService.setNewDirectoryCategory(requestId, directoryCategoryId, req.repairRequest!);
     res.json({ status: 'OK' });
 });
 
 const getCountFilesRequest = catchAsync(async (req, res) => {
     const { requestId } = req.params;
     if (!requestId) throw new ApiError(httpStatus.BAD_REQUEST, 'missing requestId');
-    const count = await requestService.countOfRepairRequest(requestId);
+    const count = await requestService.countOfRepairRequest(requestId, req.requestScope!);
     res.json({ count });
 });
 
@@ -461,7 +466,7 @@ const getActualRequestsByObjectId = catchAsync(async (req, res) => {
     if (!tgUserId) throw new ApiError(httpStatus.BAD_REQUEST, 'missing tgUserId');
     if (!unitId) throw new ApiError(httpStatus.BAD_REQUEST, 'missing unitId');
 
-    const requests = await requestService.getActualRequestsByObjectId(tgUserId, unitId, objectId);
+    const requests = await requestService.getActualRequestsByObjectId(tgUserId, unitId, req.requestScope!, objectId);
     res.json({ requests });
 });
 

@@ -1,5 +1,6 @@
 import axios from "axios";
 import { API_URL, WEB_URL } from '../constants/env.constant.ts'
+import { clearUserData, setUserData } from '../utils/auth.ts'
 const http = axios.create({
   withCredentials: true,
 });
@@ -23,7 +24,7 @@ export const getRefreshPromise = () => {
       sessionStorage.setItem("accessToken", accessToken);
       sessionStorage.setItem("refreshToken", refreshToken);
       if (userData && Object.keys(userData).length > 0) {
-        sessionStorage.setItem("userData", JSON.stringify(userData));
+        setUserData(userData);
       }
       sessionStorage.setItem("lastRefreshTime", String(Date.now()));
       return accessToken;
@@ -44,7 +45,7 @@ export const refreshTokens = async () => {
 export const clearAuthSession = () => {
   sessionStorage.removeItem("accessToken");
   sessionStorage.removeItem("refreshToken");
-  sessionStorage.removeItem("userData");
+  clearUserData();
   sessionStorage.removeItem("lastRefreshTime");
   sessionStorage.removeItem("refreshTokensInterval");
   localStorage.removeItem("rememberMe");
@@ -139,7 +140,7 @@ export const LoginFunc = async (UserData, rememberMe = false) => {
   const { accessToken, refreshToken, ...userData } = response.data;
   sessionStorage.setItem("accessToken", accessToken);
   sessionStorage.setItem("refreshToken", refreshToken);
-  sessionStorage.setItem("userData", JSON.stringify(userData));
+  setUserData(userData);
   if (rememberMe) {
     localStorage.setItem("rememberMe", "true");
   } else {
@@ -175,7 +176,7 @@ export const ActivateFunc = async (UserData, idUser) => {
     const { accessToken, refreshToken, ...userData } = response.data;
     sessionStorage.setItem("accessToken", accessToken);
     sessionStorage.setItem("refreshToken", refreshToken);
-    sessionStorage.setItem("userData", JSON.stringify(userData));
+    setUserData(userData);
     refreshTokensTimer();
     return response;
   } catch (error) {
@@ -457,11 +458,15 @@ export const GetPhotoServer = async (id) => {
 
 export const RejectActiveAccount = async (id) => {
   try {
-    const response = await http.patch(`${server}/users/confirm/${id}`, {
-      headers: {
-        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+    const response = await http.patch(
+      `${server}/users/confirm/${id}`,
+      null,
+      {
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+        },
       },
-    });
+    );
     return response;
   } catch (error) {
     if (error?.response?.status === 403) {

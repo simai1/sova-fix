@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import EquipmentContextMenu from "../../UI/EquipmentContextMenu/EquipmentContextMenu";
 import { getStatusValue } from "./utils";
 import { API_URL } from "../../constants/env.constant";
+import { clearUserDirectorySelection } from "../../modules/UsersDirectory/userDirectoryActions";
 
 function UniversalTable(props) {
   const store = useSelector(
@@ -41,7 +42,11 @@ function UniversalTable(props) {
   }, [props?.tableHeader, props?.tableBody, store]);
 
   useEffect(() => {
-    context.setSelectRowDirectory(null);
+    setDropdownVisible(null);
+  }, [props?.roleOptions, props?.tableBody]);
+
+  useEffect(() => {
+    clearUserDirectorySelection(context);
   }, []);
 
   const openModal = (src) => {
@@ -272,7 +277,7 @@ function UniversalTable(props) {
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (!event.target.closest("tr") && !event.target.closest("button")) {
-        context.setSelectedTr(null);
+        clearUserDirectorySelection(context);
       }
     };
 
@@ -356,8 +361,9 @@ function UniversalTable(props) {
     return 0;
   };
 
-  const handleRoleClick = (rowIndex, role) => {
-    (role === "Администратор" || role === "Наблюдатель") && JSON.parse(sessionStorage.getItem("userData"))?.user?.role === "ADMIN" && setDropdownVisible(dropdownVisible === rowIndex ? null : rowIndex);
+  const handleRoleClick = (rowIndex, row) => {
+    if (!row.roleEditable || !props?.roleOptions?.length) return;
+    setDropdownVisible(dropdownVisible === rowIndex ? null : rowIndex);
   };
 
   const checkHeights = (arr, index) => {
@@ -571,10 +577,9 @@ function UniversalTable(props) {
         ) : (
             <div key={rowIndex} className={styles.RoleClick}>
               <div
-                onClick={() => handleRoleClick(rowIndex , row.role)}
+                onClick={() => handleRoleClick(rowIndex, row)}
                 className={
-                  (row.role === "Администратор" || row.role === "Наблюдатель") &&
-                  JSON.parse(sessionStorage.getItem("userData"))?.user?.role === "ADMIN"
+                  row.roleEditable && props?.roleOptions?.length
                     ? styles.statusClick
                     : styles.statusReadonly
                 }
@@ -592,8 +597,17 @@ function UniversalTable(props) {
                   }
                 >
                   <ul>
-                    <li onClick={() => {props?.ClickRole("Администратор", row.id); setDropdownVisible(null);}}>Администратор</li>
-                    <li onClick={() => {props?.ClickRole("Наблюдатель", row.id); setDropdownVisible(null);}}>Наблюдатель</li>
+                    {props.roleOptions.map((roleId) => (
+                      <li
+                        key={roleId}
+                        onClick={() => {
+                          props?.ClickRole(roleId, row.id);
+                          setDropdownVisible(null);
+                        }}
+                      >
+                        {props?.roleOptionLabel?.(roleId) ?? roleId}
+                      </li>
+                    ))}
                   </ul>
                 </div>
                 )}

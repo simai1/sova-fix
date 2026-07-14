@@ -11,10 +11,10 @@ import jwtUtils from '../utils/jwt';
 import { encrypt, isMatch, needsRehash } from '../utils/encryption';
 import tgUserService from './tgUser.service';
 import { emitTo } from '../utils/ws';
-import roles from '../config/roles';
 import wsEvents from '../config/wsEvents';
 import logger from '../utils/logger';
 import notificationService from './notification.service';
+import { getAdministrativeAudienceUserIds } from './request-access.service';
 
 const PENDING_TOKEN_TTL_MS = 24 * 60 * 60 * 1000;
 
@@ -144,7 +144,8 @@ const registerPublic = async (
     });
 
     const dto = new UserDto(user);
-    emitTo({ kind: 'role', roles: [roles.ADMIN] }, wsEvents.USER_REGISTRATION_REQUEST, { userId: dto.id });
+    const audienceUserIds = await getAdministrativeAudienceUserIds();
+    emitTo({ kind: 'users', userIds: audienceUserIds }, wsEvents.USER_REGISTRATION_REQUEST, { userId: dto.id });
 
     await notificationService.notifyRegistrationRequest(role);
 

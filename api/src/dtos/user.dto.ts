@@ -1,12 +1,12 @@
 import User from '../models/user';
-import { mapRoles } from '../config/roles';
+import roles, { mapRoles } from '../config/roles';
 
 export default class UserDto {
     id!: string;
     login!: string;
     name?: string;
     isActivated!: boolean;
-    role!: number;
+    role!: keyof typeof roles;
     createdAt?: string;
 
     constructor(model: User) {

@@ -7,13 +7,13 @@ import roles, { roleNamesRu } from '../config/roles';
 
 const verifyAnyRole = (roleNames: string[]) =>
     catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-        const { refreshToken } = req.cookies;
-        if (!refreshToken) {
+        const userId = req.user?.id;
+        if (typeof userId !== 'string') {
             return next(new ApiError(httpStatus.UNAUTHORIZED, 'Пользователь не авторизован'));
         }
         let user;
         try {
-            user = await userService.getUserByRefreshToken(refreshToken);
+            user = await userService.getUserById(userId);
         } catch {
             return next(new ApiError(httpStatus.UNAUTHORIZED, 'Пользователь не авторизован'));
         }
@@ -29,6 +29,7 @@ const verifyAnyRole = (roleNames: string[]) =>
             const userRoleRu = roleNamesRu[user.role] ?? 'вашей роли';
             return next(new ApiError(httpStatus.FORBIDDEN, `Операция недоступна для роли «${userRoleRu}».`));
         }
+        req.user.role = user.role;
         return next();
     });
 

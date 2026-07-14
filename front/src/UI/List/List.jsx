@@ -60,7 +60,7 @@ function List({ dataList, Textlabel, defaultValue, funSetData, itemKey, placehol
               style={{
                 transform: activeList ? "rotate(0deg)" : "rotate(-90deg)",
               }}
-              src="./img/arrow_bottom.svg"
+              src="/img/arrow_bottom.svg"
             />
           </span>
         </div>

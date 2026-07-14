@@ -3,7 +3,13 @@ import catchAsync from '../utils/catchAsync';
 
 const getTableReportData = catchAsync(async (req, res) => {
     const { parametrs, indicators, additionalParametrs, filterData } = req.body;
-    const result = await reportsService.getTableReportData(parametrs, indicators, additionalParametrs, filterData);
+    const result = await reportsService.getTableReportData(
+        parametrs,
+        indicators,
+        additionalParametrs,
+        filterData,
+        req.requestScope!
+    );
     return res.json(result);
 });
 

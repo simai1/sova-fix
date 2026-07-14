@@ -3,36 +3,38 @@ import objectService from '../services/object.service';
 import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
 import User from '../models/user';
+import roles from '../config/roles';
 
 const getAll = catchAsync(async (req, res) => {
-    const { tgUserId, userId, unitId } = req.query;
+    const { tgUserId, unitId, scope } = req.query;
+    const actor = req.actor!;
+    const normalizedUnitId = unitId ? (unitId as string) : null;
 
-    if (tgUserId) {
+    if (actor.kind === 'bot') {
+        if (!tgUserId) return res.json(await objectService.getAllObjects(normalizedUnitId));
         const tgUser = await User.findOne({ where: { tgManagerId: tgUserId } });
         if (!tgUser) throw new ApiError(httpStatus.NOT_FOUND, 'TgUser not found');
-        if (tgUser.role === 2) {
-            const objects = await objectService.getAllObjects();
+        if (tgUser.role === roles.ADMIN) {
+            const objects = await objectService.getAllObjects(normalizedUnitId);
             return res.json(objects);
         }
-        const userObjects = await objectService.getUserObjects(tgUserId as string);
+        const userObjects = await objectService.getUserObjects(tgUserId as string, normalizedUnitId ?? undefined);
         return res.json(userObjects);
     }
 
-    if (userId) {
-        const user = await User.findOne({ where: { id: userId } });
-        if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
-        if (user.role === 2) {
-            const objects = await objectService.getAllObjects(unitId ? (unitId as string) : null);
-            return res.json(objects);
-        }
-        const tgManagerId = user?.tgManagerId;
-        if (!tgManagerId) throw new ApiError(httpStatus.NOT_FOUND, 'tgManagerId is null');
-        const userObjects = await objectService.getUserObjects(tgManagerId as string, unitId as string);
-        if (userObjects.length) {
-            return res.json(userObjects);
-        }
+    if (scope === 'requests') {
+        if ([roles.ADMIN, roles.OBSERVER].includes(actor.role))
+            return res.json(await objectService.getAllObjects(normalizedUnitId));
+        if (actor.role === roles.MANAGER)
+            return res.json(await objectService.getScopeObjects(req.requestScope!, normalizedUnitId));
+        if ([roles.CUSTOMER, roles.CONTRACTOR].includes(actor.role))
+            return res.json(await objectService.getWebUserObjects(actor.userId, normalizedUnitId));
+        throw new ApiError(httpStatus.FORBIDDEN, 'Доступ запрещён');
     }
-    return res.json([]);
+
+    if (![roles.ADMIN, roles.MANAGER, roles.OBSERVER].includes(actor.role))
+        throw new ApiError(httpStatus.FORBIDDEN, 'Доступ запрещён');
+    return res.json(await objectService.getAllObjects(normalizedUnitId));
 });
 
 const create = catchAsync(async (req, res) => {

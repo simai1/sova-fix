@@ -4,6 +4,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import DataContext from "../../../context";
 import { tableHeadAppoint } from "../../../components/Table/Data";
 import { LoginFunc } from "../../../API/API";
+import { useAppDispatch } from "../../../hooks/store";
+import { transitionAfterSuccessfulLogin } from "../../../utils/authBoundary";
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -11,6 +13,7 @@ function Authorization() {
   const { context } = React.useContext(DataContext);
   const [errorAuth, setErrorAuth] = useState("");
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const location = useLocation();
   const [approvedMessage, setApprovedMessage] = useState("");
 
@@ -60,7 +63,7 @@ function Authorization() {
 
     try {
       const resp = await LoginFunc(formData, rememberMe);
-      if (resp?.status !== 200) {
+      if (!transitionAfterSuccessfulLogin({ status: resp?.status, dispatch })) {
         setErrorAuth("Неверный логин или пароль");
         return;
       }
@@ -118,7 +121,7 @@ function Authorization() {
       <div>
         <div className={styles.box}>
           <div className={styles.text_Logo}>
-            <img src="./img/SOVA.jpg" className={styles.LogoAuth} />
+            <img src="/img/SOVA.jpg" className={styles.LogoAuth} />
           </div>
 
           <div className={styles.container}>

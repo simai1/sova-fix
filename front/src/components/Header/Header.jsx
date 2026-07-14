@@ -3,13 +3,22 @@ import React, { useState, useEffect, useRef, useContext } from 'react';
 import './Menu.css';
 import { useNavigate } from "react-router-dom";
 import DataContext from "../../context";
-import { GetAllSettings, GetObjectsAll, LogOut } from "../../API/API";
-import { useDispatch } from "react-redux";
+import { GetAllSettings, GetObjectsAll } from "../../API/API";
 import imgClose from "./../../assets/images/x.svg";
 import arrowBottom from "./../../assets/images/arrow_bottom.svg";
 import Logo from "./../../assets/images/SovaFixLogo.svg"
 import Toggle from "../../UI/Toggle/Toggle";
 import { GLOBAL_OPEN_REPORT_BLOCK, GLOBAL_OPEN_TO_BLOCK, OBJECTS_LIMIT, PICTURE_NAME } from "../../constants/env.constant";
+import { isAdminUiRole, isBackOfficeUiRole } from "../../constants/roles.constant";
+import { useLogout } from "../../hooks/useLogout";
+import { useStoredRole } from "../../hooks/useStoredRole";
+
+const HEADER_LOGO_FALLBACK = Logo;
+
+const handleHeaderLogoError = (event) => {
+  if (event.currentTarget.src.endsWith(HEADER_LOGO_FALLBACK)) return;
+  event.currentTarget.src = HEADER_LOGO_FALLBACK;
+};
 
 function Header() {
     const { context } = useContext(DataContext);
@@ -17,6 +26,7 @@ function Header() {
     const menuRef = useRef(null);
     const [shortName, setShortName] = useState("")
     const navigate = useNavigate();
+    const logout = useLogout();
     const [isOpenSprav, setIsOpenSprav] = useState(false);
     const [isOpenFinans, setIsOpenFinans] = useState(false);
     const [isOpenSystem, setIsOpenSystem] = useState(false);
@@ -30,6 +40,9 @@ function Header() {
     const [objectsLength, setObjectsLength] = useState(0)
 
     const [isRepairWithPhotoSetting, setIsRepairWithPhotoSettings] = useState()
+    const userRole = useStoredRole();
+    const hasAdminUiAccess = isAdminUiRole(userRole);
+    const hasBackOfficeUiAccess = isBackOfficeUiRole(userRole);
 
     useEffect(()=>{
       if(!sessionStorage.getItem("userData")){navigate("/Authorization")}else{
@@ -70,14 +83,8 @@ function Header() {
     }, [isOpen]);
 
   const Exit =()=>{
-    LogOut().then((resp)=>{
-      if(resp?.status === 200){
-      navigate("/Authorization");
-      }
-    })
+    void logout();
   }
-
-  const dispatch = useDispatch();
 
   const LinkPage = (Link) => {
     if(Link !== undefined && Link !==  "Polzovateli"){
@@ -120,7 +127,7 @@ function Header() {
     GetAllSettings().then(res => {
       context?.setSettingsList(res.data)
     })
-    GetObjectsAll(`?userId=${JSON.parse(sessionStorage.getItem("userData"))?.user?.id}`).then(res => {
+    GetObjectsAll("?scope=requests").then(res => {
       if (res.status === 200) setObjectsLength(res.data?.length)
     })
   }, [])
@@ -129,8 +136,8 @@ return (
   <div className={styles.Header}>
   <div className={styles.headerButton}>
   
-    {PICTURE_NAME &&  <img src={getLinkImg()} /> }
-    {JSON.parse(sessionStorage.getItem("userData"))?.user?.role !== "CUSTOMER" ? (
+    {PICTURE_NAME && <img src={getLinkImg()} onError={handleHeaderLogoError} alt="Логотип" />}
+    {hasBackOfficeUiAccess ? (
       !getLinkPatchname() ? (
         <button className={styles.buttonMenu} onClick={toggleMenu}>Меню</button>
       ) : (
@@ -191,12 +198,12 @@ return (
                     <li className={styles.menuLi} onClick={() => LinkPage("Directory/Urgency")}>Срочность заявок</li>
                     <li className={styles.menuLi} onClick={() => LinkPage("Directory/Status")}>Статус заявок</li>
                     <li className={styles.menuLi} onClick={() => LinkPage("Directory/Category")}>Категории</li>
-                    {JSON.parse(sessionStorage.getItem("userData"))?.user?.role === "ADMIN" && (
+                    {hasAdminUiAccess ? (
                       <li className={styles.menuLi} onClick={() => LinkPage("Directory/RegistrationRequests")}>Заявки на регистрацию</li>
-                    )}
-                    {JSON.parse(sessionStorage.getItem("userData"))?.user?.role === "ADMIN" && (
+                    ) : null}
+                    {hasAdminUiAccess ? (
                       <li className={styles.menuLi} onClick={() => LinkPage("Directory/SystemLogs")}>Системные логи</li>
-                    )}
+                    ) : null}
                 </ul>
                 {GLOBAL_OPEN_REPORT_BLOCK === "open" &&
                     <li className={styles.menuLi} onClick={() => LinkPage('reports')}>Отчеты</li>
@@ -277,5 +284,3 @@ return (
 );
 };
 export default Header;
-
-

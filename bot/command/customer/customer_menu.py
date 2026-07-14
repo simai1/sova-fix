@@ -1,7 +1,9 @@
+import asyncio
+
 from aiogram.types import Message, FSInputFile
 from aiogram.types import InlineKeyboardButton as IKB, InlineKeyboardMarkup as IKM
-import aiohttp
 import config as cf
+from util import crm
 
 
 async def send_customer_menu(message: Message) -> None:
@@ -9,13 +11,10 @@ async def send_customer_menu(message: Message) -> None:
     login_exists = False
 
     try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(f"{cf.API_URL}/users/{tg_id}") as resp:
-                if resp.status == 200:
-                    user_data = await resp.json()
-                    login_exists = bool(user_data.get("login"))
+        user_data = await asyncio.to_thread(crm.get_web_user_by_tg_id, tg_id)
+        login_exists = bool(user_data and user_data.get('login'))
     except Exception as e:
-        print(f"Ошибка при получении пользователя: {e}")
+        print(f'Ошибка при получении пользователя: {e}')
 
     menu_text = """
 <b>меню ЗАКАЗЧИК</b>

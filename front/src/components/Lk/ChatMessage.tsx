@@ -1,5 +1,6 @@
 import { ChatMessage as ChatMessageType } from '@/API/rtkQuery/lk.api';
 import { API_URL } from '@/constants/env.constant';
+import { ROLE_LABELS_BY_NAME } from '@/constants/roles.constant';
 
 type Props = {
   message: ChatMessageType;
@@ -35,13 +36,14 @@ const roleConfig = (
   role: ChatMessageType['author']['roleName'] | null | undefined,
 ): { label: string; modifier: string } | null => {
   switch (role) {
-    case 'MANAGER':
     case 'ADMIN':
-      return { label: 'Менеджер', modifier: 'ui-chip--role-manager' };
+      return { label: ROLE_LABELS_BY_NAME.ADMIN, modifier: 'ui-chip--role-manager' };
+    case 'MANAGER':
+      return { label: ROLE_LABELS_BY_NAME.MANAGER, modifier: 'ui-chip--role-manager' };
     case 'CONTRACTOR':
-      return { label: 'Исполнитель', modifier: 'ui-chip--role-contractor' };
+      return { label: ROLE_LABELS_BY_NAME.CONTRACTOR, modifier: 'ui-chip--role-contractor' };
     case 'CUSTOMER':
-      return { label: 'Заказчик', modifier: 'ui-chip--role-customer' };
+      return { label: ROLE_LABELS_BY_NAME.CUSTOMER, modifier: 'ui-chip--role-customer' };
     default:
       return null;
   }

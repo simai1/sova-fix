@@ -6,13 +6,13 @@ import httpStatus from 'http-status';
 
 const verifyRole = (role: number) =>
     catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-        const { refreshToken } = req.cookies;
-        if (!refreshToken) {
+        const userId = req.user?.id;
+        if (typeof userId !== 'string') {
             return next(new ApiError(httpStatus.UNAUTHORIZED, 'User unauthorized'));
         }
         let user;
         try {
-            user = await userService.getUserByRefreshToken(refreshToken);
+            user = await userService.getUserById(userId);
         } catch {
             return next(new ApiError(httpStatus.UNAUTHORIZED, 'User unauthorized'));
         }

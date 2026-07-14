@@ -33,7 +33,7 @@ const getContractorsRequests = catchAsync(async (req, res) => {
         ])
     );
     if (!contractorId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing contractorId');
-    const requests = await contractorService.getContractorsRequests(contractorId, filter);
+    const requests = await contractorService.getContractorsRequests(contractorId, filter, req.requestScope!);
     res.json(requests);
 });
 
@@ -59,7 +59,7 @@ const getContractorsItinerary = catchAsync(async (req, res) => {
         ])
     );
     if (!contractorId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing contractorId');
-    const requests = await contractorService.getContractorsItinerary(contractorId, filter);
+    const requests = await contractorService.getContractorsItinerary(contractorId, filter, req.requestScope!);
     res.json(requests);
 });
 
@@ -68,7 +68,12 @@ const getContractorsActualRequests = catchAsync(async (req, res) => {
     if (!contractorId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing contractorId');
     if (!unitId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing unitId');
 
-    const requests = await contractorService.getContractorsActualRequests(contractorId, unitId, objectId);
+    const requests = await contractorService.getContractorsActualRequests(
+        contractorId,
+        unitId,
+        objectId,
+        req.requestScope!
+    );
     res.json(requests);
 });
 
