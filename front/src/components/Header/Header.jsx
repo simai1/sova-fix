@@ -13,6 +13,13 @@ import { isAdminUiRole, isBackOfficeUiRole } from "../../constants/roles.constan
 import { useLogout } from "../../hooks/useLogout";
 import { useStoredRole } from "../../hooks/useStoredRole";
 
+const HEADER_LOGO_FALLBACK = Logo;
+
+const handleHeaderLogoError = (event) => {
+  if (event.currentTarget.src.endsWith(HEADER_LOGO_FALLBACK)) return;
+  event.currentTarget.src = HEADER_LOGO_FALLBACK;
+};
+
 function Header() {
     const { context } = useContext(DataContext);
     const [isOpen, setIsOpen] = useState(false);
@@ -129,7 +136,7 @@ return (
   <div className={styles.Header}>
   <div className={styles.headerButton}>
   
-    {PICTURE_NAME &&  <img src={getLinkImg()} /> }
+    {PICTURE_NAME && <img src={getLinkImg()} onError={handleHeaderLogoError} alt="Логотип" />}
     {hasBackOfficeUiAccess ? (
       !getLinkPatchname() ? (
         <button className={styles.buttonMenu} onClick={toggleMenu}>Меню</button>

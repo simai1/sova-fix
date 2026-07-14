@@ -48,7 +48,7 @@ function UneversalList(props) {
               style={{
                 transform: isActive ? "rotate(0deg)" : "rotate(-90deg)",
               }}
-              src="./img/arrow_bottom.svg"
+              src="/img/arrow_bottom.svg"
             />
           </span>
         </div>

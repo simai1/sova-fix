@@ -126,7 +126,7 @@ function Pending() {
       <div>
         <div className={styles.box}>
           <div className={styles.text_Logo}>
-            <img src="./img/SOVA.jpg" className={styles.LogoAuth} alt="logo" />
+            <img src="/img/SOVA.jpg" className={styles.LogoAuth} alt="logo" />
           </div>
           <div className={styles.container}>
             <h2>Заявка отправлена</h2>

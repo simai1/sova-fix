@@ -88,7 +88,7 @@ function Activate() {
     <div>
       <div className={styles.box}>
       <div className={styles.text_Logo}>
-        <img  src="./img/SOVA.jpg" className={styles.LogoAuth}/>
+        <img  src="/img/SOVA.jpg" className={styles.LogoAuth}/>
       </div>
         <div className={styles.container}>
           <h2>Активация аккаунта</h2>

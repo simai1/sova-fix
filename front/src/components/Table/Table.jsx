@@ -1081,10 +1081,10 @@ function Table() {
                           className={styles.thSort}
                           src={
                             context?.sortState[item.key]?.type === 'desc'
-                              ? './img/sort.svg'
+                              ? '/img/sort.svg'
                               : context?.sortState[item.key]?.type === 'asc'
-                                ? './img/sort.svg'
-                                : './img/=.svg'
+                                ? '/img/sort.svg'
+                                : '/img/=.svg'
                           }
                           title="Сортировать колонку"
                           alt=">"

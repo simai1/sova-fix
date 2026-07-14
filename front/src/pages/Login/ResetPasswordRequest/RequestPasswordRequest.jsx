@@ -76,7 +76,7 @@ const RequestPasswordRequest = () => {
         <div className={styles.container}>
             <div className={styles.content__box}>
                 <div className={styles.text_Logo}>
-                    <img src="./img/SOVA.jpg" className={styles.LogoAuth} />
+                    <img src="/img/SOVA.jpg" className={styles.LogoAuth} />
                 </div>
 
                 <div className={styles.form}>
