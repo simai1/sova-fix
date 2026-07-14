@@ -9,7 +9,7 @@ import verifyAnyRole from '../middlewares/verify-any-role';
 
 const router = Router();
 
-router.route('/setRole').post(verifyToken.auth, verifyAnyRole(['ADMIN', 'MANAGER']), userController.setRole);
+router.route('/setRole').post(verifyToken.auth, verifyAnyRole(['ADMIN']), userController.setRole);
 router.route('/').get(verifyToken.auth, userController.getAll);
 router
     .route('/pending-registrations')

@@ -42,11 +42,12 @@ const getUserByRefreshToken = async (refreshToken: string): Promise<User | null>
 const setRole = async (role: number, userId: string, actorUserId: string): Promise<void> => {
     if (!Object.values(roles).includes(role)) throw new ApiError(httpStatus.BAD_REQUEST, 'Некорректная роль');
     const [actor, target] = await Promise.all([getUserById(actorUserId), getUserById(userId)]);
-    if (!actor || !target) throw new ApiError(httpStatus.NOT_FOUND, 'Пользователь не найден');
-    if (actor.id === target.id) throw new ApiError(httpStatus.BAD_REQUEST, 'Нельзя изменить собственную роль');
-    if (role === roles.MANAGER && actor.role !== roles.ADMIN) {
-        throw new ApiError(httpStatus.FORBIDDEN, 'Назначить роль Менеджера может только Администратор');
+    if (!actor) throw new ApiError(httpStatus.NOT_FOUND, 'Пользователь не найден');
+    if (actor.role !== roles.ADMIN) {
+        throw new ApiError(httpStatus.FORBIDDEN, 'Изменять роли пользователей может только Администратор');
     }
+    if (!target) throw new ApiError(httpStatus.NOT_FOUND, 'Пользователь не найден');
+    if (actor.id === target.id) throw new ApiError(httpStatus.BAD_REQUEST, 'Нельзя изменить собственную роль');
     await target.update({ role });
 };
 

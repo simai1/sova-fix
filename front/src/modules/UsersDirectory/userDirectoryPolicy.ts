@@ -37,13 +37,6 @@ const ADMIN_ROLE_OPTIONS = [
   WEB_ROLE_IDS.MANAGER,
 ] as const;
 
-const MANAGER_ROLE_OPTIONS = [
-  WEB_ROLE_IDS.ADMIN,
-  WEB_ROLE_IDS.CUSTOMER,
-  WEB_ROLE_IDS.CONTRACTOR,
-  WEB_ROLE_IDS.OBSERVER,
-] as const;
-
 const NO_ROLE_OPTIONS: readonly UserDirectoryRoleId[] = [];
 const ADMIN_OBJECT_TARGETS = new Set<number>([
   WEB_ROLE_IDS.CUSTOMER,
@@ -64,7 +57,7 @@ export const getUserDirectoryPolicy = (actorRole: WebRoleName | null): UserDirec
     return {
       canActivate: false,
       canCreateOrDelete: false,
-      roleOptions: MANAGER_ROLE_OPTIONS,
+      roleOptions: NO_ROLE_OPTIONS,
     };
   }
   return {
@@ -79,7 +72,6 @@ export const getUserDirectoryRowPolicy = (
   actorUserId: string | null,
   target: UserDirectoryTarget,
 ): UserDirectoryRowPolicy => {
-  const canManageUsers = actorRole === 'ADMIN' || actorRole === 'MANAGER';
   const canAssignObjects =
     (actorRole === 'ADMIN' && ADMIN_OBJECT_TARGETS.has(target.role)) ||
     (actorRole === 'MANAGER' && MANAGER_OBJECT_TARGETS.has(target.role));
@@ -87,7 +79,10 @@ export const getUserDirectoryRowPolicy = (
   return {
     canAssignObjects,
     canChangeRole:
-      canManageUsers && actorUserId !== null && target.id !== null && actorUserId !== target.id,
+      actorRole === 'ADMIN' &&
+      actorUserId !== null &&
+      target.id !== null &&
+      actorUserId !== target.id,
   };
 };
 

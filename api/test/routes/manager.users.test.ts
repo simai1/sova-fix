@@ -9,6 +9,14 @@ import UserObject from '../../src/models/userObject';
 import { createAdminAuth, createManagerAuth, TestAdminAuth } from '../helpers/auth-helper';
 import { cleanupByLogin, createObjectFor } from '../helpers/lk-helper';
 
+const roleCases = [
+    ['ADMIN', roles.ADMIN],
+    ['CUSTOMER', roles.CUSTOMER],
+    ['CONTRACTOR', roles.CONTRACTOR],
+    ['OBSERVER', roles.OBSERVER],
+    ['MANAGER', roles.MANAGER],
+] as const;
+
 describe('Manager: управление пользователями', () => {
     const forbiddenRegisterLogin = 'manager-forbidden-create@t.local';
     const customerLogin = 'manager-customer-target@t.local';
@@ -141,27 +149,31 @@ describe('Manager: управление пользователями', () => {
         expect(await UserObject.count({ where: { userId: roleChangeTarget.id, objectId: assignedObject.id } })).toBe(1);
     });
 
-    it('Менеджер не назначает роль MANAGER даже при подмене actorUserId', async () => {
+    it.each(roleCases)('Менеджер получает 403 при назначении роли %s', async (_roleName, role) => {
+        await managerAssignmentTarget.update({ role: roles.OBSERVER });
+
         const response = await request(app)
             .post('/users/setRole')
             .set('Authorization', manager.authHeader)
             .set('Cookie', manager.cookie)
             .query({ actorUserId: admin.user.id })
-            .send({ userId: managerAssignmentTarget.id, role: roles.MANAGER, actorUserId: admin.user.id });
+            .send({ userId: managerAssignmentTarget.id, role, actorUserId: admin.user.id });
 
         expect(response.status).toBe(403);
         expect((await User.findByPk(managerAssignmentTarget.id))?.role).toBe(roles.OBSERVER);
     });
 
-    it('Менеджер меняет другому пользователю обычную роль', async () => {
+    it.each(roleCases)('Администратор назначает существующему пользователю роль %s', async (_roleName, role) => {
+        await regularRoleTarget.update({ role: roles.OBSERVER });
+
         const response = await request(app)
             .post('/users/setRole')
-            .set('Authorization', manager.authHeader)
-            .set('Cookie', manager.cookie)
-            .send({ userId: regularRoleTarget.id, role: roles.CONTRACTOR });
+            .set('Authorization', admin.authHeader)
+            .set('Cookie', admin.cookie)
+            .send({ userId: regularRoleTarget.id, role });
 
         expect(response.status).toBe(200);
-        expect((await User.findByPk(regularRoleTarget.id))?.role).toBe(roles.CONTRACTOR);
+        expect((await User.findByPk(regularRoleTarget.id))?.role).toBe(role);
     });
 
     it('Менеджер видит и подтверждает ожидающую регистрацию', async () => {
@@ -197,7 +209,7 @@ describe('Manager: управление пользователями', () => {
             .set('Cookie', manager.cookie)
             .send({ userId: manager.user.id, role: roles.OBSERVER, actorUserId: admin.user.id });
 
-        expect(response.status).toBe(400);
+        expect(response.status).toBe(403);
         expect((await User.findByPk(manager.user.id))?.role).toBe(roles.MANAGER);
     });
 
