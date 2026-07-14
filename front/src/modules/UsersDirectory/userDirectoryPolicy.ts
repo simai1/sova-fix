@@ -62,7 +62,7 @@ export const getUserDirectoryPolicy = (actorRole: WebRoleName | null): UserDirec
   }
   if (actorRole === 'MANAGER') {
     return {
-      canActivate: true,
+      canActivate: false,
       canCreateOrDelete: false,
       roleOptions: MANAGER_ROLE_OPTIONS,
     };
