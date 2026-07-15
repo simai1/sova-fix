@@ -3,6 +3,7 @@ import { Navigate, Outlet } from 'react-router-dom';
 import '../../styles/ui/index.scss';
 
 import LkBottomNav from './LkBottomNav';
+import LkErrorBanner from './LkErrorBanner';
 import LkPageHeader from './LkPageHeader';
 import LkSidebar from './LkSidebar';
 import LkSpinner from './LkSpinner';
@@ -11,6 +12,7 @@ import LkToastArea from './LkToastArea';
 import { useGetMeQuery } from '@/API/rtkQuery/lk.api';
 import { useLkWebSocket } from '@/hooks/useLkWebSocket';
 import { getUserRole } from '@/utils/auth';
+import { shouldRedirectStatusToAuthorization } from '@/utils/authRedirectPolicy';
 
 type Role = 'CONTRACTOR' | 'CUSTOMER';
 
@@ -45,10 +47,16 @@ const LkLayout = ({ role }: Props): JSX.Element => {
       error && typeof error === 'object' && 'status' in error
         ? (error as { status?: number }).status
         : undefined;
-    if (status === 401 || status === 403) {
+    if (shouldRedirectStatusToAuthorization(status)) {
       return <Navigate to="/Authorization" replace />;
     }
-    return <Navigate to="/Authorization" replace />;
+    return (
+      <LkErrorBanner
+        text={
+          status === 403 ? 'Недостаточно прав для этого действия' : 'Не удалось загрузить профиль'
+        }
+      />
+    );
   }
 
   if (!me || me.user.role !== role) {

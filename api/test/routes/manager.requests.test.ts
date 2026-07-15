@@ -6,6 +6,7 @@ import request from 'supertest';
 vi.mock('../../src/services/email.service', () => ({ default: vi.fn() }));
 
 import app from '../../src/app';
+import roles from '../../src/config/roles';
 import ObjectDir from '../../src/models/object';
 import RepairRequest from '../../src/models/repairRequest';
 import Status from '../../src/models/status';
@@ -14,7 +15,7 @@ import TgUserObject from '../../src/models/tgUserObject';
 import Urgency from '../../src/models/urgency';
 import UserObject from '../../src/models/userObject';
 import { createAdminAuth, createManagerAuth, TestAdminAuth } from '../helpers/auth-helper';
-import { cleanupByLogin, createRequest, ensureBaseRefs } from '../helpers/lk-helper';
+import { cleanupByLogin, createRequest, createUserAuth, ensureBaseRefs, TestAuth } from '../helpers/lk-helper';
 
 const uploadsDir = path.resolve('./uploads');
 const uploadNames = (): string[] => (fs.existsSync(uploadsDir) ? fs.readdirSync(uploadsDir).sort() : []);
@@ -34,10 +35,12 @@ describe('Manager legacy /requests access scope', () => {
         admin: `manager-requests-admin-${suffix}@test.local`,
         manager: `manager-requests-manager-${suffix}@test.local`,
         emptyManager: `manager-requests-empty-${suffix}@test.local`,
+        observer: `manager-requests-observer-${suffix}@test.local`,
     };
     let admin: TestAdminAuth;
     let manager: TestAdminAuth;
     let emptyManager: TestAdminAuth;
+    let observer: TestAuth;
     let assignedObject: ObjectDir;
     let foreignObject: ObjectDir;
     let assignedNew: RepairRequest;
@@ -54,6 +57,7 @@ describe('Manager legacy /requests access scope', () => {
         admin = await createAdminAuth(logins.admin);
         manager = await createManagerAuth(logins.manager);
         emptyManager = await createManagerAuth(logins.emptyManager);
+        observer = await createUserAuth(logins.observer, roles.OBSERVER, `Observer ${suffix}`);
         const { legal, unit, urgency } = await ensureBaseRefs();
         urgencyName = urgency.name;
         assignedObject = await ObjectDir.create({
@@ -142,6 +146,78 @@ describe('Manager legacy /requests access scope', () => {
         expect(list.body).toEqual({ maxCount: 0, data: [] });
         expect(count.body.response).toEqual({ newRequests: 0, inWorkRequests: 0, doneRequests: 0 });
         expect(stats.body).toEqual({ NEW_REQUEST: 0, AT_WORK: 0, DONE: 0 });
+    });
+
+    it('сохраняет Наблюдателю read-only доступ ко всем заявкам и агрегатам', async () => {
+        const auth = { Authorization: observer.authHeader };
+        const [list, count, stats, detail, files, customerList, objectList, actualList] = await Promise.all([
+            request(app).get('/requests').set(auth),
+            request(app).get('/requests/count').set(auth),
+            request(app).get('/requests/stats').set(auth),
+            request(app).get(`/requests/${foreignDone.id}`).set(auth),
+            request(app).get(`/requests/files/${foreignDone.id}`).set(auth),
+            request(app).get(`/requests/customer/${legacyUser.id}`).set(auth),
+            request(app).get(`/requests/objects/${legacyUser.id}`).set(auth),
+            request(app).get(`/requests/actual/${legacyUser.id}/${assignedObject.unitId}`).set(auth),
+        ]);
+
+        expect(list.status).toBe(200);
+        expect(list.body.data.map((row: { id: string }) => row.id)).toEqual(
+            expect.arrayContaining([assignedNew.id, assignedWork.id, foreignDone.id])
+        );
+        expect(count.status).toBe(200);
+        expect(stats.status).toBe(200);
+        expect(detail.status).toBe(200);
+        expect(detail.body.id).toBe(foreignDone.id);
+        expect([files, customerList, objectList, actualList].map(response => response.status)).toEqual([
+            200, 200, 200, 200,
+        ]);
+    });
+
+    it('запрещает Наблюдателю все изменяющие маршруты заявок', async () => {
+        const auth = { Authorization: observer.authHeader };
+        const beforeUploads = uploadNames();
+        const beforeCount = await RepairRequest.count({
+            where: { objectId: [assignedObject.id, foreignObject.id] },
+        });
+        const initialComment = foreignDone.comment ?? null;
+        const cases: Array<{ method: 'post' | 'patch' | 'delete'; url: string }> = [
+            { method: 'post', url: '/requests' },
+            { method: 'post', url: '/requests/without-photo' },
+            { method: 'post', url: '/requests/multiple-photos' },
+            { method: 'delete', url: `/requests/${foreignDone.id}/delete` },
+            { method: 'patch', url: `/requests/${foreignDone.id}/update` },
+            { method: 'patch', url: '/requests/remove/contractor' },
+            { method: 'patch', url: '/requests/remove/extContractor' },
+            { method: 'patch', url: '/requests/set/extContractor' },
+            { method: 'patch', url: '/requests/set/contractor' },
+            { method: 'patch', url: '/requests/set/manager' },
+            { method: 'patch', url: '/requests/set/status' },
+            { method: 'patch', url: '/requests/set/comment' },
+            { method: 'patch', url: '/requests/set/commentAttachment' },
+            { method: 'post', url: '/requests/delete/bulk' },
+            { method: 'patch', url: '/requests/status/bulk' },
+            { method: 'patch', url: '/requests/urgency/bulk' },
+            { method: 'patch', url: '/requests/contractor/bulk' },
+            { method: 'patch', url: `/requests/add/check/${foreignDone.id}` },
+            { method: 'post', url: `/requests/copy/${foreignDone.id}` },
+            { method: 'post', url: '/requests/changeUrgency' },
+            { method: 'post', url: '/requests/changeStatus' },
+            { method: 'post', url: `/requests/directoryCategory/${foreignDone.id}` },
+            { method: 'post', url: '/requests/migrate/manager-ids' },
+            { method: 'post', url: '/requests/validate/manager-ids' },
+        ];
+
+        for (const testCase of cases) {
+            const response = await request(app)[testCase.method](testCase.url).set(auth);
+            expect(response.status, `${testCase.method.toUpperCase()} ${testCase.url}`).toBe(403);
+        }
+        await foreignDone.reload();
+        expect(foreignDone.comment ?? null).toBe(initialComment);
+        expect(await RepairRequest.count({ where: { objectId: [assignedObject.id, foreignObject.id] } })).toBe(
+            beforeCount
+        );
+        expect(uploadNames()).toEqual(beforeUploads);
     });
 
     it('не расширяет scope через userId и legacy tgUserId', async () => {

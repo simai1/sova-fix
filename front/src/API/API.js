@@ -1,6 +1,7 @@
 import axios from "axios";
 import { API_URL, WEB_URL } from '../constants/env.constant.ts'
 import { clearUserData, setUserData } from '../utils/auth.ts'
+import { isAuthPath, shouldRedirectToAuthorization } from '../utils/authRedirectPolicy.js'
 const http = axios.create({
   withCredentials: true,
 });
@@ -51,14 +52,7 @@ export const clearAuthSession = () => {
   localStorage.removeItem("rememberMe");
 };
 
-const AUTH_PATHS = [
-  "/Authorization",
-  "/reset-password",
-  "/reset-password-request",
-  "/Activate",
-];
-const isOnAuthPage = () =>
-  AUTH_PATHS.some((p) => window.location.pathname.startsWith(p));
+const isOnAuthPage = () => isAuthPath(window.location.pathname);
 
 const redirectToLogin = () => {
   if (isOnAuthPage()) return;
@@ -159,7 +153,7 @@ export const Register = async (UserData) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       return false;
@@ -180,7 +174,7 @@ export const ActivateFunc = async (UserData, idUser) => {
     refreshTokensTimer();
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       return 0;
@@ -202,7 +196,7 @@ export const LogOut = async () => {
     );
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Возникла ошибка при выходе!");
@@ -219,7 +213,7 @@ export const GetAllRequests = async (param) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении списка заявок!");
@@ -236,7 +230,7 @@ export const GetOneRequests = async (id) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении списка заявок!");
@@ -253,7 +247,7 @@ export const GetAllUsers = async () => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении списка пользователей!");
@@ -270,7 +264,7 @@ export const GetOneUsers = async (id) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении списка пользователей!");
@@ -287,7 +281,7 @@ export const GetAllСontractors = async () => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении списка исполнителей!");
@@ -304,7 +298,7 @@ export const SetStatusRequest = async (data) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при изменении статуса заявки!");
@@ -325,7 +319,7 @@ export const SetcontractorRequest = async (data) => {
     );
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при изменении исполнителя заявки!");
@@ -342,7 +336,7 @@ export const DeleteRequest = async (id) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при удалении заявки!");
@@ -359,7 +353,7 @@ export const GetContractorsItenerarity = async (id) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
@@ -376,7 +370,7 @@ export const ReseachDataRequest = async (id, data) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при изменении заявки!");
@@ -393,7 +387,7 @@ export const DeleteUserFunc = async (id) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при удалении пользователя!");
@@ -414,7 +408,7 @@ export const RemoveContractor = async (data) => {
     );
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при удалении исполнителя!");
@@ -431,7 +425,7 @@ export const SetRole = async (data) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при смены роли!");
@@ -448,7 +442,7 @@ export const GetPhotoServer = async (id) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
@@ -469,7 +463,7 @@ export const RejectActiveAccount = async (id) => {
     );
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
@@ -486,7 +480,7 @@ export const GetlegalEntitiesAll = async () => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
@@ -503,7 +497,7 @@ export const GetlegalEntitiesOne = async (id) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
@@ -520,7 +514,7 @@ export const DeletelegalEntities = async (id) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
@@ -537,7 +531,7 @@ export const CreateLegalEntities = async (data) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
@@ -554,7 +548,7 @@ export const EditLegalEntities = async (data, id) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
@@ -571,7 +565,7 @@ export const GetUnitsAll = async () => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
@@ -588,7 +582,7 @@ export const GetUnitsOne = async (id) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
@@ -605,7 +599,7 @@ export const DeleteUnit = async (id) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
@@ -622,7 +616,7 @@ export const CreateUnit = async (data) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
@@ -639,7 +633,7 @@ export const EditUnit = async (data, id) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
@@ -656,7 +650,7 @@ export const GetObjectsAll = async (param) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
@@ -673,7 +667,7 @@ export const GetObjectsOne = async (id) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
@@ -690,7 +684,7 @@ export const DeleteObjects = async (id) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
@@ -707,7 +701,7 @@ export const CreateObjects = async (data) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
@@ -723,7 +717,7 @@ export const EditObjects = async (data, id) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
@@ -740,7 +734,7 @@ export const GetextContractorsAll = async () => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
@@ -757,7 +751,7 @@ export const GetextContractorsOne = async (id) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
@@ -774,7 +768,7 @@ export const DeleteextContractors = async (id) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
@@ -791,7 +785,7 @@ export const CreateextContractors = async (data) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
@@ -808,7 +802,7 @@ export const EditExitContractors = async (data, id) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
@@ -829,7 +823,7 @@ export const SetExtContractorsRequest = async (data) => {
     );
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
@@ -846,7 +840,7 @@ export const CreateCopyRequest = async (id) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
@@ -864,7 +858,7 @@ export const CreateCopyToEquipments = async (id, quantity) => {
     })
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при копировании ТО");
@@ -885,7 +879,7 @@ export const DeleteExtContractorsRequest = async (data) => {
     );
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
@@ -902,7 +896,7 @@ export const DeleteMoreRequest = async (data) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при удалении заявок!");
@@ -919,7 +913,7 @@ export const EditMoreStatusRequest = async (data) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при удалении заявок!");
@@ -936,7 +930,7 @@ export const EditMoreUrgencyRequest = async (data) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при удалении заявок!");
@@ -957,7 +951,7 @@ export const EditMoreContractorRequest = async (data) => {
     );
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при удалении заявок!");
@@ -979,7 +973,7 @@ export const setCommentPhotoApi = async (data) => {
     );
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при удалении заявок!");
@@ -996,7 +990,7 @@ export const GetAllEquipment = async () => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении оборудования!");
@@ -1016,7 +1010,7 @@ export const UpdateEquipment = async (id, data) => {
 
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.error(
@@ -1043,7 +1037,7 @@ export const UpdatePhotoEquipment = async (id, data) => {
 
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.error(
@@ -1064,7 +1058,7 @@ export const TOEquipment = async (id, data) => {
 
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.error(
@@ -1084,7 +1078,7 @@ export const GetOneEquipment = async (id) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при Полученини оборудования по ID!");
@@ -1101,7 +1095,7 @@ export const DeleteEquipment = async (id) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при удалении оборудования!");
@@ -1118,7 +1112,7 @@ export const CreateEquipment = async (data) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при создании оборудования!");
@@ -1135,7 +1129,7 @@ export const GetQrEquipment = async (id) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при удалении номенклатуры!");
@@ -1152,7 +1146,7 @@ export const GetAllCategories = async () => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении списка категорий!");
@@ -1169,7 +1163,7 @@ export const GetOneCategories = async (id) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении списка категорий!");
@@ -1186,7 +1180,7 @@ export const CreateCategories = async (data) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при создании категории!");
@@ -1203,7 +1197,7 @@ export const DeleteCategories = async (id) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при удалении категории!");
@@ -1220,7 +1214,7 @@ export const UpdateCategories = async (id, data) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при удалении категории!");
@@ -1237,7 +1231,7 @@ export const GetAllNomenclatures = async () => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении списка номенклатур!");
@@ -1254,7 +1248,7 @@ export const CreateNomenclatures = async (data) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при создании номенклатуры!");
@@ -1271,7 +1265,7 @@ export const GetOneNomenclatures = async (id) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении списка номенклатур!");
@@ -1288,7 +1282,7 @@ export const UpdateNomenclatures = async (id, data) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при удалении номенклатуры!");
@@ -1305,7 +1299,7 @@ export const DeleteNomenclaturesAPI = async (id) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при удалении номенклатуры!");
@@ -1322,7 +1316,7 @@ export const GetAllTgUsers = async () => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении списка Telegram пользователей!");
@@ -1339,7 +1333,7 @@ export const GetAllUrgensies = async () => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении списка срочностей!");
@@ -1356,7 +1350,7 @@ export const GetAllManagers = async () => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
@@ -1377,7 +1371,7 @@ export const GetAllAdmins = async () => {
     }
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
@@ -1394,7 +1388,7 @@ export const CreateUrgency = async (data) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
@@ -1411,7 +1405,7 @@ export const EditUrgency = async (data, id) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
@@ -1428,7 +1422,7 @@ export const DeleteUrgency = async (id) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при удалении номенклатуры!");
@@ -1445,7 +1439,7 @@ export const ChangeUrgency = async (data) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
@@ -1462,7 +1456,7 @@ export const CreateStatus = async (data) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
@@ -1479,7 +1473,7 @@ export const EditStatus = async (data, id) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
@@ -1496,7 +1490,7 @@ export const DeleteStatus = async (id) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при удалении номенклатуры!");
@@ -1513,7 +1507,7 @@ export const GetAllStatuses = async () => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении списка срочностей!");
@@ -1530,7 +1524,7 @@ export const ChangeStatus = async (data) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
@@ -1543,7 +1537,7 @@ export const SendRequestToResetPassword = async (email) => {
     const response = await http.post(`${server}/reset-password-tokens`, { email });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
@@ -1562,7 +1556,7 @@ export const ResetPasswordByToken = async (tokenId, token, newPassword) => {
     );
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.error("Ошибка при сбросе пароля!", error);
@@ -1580,7 +1574,7 @@ export const GetAllSettings = async () => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении списка срочностей!");
@@ -1597,7 +1591,7 @@ export const ChangeSetting = async (settingId, value) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении карты пользователя!");
@@ -1614,7 +1608,7 @@ export const GetAllDirectoryCategories = async () => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении списка срочностей!");
@@ -1631,7 +1625,7 @@ export const SetNewsetNewDirectoryCategory = async (id, data) => {
     });
     return response;
   } catch (error) {
-    if (error?.response?.status === 403) {
+    if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
     } else {
       console.log("Ошибка при получении списка срочностей!");

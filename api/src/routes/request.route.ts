@@ -16,6 +16,8 @@ import {
 } from '../middlewares/require-admin-request-access';
 
 const router = Router();
+const requireRequestReadRole = requireActorRoles(roles.ADMIN, roles.MANAGER, roles.OBSERVER);
+const requireRequestWriteRole = requireActorRoles(roles.ADMIN, roles.MANAGER);
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -87,72 +89,121 @@ const requestUpdateSchema = Joi.object({
     query: Joi.object().unknown(true),
 });
 
-router.use(authenticateWebOrMaster, requireActorRoles(roles.ADMIN, roles.MANAGER), attachRequestScope);
+router.use(authenticateWebOrMaster, attachRequestScope);
 
-router.route('/stats').get(requestController.getStat);
+router.route('/stats').get(requireRequestReadRole, requestController.getStat);
 router
     .route('/')
-    .get(requestController.getAll)
-    .post(uploadImageOrVideo.single('file'), requireObjectBodyAccess('objectId'), requestController.create);
-router.route('/without-photo').post(requireObjectBodyAccess('objectId'), requestController.createWithoutPhoto);
+    .get(requireRequestReadRole, requestController.getAll)
+    .post(
+        requireRequestWriteRole,
+        uploadImageOrVideo.single('file'),
+        requireObjectBodyAccess('objectId'),
+        requestController.create
+    );
+router
+    .route('/without-photo')
+    .post(requireRequestWriteRole, requireObjectBodyAccess('objectId'), requestController.createWithoutPhoto);
 router
     .route('/multiple-photos')
     .post(
+        requireRequestWriteRole,
         uploadMultipleImages.array('file', 10),
         requireObjectBodyAccess('objectId'),
         requestController.createWithMultiplePhotos
     );
-router.route('/count').get(requestController.getRequestCountController);
-router.route('/:requestId').get(requireRequestParamAccess('requestId'), requestController.getOne);
-router.route('/:requestId/delete').delete(requireRequestParamAccess('requestId'), requestController.deleteRequest);
+router.route('/count').get(requireRequestReadRole, requestController.getRequestCountController);
+router
+    .route('/:requestId')
+    .get(requireRequestReadRole, requireRequestParamAccess('requestId'), requestController.getOne);
+router
+    .route('/:requestId/delete')
+    .delete(requireRequestWriteRole, requireRequestParamAccess('requestId'), requestController.deleteRequest);
 router
     .route('/:requestId/update')
-    .patch(validator(requestUpdateSchema), requireRequestParamAccess('requestId'), requestController.update);
+    .patch(
+        requireRequestWriteRole,
+        validator(requestUpdateSchema),
+        requireRequestParamAccess('requestId'),
+        requestController.update
+    );
 
-router.route('/remove/contractor').patch(requireRequestBodyAccess('requestId'), requestController.removeContractor);
+router
+    .route('/remove/contractor')
+    .patch(requireRequestWriteRole, requireRequestBodyAccess('requestId'), requestController.removeContractor);
 router
     .route('/remove/extContractor')
-    .patch(requireRequestBodyAccess('requestId'), requestController.removeExtContractor);
+    .patch(requireRequestWriteRole, requireRequestBodyAccess('requestId'), requestController.removeExtContractor);
 
-router.route('/set/extContractor').patch(requireRequestBodyAccess('requestId'), requestController.setExtContractor);
-router.route('/set/contractor').patch(requireRequestBodyAccess('requestId'), requestController.setContractor);
-router.route('/set/manager').patch(requireRequestBodyAccess('requestId'), requestController.setManager);
-router.route('/set/status').patch(requireRequestBodyAccess('requestId'), requestController.setStatus);
-router.route('/set/comment').patch(requireRequestBodyAccess('requestId'), requestController.setComment);
+router
+    .route('/set/extContractor')
+    .patch(requireRequestWriteRole, requireRequestBodyAccess('requestId'), requestController.setExtContractor);
+router
+    .route('/set/contractor')
+    .patch(requireRequestWriteRole, requireRequestBodyAccess('requestId'), requestController.setContractor);
+router
+    .route('/set/manager')
+    .patch(requireRequestWriteRole, requireRequestBodyAccess('requestId'), requestController.setManager);
+router
+    .route('/set/status')
+    .patch(requireRequestWriteRole, requireRequestBodyAccess('requestId'), requestController.setStatus);
+router
+    .route('/set/comment')
+    .patch(requireRequestWriteRole, requireRequestBodyAccess('requestId'), requestController.setComment);
 router
     .route('/set/commentAttachment')
     .patch(
+        requireRequestWriteRole,
         uploadImageOrVideo.single('file'),
         requireRequestBodyAccess('requestId'),
         requestController.setCommentAttachment
     );
 
-router.route('/delete/bulk').post(requireBulkRequestAccess('ids'), requestController.bulkDelete);
-router.route('/status/bulk').patch(requireBulkRequestAccess('ids'), requestController.bulkStatus);
-router.route('/urgency/bulk').patch(requireBulkRequestAccess('ids'), requestController.bulkUrgency);
-router.route('/contractor/bulk').patch(requireBulkRequestAccess('ids'), requestController.bulkContractor);
+router
+    .route('/delete/bulk')
+    .post(requireRequestWriteRole, requireBulkRequestAccess('ids'), requestController.bulkDelete);
+router
+    .route('/status/bulk')
+    .patch(requireRequestWriteRole, requireBulkRequestAccess('ids'), requestController.bulkStatus);
+router
+    .route('/urgency/bulk')
+    .patch(requireRequestWriteRole, requireBulkRequestAccess('ids'), requestController.bulkUrgency);
+router
+    .route('/contractor/bulk')
+    .patch(requireRequestWriteRole, requireBulkRequestAccess('ids'), requestController.bulkContractor);
 
-router.route('/customer/:tgUserId').get(requestController.getCustomersRequests);
+router.route('/customer/:tgUserId').get(requireRequestReadRole, requestController.getCustomersRequests);
 
-router.route('/objects/:tgUserId').get(requestController.getRequestsByObjects);
+router.route('/objects/:tgUserId').get(requireRequestReadRole, requestController.getRequestsByObjects);
 
 router
     .route('/add/check/:requestId')
-    .patch(uploadImage.single('file'), requireRequestParamAccess('requestId'), requestController.addCheck);
+    .patch(
+        requireRequestWriteRole,
+        uploadImage.single('file'),
+        requireRequestParamAccess('requestId'),
+        requestController.addCheck
+    );
 
-router.route('/copy/:requestId').post(requireRequestParamAccess('requestId'), requestController.copy);
+router
+    .route('/copy/:requestId')
+    .post(requireRequestWriteRole, requireRequestParamAccess('requestId'), requestController.copy);
 
-router.route('/changeUrgency').post(requestController.changeUrgency);
+router.route('/changeUrgency').post(requireRequestWriteRole, requestController.changeUrgency);
 
-router.route('/changeStatus').post(requestController.changeStatus);
+router.route('/changeStatus').post(requireRequestWriteRole, requestController.changeStatus);
 
-router.route('/files/:requestId').get(requireRequestParamAccess('requestId'), requestController.getCountFilesRequest);
+router
+    .route('/files/:requestId')
+    .get(requireRequestReadRole, requireRequestParamAccess('requestId'), requestController.getCountFilesRequest);
 
 router
     .route('/directoryCategory/:requestId')
-    .post(requireRequestParamAccess('requestId'), requestController.setNewDirectoryCategory);
+    .post(requireRequestWriteRole, requireRequestParamAccess('requestId'), requestController.setNewDirectoryCategory);
 
-router.route('/actual/:tgUserId/:unitId/:objectId?').get(requestController.getActualRequestsByObjectId);
+router
+    .route('/actual/:tgUserId/:unitId/:objectId?')
+    .get(requireRequestReadRole, requestController.getActualRequestsByObjectId);
 
 router.route('/migrate/manager-ids').post(requireWebActorRoles(roles.ADMIN), requestController.migrateManagerData);
 router.route('/validate/manager-ids').post(requireWebActorRoles(roles.ADMIN), requestController.validateManagerData);
