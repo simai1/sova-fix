@@ -5,7 +5,7 @@ import cookieParser from 'cookie-parser';
 import cookieSession from 'cookie-session';
 import * as fs from 'fs';
 import cronService from './services/cron.service';
-import expressWs from 'express-ws';
+import app, { aWss } from './expressApp';
 
 import authRoute from './routes/auth.route';
 import userRoute from './routes/user.route';
@@ -34,8 +34,14 @@ import logger from './utils/logger';
 import winston from 'winston';
 import rawRoute from './routes/raw.route';
 import errorHandler from './middlewares/errorHandler';
-
-const { app, getWss } = expressWs(express());
+import {
+    authenticateSubprotocol,
+    handleClientFrame,
+    pickSubprotocol,
+    registerClient,
+    unregisterClient,
+    AuthedWs,
+} from './utils/ws';
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
@@ -92,15 +98,6 @@ app.use('/reports', reportRoute);
 app.use('/lk', lkRoute);
 app.use('/admin', adminRoute);
 
-import {
-    authenticateSubprotocol,
-    handleClientFrame,
-    pickSubprotocol,
-    registerClient,
-    unregisterClient,
-    AuthedWs,
-} from './utils/ws';
-
 app.ws('/', async (rawWs, req) => {
     const ws = rawWs as AuthedWs;
     const subprotocol = pickSubprotocol(req.headers['sec-websocket-protocol']);
@@ -154,5 +151,5 @@ if (process.env.NODE_ENV !== 'production') {
 
 app.use(errorHandler);
 
-export const aWss = getWss();
+export { aWss };
 export default app;

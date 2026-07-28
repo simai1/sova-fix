@@ -2,7 +2,7 @@ import { Router } from 'express';
 import verifyToken from '../middlewares/verify-token';
 import authController from '../controllers/auth.controller';
 import { validator } from '../middlewares/validator';
-import { registerPublicSchema, loginSchema } from '../validations/auth.validation';
+import { registerPublicSchema, loginSchema, registerCrmAccessSchema } from '../validations/auth.validation';
 import { loginRateLimiter, registerRateLimiter } from '../middlewares/rate-limit';
 import verifyRole from '../middlewares/verify-role';
 import roles from '../config/roles';
@@ -18,6 +18,13 @@ router.route('/login').post(loginRateLimiter, validator(loginSchema), authContro
 router.route('/activate/:userId').post(authController.activate);
 router.route('/logout').post(verifyToken.auth, authController.logout);
 router.route('/refresh').get(authController.refresh);
-router.route('/registerCustomerCrm').post(authenticateWebOrMaster, requireBotActor, authController.registerCustomerCrm);
+router
+    .route('/registerCustomerCrm')
+    .post(
+        authenticateWebOrMaster,
+        requireBotActor,
+        validator(registerCrmAccessSchema),
+        authController.registerCrmAccess
+    );
 
 export default router;

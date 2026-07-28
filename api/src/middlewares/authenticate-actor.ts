@@ -4,20 +4,10 @@ import httpStatus from 'http-status';
 import User from '../models/user';
 import ApiError from '../utils/ApiError';
 import catchAsync from '../utils/catchAsync';
+import jwtUtils from '../utils/jwt';
 
 type AccessPayload = {
     id?: unknown;
-};
-
-type JwtUtils = typeof import('../utils/jwt').default;
-
-type DeferredJwtModule = {
-    default: JwtUtils | { default: JwtUtils };
-};
-
-const loadJwtUtils = async (): Promise<JwtUtils> => {
-    const module = (await import('../utils/jwt.js')) as unknown as DeferredJwtModule;
-    return 'default' in module.default ? module.default.default : module.default;
 };
 
 const unauthorized = (next: NextFunction) => next(new ApiError(httpStatus.UNAUTHORIZED, 'Пользователь не авторизован'));
@@ -44,7 +34,6 @@ const hasValidMasterKey = (req: Request): boolean => {
 export const authenticateWebOrMaster: RequestHandler = catchAsync(async (req, _res, next) => {
     const accessToken = getBearerToken(req.headers.authorization);
     if (accessToken) {
-        const jwtUtils = await loadJwtUtils();
         let payload: unknown = null;
         try {
             payload = jwtUtils.verifyAccessToken(accessToken);

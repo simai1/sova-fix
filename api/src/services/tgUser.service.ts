@@ -87,6 +87,9 @@ const getAllManagers = async (): Promise<TgUserDto[]> => {
             {
                 model: TgUser,
                 required: true,
+                // tgManagerId проставляется не только менеджерам (заказчик/исполнитель
+                // получают его при выдаче доступа в CRM из бота), поэтому фильтруем по TG-роли.
+                // where: { role: TG_MANAGER_ROLE },
             },
         ],
     });

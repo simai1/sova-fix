@@ -1,13 +1,15 @@
 export default {
     registration: {
         subject: 'Регистрация в Sova-fix!',
-        template: (oneTimePassword: string, loginUrl: string) =>
+        template: (oneTimePassword: string, loginUrl: string, roleName?: string) =>
             `<div>
                 <h1>Добро пожаловать!</h1>
             </div>
             <div>
                 <p>Здравствуйте,</p>
-                <p>Вы были зарегистрированы в системе SOVA-fix администратором. Теперь вы можете войти в систему, используя свою почту и одноразовый пароль, указанный ниже:</p>
+                <p>Для вас создан аккаунт в системе SOVA-fix${
+                    roleName ? ` с ролью «${roleName}»` : ''
+                }. Теперь вы можете войти в систему, используя свою почту и одноразовый пароль, указанный ниже:</p>
                 <p><strong>Ваш одноразовый пароль: <span style="color: #4CAF50;">${oneTimePassword}</span></strong></p>
                 <p>Для входа в систему, пожалуйста, нажмите на кнопку ниже и введите ваш одноразовый пароль.</p>
                 <a href="${loginUrl}" class="button">Войти в систему</a>

@@ -2,7 +2,7 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
 from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
-from util.crm import register_customer_crm
+from util.crm import register_crm_access
 import config as cf
 
 router = Router(name=__name__)
@@ -27,10 +27,23 @@ async def handle_crm_login(message: Message, state: FSMContext) -> None:
         await message.answer("Логин не должен быть пустым. Попробуйте ещё раз:")
         return
 
-    success = await register_customer_crm(login, user_id)
+    if '@' not in login:
+        await message.answer("Это не похоже на почту. Введите корректный адрес:")
+        return
+
+    success, status = await register_crm_access(login, user_id)
 
     if success:
         await message.answer("✅ На вашу почту отправлен одноразовый пароль для регистрации в CRM.")
+    elif status == 400:
+        await message.answer(
+            "❌ Эта почта уже используется либо доступ вам уже выдан.\n"
+            "Введите другую почту или обратитесь к менеджеру."
+        )
+    elif status == 403:
+        await message.answer("❌ Доступ к CRM доступен только заказчикам и исполнителям.")
+    elif status == 409:
+        await message.answer("❌ Этот Telegram уже привязан к другому аккаунту CRM. Обратитесь к менеджеру.")
     else:
         await message.answer("❌ Не удалось отправить заявку. Повторите попытку позже.")
 

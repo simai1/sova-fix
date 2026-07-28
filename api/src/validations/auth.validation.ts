@@ -29,6 +29,28 @@ export const registerPublicSchema = Joi.object({
     query: Joi.object().unknown(true),
 });
 
+export const registerCrmAccessSchema = Joi.object({
+    body: Joi.object({
+        login: Joi.string()
+            .email({ tlds: { allow: false } })
+            .required()
+            .messages({
+                'string.email': 'Укажите корректный email',
+                'string.empty': 'Email обязателен',
+                'any.required': 'Email обязателен',
+            }),
+        user_id: Joi.alternatives()
+            .try(Joi.string().trim().min(1), Joi.number())
+            .required()
+            .messages({
+                'alternatives.match': 'Не указан Telegram id',
+                'any.required': 'Не указан Telegram id',
+            }),
+    }),
+    params: Joi.object().unknown(true),
+    query: Joi.object().unknown(true),
+});
+
 export const loginSchema = Joi.object({
     body: Joi.object({
         login: Joi.string().required().messages({

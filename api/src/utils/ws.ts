@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import type { WebSocket as WsWebSocket } from 'ws';
 import WebSocket from 'ws';
-import { aWss } from '../app';
+import { aWss } from '../expressApp';
 import jwtUtils from './jwt';
 import logger from './logger';
 import roles from '../config/roles';

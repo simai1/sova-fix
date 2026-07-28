@@ -44,5 +44,50 @@ class CrmAuthTest(unittest.TestCase):
         get.assert_called_once_with('http://127.0.0.1:3000/users/123')
 
 
+class CrmAccessRequestTest(unittest.IsolatedAsyncioTestCase):
+    """register_crm_access отдаёт http-статус, чтобы бот показал внятную причину отказа."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.env = patch.dict(os.environ, {'API_URL': 'http://127.0.0.1:3000'})
+        cls.env.start()
+
+        import config
+        from util import crm
+
+        crm.http.close()
+        cls.config = importlib.reload(config)
+        cls.crm = importlib.reload(crm)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.crm.http.close()
+        cls.env.stop()
+        cls.config = importlib.reload(cls.config)
+        cls.crm = importlib.reload(cls.crm)
+
+    async def test_returns_success_with_status(self):
+        with patch.object(self.crm.http, 'post', return_value=Mock(status_code=200)) as post:
+            result = await self.crm.register_crm_access('user@test.local', 123)
+
+        self.assertEqual(result, (True, 200))
+        post.assert_called_once_with(
+            'http://127.0.0.1:3000/auth/registerCustomerCrm',
+            json={'login': 'user@test.local', 'user_id': 123},
+        )
+
+    async def test_returns_status_on_failure(self):
+        with patch.object(self.crm.http, 'post', return_value=Mock(status_code=409)):
+            result = await self.crm.register_crm_access('user@test.local', 123)
+
+        self.assertEqual(result, (False, 409))
+
+    async def test_returns_none_status_on_network_error(self):
+        with patch.object(self.crm.http, 'post', side_effect=RuntimeError('нет сети')):
+            result = await self.crm.register_crm_access('user@test.local', 123)
+
+        self.assertEqual(result, (False, None))
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -57,10 +57,9 @@ const refresh = catchAsync(async (req, res) => {
     res.json(data);
 });
 
-const registerCustomerCrm = catchAsync(async (req, res) => {
+const registerCrmAccess = catchAsync(async (req, res) => {
     const { login, user_id } = req.body;
-    console.log(typeof user_id, user_id);
-    const userDto = await authService.registerCustomerCrm(login, String(user_id));
+    const userDto = await authService.registerCrmAccessFromBot(login, String(user_id));
     res.json(userDto);
 });
 
@@ -83,6 +82,6 @@ export default {
     activate,
     logout,
     refresh,
-    registerCustomerCrm,
+    registerCrmAccess,
     registerPublic,
 };

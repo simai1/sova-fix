@@ -83,20 +83,28 @@ describe('bot-only actor routes', () => {
     const fixtureTgId = `bot-routes-fixture-${Date.now()}`;
     const deniedTgId = `bot-routes-denied-${Date.now()}`;
     const allowedTgId = `bot-routes-allowed-${Date.now()}`;
+    const customerTgId = `bot-routes-customer-${Date.now()}`;
     let manager: TestAdminAuth;
     let fixtureTgUser: TgUser;
+    let customerTgUser: TgUser;
     let fixtureContractor: Contractor;
     let fixtureObject: ObjectDir;
 
     beforeAll(async () => {
         process.env.MASTER_API_KEY = testMasterKey;
         for (const login of [managerLogin, deniedCrmLogin, allowedCrmLogin]) await cleanupByLogin(login);
-        await TgUser.destroy({ where: { tgId: [fixtureTgId, deniedTgId, allowedTgId] }, force: true });
+        await TgUser.destroy({ where: { tgId: [fixtureTgId, deniedTgId, allowedTgId, customerTgId] }, force: true });
         manager = await createManagerAuth(managerLogin);
         fixtureTgUser = await TgUser.create({
             name: 'Bot route fixture',
             role: roles.CONTRACTOR,
             tgId: fixtureTgId,
+            isConfirmed: true,
+        });
+        customerTgUser = await TgUser.create({
+            name: 'Bot route customer fixture',
+            role: roles.CUSTOMER,
+            tgId: customerTgId,
             isConfirmed: true,
         });
         fixtureContractor = await Contractor.create({ tgUserId: fixtureTgUser.id });
@@ -115,7 +123,7 @@ describe('bot-only actor routes', () => {
         for (const login of [managerLogin, deniedCrmLogin, allowedCrmLogin]) await cleanupByLogin(login);
         await TgUserObject.destroy({ where: { tgUserId: fixtureTgUser.id }, force: true });
         await Contractor.destroy({ where: { id: fixtureContractor.id }, force: true });
-        await TgUser.destroy({ where: { tgId: [fixtureTgId, deniedTgId, allowedTgId] }, force: true });
+        await TgUser.destroy({ where: { tgId: [fixtureTgId, deniedTgId, allowedTgId, customerTgId] }, force: true });
         await ObjectDir.destroy({ where: { id: fixtureObject.id }, force: true });
         if (originalMasterKey === undefined) delete process.env.MASTER_API_KEY;
         else process.env.MASTER_API_KEY = originalMasterKey;
@@ -147,7 +155,7 @@ describe('bot-only actor routes', () => {
         const response = await request(app)
             .post('/auth/registerCustomerCrm')
             .set('master-api-key', testMasterKey)
-            .send({ login: allowedCrmLogin, user_id: fixtureTgId });
+            .send({ login: allowedCrmLogin, user_id: customerTgId });
 
         expect(response.status).toBe(200);
         expect(response.body.login).toBe(allowedCrmLogin);

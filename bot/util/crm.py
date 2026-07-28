@@ -1,3 +1,4 @@
+import asyncio
 from typing import BinaryIO
 
 import requests
@@ -1173,31 +1174,36 @@ async def get_all_urgencies() -> list | None:
 
     return data
 
-async def register_customer_crm(login: str, user_id: int) -> bool:
+async def register_crm_access(login: str, user_id: int) -> tuple[bool, int | None]:
     """
-    Регистрирует пользователя для доступа к CRM по логину.
+    Запрашивает доступ в CRM для пользователя бота.
+
+    Роль web-аккаунта (заказчик или исполнитель) определяет сервер по tg_users.role —
+    бот её не передаёт.
 
     Args:
-        login: Логин пользователя
+        login: почта пользователя
+        user_id: telegram id пользователя
 
     Returns:
-        True если успешно, False иначе
+        (успех, http-статус). Статус нужен, чтобы отличить занятую почту (400)
+        от уже привязанного Telegram (409) и от сетевой ошибки (None).
     """
     url = f'{cf.API_URL}/auth/registerCustomerCrm'
     data = {'login': login, 'user_id': user_id}
 
     try:
-        response = http.post(url, json=data)
+        response = await asyncio.to_thread(http.post, url, json=data)
 
         if response.status_code == 200:
             logger.info(f"CRM access requested successfully for login={login}")
-            return True
-        else:
-            logger.warn(f"CRM access request failed for login={login}, status={response.status_code}")
-            return False
+            return True, response.status_code
+
+        logger.warn(f"CRM access request failed for login={login}, status={response.status_code}")
+        return False, response.status_code
     except Exception as e:
         logger.error(f"Exception while requesting CRM access for login={login}: {str(e)}")
-        return False
+        return False, None
 
 async def get_status_name(statusNumber: int) -> str | None:
     url = f"{cf.API_URL}/status/{statusNumber}"
