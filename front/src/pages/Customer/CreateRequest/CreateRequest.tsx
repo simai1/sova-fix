@@ -10,6 +10,7 @@ import {
 } from '@/API/rtkQuery/lk.api';
 import LkEmpty from '@/components/Lk/LkEmpty';
 import LkSelect, { LkSelectOption } from '@/components/Lk/LkSelect';
+import { sortOptionsAlphabetically } from '@/components/Lk/LkSelect.search';
 import LkSpinner from '@/components/Lk/LkSpinner';
 import PhotoUploader from '@/components/Lk/PhotoUploader';
 import { showToast } from '@/components/Lk/toastBus';
@@ -42,7 +43,9 @@ const CustomerCreateRequest = (): JSX.Element => {
     return <LkEmpty text="У вас нет назначенных объектов. Обратитесь к менеджеру." />;
   }
 
-  const objectOptions: LkSelectOption[] = myObjects.map((o) => ({ value: o.id, label: o.name }));
+  const objectOptions: LkSelectOption[] = sortOptionsAlphabetically(
+    myObjects.map((object) => ({ value: object.id, label: object.name })),
+  );
   const urgencyOptions: LkSelectOption[] = urgencies.map((u) => ({
     value: u.id,
     label: u.name,
@@ -108,6 +111,9 @@ const CustomerCreateRequest = (): JSX.Element => {
               onChange={setObjectId}
               options={objectOptions}
               placeholder="Выберите объект"
+              searchable
+              searchPlaceholder="Введите название объекта"
+              noMatchesText="Объекты не найдены"
             />
             {errors.objectId ? <div className="ui-field__error">{errors.objectId}</div> : null}
           </div>
