@@ -495,18 +495,16 @@
     pointer-events: none;
   }
 
-  &__trigger {
+  &__trigger,
+  &__search-control {
     width: 100%;
     height: 2.5rem;
-    padding: 0 var(--space-sm);
     background: var(--color-bg-container);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     color: var(--color-text);
     font: inherit;
     font-size: var(--font-size-md);
-    text-align: left;
-    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -520,6 +518,12 @@
     &:hover:not(:disabled) {
       border-color: var(--color-border-strong);
     }
+  }
+
+  &__trigger {
+    padding: 0 var(--space-sm);
+    text-align: left;
+    cursor: pointer;
 
     &:focus-visible {
       @include focus-ring;
@@ -528,6 +532,17 @@
 
     &:disabled {
       cursor: not-allowed;
+    }
+  }
+
+  &__search-control {
+    position: relative;
+    min-height: 2.75rem;
+    cursor: text;
+
+    &:focus-within {
+      @include focus-ring;
+      border-color: var(--color-primary);
     }
   }
 
@@ -541,9 +556,58 @@
     }
   }
 
-  &--open &__trigger {
+  &--sm &__search-control {
+    height: 2.25rem;
+    min-height: 2.25rem;
+    font-size: var(--font-size-sm);
+
+    @include mq-up(tl) {
+      height: 2.25rem;
+    }
+  }
+
+  &--open &__trigger,
+  &--open &__search-control {
     border-color: var(--color-primary);
     box-shadow: var(--shadow-focus);
+  }
+
+  &__search-input {
+    width: 100%;
+    min-width: 0;
+    height: 100%;
+    align-self: stretch;
+    padding: 0 2.5rem 0 var(--space-sm);
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--color-text);
+    font: inherit;
+    font-size: var(--font-size-lg);
+    cursor: text;
+    appearance: none;
+
+    @include mq-up(ml) {
+      font-size: var(--font-size-md);
+    }
+
+    &::placeholder {
+      color: var(--color-text-tertiary);
+    }
+
+    &::-webkit-search-cancel-button {
+      appearance: none;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+  }
+
+  &--sm &__search-input {
+    @include mq-up(ml) {
+      font-size: var(--font-size-sm);
+    }
   }
 
   &__value,
@@ -572,8 +636,21 @@
     transform: rotate(180deg);
   }
 
+  &__search-control &__chevron {
+    position: absolute;
+    top: 50%;
+    right: var(--space-sm);
+    pointer-events: none;
+    transform: translateY(-50%);
+  }
+
+  &--open &__search-control &__chevron {
+    transform: translateY(-50%) rotate(180deg);
+  }
+
   // Меню рендерится в портале — selector работает по классу, не по дереву DOM.
   &__menu {
+    box-sizing: border-box;
     background: var(--color-bg-container);
     border-radius: var(--radius-md);
     border: 1px solid var(--color-border);
@@ -581,6 +658,7 @@
     padding: var(--space-xxs);
     max-height: 17.5rem;
     overflow-y: auto;
+    overscroll-behavior: contain;
     // Должен быть выше .ui-modal__overlay (1000) и .ui-toast-area (2000):
     // dropdown в FilterModal иначе уходит под оверлей модалки.
     z-index: 2100;
@@ -625,6 +703,10 @@
       color: var(--color-text);
       font-weight: 600;
     }
+  }
+
+  &__menu--searchable &__option {
+    min-height: 2.75rem;
   }
 
   &__dot {
