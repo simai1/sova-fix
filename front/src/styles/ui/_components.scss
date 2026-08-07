@@ -706,6 +706,7 @@
   }
 
   &__menu--searchable &__option {
+    box-sizing: border-box;
     min-height: 2.75rem;
   }
 
