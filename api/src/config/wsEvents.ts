@@ -6,6 +6,7 @@ const events = {
     REQUEST_UPDATE: 'REQUEST_UPDATE',
     COMMENT_CREATE: 'COMMENT_CREATE',
     USER_TG_BIND_OK: 'USER_TG_BIND_OK',
+    USER_ACCESS_DISABLED: 'USER_ACCESS_DISABLED',
 } as const;
 
 export default events;

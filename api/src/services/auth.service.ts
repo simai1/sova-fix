@@ -19,6 +19,7 @@ import wsEvents from '../config/wsEvents';
 import logger from '../utils/logger';
 import notificationService from './notification.service';
 import { getAdministrativeAudienceUserIds } from './request-access.service';
+import { ACCESS_DISABLED_MESSAGE } from '../config/authMessages';
 
 const PENDING_TOKEN_TTL_MS = 24 * 60 * 60 * 1000;
 
@@ -67,6 +68,10 @@ const login = async (email: string, password: string, rememberMe = false): Promi
         logger.info(`[auth.login] fail: pending_approval userId=${user.id}`);
         throw new ApiError(httpStatus.UNAUTHORIZED, failMessage);
     }
+    if (user.isDisabled) {
+        logger.info(`[auth.login] fail: access_disabled userId=${user.id}`);
+        throw new ApiError(httpStatus.UNAUTHORIZED, ACCESS_DISABLED_MESSAGE);
+    }
 
     if (needsRehash(user.password)) {
         try {
@@ -93,6 +98,7 @@ const activate = async (password: string, name: string, userId: string): Promise
     if (!user) throw new ApiError(httpStatus.BAD_REQUEST, 'User doesnt exists');
     if (user.isActivated) throw new ApiError(httpStatus.BAD_REQUEST, 'User already activated');
     if (user.pendingVerifyToken) throw new ApiError(httpStatus.BAD_REQUEST, 'User already activated');
+    if (user.isDisabled) throw new ApiError(httpStatus.FORBIDDEN, ACCESS_DISABLED_MESSAGE);
 
     const encryptedPassword = await encrypt(password);
     await user.update({ isActivated: true, password: encryptedPassword, name });

@@ -6,6 +6,8 @@ import roles from '../config/roles';
 import { validator } from '../middlewares/validator';
 import { userObjectsBodySchema } from '../validations/lk.validation';
 import verifyAnyRole from '../middlewares/verify-any-role';
+import { validateUuidParam } from '../middlewares/validate-uuid-param';
+import { setDisabledSchema } from '../validations/user.validation';
 
 const router = Router();
 
@@ -29,7 +31,18 @@ router
 router
     .route('/confirm/:userId')
     .patch(verifyToken.auth, verifyAnyRole(['ADMIN', 'MANAGER']), userController.confirmTgUser);
-router.route('/:userId').delete(verifyToken.auth, verifyRole(roles.ADMIN), userController.destroy);
+router
+    .route('/:userId/disable')
+    .patch(
+        verifyToken.auth,
+        verifyRole(roles.ADMIN),
+        validateUuidParam('userId'),
+        validator(setDisabledSchema),
+        userController.setDisabled
+    );
+router
+    .route('/:userId')
+    .delete(verifyToken.auth, verifyRole(roles.ADMIN), validateUuidParam('userId'), userController.destroy);
 router.route('/:tgId').get(userController.getUserByTgId);
 
 export default router;

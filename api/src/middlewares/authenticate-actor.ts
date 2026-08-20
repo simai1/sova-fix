@@ -5,6 +5,7 @@ import User from '../models/user';
 import ApiError from '../utils/ApiError';
 import catchAsync from '../utils/catchAsync';
 import jwtUtils from '../utils/jwt';
+import { ACCESS_DISABLED_MESSAGE } from '../config/authMessages';
 
 type AccessPayload = {
     id?: unknown;
@@ -43,6 +44,9 @@ export const authenticateWebOrMaster: RequestHandler = catchAsync(async (req, _r
         const userId = typeof payload === 'object' && payload !== null ? (payload as AccessPayload).id : undefined;
         if (typeof userId === 'string') {
             const user = await User.findByPk(userId);
+            if (user?.isDisabled) {
+                return next(new ApiError(httpStatus.UNAUTHORIZED, ACCESS_DISABLED_MESSAGE));
+            }
             if (user) {
                 req.actor = { kind: 'web', userId: user.id, role: user.role };
                 req.user = { id: user.id, role: user.role };

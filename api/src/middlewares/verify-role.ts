@@ -3,6 +3,7 @@ import catchAsync from '../utils/catchAsync';
 import userService from '../services/user.service';
 import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
+import { ACCESS_DISABLED_MESSAGE } from '../config/authMessages';
 
 const verifyRole = (role: number) =>
     catchAsync(async (req: Request, res: Response, next: NextFunction) => {
@@ -18,6 +19,9 @@ const verifyRole = (role: number) =>
         }
         if (!user) {
             return next(new ApiError(httpStatus.UNAUTHORIZED, 'User unauthorized'));
+        }
+        if (user.isDisabled) {
+            return next(new ApiError(httpStatus.UNAUTHORIZED, ACCESS_DISABLED_MESSAGE));
         }
         if (role !== user.role) {
             return next(new ApiError(httpStatus.FORBIDDEN, 'Forbidden action'));

@@ -389,9 +389,32 @@ export const DeleteUserFunc = async (id) => {
   } catch (error) {
     if (shouldRedirectToAuthorization(error)) {
       window.location.href = `${client}/Authorization`;
-    } else {
-      console.log("Ошибка при удалении пользователя!");
+      return undefined;
     }
+    // Сообщение сервера нужно показать пользователю: удаление отклоняется с 409,
+    // если у пользователя есть заявки или комментарии.
+    throw error;
+  }
+};
+
+export const SetUserDisabled = async (id, disabled) => {
+  try {
+    const response = await http.patch(
+      `${server}/users/${id}/disable`,
+      { disabled },
+      {
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+        },
+      }
+    );
+    return response;
+  } catch (error) {
+    if (shouldRedirectToAuthorization(error)) {
+      window.location.href = `${client}/Authorization`;
+      return undefined;
+    }
+    throw error;
   }
 };
 

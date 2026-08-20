@@ -6,10 +6,12 @@ import * as uuid from 'uuid';
 import PasswordResetToken from '../models/passwordResetTokens';
 import * as bcrypt from 'bcryptjs';
 import { Op } from 'sequelize';
+import { ACCESS_DISABLED_MESSAGE } from '../config/authMessages';
 
 const sendRequestToResetPassword = async (email: string) => {
     const user = await userService.getUserByEmail(email);
     if (!user) throw new ApiError(httpStatus.BAD_REQUEST, 'User with email "' + email + '" not found');
+    if (user.isDisabled) throw new ApiError(httpStatus.FORBIDDEN, ACCESS_DISABLED_MESSAGE);
 
     const tokenId = uuid.v4();
     const rawToken = uuid.v4();
@@ -41,6 +43,9 @@ const resetPassword = async (tokenId: string, token: string, newPassword: string
     if (!record || !(await bcrypt.compare(token, record.token))) {
         throw new ApiError(httpStatus.UNAUTHORIZED, 'Неверный или просроченный токен');
     }
+
+    const user = await userService.getUserById(record.userId);
+    if (user?.isDisabled) throw new ApiError(httpStatus.FORBIDDEN, ACCESS_DISABLED_MESSAGE);
 
     const hashedPassword = await bcrypt.hash(newPassword, 8);
     await userService.updateUserPassword(record.userId, hashedPassword);

@@ -4,6 +4,7 @@ import userService from '../services/user.service';
 import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
 import roles, { roleNamesRu } from '../config/roles';
+import { ACCESS_DISABLED_MESSAGE } from '../config/authMessages';
 
 const verifyAnyRole = (roleNames: string[]) =>
     catchAsync(async (req: Request, res: Response, next: NextFunction) => {
@@ -19,6 +20,10 @@ const verifyAnyRole = (roleNames: string[]) =>
         }
         if (!user) {
             return next(new ApiError(httpStatus.UNAUTHORIZED, 'Пользователь не авторизован'));
+        }
+
+        if (user.isDisabled) {
+            return next(new ApiError(httpStatus.UNAUTHORIZED, ACCESS_DISABLED_MESSAGE));
         }
 
         const allowedNumbers = roleNames

@@ -28,6 +28,7 @@ from command.admin.set_contractor_command import router as set_contractor_router
 from command.common.show_manager_requests import router as show_manager_requests_router
 from command.common.get_crm_access import router as get_crm_access
 from inline_query.base_inline_query_handler import router as base_inline_query_router
+from middleware.access_guard import AccessGuardMiddleware
 from util import logger
 
 routers = [
@@ -63,6 +64,15 @@ async def include_routers() -> None:
         dp.include_router(router)
 
 
+def register_middlewares() -> None:
+    # outer_middleware — до фильтров роутеров, чтобы отключённый пользователь
+    # не попадал ни в один хендлер.
+    guard = AccessGuardMiddleware()
+    dp.message.outer_middleware(guard)
+    dp.callback_query.outer_middleware(guard)
+    dp.inline_query.outer_middleware(guard)
+
+
 async def main() -> None:
     proxy_url = cf.get_proxy_url()
     session = AiohttpSession(proxy=proxy_url) if proxy_url else None
@@ -70,6 +80,7 @@ async def main() -> None:
         logger.info(f"Прокси включен: {cf.PROXY_TYPE}://{cf.PROXY_HOST}:{cf.PROXY_PORT}")
 
     bot = Bot(token=cf.BOT_TOKEN, session=session, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+    register_middlewares()
     await include_routers()
 
     loop = asyncio.get_event_loop()

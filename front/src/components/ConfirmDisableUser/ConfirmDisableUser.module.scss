@@ -1,7 +1,7 @@
-// Подтверждение удаления пользователя — оформление в едином админском стиле
-// со справочником «Пользователи» и «Системными логами».
+// Подтверждение отключения/включения доступа — оформление в едином админском
+// стиле со справочником «Пользователи» и «Системными логами».
 
-.СonfirmDeleteUser {
+.ConfirmDisableUser {
     position: fixed;
     inset: 0;
     background-color: rgba(0, 0, 0, 0.45);
@@ -11,7 +11,7 @@
     padding: 1rem;
     z-index: 99999;
 
-    .СonfirmDeleteInner {
+    .ConfirmDisableInner {
         width: min(26rem, 100%);
         background-color: var(--color-bg-container);
         border-radius: 0.5rem;
@@ -50,14 +50,14 @@
                 }
 
                 &:first-child {
-                    background-color: var(--color-error);
-                    border-color: var(--color-error);
-                    color: var(--color-text-inverse);
+                    background-color: var(--color-primary);
+                    border-color: var(--color-primary);
+                    color: var(--color-primary-fg);
                     font-weight: 500;
 
                     &:hover:not(:disabled) {
                         opacity: 0.85;
-                        background-color: var(--color-error);
+                        background-color: var(--color-primary);
                     }
                 }
             }

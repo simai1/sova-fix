@@ -109,11 +109,11 @@ describe('WS handshake — pending.<verifyToken>', () => {
 
     afterAll(async () => {
         await stopServer(server);
-        await User.destroy({ where: { login }, force: true });
+        await cleanupByLogin(login);
     });
 
     beforeEach(async () => {
-        await User.destroy({ where: { login }, force: true });
+        await cleanupByLogin(login);
         const user = await User.create({
             login,
             password: await encrypt('pass1234'),

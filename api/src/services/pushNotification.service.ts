@@ -2,6 +2,7 @@ import webpush, { PushSubscription as WebPushSubscription, SendResult, WebPushEr
 import httpStatus from 'http-status';
 import { Op } from 'sequelize';
 import PushSubscription from '../models/pushSubscription';
+import User from '../models/user';
 import ApiError from '../utils/ApiError';
 import logger from '../utils/logger';
 
@@ -192,8 +193,11 @@ const sendToUsers = async (userIds: string[], payload: PushPayload): Promise<voi
     if (!ensureWebPushConfigured()) return;
     if (!userIds || userIds.length === 0) return;
 
+    // Подписки отключённого пользователя удаляются в user.service.setUserDisabled,
+    // но join страхует от гонки и от подписок, созданных до отключения.
     const subs = await PushSubscription.findAll({
         where: { userId: { [Op.in]: userIds } },
+        include: [{ model: User, attributes: [], required: true, where: { isDisabled: false } }],
     });
     if (subs.length === 0) return;
 

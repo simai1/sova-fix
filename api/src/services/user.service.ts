@@ -13,6 +13,18 @@ import notificationService from './notification.service';
 import UserObject from '../models/userObject';
 import ObjectDir from '../models/object';
 import { sequelize } from '../models';
+import { Transaction } from 'sequelize';
+import RepairRequest from '../models/repairRequest';
+import RequestComment from '../models/requestComment';
+import TokenModel from '../models/token-model';
+import PushSubscription from '../models/pushSubscription';
+import UserTgBindingToken from '../models/userTgBindingToken';
+import PasswordResetToken from '../models/passwordResetTokens';
+import TgUserObject from '../models/tgUserObject';
+import DirectoryCategory from '../models/directoryCategory';
+import DirectoryCategoryCustomer from '../models/directoryCategoryCustomer';
+import { disconnectUser } from '../utils/ws';
+import logger from '../utils/logger';
 
 type userDir = {
     id: string;
@@ -23,6 +35,7 @@ type userDir = {
     tgUserId: string | null | undefined;
     name: string;
     role: number;
+    isDisabled: boolean;
 };
 
 const getUserById = async (userId: string): Promise<User | null> => {
@@ -104,6 +117,7 @@ const getUsersDir = async (): Promise<userDir[]> => {
             tgUserId: user.tgManagerId,
             name: user.TgUser?.name || user.name || user.login,
             role: user.role,
+            isDisabled: user.isDisabled === true,
         });
     });
 
@@ -118,27 +132,181 @@ const getUsersDir = async (): Promise<userDir[]> => {
                 linkId: user.linkId,
                 name: user.name,
                 role: user.role,
+                isDisabled: user.isDisabled === true,
             });
     }
 
     return userDirs;
 };
 
-const deleteUser = async (userId: string): Promise<void> => {
-    await User.destroy({ where: { id: userId }, force: true, individualHooks: true });
+/**
+ * Отвязывает пользователя от записей Contractor и убирает осиротевшие из выборок.
+ *
+ * Физически строку не удаляем: на неё ссылаются repair-requests.contractor_id,
+ * equipment, tech-services. Но и живой строки без userId/tgUserId быть не должно —
+ * getContractorNameOrThrow (utils/contractorName.ts) на такой бросает исключение,
+ * и GET /contractors начинает отдавать 500. Модель paranoid, поэтому мягкого
+ * удаления достаточно: строка остаётся в БД, но уходит из выборок.
+ */
+const detachContractors = async (
+    field: 'userId' | 'tgUserId',
+    ownerId: string,
+    transaction: Transaction
+): Promise<void> => {
+    const contractors = await Contractor.findAll({
+        where: { [field]: ownerId },
+        paranoid: false,
+        transaction,
+    });
+
+    for (const contractor of contractors) {
+        await contractor.update({ [field]: null }, { transaction });
+        const stillLinked = field === 'userId' ? contractor.tgUserId : contractor.userId;
+        if (!stillLinked) await contractor.destroy({ transaction });
+    }
+};
+
+/**
+ * Считает записи, ради которых пользователя и держат в системе.
+ *
+ * paranoid: false обязателен — RepairRequest и RequestComment мягко удаляемые,
+ * их «удалённые» строки физически остаются в таблице и продолжают держать FK.
+ */
+const countWebUserLinks = async (userId: string): Promise<number> => {
+    const [requests, comments] = await Promise.all([
+        RepairRequest.count({ where: { createdByUserId: userId }, paranoid: false }),
+        RequestComment.count({ where: { authorUserId: userId }, paranoid: false }),
+    ]);
+    return requests + comments;
+};
+
+const countTgUserLinks = async (tgUserId: string): Promise<number> =>
+    RepairRequest.count({
+        where: { [Op.or]: [{ createdBy: tgUserId }, { managerId: tgUserId }] },
+        paranoid: false,
+    });
+
+const tooManyLinks = (count: number): ApiError =>
+    new ApiError(
+        httpStatus.CONFLICT,
+        `У пользователя есть связанные заявки и комментарии (${count}). ` + 'Удалить его нельзя — отключите доступ.'
+    );
+
+const deleteWebUser = async (user: User): Promise<void> => {
+    const links = await countWebUserLinks(user.id);
+    if (links > 0) throw tooManyLinks(links);
+
+    await sequelize.transaction(async transaction => {
+        const where = { userId: user.id };
+        await UserObject.destroy({ where, force: true, transaction });
+        await UserTgBindingToken.destroy({ where, force: true, transaction });
+        await PasswordResetToken.destroy({ where, force: true, transaction });
+        await PushSubscription.destroy({ where, force: true, transaction });
+        await TokenModel.destroy({ where, force: true, transaction });
+        await detachContractors('userId', user.id, transaction);
+        await user.destroy({ force: true, transaction });
+    });
+};
+
+const deleteTgUser = async (tgUser: TgUser): Promise<void> => {
+    const links = await countTgUserLinks(tgUser.id);
+    if (links > 0) throw tooManyLinks(links);
+
+    await sequelize.transaction(async transaction => {
+        await TgUserObject.destroy({ where: { tgUserId: tgUser.id }, force: true, transaction });
+        await DirectoryCategoryCustomer.destroy({ where: { tgUserId: tgUser.id }, force: true, transaction });
+        await DirectoryCategory.update({ managerId: null }, { where: { managerId: tgUser.id }, transaction });
+        await User.update({ tgManagerId: null }, { where: { tgManagerId: tgUser.id }, transaction });
+        await detachContractors('tgUserId', tgUser.id, transaction);
+        await tgUser.destroy({ force: true, transaction });
+    });
 };
 
 const deleteDirUser = async (userId: string): Promise<void> => {
-    let user;
-    user = await getUserById(userId);
-    if (!user) {
-        user = await TgUser.findByPk(userId, { include: [{ model: Contractor }] });
-        if (!user) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found user/tgUser with id ' + userId);
-        if (user.role === roles.CONTRACTOR && user.Contractor?.id) {
-            await Contractor.destroy({ where: { id: user.Contractor.id }, force: true });
-        }
+    const user = await getUserById(userId);
+    if (user) return deleteWebUser(user);
+
+    const tgUser = await TgUser.findByPk(userId);
+    if (!tgUser) throw new ApiError(httpStatus.BAD_REQUEST, 'Not found user/tgUser with id ' + userId);
+    return deleteTgUser(tgUser);
+};
+
+/**
+ * Обрывает все живые сессии пользователя: refresh-токен, push-подписки
+ * и незавершённые привязки Telegram. Access-токен живёт до 30 минут и
+ * гасится проверкой isDisabled в middlewares/verify-token.
+ */
+const revokeSessions = async (userId: string, transaction: Transaction): Promise<void> => {
+    const where = { userId };
+    await TokenModel.destroy({ where, force: true, transaction });
+    await PushSubscription.destroy({ where, force: true, transaction });
+    await UserTgBindingToken.destroy({ where, force: true, transaction });
+};
+
+const disabledPatch = (disabled: boolean, actorUserId: string) => ({
+    isDisabled: disabled,
+    disabledAt: disabled ? new Date() : null,
+    disabledBy: disabled ? actorUserId : null,
+});
+
+export type UserDisabledResult = {
+    id: string;
+    isDisabled: boolean;
+};
+
+/**
+ * Включает/отключает доступ. Справочник пользователей смешанный (getUsersDir отдаёт
+ * и users, и tgUsers), поэтому id может указывать на любую из двух таблиц. Связанные
+ * web- и Telegram-аккаунты переключаются вместе: иначе отключённый в CRM продолжал бы
+ * пользоваться ботом.
+ */
+const setUserDisabled = async (
+    targetId: string,
+    disabled: boolean,
+    actorUserId: string
+): Promise<UserDisabledResult> => {
+    if (targetId === actorUserId) {
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Нельзя отключить собственный доступ');
     }
-    await user.destroy({ force: true });
+
+    const patch = disabledPatch(disabled, actorUserId);
+    const user = await getUserById(targetId);
+    const tgUser = user ? null : await TgUser.findByPk(targetId);
+    if (!user && !tgUser) throw new ApiError(httpStatus.NOT_FOUND, 'Пользователь не найден');
+
+    const webUser = user ?? (await User.findOne({ where: { tgManagerId: (tgUser as TgUser).id } }));
+    const linkedTgUserId = tgUser ? (tgUser as TgUser).id : user?.tgManagerId;
+
+    // Отключение TG-аккаунта тянет за собой связанный web-аккаунт, поэтому
+    // проверки targetId !== actorUserId мало: админ может оказаться владельцем
+    // именно этого TG-аккаунта и запереть сам себя.
+    if (webUser?.id === actorUserId) {
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Нельзя отключить собственный доступ');
+    }
+
+    await sequelize.transaction(async transaction => {
+        if (user) await user.update(patch, { transaction });
+        if (tgUser) await tgUser.update(patch, { transaction });
+        if (linkedTgUserId && !tgUser) {
+            await TgUser.update(patch, { where: { id: linkedTgUserId }, transaction });
+        }
+        if (webUser && !user) {
+            await webUser.update(patch, { transaction });
+        }
+        if (disabled && webUser) await revokeSessions(webUser.id, transaction);
+    });
+
+    if (disabled && webUser) {
+        emitTo({ kind: 'user', userId: webUser.id }, wsEvents.USER_ACCESS_DISABLED, { userId: webUser.id });
+        disconnectUser(webUser.id);
+    }
+
+    logger.log({
+        level: 'warn',
+        message: `[user.setUserDisabled] ${disabled ? 'disabled' : 'enabled'} target=${targetId} actor=${actorUserId}`,
+    });
+
+    return { id: targetId, isDisabled: disabled };
 };
 
 const confirmTgUser = async (userId: string): Promise<void> => {
@@ -170,6 +338,9 @@ const assertCanManageUserObjects = async (actorUserId: string, targetUserId: str
             : [roles.CUSTOMER, roles.CONTRACTOR];
     if (!allowedTargets.includes(target.role)) {
         throw new ApiError(httpStatus.FORBIDDEN, 'Недостаточно прав для управления доступами пользователя');
+    }
+    if (target.isDisabled) {
+        throw new ApiError(httpStatus.CONFLICT, 'У пользователя отключён доступ — сначала включите его');
     }
     return target;
 };
@@ -224,8 +395,8 @@ export default {
     getAllUsers,
     getPendingRegistrations,
     approveUser,
-    deleteUser,
     deleteDirUser,
+    setUserDisabled,
     confirmTgUser,
     getUserByTgId,
     updateUserPassword,

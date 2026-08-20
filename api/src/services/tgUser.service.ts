@@ -64,6 +64,7 @@ const findUserByTgId = async (tgId: string): Promise<TgUserDto | null> => {
 
 const getAll = async (): Promise<TgUserDto[]> => {
     const users = await TgUser.findAll({
+        where: { isDisabled: false },
         include: [
             {
                 model: Contractor,
@@ -82,11 +83,13 @@ const getAllManagers = async (): Promise<TgUserDto[]> => {
     const users = await User.findAll({
         where: {
             tgManagerId: { [Op.ne]: null },
+            isDisabled: false,
         },
         include: [
             {
                 model: TgUser,
                 required: true,
+                where: { isDisabled: false },
                 // tgManagerId проставляется не только менеджерам (заказчик/исполнитель
                 // получают его при выдаче доступа в CRM из бота), поэтому фильтруем по TG-роли.
                 // where: { role: TG_MANAGER_ROLE },

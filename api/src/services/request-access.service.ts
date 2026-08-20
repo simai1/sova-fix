@@ -68,6 +68,7 @@ export const getAdministrativeAudienceUserIds = async (objectId?: string | null)
         where: {
             role: { [Op.in]: [roles.ADMIN, roles.MANAGER] },
             isActivated: true,
+            isDisabled: false,
         },
     });
     const adminIds = users.filter(user => user.role === roles.ADMIN).map(user => user.id);

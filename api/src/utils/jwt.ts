@@ -5,6 +5,7 @@ import userService from '../services/user.service';
 import tokenService from '../services/token.service';
 import UserDto from '../dtos/user.dto';
 import User from '../models/user';
+import { ACCESS_DISABLED_MESSAGE } from '../config/authMessages';
 
 type JwtPayload = {
     id: string;
@@ -64,6 +65,10 @@ const refresh = async (refreshToken: string) => {
     const user = await userService.getUserById(userData.id);
     if (!user) {
         throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+    }
+    if (user.isDisabled) {
+        await tokenService.destroyTokenByRefreshToken(refreshToken);
+        throw new ApiError(httpStatus.UNAUTHORIZED, ACCESS_DISABLED_MESSAGE);
     }
     const userDto = new UserDto(user as User);
     const tokens = generate({ ...userDto }, Boolean(userData.rememberMe));

@@ -1,6 +1,6 @@
 from aiogram.types import Message
 
-from common.messages import you_cant_do_that
+from common.messages import access_disabled, you_cant_do_that
 from util import crm, logger
 
 
@@ -26,6 +26,10 @@ async def verify_user(
     if user is None:
         await you_cant_do_that(message)
         raise VerificationError(f'No user with id={user_id}')
+
+    if user.get('isDisabled'):
+        await access_disabled(message)
+        raise VerificationError(f'User with id={user_id} has disabled access')
 
     if role is None:
         return user

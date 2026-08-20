@@ -15,8 +15,17 @@ from handler import pagination
 from util import logger, crm
 
 
+ACCESS_DISABLED_TEXT = '⛔ Доступ отключён. Обратитесь к администратору.'
+
+
 async def you_cant_do_that(message: Message) -> None:
     await message.answer('Вы не можете этого сделать')
+
+
+async def access_disabled(message: Message | None) -> None:
+    if message is None:
+        return
+    await message.answer(ACCESS_DISABLED_TEXT)
 
 
 async def to_start_msg(message: Message) -> None:

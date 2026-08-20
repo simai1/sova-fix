@@ -16,6 +16,9 @@ export default class TgUser extends Model {
     Contractor?: Contractor;
     userId?: string;
     User?: User;
+    isDisabled!: boolean;
+    disabledAt?: Date | null;
+    disabledBy?: string | null;
     categories?: DirectoryCategory[];
 
     static initialize(sequelize: Sequelize) {
@@ -53,6 +56,21 @@ export default class TgUser extends Model {
                     type: DataTypes.BOOLEAN,
                     allowNull: false,
                     defaultValue: false,
+                },
+                isDisabled: {
+                    type: DataTypes.BOOLEAN,
+                    allowNull: false,
+                    defaultValue: false,
+                },
+                disabledAt: {
+                    type: DataTypes.DATE,
+                    allowNull: true,
+                    defaultValue: null,
+                },
+                disabledBy: {
+                    type: DataTypes.UUID,
+                    allowNull: true,
+                    defaultValue: null,
                 },
             },
             {

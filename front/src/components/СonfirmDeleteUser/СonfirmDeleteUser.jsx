@@ -13,18 +13,26 @@ function СonfirmDeleteUser(props) {
         context.setPopUp("");
         clearUserDirectorySelection(context);
     }
-    const DeletedRequest = () => {
+    const DeletedRequest = async () => {
         const deletableUserId = getDeletableUserId(props.userId, props.currentUserId);
         if (deletableUserId === null) {
             ClosePopUp();
             return;
         }
-        DeleteUserFunc(deletableUserId).then((resp)=>{
-            if(resp?.status === 200){
+        try {
+            const resp = await DeleteUserFunc(deletableUserId);
+            if (resp?.status === 200) {
                 props.updateTable();
                 ClosePopUp();
             }
-        })
+        } catch (error) {
+            // 409 приходит, когда у пользователя есть заявки или комментарии —
+            // сервер предлагает вместо удаления отключить доступ.
+            context.setPopupErrorText(
+                error?.response?.data?.message || "Ошибка при удалении пользователя!"
+            );
+            context.setPopUp("PopUpError");
+        }
     }
     return ( 
         <div className={styles.СonfirmDeleteUser}>

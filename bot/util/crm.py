@@ -41,6 +41,7 @@ class User:
         self.tg_id = int(data['tgId'])
         self.linkId = data['linkId']
         self.is_confirmed = data['isConfirmed']
+        self.is_disabled = data.get('isDisabled', False)
 
 async def bind_tg(token: str, tg_id: int, username: str | None) -> dict:
     """

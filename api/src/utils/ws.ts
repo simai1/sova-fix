@@ -68,6 +68,7 @@ export const authenticateSubprotocol = async (subprotocol: string | null): Promi
             const user = await User.findByPk(userId);
             if (!user) return null;
             if (!user.isActivated && user.pendingVerifyToken) return null;
+            if (user.isDisabled) return null;
 
             return { userId: user.id, role: user.role, isBot: false };
         } catch {
@@ -114,6 +115,7 @@ export const ensureSubscribeAccess = async (user: WsUser, requestId: string): Pr
 
     const currentUser = await User.findByPk(user.userId);
     if (!currentUser || !currentUser.isActivated) return 'forbidden';
+    if (currentUser.isDisabled) return 'forbidden';
     const roleNumber = currentUser.role;
     const roleName: 'CONTRACTOR' | 'CUSTOMER' | 'ADMIN' | 'MANAGER' =
         roleNumber === roles.ADMIN
@@ -242,6 +244,26 @@ export const emitTo = (audience: Audience, event: string, msg: any): void => {
             logger.log({
                 level: 'error',
                 message: `[ws.emitTo] send failed: ${(err as Error).message}`,
+            });
+        }
+    });
+};
+
+/**
+ * Принудительно закрывает все открытые сокеты пользователя. Нужен при отключении
+ * доступа: без этого уже установленное ws-соединение продолжает жить и получать
+ * события, потому что authenticateSubprotocol проверяется только при подключении.
+ */
+export const disconnectUser = (userId: string, reason = 'access_disabled'): void => {
+    aWss.clients.forEach(rawClient => {
+        const client = rawClient as AuthedWs;
+        if (client._user?.userId !== userId) return;
+        try {
+            client.close(4003, reason);
+        } catch (err) {
+            logger.log({
+                level: 'error',
+                message: `[ws.disconnectUser] close failed: ${(err as Error).message}`,
             });
         }
     });

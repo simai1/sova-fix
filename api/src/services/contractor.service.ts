@@ -20,12 +20,16 @@ import { assertObjectAccess, RequestScope, scopeWhere } from './request-access.s
 const getAllContractors = async (): Promise<ContractorDto[]> => {
     const contractors = await Contractor.findAll({
         include: [
-            { model: User, attributes: ['id', 'name'] },
-            { model: TgUser, attributes: ['id', 'name', 'tgId'] },
+            { model: User, attributes: ['id', 'name', 'isDisabled'] },
+            { model: TgUser, attributes: ['id', 'name', 'tgId', 'isDisabled'] },
         ],
         order: [[contractorNameOrderExpr('contractor'), 'ASC']],
     });
-    return contractors.map(contractor => new ContractorDto(contractor));
+    // Фильтруем в JS, а не через where в include: required: false обнулил бы
+    // ассоциацию, и ContractorDto упал бы на getContractorNameOrThrow.
+    return contractors
+        .filter(contractor => !contractor.User?.isDisabled && !contractor.TgUser?.isDisabled)
+        .map(contractor => new ContractorDto(contractor));
 };
 
 const getOneContractorById = async (id: string): Promise<Contractor | null> => {

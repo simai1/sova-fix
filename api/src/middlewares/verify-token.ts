@@ -2,8 +2,15 @@ import { NextFunction, Request, Response } from 'express';
 import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
 import jwtUtils from '../utils/jwt';
+import User from '../models/user';
+import { ACCESS_DISABLED_MESSAGE } from '../config/authMessages';
 
-const auth = (req: Request, res: Response, next: NextFunction) => {
+/**
+ * Access-токен живёт 30 минут (см. utils/jwt.ts), поэтому одной подписи мало:
+ * без обращения к БД отключённый пользователь продолжал бы работать в CRM до
+ * истечения токена. findByPk по первичному ключу — дешёвый индексный запрос.
+ */
+const auth = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const authorizationHeader = req.headers.authorization;
         if (!authorizationHeader) {
@@ -18,6 +25,14 @@ const auth = (req: Request, res: Response, next: NextFunction) => {
         const userData = jwtUtils.verifyAccessToken(accessToken);
         if (typeof userData !== 'object' || userData === null || typeof userData.id !== 'string') {
             return next(new ApiError(httpStatus.UNAUTHORIZED, 'User unauthorized'));
+        }
+
+        const user = await User.findByPk(userData.id, { attributes: ['id', 'isDisabled'] });
+        if (!user) {
+            return next(new ApiError(httpStatus.UNAUTHORIZED, 'User unauthorized'));
+        }
+        if (user.isDisabled) {
+            return next(new ApiError(httpStatus.UNAUTHORIZED, ACCESS_DISABLED_MESSAGE));
         }
 
         req.user = {

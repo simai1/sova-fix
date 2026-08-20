@@ -11,6 +11,7 @@ type UserDirectoryTarget = {
 type UserDirectorySourceRow = {
   id?: unknown;
   isConfirmed?: unknown;
+  isDisabled?: unknown;
   login?: unknown;
   name?: unknown;
   role?: unknown;
@@ -115,6 +116,9 @@ export const buildUserDirectoryRows = (
       ...item,
       id: id ?? '___',
       isConfirmed: item.isConfirmed === true ? 'Активирован' : 'Не активирован',
+      isDisabled: item.isDisabled === true ? 'Отключён' : 'Есть',
+      isConfirmedFlag: item.isConfirmed === true,
+      isDisabledFlag: item.isDisabled === true,
       login: item.login || '___',
       tgUserId: item.tgUserId || '___',
       name: item.name || '___',

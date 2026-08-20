@@ -13,6 +13,9 @@ export default class User extends Model {
     tgManagerId?: string;
     pendingVerifyToken?: string | null;
     pendingVerifyTokenExpiresAt?: Date | null;
+    isDisabled!: boolean;
+    disabledAt?: Date | null;
+    disabledBy?: string | null;
     TgUser?: TgUser;
 
     static initialize(sequelize: Sequelize) {
@@ -60,6 +63,21 @@ export default class User extends Model {
                     allowNull: true,
                     defaultValue: null,
                 },
+                isDisabled: {
+                    type: DataTypes.BOOLEAN,
+                    allowNull: false,
+                    defaultValue: false,
+                },
+                disabledAt: {
+                    type: DataTypes.DATE,
+                    allowNull: true,
+                    defaultValue: null,
+                },
+                disabledBy: {
+                    type: DataTypes.UUID,
+                    allowNull: true,
+                    defaultValue: null,
+                },
             },
             {
                 sequelize,
@@ -70,8 +88,8 @@ export default class User extends Model {
             }
         );
 
-        User.beforeDestroy(async (model: User) => {
-            await TokenModel.destroy({ where: { userId: model.id }, force: true });
+        User.beforeDestroy(async (model: User, options) => {
+            await TokenModel.destroy({ where: { userId: model.id }, force: true, transaction: options.transaction });
         });
     }
 }

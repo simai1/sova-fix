@@ -10,6 +10,7 @@ export default class TgUserDto {
     tgId!: string;
     linkId?: string;
     isConfirmed!: boolean;
+    isDisabled!: boolean;
     contractor?: ContractorDto | null;
     manager?: UserDto | null;
 
@@ -21,6 +22,7 @@ export default class TgUserDto {
         this.tgId = model.tgId;
         this.linkId = model.linkId;
         this.isConfirmed = model.isConfirmed;
+        this.isDisabled = model.isDisabled === true;
         this.contractor = model.Contractor ? new ContractorDto(model.Contractor) : null;
         this.manager = model.User ? new UserDto(model.User) : null;
     }
