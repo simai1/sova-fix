@@ -38,7 +38,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "node --test test/*.test.mjs",
+    "test": "node --test test/*.test.mjs && vitest run",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
     "lint:fix": "eslint 'src/**/*.{ts,tsx}' --fix",
     "lint:css-scope": "node scripts/check-css-modules-scope.cjs",
@@ -63,6 +63,8 @@
     ]
   },
   "devDependencies": {
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.3",
     "@types/file-saver": "^2.0.7",
     "@types/leaflet-routing-machine": "^3.2.8",
     "@types/node": "^24.2.1",
@@ -78,8 +80,10 @@
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",
+    "jsdom": "^30.0.1",
     "prettier": "^3.7.4",
     "typescript": "^5.9.3",
-    "vite": "^7.2.6"
+    "vite": "^7.2.6",
+    "vitest": "^4.1.10"
   }
 }

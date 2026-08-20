@@ -7,6 +7,7 @@ import { IS_PHOTO_REQUIRED } from '../../constants/settings.constants';
 import DataContext from '../../context';
 import { getErrorMessage } from '../../utils/getErrorMessage';
 import LkSelect, { LkSelectOption } from '../Lk/LkSelect';
+import { sortOptionsAlphabetically } from '../Lk/LkSelect.search';
 import PhotoUploader from '../Lk/PhotoUploader';
 import { showToast } from '../Lk/toastBus';
 
@@ -65,10 +66,12 @@ const AddRequestModal: FC<TAddRequestModalProps> = ({ handleClose }) => {
   }, [handleClose, submitting]);
 
   const unitOptions: LkSelectOption[] = (units ?? []).map((u) => ({ value: u.id, label: u.name }));
-  const objectOptions: LkSelectOption[] = (objects ?? []).map((o) => ({
-    value: o.id,
-    label: o.name,
-  }));
+  const objectOptions: LkSelectOption[] = sortOptionsAlphabetically(
+    (objects ?? []).map((object) => ({
+      value: object.id,
+      label: object.name,
+    })),
+  );
   const categoryOptions: LkSelectOption[] = (directoryCategories ?? []).map((c) => ({
     value: c.id,
     label: c.name,
@@ -156,6 +159,9 @@ const AddRequestModal: FC<TAddRequestModalProps> = ({ handleClose }) => {
             options={objectOptions}
             placeholder={objectsLoading ? 'Загрузка...' : 'Выберите объект'}
             disabled={!unitId || objectsLoading}
+            searchable
+            searchPlaceholder="Введите название объекта"
+            noMatchesText="Объекты не найдены"
           />
           {errors.objectId ? <div className="ui-field__error">{errors.objectId}</div> : null}
         </div>
