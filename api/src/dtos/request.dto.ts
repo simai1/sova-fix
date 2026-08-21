@@ -68,7 +68,7 @@ export default class RequestDto {
         this.checkPhoto = model.checkPhoto;
         this.createdAt = model.createdAt ? strftime('%d.%m.%y', model.createdAt) : '';
         this.createdAtRaw = model.createdAt;
-        this.contractor = model.Contractor ? new ContractorDto(model.Contractor) : null;
+        this.contractor = model.Contractor ? ContractorDto.fromModel(model.Contractor) : null;
         this.contractorManager =
             model.managerId && model.TgUser
                 ? model.TgUser.name

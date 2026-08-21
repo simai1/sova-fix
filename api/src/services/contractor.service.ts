@@ -29,7 +29,8 @@ const getAllContractors = async (): Promise<ContractorDto[]> => {
     // ассоциацию, и ContractorDto упал бы на getContractorNameOrThrow.
     return contractors
         .filter(contractor => !contractor.User?.isDisabled && !contractor.TgUser?.isDisabled)
-        .map(contractor => new ContractorDto(contractor));
+        .map(contractor => ContractorDto.fromModel(contractor))
+        .filter((dto): dto is ContractorDto => dto !== null);
 };
 
 const getOneContractorById = async (id: string): Promise<Contractor | null> => {
