@@ -87,14 +87,23 @@ const approveUser = async (userId: string): Promise<UserDto> => {
     const isWebSelfRegPending = !user.isActivated && !!user.pendingVerifyToken;
     if (!isWebSelfRegPending) throw new ApiError(httpStatus.BAD_REQUEST, 'Пользователь уже подтверждён');
 
-    await user.update({
-        isActivated: true,
-        pendingVerifyToken: null,
-        pendingVerifyTokenExpiresAt: null,
+    // Транзакция обязательна: без неё упавший Contractor.create оставлял юзера
+    // активированным с обнулённым pendingVerifyToken — повторный approve после
+    // этого навсегда отбивается проверкой isWebSelfRegPending выше, и запись
+    // исполнителя можно создать только руками в БД.
+    await sequelize.transaction(async transaction => {
+        await user.update(
+            {
+                isActivated: true,
+                pendingVerifyToken: null,
+                pendingVerifyTokenExpiresAt: null,
+            },
+            { transaction }
+        );
+        if (user.role === roles.CONTRACTOR) {
+            await Contractor.create({ userId: user.id }, { transaction });
+        }
     });
-    if (user.role === roles.CONTRACTOR) {
-        await Contractor.create({ userId: user.id });
-    }
     emitTo({ kind: 'user', userId: user.id }, wsEvents.USER_CONFIRM, { userId: user.id });
 
     await notificationService.notifyRegistrationApproved(user.id);
