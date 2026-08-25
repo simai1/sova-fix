@@ -1,8 +1,19 @@
 import Contractor from '../models/contractor';
 
+/**
+ * Первое непустое значение. Пустая строка — не «имя»: POST /auth/register
+ * создаёт исполнителя с name: '' (ФИО он вводит сам при активации), и через
+ * обычный ?? такая запись доехала бы до справочника безымянной строкой.
+ *
+ * Порядок источников обязан совпадать с SQL-выражением в contractorNameFilter,
+ * иначе список сортируется по одному значению, а показывает другое.
+ */
+const firstFilled = (...values: Array<string | null | undefined>): string | null =>
+    values.find(value => typeof value === 'string' && value.trim() !== '') ?? null;
+
 export const getContractorName = (contractor: Contractor | null | undefined): string | null => {
     if (!contractor) return null;
-    return contractor.User?.name ?? contractor.TgUser?.name ?? null;
+    return firstFilled(contractor.User?.name, contractor.TgUser?.name, contractor.User?.login);
 };
 
 export const getContractorNameOrThrow = (contractor: Contractor): string => {

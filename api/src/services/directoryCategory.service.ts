@@ -10,6 +10,7 @@ import TgUser from '../models/tgUser';
 import { Op } from 'sequelize';
 import tgUserService from './tgUser.service';
 import DirectoryCategoryCustomer from '../models/directoryCategoryCustomer';
+import { contractorUserAttributes } from '../utils/contractorInclude';
 
 const getAllDirectoryCategory = async () => {
     const directoryCategory = await DirectoryCategory.findAll({
@@ -19,7 +20,7 @@ const getAllDirectoryCategory = async () => {
                 model: Contractor,
                 as: 'builder',
                 include: [
-                    { model: User, attributes: ['id', 'name'] },
+                    { model: User, attributes: contractorUserAttributes },
                     { model: TgUser, attributes: ['id', 'name', 'tgId'] },
                 ],
             },
@@ -69,7 +70,7 @@ const createDirectoryCategory = async (
                     model: Contractor,
                     as: 'builder',
                     include: [
-                        { model: User, attributes: ['id', 'name'] },
+                        { model: User, attributes: contractorUserAttributes },
                         { model: TgUser, attributes: ['id', 'name', 'tgId'] },
                     ],
                 },
@@ -130,7 +131,7 @@ const updateDirectoryCategory = async (
                 model: Contractor,
                 as: 'builder',
                 include: [
-                    { model: User, attributes: ['id', 'name'] },
+                    { model: User, attributes: contractorUserAttributes },
                     { model: TgUser, attributes: ['id', 'name', 'tgId'] },
                 ],
             },
@@ -154,7 +155,7 @@ const deleteDirectoryCategory = async (directoryCategoryId: string) => {
 const getAllBuilders = async () => {
     const allContractors = await Contractor.findAll({
         include: [
-            { model: User, attributes: ['id', 'name'] },
+            { model: User, attributes: contractorUserAttributes },
             { model: TgUser, attributes: ['id', 'name', 'tgId'] },
         ],
     });

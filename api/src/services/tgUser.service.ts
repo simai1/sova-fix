@@ -13,7 +13,7 @@ import { models } from '../models';
 import TgUserObject from '../models/tgUserObject';
 import RepairRequest from '../models/repairRequest';
 import ObjectDir from '../models/object';
-import { contractorInclude } from '../utils/contractorInclude';
+import { contractorInclude, contractorUserAttributes } from '../utils/contractorInclude';
 
 const create = async (name: string, role: number, tgId: string, linkId: string | undefined): Promise<TgUserDto> => {
     role = parseInt(String(role));
@@ -69,7 +69,7 @@ const getAll = async (): Promise<TgUserDto[]> => {
             {
                 model: Contractor,
                 include: [
-                    { model: User, attributes: ['id', 'name'] },
+                    { model: User, attributes: contractorUserAttributes },
                     { model: TgUser, attributes: ['id', 'name', 'tgId'] },
                 ],
             },
@@ -106,7 +106,7 @@ const getOneUser = async (tgUserId: string): Promise<TgUserDto> => {
             {
                 model: Contractor,
                 include: [
-                    { model: User, attributes: ['id', 'name'] },
+                    { model: User, attributes: contractorUserAttributes },
                     { model: TgUser, attributes: ['id', 'name', 'tgId'] },
                 ],
             },

@@ -13,14 +13,14 @@ import ExtContractor from '../models/externalContractor';
 import DirectoryCategory from '../models/directoryCategory';
 import TgUser from '../models/tgUser';
 import User from '../models/user';
-import { contractorInclude } from '../utils/contractorInclude';
+import { contractorInclude, contractorUserAttributes } from '../utils/contractorInclude';
 import { contractorNameIn, contractorNameILike, contractorNameOrderExpr } from '../utils/contractorNameFilter';
 import { assertObjectAccess, RequestScope, scopeWhere } from './request-access.service';
 
 const getAllContractors = async (): Promise<ContractorDto[]> => {
     const contractors = await Contractor.findAll({
         include: [
-            { model: User, attributes: ['id', 'name', 'isDisabled'] },
+            { model: User, attributes: [...contractorUserAttributes, 'isDisabled'] },
             { model: TgUser, attributes: ['id', 'name', 'tgId', 'isDisabled'] },
         ],
         order: [[contractorNameOrderExpr('contractor'), 'ASC']],

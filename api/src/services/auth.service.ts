@@ -41,11 +41,23 @@ const register = async (login: string, role: number): Promise<UserDto> => {
     });
 
     const encryptedPassword = await encrypt(password);
-    const user = await User.create({
-        login,
-        name: '',
-        password: encryptedPassword,
-        role,
+    // Транзакция: исполнитель без строки Contractor виден в справочнике
+    // пользователей, но не в справочнике исполнителей — назначить на него
+    // заявку нельзя, и заметно это далеко не сразу.
+    const user = await sequelize.transaction(async transaction => {
+        const created = await User.create(
+            {
+                login,
+                name: '',
+                password: encryptedPassword,
+                role,
+            },
+            { transaction }
+        );
+        if (role === roles.CONTRACTOR) {
+            await Contractor.create({ userId: created.id }, { transaction });
+        }
+        return created;
     });
 
     sendMail(login, 'registration', password, `${process.env.WEB_URL}`, roleNamesRu[role]);
