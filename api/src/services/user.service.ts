@@ -354,8 +354,16 @@ const assertCanManageUserObjects = async (actorUserId: string, targetUserId: str
     return target;
 };
 
+// Telegram-аккаунт пользователя: у исполнителя он лежит в contractors.tg_user_id,
+// у менеджера — в users.tg_manager_id. Возвращает null, если TG не привязан.
+const resolveTgUserId = async (user: User, transaction?: Transaction): Promise<string | null> => {
+    const contractor = await Contractor.findOne({ where: { userId: user.id }, transaction });
+    if (contractor?.tgUserId) return contractor.tgUserId;
+    return user.tgManagerId ?? null;
+};
+
 const setUserObjects = async (userId: string, objectIds: string[], actorUserId: string): Promise<string[]> => {
-    await assertCanManageUserObjects(actorUserId, userId);
+    const target = await assertCanManageUserObjects(actorUserId, userId);
 
     const unique = Array.from(new Set(objectIds));
     if (unique.length) {
@@ -371,6 +379,17 @@ const setUserObjects = async (userId: string, objectIds: string[], actorUserId: 
                 unique.map(objectId => ({ userId, objectId })),
                 { transaction }
             );
+        }
+
+        const tgUserId = await resolveTgUserId(target, transaction);
+        if (tgUserId) {
+            await TgUserObject.destroy({ where: { tgUserId }, force: true, transaction });
+            if (unique.length) {
+                await TgUserObject.bulkCreate(
+                    unique.map(objectId => ({ tgUserId, objectId })),
+                    { transaction }
+                );
+            }
         }
     });
     const fresh = await UserObject.findAll({ where: { userId }, attributes: ['objectId'] });
